@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "legacycreaturescorey",
+  "version": "${version}",
+  "name": "Legacy Creatures - Corey",
+  "description": "Sistema de dificultad progresiva para Minecraft",
+  "authors": ["mrsasayo"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/legacycreaturescorey/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.mrsasayo.legacycreaturescorey.Legacycreaturescorey"
+    ],
+    "client": [
+      "com.mrsasayo.legacycreaturescorey.LegacycreaturescoClient"
+    ]
+  },
+  "mixins": [
+    "legacycreaturescorey.mixins.json",
+    {
+      "config": "legacycreaturescorey.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "minecraft": "~1.21.10",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

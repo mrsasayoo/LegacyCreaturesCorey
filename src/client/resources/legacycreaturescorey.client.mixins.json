@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.mrsasayo.legacycreaturescorey.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ExampleClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"client": []
+}
