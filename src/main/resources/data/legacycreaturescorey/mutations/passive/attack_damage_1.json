@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/attack_damage_1",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 5,
+  "display_name": {
+    "literal": "Daño de Ataque I"
+  },
+  "description": {
+    "literal": "Aumenta el daño de ataque en 2 puntos."
+  },
+  "weight": 60,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.attack_damage",
+      "mode": "add",
+      "amount": 2.0
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:passive/attack_damage_2",
+    "legacycreaturescorey:passive/knockback_resistance_1",
+    "legacycreaturescorey:passive/knockback_resistance_2",
+    "legacycreaturescorey:passive/knockback_resistance_3",
+    "legacycreaturescorey:passive/attack_speed_1",
+    "legacycreaturescorey:passive/attack_speed_2"
+  ]
+}

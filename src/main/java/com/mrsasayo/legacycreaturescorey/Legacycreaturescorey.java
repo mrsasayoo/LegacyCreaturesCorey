@@ -5,6 +5,11 @@ import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyManager;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyTickHandler;
 import com.mrsasayo.legacycreaturescorey.item.ModItems;
+import com.mrsasayo.legacycreaturescorey.mob.MobSpawnHandler;
+import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
+import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
+import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
+import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -25,7 +30,12 @@ public class Legacycreaturescorey implements ModInitializer {
         CoreyConfig.INSTANCE.validate();
         ModDataAttachments.initialize();
         ModItems.initialize();
+            MutationRegistry.initialize();
+            MutationDataLoader.register();
         DifficultyTickHandler.register();
+        MobSpawnHandler.register();
+        TierParticleTicker.register();
+        MutationRuntime.register();
         
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayerEntity player) {

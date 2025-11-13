@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/knockback_resistance_3",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 8,
+  "display_name": {
+    "literal": "Resistencia al Empuje III"
+  },
+  "description": {
+    "literal": "Aumenta la resistencia al empuje en 0.50."
+  },
+  "weight": 30,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.knockback_resistance",
+      "mode": "add",
+      "amount": 0.5
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:passive/knockback_resistance_1",
+    "legacycreaturescorey:passive/knockback_resistance_2",
+    "legacycreaturescorey:passive/attack_damage_1",
+    "legacycreaturescorey:passive/attack_damage_2",
+    "legacycreaturescorey:passive/attack_speed_1",
+    "legacycreaturescorey:passive/attack_speed_2"
+  ]
+}

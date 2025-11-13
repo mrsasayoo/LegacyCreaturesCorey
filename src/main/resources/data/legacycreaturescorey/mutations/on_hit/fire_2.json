@@ -1,0 +1,39 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/fire_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 6,
+	"display_name": {
+		"literal": "Garra Ignea II"
+	},
+	"description": {
+		"literal": "15% de probabilidad de incendiar al objetivo durante 4 s."
+	},
+	"weight": 50,
+	"actions": [
+		{
+			"type": "ignite",
+			"chance": 0.15,
+			"duration_seconds": 4
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/fire_1",
+		"legacycreaturescorey:on_hit/fire_3"
+	],
+	"restrictions": {
+		"excluded_entity_types": [
+			"minecraft:blaze",
+			"minecraft:ghast",
+			"minecraft:magma_cube",
+			"minecraft:wither",
+			"minecraft:wither_skeleton",
+			"minecraft:zombified_piglin",
+			"minecraft:piglin",
+			"minecraft:piglin_brute",
+			"minecraft:hoglin",
+			"minecraft:zoglin",
+			"minecraft:strider"
+		]
+	}
+}

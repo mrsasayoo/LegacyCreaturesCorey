@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/movement_speed_1",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 6,
+  "display_name": {
+    "literal": "Velocidad de Movimiento I"
+  },
+  "description": {
+    "literal": "Aumenta la velocidad de movimiento base en 0.05."
+  },
+  "weight": 50,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.movement_speed",
+      "mode": "add",
+      "amount": 0.05
+    }
+  ]
+}

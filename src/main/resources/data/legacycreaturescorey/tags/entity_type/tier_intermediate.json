@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:shulker",
+    "minecraft:vex",
+    "minecraft:hoglin",
+    "minecraft:zoglin",
+    "minecraft:ghast",
+    "minecraft:phantom",
+    "minecraft:bogged",
+    "minecraft:stray",
+    "minecraft:magma_cube",
+    "minecraft:creeper",
+    "minecraft:breeze",
+    "minecraft:witch",
+    "minecraft:blaze",
+    "minecraft:cave_spider",
+    "minecraft:zombified_piglin",
+    "minecraft:enderman"
+  ]
+}

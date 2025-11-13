@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/attack_speed_1",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 6,
+  "display_name": {
+    "literal": "Velocidad de Ataque I"
+  },
+  "description": {
+    "literal": "Incrementa la velocidad de ataque en 0.1."
+  },
+  "weight": 40,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.attack_speed",
+      "mode": "add",
+      "amount": 0.1
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:passive/attack_speed_2",
+    "legacycreaturescorey:passive/attack_damage_1",
+    "legacycreaturescorey:passive/attack_damage_2",
+    "legacycreaturescorey:passive/knockback_resistance_1",
+    "legacycreaturescorey:passive/knockback_resistance_2",
+    "legacycreaturescorey:passive/knockback_resistance_3"
+  ]
+}

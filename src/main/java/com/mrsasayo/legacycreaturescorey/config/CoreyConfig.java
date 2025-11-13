@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.config;
 
+import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
+
 public class CoreyConfig {
     // Singleton
     public static final CoreyConfig INSTANCE = new CoreyConfig();
@@ -8,8 +10,33 @@ public class CoreyConfig {
     
     // Dificultad Global
     public int maxGlobalDifficulty = 1000;
-    public double dailyIncreaseChance = 0.5; // 50%
+    public double dailyIncreaseChance = 1.0; // Global difficulty increase chance per day (100%)
+    public double playerDifficultyIncreaseChance = 1.0; // Chance for each player to gain difficulty when global increases
     public int dailyIncreaseAmount = 1;
+
+    // Multiplicadores base por tier
+    public double epicHealthMultiplier = 1.6;
+    public double epicDamageMultiplier = 1.2;
+    public double legendaryHealthMultiplier = 2.0;
+    public double legendaryDamageMultiplier = 1.4;
+    public double mythicHealthMultiplier = 2.6;
+    public double mythicDamageMultiplier = 1.7;
+    public double definitiveHealthMultiplier = 3.2;
+    public double definitiveDamageMultiplier = 2.0;
+
+    // Multiplicadores de probabilidad por tier
+    public double epicChanceMultiplier = 6.0;
+    public double legendaryChanceMultiplier = 12.0;
+    public double mythicChanceMultiplier = 18.0;
+    public double definitiveChanceMultiplier = 24.0;
+
+    // Radio para cálculo de dificultad efectiva (0 = sin límite)
+    public double effectiveDifficultyRadius = 0.0;
+
+    // Herramientas de depuración
+    public boolean debugForceHighestAllowedTier = false;
+    public MobTier debugForceExactTier = null; // Si no es null y el tier es válido, se aplica directamente
+    public boolean debugLogProbabilityDetails = false;
     
     // Penalización por Muerte
     public int deathPenaltyAmount = 8;
@@ -21,8 +48,25 @@ public class CoreyConfig {
     // Método para validar valores
     public void validate() {
         if (maxGlobalDifficulty < 0) maxGlobalDifficulty = 1000;
-        if (dailyIncreaseChance < 0.0 || dailyIncreaseChance > 1.0) dailyIncreaseChance = 0.5;
+    if (dailyIncreaseChance < 0.0 || dailyIncreaseChance > 1.0) dailyIncreaseChance = 1.0;
+    if (playerDifficultyIncreaseChance < 0.0 || playerDifficultyIncreaseChance > 1.0) playerDifficultyIncreaseChance = 1.0;
         if (deathPenaltyAmount < 0) deathPenaltyAmount = 8;
         if (deathPenaltyCooldownTicks < 0) deathPenaltyCooldownTicks = 12000L;
+    if (epicHealthMultiplier < 1.0) epicHealthMultiplier = 1.6;
+    if (epicDamageMultiplier < 1.0) epicDamageMultiplier = 1.2;
+    if (legendaryHealthMultiplier < epicHealthMultiplier) legendaryHealthMultiplier = 2.0;
+    if (legendaryDamageMultiplier < epicDamageMultiplier) legendaryDamageMultiplier = 1.4;
+    if (mythicHealthMultiplier < legendaryHealthMultiplier) mythicHealthMultiplier = 2.6;
+    if (mythicDamageMultiplier < legendaryDamageMultiplier) mythicDamageMultiplier = 1.7;
+    if (definitiveHealthMultiplier < mythicHealthMultiplier) definitiveHealthMultiplier = 3.2;
+    if (definitiveDamageMultiplier < mythicDamageMultiplier) definitiveDamageMultiplier = 2.0;
+        if (epicChanceMultiplier <= 0.0) epicChanceMultiplier = 1.0;
+        if (legendaryChanceMultiplier <= 0.0) legendaryChanceMultiplier = 1.0;
+        if (mythicChanceMultiplier <= 0.0) mythicChanceMultiplier = 1.0;
+        if (definitiveChanceMultiplier <= 0.0) definitiveChanceMultiplier = 1.0;
+        if (effectiveDifficultyRadius < 0.0) effectiveDifficultyRadius = 64.0;
+        if (debugForceExactTier == MobTier.NORMAL) {
+            debugForceExactTier = null; // Normal no aporta para depuración forzada
+        }
     }
 }

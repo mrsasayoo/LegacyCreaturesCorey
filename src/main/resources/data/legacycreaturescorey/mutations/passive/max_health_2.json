@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/max_health_2",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 4,
+  "display_name": {
+    "literal": "Salud Máxima II"
+  },
+  "description": {
+    "literal": "Aumenta la salud máxima en 20 puntos."
+  },
+  "weight": 70,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.max_health",
+      "mode": "add",
+      "amount": 20.0
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:passive/max_health_1",
+    "legacycreaturescorey:passive/max_health_3"
+  ]
+}

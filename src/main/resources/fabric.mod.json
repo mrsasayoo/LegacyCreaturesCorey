@@ -14,7 +14,7 @@
       "com.mrsasayo.legacycreaturescorey.Legacycreaturescorey"
     ],
     "client": [
-      "com.mrsasayo.legacycreaturescorey.LegacycreaturescoClient"
+      "com.mrsasayo.legacycreaturescorey.LegacycreaturescoreyClient"
     ]
   },
   "mixins": [

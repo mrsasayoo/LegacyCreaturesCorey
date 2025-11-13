@@ -1,0 +1,32 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/true_damage_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 24,
+	"display_name": {
+		"literal": "Golpe Verdadero II"
+	},
+	"description": {
+		"literal": "20% de probabilidad de ignorar toda la armadura. El atacante recibe Fatiga de Mineria IV durante 2.5 s tras activarse."
+	},
+	"weight": 8,
+	"actions": [
+		{
+			"type": "true_damage",
+			"chance": 0.2,
+			"side_effects": [
+				{
+					"effect": "minecraft:mining_fatigue",
+					"duration": 50,
+					"amplifier": 3,
+					"target": "SELF"
+				}
+			]
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/true_damage_1",
+		"legacycreaturescorey:on_hit/anti_shield_1",
+		"legacycreaturescorey:on_hit/anti_shield_2"
+	]
+}

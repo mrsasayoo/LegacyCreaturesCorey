@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/shatter_armor_2",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 10,
+    "display_name": {
+        "literal": "Quebrar Armadura II"
+    },
+    "description": {
+        "literal": "15% de probabilidad de reducir la armadura del objetivo en un 25% durante 3 s."
+    },
+    "weight": 35,
+    "actions": [
+        {
+            "type": "shatter_armor",
+            "chance": 0.15,
+            "percent": 0.25,
+            "duration_seconds": 3
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/shatter_armor_1",
+        "legacycreaturescorey:on_hit/shatter_armor_3"
+    ]
+}

@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/theft_of_life_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 5,
+	"display_name": {
+		"literal": "Robo de Vida I"
+	},
+	"description": {
+		"literal": "20% de probabilidad de curar 4 puntos de vida al golpear."
+	},
+	"weight": 70,
+	"actions": [
+		{
+			"type": "heal_on_hit",
+			"chance": 0.2,
+			"amount": 4.0
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/theft_of_life_2",
+		"legacycreaturescorey:on_hit/theft_of_life_3"
+	]
+}

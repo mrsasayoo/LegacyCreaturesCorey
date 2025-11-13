@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:ravager",
+    "minecraft:iron_golem",
+    "minecraft:elder_guardian",
+    "minecraft:warden",
+    "minecraft:vindicator",
+    "minecraft:piglin_brute",
+    "minecraft:evoker",
+    "minecraft:guardian",
+    "minecraft:wither_skeleton"
+  ]
+}

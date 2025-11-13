@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/anti_armor_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 4,
+	"display_name": {
+		"literal": "Rompearmaduras I"
+	},
+	"description": {
+		"literal": "5% de probabilidad de dañar 12 puntos a una pieza de armadura aleatoria."
+	},
+	"weight": 65,
+	"actions": [
+		{
+			"type": "damage_armor",
+			"chance": 0.05,
+			"damage": 12
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/anti_armor_2",
+		"legacycreaturescorey:on_hit/anti_armor_3"
+	]
+}

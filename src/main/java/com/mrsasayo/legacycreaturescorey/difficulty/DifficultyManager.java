@@ -20,33 +20,38 @@ public class DifficultyManager {
         
         if (currentDay > lastDay) {
             state.setLastDayChecked(currentDay);
-            
-            if (Math.random() < CoreyConfig.INSTANCE.dailyIncreaseChance) {
+
+            var random = server.getOverworld().random;
+            double globalChance = CoreyConfig.INSTANCE.dailyIncreaseChance;
+            double roll = random.nextDouble();
+            if (roll <= globalChance) {
                 int oldDifficulty = state.getGlobalDifficulty();
                 state.increaseGlobalDifficulty(CoreyConfig.INSTANCE.dailyIncreaseAmount);
                 int newDifficulty = state.getGlobalDifficulty();
-                
+
                 Legacycreaturescorey.LOGGER.info(
-                    "📈 Dificultad Global: {} → {} (Día {})",
-                    oldDifficulty, newDifficulty, currentDay
+                    "📈 Dificultad Global: {} → {} (Día {}, tirada={})",
+                    oldDifficulty, newDifficulty, currentDay, String.format("%.2f", roll)
                 );
-                
-                syncDifficultyToPlayers(server, CoreyConfig.INSTANCE.dailyIncreaseAmount);
+
+                syncDifficultyToPlayers(server, CoreyConfig.INSTANCE.dailyIncreaseAmount, random);
             }
         }
     }
     
-    private static void syncDifficultyToPlayers(MinecraftServer server, int amount) {
+    private static void syncDifficultyToPlayers(MinecraftServer server, int amount, net.minecraft.util.math.random.Random random) {
+        double playerChance = CoreyConfig.INSTANCE.playerDifficultyIncreaseChance;
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-            data.increasePlayerDifficulty(amount);
+            if (playerChance >= 1.0 || random.nextDouble() <= playerChance) {
+                PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
+                data.increasePlayerDifficulty(amount);
+            }
         }
     }
     
     public static void applyDeathPenalty(ServerPlayerEntity player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        // CORRECCIÓN: usar getServerWorld() en lugar de getWorld()
-        long currentTime = player.getServerWorld().getTime();
+    long currentTime = player.getEntityWorld().getTime();
         long lastPenaltyTime = data.getLastDeathPenaltyTime();
         long cooldown = CoreyConfig.INSTANCE.deathPenaltyCooldownTicks;
         
@@ -69,8 +74,7 @@ public class DifficultyManager {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
         
         if (data.getPlayerDifficulty() == 0) {
-            // CORRECCIÓN: acceder directamente al campo server (es público en Yarn)
-            MinecraftServer server = player.server;
+            MinecraftServer server = player.getEntityWorld().getServer();
             if (server != null) {
                 CoreyServerState state = CoreyServerState.get(server);
                 data.setPlayerDifficulty(state.getGlobalDifficulty());

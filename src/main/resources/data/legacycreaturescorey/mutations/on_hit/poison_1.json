@@ -1,0 +1,27 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/poison_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 3,
+	"display_name": {
+		"literal": "Toque Envenenado I"
+	},
+	"description": {
+		"literal": "15% de probabilidad de aplicar Veneno I durante 5 s."
+	},
+	"weight": 80,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.15,
+			"effect": "minecraft:poison",
+			"duration": 100,
+			"amplifier": 0,
+			"target": "OTHER"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/poison_2",
+		"legacycreaturescorey:on_hit/poison_3"
+	]
+}

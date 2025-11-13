@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/armor_1",
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 3,
+  "display_name": {
+    "literal": "Armadura I"
+  },
+  "description": {
+    "literal": "Aumenta la armadura en 3 puntos."
+  },
+  "weight": 85,
+  "actions": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.armor",
+      "mode": "add",
+      "amount": 3.0
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:passive/armor_2",
+    "legacycreaturescorey:passive/armor_3"
+  ]
+}

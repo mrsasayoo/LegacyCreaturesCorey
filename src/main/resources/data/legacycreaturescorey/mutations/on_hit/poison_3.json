@@ -1,0 +1,35 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/poison_3",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 8,
+	"display_name": {
+		"literal": "Toque Envenenado III"
+	},
+	"description": {
+		"literal": "5% de probabilidad de aplicar Veneno I durante 15 s y conceder Saturacion I al objetivo por 1 s."
+	},
+	"weight": 35,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.05,
+			"effect": "minecraft:poison",
+			"duration": 300,
+			"amplifier": 0,
+			"target": "OTHER",
+			"extra_effects": [
+				{
+					"effect": "minecraft:saturation",
+					"duration": 20,
+					"amplifier": 0,
+					"target": "OTHER"
+				}
+			]
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/poison_1",
+		"legacycreaturescorey:on_hit/poison_2"
+	]
+}
