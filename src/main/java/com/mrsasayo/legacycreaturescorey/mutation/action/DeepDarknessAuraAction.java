@@ -2,8 +2,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.block.BlockState;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,18 +29,27 @@ public final class DeepDarknessAuraAction implements MutationAction {
     private final double radius;
     private final int intervalTicks;
     private final int darknessDuration;
+    private final RegistryEntry<StatusEffect> statusEffect;
     private final boolean removeNightVision;
     private final int lightBreakDelayTicks;
     private final int lightThreshold;
 
     public DeepDarknessAuraAction(double radius, int intervalTicks, int darknessDuration, boolean removeNightVision) {
-        this(Mode.DARKNESS_SUPPRESSION, radius, intervalTicks, darknessDuration, removeNightVision, 0, 7);
+        this(Mode.DARKNESS_SUPPRESSION,
+            radius,
+            intervalTicks,
+            darknessDuration,
+            StatusEffects.DARKNESS,
+            removeNightVision,
+            0,
+            7);
     }
 
     public DeepDarknessAuraAction(Mode mode,
                                   double radius,
                                   int intervalTicks,
                                   int darknessDuration,
+                                  RegistryEntry<StatusEffect> statusEffect,
                                   boolean removeNightVision,
                                   int lightBreakDelayTicks,
                                   int lightThreshold) {
@@ -46,6 +57,7 @@ public final class DeepDarknessAuraAction implements MutationAction {
         this.radius = Math.max(0.5D, radius);
         this.intervalTicks = Math.max(1, intervalTicks);
         this.darknessDuration = Math.max(1, darknessDuration);
+    this.statusEffect = statusEffect != null ? statusEffect : StatusEffects.DARKNESS;
         this.removeNightVision = removeNightVision;
         this.lightBreakDelayTicks = Math.max(0, lightBreakDelayTicks);
         this.lightThreshold = Math.max(0, lightThreshold);
@@ -82,6 +94,10 @@ public final class DeepDarknessAuraAction implements MutationAction {
 
     int getDarknessDuration() {
         return darknessDuration;
+    }
+
+    RegistryEntry<StatusEffect> getStatusEffect() {
+        return statusEffect;
     }
 
     boolean shouldRemoveNightVision() {
@@ -207,12 +223,7 @@ public final class DeepDarknessAuraAction implements MutationAction {
                 if (aura.action.shouldRemoveNightVision()) {
                     player.removeStatusEffect(StatusEffects.NIGHT_VISION);
                 }
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS,
-                    aura.action.getDarknessDuration(),
-                    0,
-                    true,
-                    true,
-                    true));
+                applyStatusEffect(player, aura.action);
             }
 
             world.spawnParticles(ParticleTypes.ASH,
@@ -240,12 +251,7 @@ public final class DeepDarknessAuraAction implements MutationAction {
                     player.removeStatusEffect(StatusEffects.NIGHT_VISION);
                 }
                 if (!isNearLight(world, player.getBlockPos(), aura.action.getLightThreshold())) {
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS,
-                        aura.action.getDarknessDuration(),
-                        0,
-                        true,
-                        true,
-                        true));
+                    applyStatusEffect(player, aura.action);
                 }
             }
         }
@@ -280,7 +286,7 @@ public final class DeepDarknessAuraAction implements MutationAction {
                 }
                 BlockState state = world.getBlockState(scheduled.pos);
                 if (state.getLuminance() > 0) {
-                    world.breakBlock(scheduled.pos, false, scheduled.source);
+                    world.breakBlock(scheduled.pos, true, scheduled.source);
                     world.spawnParticles(ParticleTypes.SMOKE,
                         scheduled.pos.getX() + 0.5D,
                         scheduled.pos.getY() + 0.5D,
@@ -311,6 +317,19 @@ public final class DeepDarknessAuraAction implements MutationAction {
             return false;
         }
 
+        private void applyStatusEffect(ServerPlayerEntity player, DeepDarknessAuraAction action) {
+            RegistryEntry<StatusEffect> entry = action.getStatusEffect();
+            if (entry == null) {
+                return;
+            }
+            player.addStatusEffect(new StatusEffectInstance(entry,
+                action.getDarknessDuration(),
+                0,
+                true,
+                true,
+                true));
+        }
+
         private void cleanup(ServerWorld world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
@@ -328,6 +347,7 @@ public final class DeepDarknessAuraAction implements MutationAction {
                 active.remove(world);
             }
         }
+
     }
 
     private static final class ScheduledLight {
@@ -340,5 +360,6 @@ public final class DeepDarknessAuraAction implements MutationAction {
             this.expiryTick = expiryTick;
             this.source = source;
         }
+
     }
 }

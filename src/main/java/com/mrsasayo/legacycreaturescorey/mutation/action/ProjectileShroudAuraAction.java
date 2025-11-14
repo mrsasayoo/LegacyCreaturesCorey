@@ -4,13 +4,19 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.server.world.ServerWorld;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Manipulates incoming projectiles around the aura bearer.
  */
 public final class ProjectileShroudAuraAction implements MutationAction {
+    private static final Map<ServerWorld, Set<PersistentProjectileEntity>> PROCESSED_PROJECTILES = new WeakHashMap<>();
+
     private final double radius;
     private final double chance;
     private final Mode mode;
@@ -35,6 +41,7 @@ public final class ProjectileShroudAuraAction implements MutationAction {
             return;
         }
         ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        Set<PersistentProjectileEntity> processed = PROCESSED_PROJECTILES.computeIfAbsent(world, ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
         List<PersistentProjectileEntity> projectiles = world.getEntitiesByClass(
             PersistentProjectileEntity.class,
             entity.getBoundingBox().expand(radius),
@@ -48,12 +55,18 @@ public final class ProjectileShroudAuraAction implements MutationAction {
             if (chance < 1.0D && entity.getRandom().nextDouble() >= chance) {
                 continue;
             }
+            if (processed.contains(projectile)) {
+                continue;
+            }
 
             switch (mode) {
                 case DESTROY -> projectile.discard();
                 case DEFLECT -> {
                     projectile.setOwner(entity);
                     projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectDamageFactor)));
+                    projectile.velocityDirty = true;
+                    projectile.velocityModified = true;
+                    processed.add(projectile);
                 }
                 case SHOVE_SHOOTER -> {
                     if (projectile.getOwner() instanceof LivingEntity shooter) {
@@ -67,6 +80,7 @@ public final class ProjectileShroudAuraAction implements MutationAction {
                 }
             }
         }
+        processed.removeIf(projectile -> projectile == null || !projectile.isAlive());
     }
 
     public enum Mode {

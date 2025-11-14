@@ -2,19 +2,19 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/virulent_growth_aura_3",
   "type": "ACTIVE",
-  "cost": 10,
+  "cost": 18,
   "display_name": {
     "literal": "Crecimiento Virulento III"
   },
   "description": {
-    "literal": "Invoca picos de raíces alrededor de los jugadores fijados dentro de 6.5 bloques, atacándolos con colmillos evocados."
+    "literal": "Invoca picos de raíces alrededor de los jugadores fijados dentro de 6 bloques, atacándolos con colmillos evocados."
   },
   "weight": 40,
   "actions": [
     {
       "type": "virulent_growth_aura",
       "mode": "root_spikes",
-      "radius": 6.5,
+      "radius": 6.0,
       "interval_ticks": 80,
       "attempts": 2,
       "chance": 0.25,

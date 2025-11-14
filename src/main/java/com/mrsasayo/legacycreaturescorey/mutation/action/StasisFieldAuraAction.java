@@ -294,6 +294,8 @@ public final class StasisFieldAuraAction implements MutationAction {
                     Vec3d velocity = projectile.getVelocity();
                     Vec3d slowed = velocity.multiply(aura.action.projectileSlowFactor);
                     projectile.setVelocity(slowed);
+                    projectile.velocityDirty = true;
+                    projectile.velocityModified = true;
                     dampened.add(projectile);
                 }
             }

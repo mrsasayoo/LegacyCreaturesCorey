@@ -34,12 +34,13 @@ public final class MutationAssigner {
         }
 
         Random random = mob.getRandom();
-        int remaining = budget;
+    int remaining = budget;
+    int spent = 0;
         List<Identifier> applied = new ArrayList<>();
         List<Identifier> existing = new ArrayList<>(data.getMutations());
         Set<Identifier> alreadyApplied = new HashSet<>(existing);
 
-        while (remaining > 0) {
+    while (remaining > 0) {
             List<Mutation> candidates = new ArrayList<>();
             List<Identifier> compatibilityContext = new ArrayList<>(existing);
             compatibilityContext.addAll(applied);
@@ -72,6 +73,7 @@ public final class MutationAssigner {
             data.addMutation(selectedId);
             applied.add(selectedId);
             alreadyApplied.add(selectedId);
+            spent += selected.getCost();
             remaining -= selected.getCost();
         }
 
@@ -79,7 +81,7 @@ public final class MutationAssigner {
             Legacycreaturescorey.LOGGER.info("🧬 {} recibió mutaciones {} (PM gastados: {}/{})",
                 mob.getType().getTranslationKey(),
                 applied,
-                budget - remaining,
+                spent,
                 budget
             );
         }

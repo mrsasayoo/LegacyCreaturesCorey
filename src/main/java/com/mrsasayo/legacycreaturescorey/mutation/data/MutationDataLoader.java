@@ -48,9 +48,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.TrueDamageOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.VerticalThrustOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.VirulentGrowthAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HordeBeaconAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.UndeadPotionBurstAction;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.Resource;
@@ -210,6 +212,7 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     case "deep_darkness_aura", "darkness_aura", "deep_darkness" -> parseDeepDarknessAuraAction(actionObject);
                     case "virulent_growth_aura", "growth_aura", "virulent_growth" -> parseVirulentGrowthAuraAction(actionObject);
                     case "horde_beacon_aura", "horde_beacon" -> parseHordeBeaconAuraAction(actionObject);
+                    case "undead_potion_burst", "potion_burst" -> parseUndeadPotionBurstAction(actionObject);
                     case "attribute_aura" -> parseAttributeAuraAction(actionObject);
                     case "ally_death_heal", "ally_death_aura" -> parseAllyDeathHealAuraAction(actionObject);
                     default -> throw new IllegalArgumentException("Tipo de acción desconocido: " + rawType);
@@ -493,10 +496,19 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         double radius = JsonHelper.getDouble(object, "radius");
         int interval = parseTicks(object, "interval", 20);
         int darknessDuration = parseTicks(object, "darkness_duration", 80);
+        Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect", "minecraft:darkness"));
+        StatusEffect statusEffect = Registries.STATUS_EFFECT.get(effectId);
+        if (statusEffect == null) {
+            throw new IllegalArgumentException("Efecto de estado desconocido para deep darkness: " + effectId);
+        }
+        RegistryEntry<StatusEffect> statusEffectEntry = Registries.STATUS_EFFECT.getEntry(Registries.STATUS_EFFECT.getRawId(statusEffect)).orElse(null);
+        if (statusEffectEntry == null) {
+            throw new IllegalStateException("No se pudo resolver el registro del efecto " + effectId);
+        }
         boolean removeNightVision = JsonHelper.getBoolean(object, "remove_night_vision", true);
         int lightDelay = parseTicks(object, "light_break_delay", 300);
         int lightThreshold = JsonHelper.getInt(object, "light_threshold", 7);
-        return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, removeNightVision, lightDelay, lightThreshold);
+        return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, statusEffectEntry, removeNightVision, lightDelay, lightThreshold);
     }
 
     private MutationAction parseVirulentGrowthAuraAction(JsonObject object) {
@@ -524,6 +536,21 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         int speedAmplifier = JsonHelper.getInt(object, "speed_amplifier", 0);
         int retargetCooldown = parseTicks(object, "retarget_cooldown", 40);
         return new HordeBeaconAuraAction(mode, radius, interval, markDuration, speedDuration, speedAmplifier, retargetCooldown);
+    }
+
+    private MutationAction parseUndeadPotionBurstAction(JsonObject object) {
+        int interval = parseTicks(object, "interval", 140);
+        Identifier potionId = Identifier.of(JsonHelper.getString(object, "potion", "minecraft:strong_harming"));
+        Potion potion = Registries.POTION.get(potionId);
+        if (potion == null) {
+            throw new IllegalArgumentException("Poción desconocida para undead_potion_burst: " + potionId);
+        }
+        RegistryEntry<Potion> potionEntry = Registries.POTION
+            .getEntry(Registries.POTION.getRawId(potion))
+            .orElseThrow(() -> new IllegalStateException("No se pudo resolver la poción " + potionId));
+        double verticalVelocity = JsonHelper.getDouble(object, "vertical_velocity", 0.7D);
+        double spread = JsonHelper.getDouble(object, "spread", 0.2D);
+        return new UndeadPotionBurstAction(interval, potionEntry, verticalVelocity, spread);
     }
 
     private MutationAction parseAttributeAuraAction(JsonObject object) {

@@ -357,7 +357,7 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             while (iterator.hasNext()) {
                 IllusionRecord record = iterator.next();
                 if (!record.illusion().isAlive() || !record.owner().isAlive() || time >= record.expiryTick()) {
-                    discardClone(world, record, false);
+                    discardClone(world, record, false, false);
                     iterator.remove();
                 }
             }
@@ -419,18 +419,20 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
                 return true;
             }
             if (entity.getEntityWorld() instanceof ServerWorld world) {
-                discardClone(world, record, true);
+                discardClone(world, record, true, true);
             }
             return false;
         }
 
-        private void discardClone(ServerWorld world, IllusionRecord record, boolean playEffects) {
+        private void discardClone(ServerWorld world, IllusionRecord record, boolean playEffects, boolean removeFromRegistry) {
             cloneLookup.remove(record.illusion());
-            List<IllusionRecord> list = clones.get(world);
-            if (list != null) {
-                list.remove(record);
-                if (list.isEmpty()) {
-                    clones.remove(world);
+            if (removeFromRegistry) {
+                List<IllusionRecord> list = clones.get(world);
+                if (list != null) {
+                    list.remove(record);
+                    if (list.isEmpty()) {
+                        clones.remove(world);
+                    }
                 }
             }
             MobEntity clone = record.illusion();

@@ -7,16 +7,17 @@
     "literal": "Oscuridad Profunda I"
   },
   "description": {
-    "literal": "Reduce la iluminación en un radio de 8 bloques y anula la Visión Nocturna cercana."
+    "literal": "Ciega a los jugadores a 7 bloques con oscuridad opaca, sin anular su Visión Nocturna."
   },
   "weight": 60,
   "actions": [
     {
       "type": "deep_darkness_aura",
-      "radius": 8.0,
+      "radius": 7.0,
       "interval_ticks": 20,
       "darkness_duration_ticks": 80,
-      "remove_night_vision": true
+      "effect": "minecraft:blindness",
+      "remove_night_vision": false
     }
   ]
 }

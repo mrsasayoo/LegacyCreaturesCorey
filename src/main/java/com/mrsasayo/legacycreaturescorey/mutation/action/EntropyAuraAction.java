@@ -6,6 +6,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -222,7 +223,11 @@ public final class EntropyAuraAction implements MutationAction {
                     if (currentSlot != lastSlot) {
                         lastSelectedSlot.put(player, currentSlot);
                         if (source.getRandom().nextDouble() <= aura.action.chance) {
-                            applyItemCooldown(player, player.getMainHandStack(), aura.action.cooldownTicks);
+                            lockSlot(player,
+                                currentSlot,
+                                time,
+                                aura.action.cooldownTicks,
+                                player.getInventory().getStack(currentSlot));
                         }
                     } else {
                         lastSelectedSlot.put(player, currentSlot);
@@ -279,17 +284,15 @@ public final class EntropyAuraAction implements MutationAction {
                     continue;
                 }
                 for (ServerPlayerEntity player : players) {
-                    Map<Integer, Long> locks = lockedSlots.computeIfAbsent(player, ignored -> new HashMap<>());
                     int slot = player.getRandom().nextInt(9);
                     if (source.getRandom().nextDouble() > aura.action.chance) {
                         continue;
                     }
-                    long expiry = time + aura.action.lockTicks;
-                    locks.put(slot, expiry);
-                    ItemStack stack = player.getInventory().getStack(slot);
-                    if (!stack.isEmpty()) {
-                        applyItemCooldown(player, stack, aura.action.lockTicks);
-                    }
+                    lockSlot(player,
+                        slot,
+                        time,
+                        aura.action.lockTicks,
+                        player.getInventory().getStack(slot));
                 }
                 aura.lastEffectTick = time;
             }
@@ -319,6 +322,8 @@ public final class EntropyAuraAction implements MutationAction {
                 locks.values().removeIf(expiry -> expiry <= time);
                 if (locks.isEmpty()) {
                     iterator.remove();
+                } else {
+                    forceSwitchFromLockedSlot(player, locks, time);
                 }
             }
         }
@@ -333,6 +338,51 @@ public final class EntropyAuraAction implements MutationAction {
                 }
             }
             return lastSelectedSlot.getOrDefault(player, 0);
+        }
+
+        private void lockSlot(ServerPlayerEntity player,
+                               int slot,
+                               long currentTime,
+                               int lockDurationTicks,
+                               ItemStack referenceStack) {
+            if (slot < 0 || slot >= 9) {
+                return;
+            }
+            Map<Integer, Long> locks = lockedSlots.computeIfAbsent(player, ignored -> new HashMap<>());
+            long expiry = currentTime + Math.max(1, lockDurationTicks);
+            locks.put(slot, expiry);
+            if (referenceStack != null && !referenceStack.isEmpty() && lockDurationTicks > 0) {
+                applyItemCooldown(player, referenceStack, lockDurationTicks);
+            }
+            int current = resolveSelectedSlot(player);
+            if (isSlotLocked(locks, current, currentTime)) {
+                forceSwitchFromLockedSlot(player, locks, currentTime);
+            }
+        }
+
+        private void forceSwitchFromLockedSlot(ServerPlayerEntity player,
+                                               Map<Integer, Long> locks,
+                                               long time) {
+            int current = resolveSelectedSlot(player);
+            if (!isSlotLocked(locks, current, time)) {
+                return;
+            }
+            for (int offset = 1; offset < 9; offset++) {
+                int candidate = (current + offset) % 9;
+                if (!isSlotLocked(locks, candidate, time)) {
+                    setSelectedHotbarSlot(player, candidate);
+                    return;
+                }
+            }
+        }
+
+        private void setSelectedHotbarSlot(ServerPlayerEntity player, int slot) {
+            if (slot < 0 || slot >= 9) {
+                return;
+            }
+            player.getInventory().setSelectedSlot(slot);
+            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(slot));
+            lastSelectedSlot.put(player, slot);
         }
 
         private void cleanup(ServerWorld world) {

@@ -7,14 +7,14 @@
     "literal": "Velo de Proyectiles II"
   },
   "description": {
-    "literal": "40% de probabilidad de destruir proyectiles y empujar levemente al tirador."
+    "literal": "20% de probabilidad de destruir proyectiles y empujar levemente al tirador."
   },
   "weight": 20,
   "actions": [
     {
       "type": "projectile_shroud",
       "radius": 4.0,
-      "chance": 0.40,
+      "chance": 0.20,
       "mode": "shove_shooter",
       "push_strength": 0.5
     }

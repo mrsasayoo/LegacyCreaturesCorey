@@ -44,4 +44,24 @@ public final class MutationRestrictions {
     public static MutationRestrictions empty() {
         return new MutationRestrictions(new HashSet<>(), new HashSet<>(), false);
     }
+
+    /**
+     * If the restriction disallows application, returns a short reason string.
+     * Returns null when the entity satisfies the restrictions.
+     */
+    public String whyCannotApply(MobEntity entity) {
+        if (!allowedTypes.isEmpty() && !allowedTypes.contains(typeId(entity))) {
+            return "Entity type is not in the allowed list";
+        }
+
+        if (!excludedTypes.isEmpty() && excludedTypes.contains(typeId(entity))) {
+            return "Entity type is explicitly excluded";
+        }
+
+        if (requiresWater && !entity.isTouchingWater()) {
+            return "Requires water to apply";
+        }
+
+        return null;
+    }
 }

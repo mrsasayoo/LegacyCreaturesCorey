@@ -2,7 +2,7 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/phantasmal_veil_2",
   "type": "ACTIVE",
-  "cost": 5,
+  "cost": 6,
   "display_name": {
     "literal": "Velo Fantasmal II"
   },
@@ -14,9 +14,9 @@
     {
       "type": "phantasmal_veil_aura",
       "mode": "spectral_clones",
-      "radius": 7.0,
-      "interval_ticks": 120,
-      "particle_count": 8,
+      "radius": 10.0,
+      "interval_ticks": 160,
+      "particle_count": 7,
       "clone_min": 1,
       "clone_max": 3,
       "clone_lifetime_ticks": 200,

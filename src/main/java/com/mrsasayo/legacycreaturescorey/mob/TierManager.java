@@ -4,6 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
+import com.mrsasayo.legacycreaturescorey.mob.data.MobAttributeDataLoader;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationAssigner;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -143,15 +144,27 @@ public final class TierManager {
     private static void applyBaseScaling(MobEntity mob, MobTier tier) {
         EntityAttributeInstance health = mob.getAttributeInstance(EntityAttributes.MAX_HEALTH);
         if (health != null) {
-            double newBase = health.getBaseValue() * tier.getHealthMultiplier();
-            health.setBaseValue(newBase);
-            mob.setHealth((float) newBase);
+            Double override = MobAttributeDataLoader.getMaxHealth(mob.getType(), tier);
+            double base = health.getBaseValue();
+            double target = override != null && override > 0.0D
+                ? override
+                : base * tier.getHealthMultiplier();
+            if ((override != null && override > 0.0D) || tier.getHealthMultiplier() != 1.0D) {
+                health.setBaseValue(target);
+                mob.setHealth((float) Math.max(target, 1.0F));
+            }
         }
 
         EntityAttributeInstance damage = mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE);
         if (damage != null) {
-            double newBase = damage.getBaseValue() * tier.getDamageMultiplier();
-            damage.setBaseValue(newBase);
+            Double override = MobAttributeDataLoader.getAttackDamage(mob.getType(), tier);
+            double base = damage.getBaseValue();
+            double target = override != null && override > 0.0D
+                ? override
+                : base * tier.getDamageMultiplier();
+            if ((override != null && override > 0.0D) || tier.getDamageMultiplier() != 1.0D) {
+                damage.setBaseValue(target);
+            }
         }
     }
 

@@ -7,7 +7,7 @@
     "literal": "Entropía I"
   },
   "description": {
-    "literal": "Cambiar de objeto en la hotbar dentro de 6 bloques puede bloquear ese espacio durante 1 segundo (10%)."
+    "literal": "Cambiar de objeto en la hotbar dentro de 6 bloques puede bloquear ese espacio durante 3 segundos (10%)."
   },
   "weight": 80,
   "actions": [
@@ -16,7 +16,8 @@
       "mode": "hotbar_switch",
       "radius": 6.0,
       "chance": 0.1,
-      "cooldown_ticks": 20
+      "cooldown_ticks": 60,
+      "lock_ticks": 60
     }
   ]
 }

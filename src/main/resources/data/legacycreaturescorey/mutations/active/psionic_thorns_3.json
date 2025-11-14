@@ -2,14 +2,14 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/psionic_thorns_3",
   "type": "ACTIVE",
-  "cost": 11,
+  "cost": 20,
   "display_name": {
     "literal": "Espinas Psiónicas III"
   },
   "description": {
     "literal": "Refleja el 12% del daño cuerpo a cuerpo, inflige Fatiga Minera mejorada y castiga los golpes críticos con contragolpes psiónicos reforzados."
   },
-  "weight": 30,
+  "weight": 25,
   "actions": [
     {
       "type": "psionic_thorns",

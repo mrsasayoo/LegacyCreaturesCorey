@@ -15,9 +15,11 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.world.Heightmap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -228,18 +230,19 @@ public final class VirulentGrowthAuraAction implements MutationAction {
             Random random = world.random;
             double radius = aura.action.getRadius();
             int attempts = aura.action.getAttempts();
+            boolean success = false;
 
             for (int i = 0; i < attempts; i++) {
                 if (aura.action.getSpreadChance() < 1.0D && random.nextDouble() > aura.action.getSpreadChance()) {
                     continue;
                 }
+                if (tryGrowFoliage(world, source, radius, random)) {
+                    success = true;
+                }
+            }
 
-                int offsetX = random.nextBetween(-Math.max(1, (int) Math.ceil(radius)), Math.max(1, (int) Math.ceil(radius)));
-                int offsetY = random.nextBetween(-1, 2);
-                int offsetZ = random.nextBetween(-Math.max(1, (int) Math.ceil(radius)), Math.max(1, (int) Math.ceil(radius)));
-
-                BlockPos basePos = source.getBlockPos().add(offsetX, offsetY, offsetZ);
-                growAt(world, basePos, random);
+            if (!success) {
+                tryGrowFoliage(world, source, radius, random);
             }
         }
 
@@ -322,42 +325,65 @@ public final class VirulentGrowthAuraAction implements MutationAction {
                 || state.isIn(BlockTags.BASE_STONE_OVERWORLD)
                 || state.isOf(Blocks.GRASS_BLOCK)
                 || state.isOf(Blocks.STONE_BRICKS)
-                || state.isOf(Blocks.MOSS_BLOCK);
+                || state.isOf(Blocks.MOSS_BLOCK)
+                || state.isSolidBlock(world, below);
         }
 
-        private void growAt(ServerWorld world, BlockPos basePos, Random random) {
-            BlockPos below = basePos;
-            BlockState belowState = world.getBlockState(below);
-            BlockPos above = below.up();
-
-            if (belowState.isIn(BlockTags.DIRT) || belowState.isOf(Blocks.MOSS_BLOCK) || belowState.isOf(Blocks.GRASS_BLOCK)) {
-                if (!world.getBlockState(above).isAir() || !world.getBlockState(above.up()).isAir()) {
-                    return;
-                }
-                BlockState tallGrass = Blocks.TALL_GRASS.getDefaultState();
-                if (!tallGrass.canPlaceAt(world, above)) {
-                    return;
-                }
-                TallPlantBlock.placeAt(world, tallGrass, above, Block.NOTIFY_ALL);
-                return;
+        private boolean tryGrowFoliage(ServerWorld world, LivingEntity source, double radius, Random random) {
+            if (radius <= 0.5D) {
+                return false;
             }
-
-            if (belowState.isIn(BlockTags.BASE_STONE_OVERWORLD) || belowState.isIn(BlockTags.STONE_BRICKS)) {
-                Direction direction = Direction.Type.HORIZONTAL.random(random);
-                BlockPos vinePos = below.offset(direction);
-                BlockState existing = world.getBlockState(vinePos);
-                if (!existing.isAir()) {
-                    return;
-                }
-                if (!belowState.isSideSolidFullSquare(world, below, direction)) {
-                    return;
-                }
-                BlockState vine = Blocks.VINE.getDefaultState().with(VineBlock.getFacingProperty(direction.getOpposite()), true);
-                if (!vine.canPlaceAt(world, vinePos)) {
-                    return;
-                }
-                world.setBlockState(vinePos, vine, Block.NOTIFY_LISTENERS);
+            int maxOffset = Math.max(1, MathHelper.ceil(radius));
+            int offsetX = random.nextBetween(-maxOffset, maxOffset);
+            int offsetZ = random.nextBetween(-maxOffset, maxOffset);
+            BlockPos sample = BlockPos.ofFloored(source.getX() + offsetX, source.getY(), source.getZ() + offsetZ);
+            BlockPos topPos = world.getTopPosition(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, sample);
+            BlockPos surface = topPos.down();
+            if (surface.getY() < world.getBottomY()) {
+                return false;
             }
+            if (!world.getWorldBorder().contains(surface)) {
+                return false;
+            }
+            if (tryPlaceTallGrass(world, surface)) {
+                return true;
+            }
+            return tryPlaceVines(world, surface, random);
+        }
+
+        private boolean tryPlaceTallGrass(ServerWorld world, BlockPos surface) {
+            BlockState surfaceState = world.getBlockState(surface);
+            if (!(surfaceState.isIn(BlockTags.DIRT) || surfaceState.isOf(Blocks.GRASS_BLOCK) || surfaceState.isOf(Blocks.MOSS_BLOCK))) {
+                return false;
+            }
+            BlockPos placePos = surface.up();
+            if (!world.getBlockState(placePos).isAir() || !world.getBlockState(placePos.up()).isAir()) {
+                return false;
+            }
+            BlockState tallGrass = Blocks.TALL_GRASS.getDefaultState();
+            if (!tallGrass.canPlaceAt(world, placePos)) {
+                return false;
+            }
+            TallPlantBlock.placeAt(world, tallGrass, placePos, Block.NOTIFY_ALL);
+            return true;
+        }
+
+        private boolean tryPlaceVines(ServerWorld world, BlockPos surface, Random random) {
+            BlockState support = world.getBlockState(surface);
+            if (!support.isSolidBlock(world, surface)) {
+                return false;
+            }
+            Direction direction = Direction.Type.HORIZONTAL.random(random);
+            BlockPos vinePos = surface.offset(direction);
+            if (!world.getBlockState(vinePos).isAir()) {
+                return false;
+            }
+            BlockState vine = Blocks.VINE.getDefaultState().with(VineBlock.getFacingProperty(direction.getOpposite()), true);
+            if (!vine.canPlaceAt(world, vinePos)) {
+                return false;
+            }
+            world.setBlockState(vinePos, vine, Block.NOTIFY_LISTENERS);
+            return true;
         }
 
         private void cleanup(ServerWorld world) {

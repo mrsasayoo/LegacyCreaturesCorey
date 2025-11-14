@@ -1,0 +1,866 @@
+{
+  "entries": [
+    {
+      "id": "minecraft:bee",
+      "category": "Tier_Leve",
+      "notes": "luego de picar se muere a menos que una mutacion le indique que no, esta siempre aplicara veneno es todos sus tiers, es decir tendra incompatibilidad con la mutacion poison_{1,2,3}, si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 10.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 40.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:goat",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 10.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 40.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:dolphin",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 10.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 30.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:llama",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 22.5
+        },
+        "epic": {
+          "max_health": 45.0
+        },
+        "legendary": {
+          "max_health": 67.5
+        }
+      }
+    },
+    {
+      "id": "minecraft:wolf",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 8.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 32.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:polar_bear",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 30.0
+        },
+        "epic": {
+          "max_health": 50.0
+        },
+        "legendary": {
+          "max_health": 70.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:panda",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 15.0
+        },
+        "epic": {
+          "max_health": 30.0
+        },
+        "legendary": {
+          "max_health": 55.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:fox",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 10.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 32.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:snow_golem",
+      "category": "Tier_Leve",
+      "notes": "si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos",
+      "tiers": {
+        "normal": {
+          "max_health": 4.0
+        },
+        "epic": {
+          "max_health": 12.0
+        },
+        "legendary": {
+          "max_health": 20.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:spider",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 16.0
+        },
+        "epic": {
+          "max_health": 32.0
+        },
+        "legendary": {
+          "max_health": 48.0
+        },
+        "mythic": {
+          "max_health": 64.0
+        },
+        "definitive": {
+          "max_health": 80.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:drowned",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 80.0
+        },
+        "definitive": {
+          "max_health": 100.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:zombie_villager",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 80.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:endermite",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 8.0
+        },
+        "epic": {
+          "max_health": 16.0
+        },
+        "legendary": {
+          "max_health": 24.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:skeleton",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 30.0
+        },
+        "legendary": {
+          "max_health": 40.0
+        },
+        "mythic": {
+          "max_health": 50.0
+        },
+        "definitive": {
+          "max_health": 60.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:silverfish",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 8.0
+        },
+        "epic": {
+          "max_health": 16.0
+        },
+        "legendary": {
+          "max_health": 24.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:slime",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 16.0
+        },
+        "epic": {
+          "max_health": 32.0
+        },
+        "legendary": {
+          "max_health": 48.0
+        },
+        "mythic": {
+          "max_health": 64.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:zombie",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 80.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:husk",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 80.0
+        },
+        "definitive": {
+          "max_health": 100.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:pillager",
+      "category": "Tier_Basico",
+      "tiers": {
+        "normal": {
+          "max_health": 24.0
+        },
+        "epic": {
+          "max_health": 48.0
+        },
+        "legendary": {
+          "max_health": 72.0
+        },
+        "mythic": {
+          "max_health": 96.0
+        },
+        "definitive": {
+          "max_health": 120.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:shulker",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 30.0
+        },
+        "epic": {
+          "max_health": 55.0
+        },
+        "legendary": {
+          "max_health": 80.0
+        },
+        "mythic": {
+          "max_health": 105.0
+        },
+        "definitive": {
+          "max_health": 130.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:vex",
+      "category": "Tier_Intermedio",
+      "notes": "este mob se muere con el tiempo a menos que una mutacion indique lo contrario",
+      "tiers": {
+        "normal": {
+          "max_health": 14.0
+        },
+        "epic": {
+          "max_health": 25.0
+        },
+        "legendary": {
+          "max_health": 36.0
+        },
+        "mythic": {
+          "max_health": 47.0
+        },
+        "definitive": {
+          "max_health": 58.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:hoglin",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 40.0
+        },
+        "epic": {
+          "max_health": 70.0
+        },
+        "legendary": {
+          "max_health": 100.0
+        },
+        "mythic": {
+          "max_health": 130.0
+        },
+        "definitive": {
+          "max_health": 160.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:zoglin",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 40.0
+        },
+        "epic": {
+          "max_health": 69.0
+        },
+        "legendary": {
+          "max_health": 98.0
+        },
+        "mythic": {
+          "max_health": 127.0
+        },
+        "definitive": {
+          "max_health": 156.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:ghast",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 10.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 30.0
+        },
+        "mythic": {
+          "max_health": 40.0
+        },
+        "definitive": {
+          "max_health": 50.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:phantom",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 35.0
+        },
+        "legendary": {
+          "max_health": 50.0
+        },
+        "mythic": {
+          "max_health": 65.0
+        },
+        "definitive": {
+          "max_health": 80.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:bogged",
+      "category": "Tier_Intermedio",
+      "notes": "incompatibilidad con la mutacion poison_{1,2,3}",
+      "tiers": {
+        "normal": {
+          "max_health": 16.0
+        },
+        "epic": {
+          "max_health": 24.0
+        },
+        "legendary": {
+          "max_health": 32.0
+        },
+        "mythic": {
+          "max_health": 40.0
+        },
+        "definitive": {
+          "max_health": 48.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:stray",
+      "category": "Tier_Intermedio",
+      "notes": "incompatibilidad con la mutacion slowness_{1,2,3}",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 28.0
+        },
+        "legendary": {
+          "max_health": 36.0
+        },
+        "mythic": {
+          "max_health": 44.0
+        },
+        "definitive": {
+          "max_health": 52.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:magma_cube",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 16.0
+        },
+        "epic": {
+          "max_health": 32.0
+        },
+        "legendary": {
+          "max_health": 48.0
+        },
+        "mythic": {
+          "max_health": 64.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:creeper",
+      "category": "Tier_Intermedio",
+      "notes": "tendra una mutacion predefinida, es decir siempre tendra movement_speed_1 en todas sus categorias, exepto normal, cuando es epico obtiene un bonus de velocidad de 0.05, mas la mutacion, este tendra 0.1 de velocidad extra, cuando es legendario su explocion es un 20% mas grande, cuando es mitico, su desactivacion no se desactiva, explotara si o si apenas inicia su autodestruccion, cuando es definitivo, su explocion es el doble de grande y deja encendidoel terreno de manera aleatoria",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 20.0
+        },
+        "legendary": {
+          "max_health": 20.0
+        },
+        "mythic": {
+          "max_health": 20.0
+        },
+        "definitive": {
+          "max_health": 20.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:breeze",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 30.0
+        },
+        "epic": {
+          "max_health": 45.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 75.0
+        },
+        "definitive": {
+          "max_health": 90.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:witch",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 26.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 54.0
+        },
+        "mythic": {
+          "max_health": 68.0
+        },
+        "definitive": {
+          "max_health": 82.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:blaze",
+      "category": "Tier_Intermedio",
+      "notes": "incompatibilidad con la mutacion fire_{1,2,3}",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 34.0
+        },
+        "legendary": {
+          "max_health": 48.0
+        },
+        "mythic": {
+          "max_health": 62.0
+        },
+        "definitive": {
+          "max_health": 76.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:cave_spider",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 12.0
+        },
+        "epic": {
+          "max_health": 24.0
+        },
+        "legendary": {
+          "max_health": 36.0
+        },
+        "mythic": {
+          "max_health": 48.0
+        },
+        "definitive": {
+          "max_health": 60.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:zombified_piglin",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 38.0
+        },
+        "legendary": {
+          "max_health": 56.0
+        },
+        "mythic": {
+          "max_health": 74.0
+        },
+        "definitive": {
+          "max_health": 92.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:enderman",
+      "category": "Tier_Intermedio",
+      "tiers": {
+        "normal": {
+          "max_health": 40.0
+        },
+        "epic": {
+          "max_health": 70.0
+        },
+        "legendary": {
+          "max_health": 100.0
+        },
+        "mythic": {
+          "max_health": 130.0
+        },
+        "definitive": {
+          "max_health": 160.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:ravager",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 100.0
+        },
+        "epic": {
+          "max_health": 180.0
+        },
+        "legendary": {
+          "max_health": 260.0
+        },
+        "mythic": {
+          "max_health": 340.0
+        },
+        "definitive": {
+          "max_health": 420.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:iron_golem",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 100.0
+        },
+        "epic": {
+          "max_health": 180.0
+        },
+        "legendary": {
+          "max_health": 260.0
+        },
+        "mythic": {
+          "max_health": 340.0
+        },
+        "definitive": {
+          "max_health": 420.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:elder_guardian",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 80.0
+        },
+        "epic": {
+          "max_health": 120.0
+        },
+        "legendary": {
+          "max_health": 160.0
+        },
+        "mythic": {
+          "max_health": 200.0
+        },
+        "definitive": {
+          "max_health": 240.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:warden",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 500.0
+        },
+        "epic": {
+          "max_health": 550.0
+        },
+        "legendary": {
+          "max_health": 600.0
+        },
+        "mythic": {
+          "max_health": 650.0
+        },
+        "definitive": {
+          "max_health": 700.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:vindicator",
+      "category": "Tier_Dificil",
+      "notes": "incompatible con wither_{1,2,3}",
+      "tiers": {
+        "normal": {
+          "max_health": 24.0
+        },
+        "epic": {
+          "max_health": 46.0
+        },
+        "legendary": {
+          "max_health": 68.0
+        },
+        "mythic": {
+          "max_health": 90.0
+        },
+        "definitive": {
+          "max_health": 112.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:piglin_brute",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 50.0
+        },
+        "epic": {
+          "max_health": 90.0
+        },
+        "legendary": {
+          "max_health": 130.0
+        },
+        "mythic": {
+          "max_health": 170.0
+        },
+        "definitive": {
+          "max_health": 210.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:evoker",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 24.0
+        },
+        "epic": {
+          "max_health": 35.0
+        },
+        "legendary": {
+          "max_health": 46.0
+        },
+        "mythic": {
+          "max_health": 57.0
+        },
+        "definitive": {
+          "max_health": 68.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:guardian",
+      "category": "Tier_Dificil",
+      "tiers": {
+        "normal": {
+          "max_health": 30.0
+        },
+        "epic": {
+          "max_health": 55.0
+        },
+        "legendary": {
+          "max_health": 80.0
+        },
+        "mythic": {
+          "max_health": 105.0
+        },
+        "definitive": {
+          "max_health": 130.0
+        }
+      }
+    },
+    {
+      "id": "minecraft:wither_skeleton",
+      "category": "Tier_Dificil",
+      "notes": "incompatible con wither_{1,2,3}",
+      "tiers": {
+        "normal": {
+          "max_health": 20.0
+        },
+        "epic": {
+          "max_health": 40.0
+        },
+        "legendary": {
+          "max_health": 60.0
+        },
+        "mythic": {
+          "max_health": 80.0
+        },
+        "definitive": {
+          "max_health": 100.0
+        }
+      }
+    }
+  ]
+}

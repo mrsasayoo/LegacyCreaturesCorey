@@ -76,4 +76,19 @@ public interface Mutation {
     default boolean isCompatibleWith(List<Identifier> existingMutations) {
         return true;
     }
+
+    /**
+     * Returns null when the mutation can be applied, otherwise a short human-readable
+     * failure reason explaining why it cannot be applied to the given entity with
+     * the provided existing mutations.
+     */
+    default String getApplyFailureReason(net.minecraft.entity.mob.MobEntity entity, List<Identifier> existingMutations) {
+        if (!canApplyTo(entity)) {
+            return "Entity does not meet mutation restrictions";
+        }
+        if (!isCompatibleWith(existingMutations)) {
+            return "Mutation is incompatible with existing mutations";
+        }
+        return null;
+    }
 }

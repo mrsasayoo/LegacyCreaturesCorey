@@ -42,6 +42,22 @@ public final class ConfiguredMutation extends AbstractMutation {
     }
 
     @Override
+    public String getApplyFailureReason(MobEntity entity, List<Identifier> existingMutations) {
+        String r = restrictions.whyCannotApply(entity);
+        if (r != null) return r;
+
+        if (!incompatibleIds.isEmpty()) {
+            for (Identifier existing : existingMutations) {
+                if (incompatibleIds.contains(existing)) {
+                    return "Incompatible with mutation: " + existing.toString();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public void onApply(LivingEntity entity) {
         for (MutationAction action : actions) {
             action.onApply(entity);

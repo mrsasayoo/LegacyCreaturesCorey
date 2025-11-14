@@ -1,6 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -14,7 +15,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -144,6 +148,10 @@ public final class HordeBeaconAuraAction implements MutationAction {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
+        private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of("legacycreaturescorey", "tier_basic"));
+        private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of("legacycreaturescorey", "tier_intermediate"));
+        private static final TagKey<EntityType<?>> TIER_HARD = TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of("legacycreaturescorey", "tier_hard"));
+
         private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
         private final Map<MobEntity, Long> retargetCooldowns = new WeakHashMap<>();
         private boolean initialized;
@@ -238,6 +246,7 @@ public final class HordeBeaconAuraAction implements MutationAction {
                 ServerPlayerEntity target = aura.markedTarget.player();
                 if (!target.isAlive() || source.squaredDistanceTo(target) > radiusSq || time >= aura.markedTarget.expiryTick()) {
                     aura.clearMark();
+                    resetAlliesTargets(world, aura, radius);
                 }
             }
             if (aura.markedTarget == null && time - aura.lastTriggerTick >= aura.action.getIntervalTicks()) {
@@ -257,7 +266,7 @@ public final class HordeBeaconAuraAction implements MutationAction {
                         chosen.getZ(),
                         SoundEvents.ENTITY_ENDERMAN_STARE,
                         SoundCategory.HOSTILE,
-                        0.8F,
+                        0.4F,
                         0.9F + world.random.nextFloat() * 0.2F);
                 }
             }
@@ -267,6 +276,7 @@ public final class HordeBeaconAuraAction implements MutationAction {
             ServerPlayerEntity target = aura.markedTarget.player();
             if (!target.isAlive()) {
                 aura.clearMark();
+                resetAlliesTargets(world, aura, radius);
                 return;
             }
             List<MobEntity> allies = getAllies(world, source, radius);
@@ -313,10 +323,19 @@ public final class HordeBeaconAuraAction implements MutationAction {
                     SpawnGroup candidateGroup = candidate.getType().getSpawnGroup();
                     if (candidateGroup == sourceGroup && candidateGroup != SpawnGroup.MISC) {
                         allies.add(candidate);
+                        continue;
                     }
+                }
+                if (isTieredAlly(candidate)) {
+                    allies.add(candidate);
                 }
             }
             return allies;
+        }
+
+        private boolean isTieredAlly(MobEntity candidate) {
+            EntityType<?> type = candidate.getType();
+            return type.isIn(TIER_BASIC) || type.isIn(TIER_INTERMEDIATE) || type.isIn(TIER_HARD);
         }
 
         private CreeperEntity findTriggeredCreeper(ServerWorld world, LivingEntity reference, double radius) {
@@ -395,6 +414,21 @@ public final class HordeBeaconAuraAction implements MutationAction {
                 MobEntity mob = entry.getKey();
                 if (mob == null || !mob.isAlive()) {
                     iterator.remove();
+                }
+            }
+        }
+
+        private void resetAlliesTargets(ServerWorld world, ActiveAura aura, double radius) {
+            List<MobEntity> allies = getAllies(world, aura.source, radius);
+            if (allies.isEmpty()) {
+                return;
+            }
+            for (MobEntity mob : allies) {
+                if (mob instanceof PathAwareEntity pathAware) {
+                    pathAware.getNavigation().stop();
+                }
+                if (mob.getTarget() instanceof ServerPlayerEntity) {
+                    mob.setTarget(null);
                 }
             }
         }

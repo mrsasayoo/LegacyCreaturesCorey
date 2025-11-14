@@ -7,14 +7,14 @@
     "literal": "Velo de Proyectiles I"
   },
   "description": {
-    "literal": "25% de probabilidad de destruir proyectiles que ingresan en un radio de 3 bloques."
+    "literal": "10% de probabilidad de destruir proyectiles que ingresan en un radio de 3 bloques."
   },
   "weight": 45,
   "actions": [
     {
       "type": "projectile_shroud",
       "radius": 3.0,
-      "chance": 0.25,
+      "chance": 0.1,
       "mode": "destroy"
     }
   ],

@@ -2,12 +2,12 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/interference_aura_1",
   "type": "ACTIVE",
-  "cost": 6,
+  "cost": 5,
   "display_name": {
     "literal": "Interferencia I"
   },
   "description": {
-    "literal": "30% de probabilidad de sabotear colocaciones de bloques enemigas en un radio de 5 bloques."
+    "literal": "20% de probabilidad de sabotear colocaciones de bloques enemigas en un radio de 5 bloques."
   },
   "weight": 55,
   "actions": [
@@ -15,7 +15,7 @@
       "type": "interference_aura",
       "mode": "block_sabotage",
       "radius": 5.0,
-      "chance": 0.30
+      "chance": 0.20
     }
   ],
   "incompatible_with": [

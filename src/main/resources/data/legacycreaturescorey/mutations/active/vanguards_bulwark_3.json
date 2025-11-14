@@ -2,29 +2,36 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/vanguards_bulwark_3",
   "type": "ACTIVE",
-  "cost": 20,
+  "cost": 25,
   "display_name": {
     "literal": "Baluarte de la Vanguardia III"
   },
   "description": {
-    "literal": "Los aliados cercanos obtienen Resistencia I y el portador se cura 4 corazones cuando cae un aliado."
+    "literal": "Resistencia I para aliados cercanos, curación de 4 corazones al caer un aliado y una poción de Daño Instantáneo II arrojada hacia arriba cada 7 s si el portador es no-muerto."
   },
   "weight": 12,
   "actions": [
     {
       "type": "status_effect_aura",
       "effect": "minecraft:resistance",
-      "duration": 100,
+      "duration": 80,
       "amplifier": 0,
-      "radius": 8.0,
-      "interval": 60,
+      "radius": 7.0,
+      "interval": 80,
       "target": "ALLY_MOBS",
       "exclude_self": true
     },
     {
       "type": "ally_death_heal",
       "radius": 8.0,
-      "heal_amount": 8.0
+      "heal_amount": 10.0
+    },
+    {
+      "type": "undead_potion_burst",
+      "interval_ticks": 140,
+      "potion": "minecraft:strong_harming",
+      "vertical_velocity": 0.75,
+      "spread": 0.25
     }
   ],
   "incompatible_with": [

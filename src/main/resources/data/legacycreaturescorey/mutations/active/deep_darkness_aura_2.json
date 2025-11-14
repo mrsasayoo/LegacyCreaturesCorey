@@ -7,17 +7,17 @@
     "literal": "Oscuridad Profunda II"
   },
   "description": {
-    "literal": "Condiciona a los jugadores cercanos con oscuridad intensa si se alejan de fuentes de luz dentro de 9 bloques."
+    "literal": "Condiciona a los jugadores a 7 bloques con oscuridad si se alejan de fuentes de luz, sin tocar su Visión Nocturna."
   },
   "weight": 45,
   "actions": [
     {
       "type": "deep_darkness_aura",
       "mode": "conditional_darkness",
-      "radius": 9.0,
+      "radius": 7.0,
       "interval_ticks": 20,
       "darkness_duration_ticks": 100,
-      "remove_night_vision": true,
+      "remove_night_vision": false,
       "light_threshold": 6
     }
   ]

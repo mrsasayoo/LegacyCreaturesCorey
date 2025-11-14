@@ -7,16 +7,16 @@
     "literal": "Crecimiento Virulento I"
   },
   "description": {
-    "literal": "Hace brotar hierbas y enredaderas alrededor del mob, bloqueando líneas de visión."
+    "literal": "Cada 4 segundos brota hierba alta o lianas alrededor del mob, bloqueando líneas de visión."
   },
   "weight": 65,
   "actions": [
     {
       "type": "virulent_growth_aura",
       "radius": 6.0,
-      "interval_ticks": 40,
+      "interval_ticks": 80,
       "attempts": 4,
-      "chance": 0.35
+      "chance": 1.0
     }
   ]
 }

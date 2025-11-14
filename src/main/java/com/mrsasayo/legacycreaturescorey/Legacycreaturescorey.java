@@ -6,10 +6,12 @@ import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyManager;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyTickHandler;
 import com.mrsasayo.legacycreaturescorey.mob.MobSpawnHandler;
 import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
+import com.mrsasayo.legacycreaturescorey.mob.data.MobAttributeDataLoader;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
 import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
 import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.command.MutationCommand;
 import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
 import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
 import net.fabricmc.api.ModInitializer;
@@ -33,6 +35,7 @@ public class Legacycreaturescorey implements ModInitializer {
         ModDataAttachments.initialize();
         MutationRegistry.initialize();
         MutationDataLoader.register();
+    MobAttributeDataLoader.register();
         DifficultyTickHandler.register();
         MobSpawnHandler.register();
         TierParticleTicker.register();
@@ -40,6 +43,7 @@ public class Legacycreaturescorey implements ModInitializer {
         ModStatusEffects.init();
         StatusEffectTicker.register();
         ModNetworking.init();
+    MutationCommand.register();
         
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayerEntity player) {

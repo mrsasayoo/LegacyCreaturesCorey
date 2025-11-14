@@ -14,8 +14,8 @@
     {
       "type": "entropy_aura",
       "mode": "armor_decay",
-      "radius": 5.0,
-      "interval_ticks": 80,
+      "radius": 6.0,
+      "interval_ticks": 100,
       "durability_damage": 1
     }
   ]

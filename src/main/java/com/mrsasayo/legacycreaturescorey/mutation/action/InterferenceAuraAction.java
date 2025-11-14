@@ -5,12 +5,16 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -318,7 +322,26 @@ public final class InterferenceAuraAction implements MutationAction {
                         continue;
                     }
                     PlayerEntity owner = (PlayerEntity) pearl.getOwner();
-                    pearl.discard();
+                    if (!pearl.isRemoved()) {
+                        pearl.remove(Entity.RemovalReason.KILLED);
+                        world.spawnParticles(ParticleTypes.SMOKE,
+                            pearl.getX(),
+                            pearl.getY(),
+                            pearl.getZ(),
+                            6,
+                            0.1D,
+                            0.1D,
+                            0.1D,
+                            0.01D);
+                        world.playSound(null,
+                            pearl.getX(),
+                            pearl.getY(),
+                            pearl.getZ(),
+                            SoundEvents.ENTITY_ENDERMAN_TELEPORT,
+                            SoundCategory.HOSTILE,
+                            0.4F,
+                            1.1F + world.random.nextFloat() * 0.2F);
+                    }
                     if (owner != null) {
                         owner.damage(world, world.getDamageSources().magic(), aura.action().getPearlDamage());
                     }

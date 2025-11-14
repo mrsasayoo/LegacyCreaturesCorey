@@ -42,6 +42,10 @@ public final class MobLegacyData {
         }
     }
 
+    public void removeMutation(Identifier mutationId) {
+        mutations.remove(mutationId);
+    }
+
     public void clearMutations() {
         mutations.clear();
     }

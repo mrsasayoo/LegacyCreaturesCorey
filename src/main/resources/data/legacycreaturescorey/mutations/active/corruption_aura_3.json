@@ -20,7 +20,7 @@
     {
       "type": "status_effect_aura",
       "effect": "minecraft:hunger",
-      "duration": 20,
+      "duration": 40,
       "amplifier": 0,
       "radius": 5.0,
       "interval": 80,

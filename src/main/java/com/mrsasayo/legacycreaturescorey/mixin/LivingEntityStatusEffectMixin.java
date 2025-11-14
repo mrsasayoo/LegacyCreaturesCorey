@@ -1,15 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.mixin;
 
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectPayload;
-import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
-import com.mrsasayo.legacycreaturescorey.status.NotifyingStatusEffect;
-import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
+import com.mrsasayo.legacycreaturescorey.status.StatusEffectSyncHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
+import java.util.Collection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,36 +19,19 @@ public abstract class LivingEntityStatusEffectMixin {
 
     @Inject(method = "onStatusEffectApplied", at = @At("TAIL"))
     private void legacy$syncApplied(StatusEffectInstance effect, Entity source, CallbackInfo ci) {
-        sendSync(effect, true);
+        StatusEffectSyncHelper.handle((LivingEntity) (Object) this, effect, true);
     }
 
     @Inject(method = "onStatusEffectUpgraded", at = @At("TAIL"))
     private void legacy$syncUpgraded(StatusEffectInstance effect, boolean reapplyEffect, Entity source, CallbackInfo ci) {
-        sendSync(effect, true);
+        StatusEffectSyncHelper.handle((LivingEntity) (Object) this, effect, true);
     }
 
-    @Inject(method = "onStatusEffectRemoved", at = @At("TAIL"))
-    private void legacy$syncRemoved(StatusEffectInstance effect, CallbackInfo ci) {
-        sendSync(effect, false);
-    }
-
-    private void sendSync(StatusEffectInstance effect, boolean start) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        StatusEffectTicker.handleStatusEffectUpdate(self, effect, start);
-
-        RegistryEntry<StatusEffect> entry = effect.getEffectType();
-        StatusEffect raw = entry.value();
-        if (!(raw instanceof NotifyingStatusEffect notifying)) {
-            return;
+    @Inject(method = "onStatusEffectsRemoved", at = @At("TAIL"))
+    private void legacy$syncRemoved(Collection<StatusEffectInstance> effects, CallbackInfo ci) {
+        // Iterate the batch removal to mirror each change to the client helper.
+        for (StatusEffectInstance effect : effects) {
+            StatusEffectSyncHelper.handle((LivingEntity) (Object) this, effect, false);
         }
-        if (!(self instanceof ServerPlayerEntity player)) {
-            return;
-        }
-        if (!start && hasStatusEffect(entry)) {
-            return;
-        }
-        int duration = start ? effect.getDuration() : 0;
-        float intensity = start ? notifying.computeIntensity(effect.getAmplifier()) : 0.0F;
-        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffectType(), start, duration, intensity));
     }
 }

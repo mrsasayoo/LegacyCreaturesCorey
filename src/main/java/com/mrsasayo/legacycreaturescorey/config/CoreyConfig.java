@@ -14,15 +14,15 @@ public class CoreyConfig {
     public double playerDifficultyIncreaseChance = 1.0; // Chance for each player to gain difficulty when global increases
     public int dailyIncreaseAmount = 1;
 
-    // Multiplicadores base por tier
-    public double epicHealthMultiplier = 1.6;
-    public double epicDamageMultiplier = 1.2;
-    public double legendaryHealthMultiplier = 2.0;
-    public double legendaryDamageMultiplier = 1.4;
-    public double mythicHealthMultiplier = 2.6;
-    public double mythicDamageMultiplier = 1.7;
-    public double definitiveHealthMultiplier = 3.2;
-    public double definitiveDamageMultiplier = 2.0;
+    // Multiplicadores base por tier (solo salud por defecto)
+    public double epicHealthMultiplier = 1.0;
+    public double epicDamageMultiplier = 1.0;
+    public double legendaryHealthMultiplier = 1.0;
+    public double legendaryDamageMultiplier = 1.0;
+    public double mythicHealthMultiplier = 1.0;
+    public double mythicDamageMultiplier = 1.0;
+    public double definitiveHealthMultiplier = 1.0;
+    public double definitiveDamageMultiplier = 1.0;
 
     // Multiplicadores de probabilidad por tier
     public double epicChanceMultiplier = 6.0;
@@ -53,13 +53,13 @@ public class CoreyConfig {
         if (deathPenaltyAmount < 0) deathPenaltyAmount = 8;
         if (deathPenaltyCooldownTicks < 0) deathPenaltyCooldownTicks = 12000L;
     if (epicHealthMultiplier < 1.0) epicHealthMultiplier = 1.6;
-    if (epicDamageMultiplier < 1.0) epicDamageMultiplier = 1.2;
+    if (epicDamageMultiplier < 1.0) epicDamageMultiplier = 1.0;
     if (legendaryHealthMultiplier < epicHealthMultiplier) legendaryHealthMultiplier = 2.0;
-    if (legendaryDamageMultiplier < epicDamageMultiplier) legendaryDamageMultiplier = 1.4;
+    if (legendaryDamageMultiplier < epicDamageMultiplier) legendaryDamageMultiplier = 1.0;
     if (mythicHealthMultiplier < legendaryHealthMultiplier) mythicHealthMultiplier = 2.6;
-    if (mythicDamageMultiplier < legendaryDamageMultiplier) mythicDamageMultiplier = 1.7;
+    if (mythicDamageMultiplier < legendaryDamageMultiplier) mythicDamageMultiplier = 1.0;
     if (definitiveHealthMultiplier < mythicHealthMultiplier) definitiveHealthMultiplier = 3.2;
-    if (definitiveDamageMultiplier < mythicDamageMultiplier) definitiveDamageMultiplier = 2.0;
+    if (definitiveDamageMultiplier < mythicDamageMultiplier) definitiveDamageMultiplier = 1.0;
         if (epicChanceMultiplier <= 0.0) epicChanceMultiplier = 1.0;
         if (legendaryChanceMultiplier <= 0.0) legendaryChanceMultiplier = 1.0;
         if (mythicChanceMultiplier <= 0.0) mythicChanceMultiplier = 1.0;

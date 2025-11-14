@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Applies an attribute modifier to nearby entities while the aura is active.
@@ -149,12 +148,16 @@ public final class AttributeAuraAction implements MutationAction {
         if (instance == null) {
             return;
         }
-        Identifier modifierId = Identifier.of(Legacycreaturescorey.MOD_ID, "attribute_aura_" + UUID.randomUUID().toString().replace("-", ""));
+        Identifier modifierId = Identifier.of(
+            Legacycreaturescorey.MOD_ID,
+            "attribute_aura_" + Integer.toHexString(System.identityHashCode(this)) + "_" + target.getId()
+        );
         EntityAttributeModifier.Operation op = switch (operation) {
             case ADD -> EntityAttributeModifier.Operation.ADD_VALUE;
             case MULTIPLY_BASE -> EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE;
         };
         if (instance.hasModifier(modifierId)) {
+            appliedModifiers.put(target, modifierId);
             return;
         }
         EntityAttributeModifier modifier = new EntityAttributeModifier(modifierId, amount, op);
