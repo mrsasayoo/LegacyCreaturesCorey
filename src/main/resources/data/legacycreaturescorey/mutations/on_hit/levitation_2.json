@@ -1,0 +1,35 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/levitation_2",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 14,
+    "display_name": {
+        "literal": "Levitar II"
+    },
+    "description": {
+        "literal": "10% de probabilidad de aplicar Levitación y elevar brevemente al mob."
+    },
+    "weight": 12,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.10,
+            "effect": "minecraft:levitation",
+            "duration": 60,
+            "amplifier": 0,
+            "target": "OTHER",
+            "extra_effects": [
+                {
+                    "effect": "minecraft:levitation",
+                    "duration": 30,
+                    "amplifier": 0,
+                    "target": "SELF"
+                }
+            ]
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/levitation_1",
+        "legacycreaturescorey:on_hit/vertical_thrust_3"
+    ]
+}

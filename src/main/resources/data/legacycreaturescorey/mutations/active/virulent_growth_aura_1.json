@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/virulent_growth_aura_1",
+  "type": "ACTIVE",
+  "cost": 6,
+  "display_name": {
+    "literal": "Crecimiento Virulento I"
+  },
+  "description": {
+    "literal": "Hace brotar hierbas y enredaderas alrededor del mob, bloqueando líneas de visión."
+  },
+  "weight": 65,
+  "actions": [
+    {
+      "type": "virulent_growth_aura",
+      "radius": 6.0,
+      "interval_ticks": 40,
+      "attempts": 4,
+      "chance": 0.35
+    }
+  ]
+}

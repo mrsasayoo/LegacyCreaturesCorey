@@ -10,26 +10,38 @@ import com.mrsasayo.legacycreaturescorey.mutation.Mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRestrictions;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationType;
+import com.mrsasayo.legacycreaturescorey.mutation.action.AllyDeathHealAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeMutationAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.BleedingOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.CriticalDamageOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageArmorOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.DeepDarknessAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisarmOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisableShieldOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.EntropyAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ExperienceTheftOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.FreezeOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.IgniteOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.InterferenceAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.KnockbackOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.PhantasmalVeilAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.ProjectileShroudAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.PsionicThornsAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ShatterArmorOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.StasisFieldAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.SummonMobAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.TeleportOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.TrueDamageOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.VerticalThrustOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.VirulentGrowthAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.HordeBeaconAuraAction;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
@@ -159,6 +171,7 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     case "damage_aura", "aura_damage" -> parseDamageAuraAction(actionObject);
                     case "heal", "heal_self" -> parseHealAction(actionObject);
                     case "summon_mob", "summon" -> parseSummonAction(actionObject);
+                    case "status_effect_aura", "aura_status_effect" -> parseStatusEffectAuraAction(actionObject);
                     case "true_damage", "true_damage_on_hit" -> parseTrueDamageAction(actionObject);
                     case "critical_hit", "critical_damage" -> parseCriticalAction(actionObject);
                     case "heal_on_hit", "lifesteal" -> parseHealOnHitAction(actionObject);
@@ -173,6 +186,17 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     case "experience_theft", "xp_theft" -> parseExperienceTheftAction(actionObject);
                     case "vertical_thrust", "launch" -> parseVerticalThrustAction(actionObject);
                     case "shatter_armor", "armor_shatter" -> parseShatterArmorAction(actionObject);
+                    case "projectile_shroud" -> parseProjectileShroudAction(actionObject);
+                    case "interference_aura", "aura_interference" -> parseInterferenceAuraAction(actionObject);
+                    case "stasis_field_aura", "aura_stasis", "stasis_field" -> parseStasisFieldAuraAction(actionObject);
+                    case "entropy_aura", "aura_entropy", "entropy" -> parseEntropyAuraAction(actionObject);
+                    case "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal" -> parsePhantasmalVeilAuraAction(actionObject);
+                    case "psionic_thorns", "psionic_thorns_aura", "thorns_aura" -> parsePsionicThornsAuraAction(actionObject);
+                    case "deep_darkness_aura", "darkness_aura", "deep_darkness" -> parseDeepDarknessAuraAction(actionObject);
+                    case "virulent_growth_aura", "growth_aura", "virulent_growth" -> parseVirulentGrowthAuraAction(actionObject);
+                    case "horde_beacon_aura", "horde_beacon" -> parseHordeBeaconAuraAction(actionObject);
+                    case "attribute_aura" -> parseAttributeAuraAction(actionObject);
+                    case "ally_death_heal", "ally_death_aura" -> parseAllyDeathHealAuraAction(actionObject);
                     default -> throw new IllegalArgumentException("Tipo de acción desconocido: " + rawType);
                 };
                 actions.add(action);
@@ -207,6 +231,18 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         double range = JsonHelper.getDouble(object, "range");
         int interval = JsonHelper.getInt(object, "interval", 20);
         return new DamageAuraAction(amount, range, interval);
+    }
+
+    private MutationAction parseStatusEffectAuraAction(JsonObject object) {
+        Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect"));
+        int duration = JsonHelper.getInt(object, "duration");
+        int amplifier = JsonHelper.getInt(object, "amplifier", 0);
+        double radius = JsonHelper.getDouble(object, "radius");
+        int interval = parseTicks(object, "interval", 20);
+        String targetRaw = JsonHelper.getString(object, "target", "PLAYERS");
+        StatusEffectAuraAction.Target target = StatusEffectAuraAction.Target.fromString(targetRaw);
+        boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self", target != StatusEffectAuraAction.Target.SELF);
+        return new StatusEffectAuraAction(effectId, duration, amplifier, radius, interval, target, excludeSelf);
     }
 
     private MutationAction parseHealAction(JsonObject object) {
@@ -288,9 +324,10 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
 
     private MutationAction parseTeleportAction(JsonObject object) {
         double chance = parseChance(object, "chance");
-        double radius = JsonHelper.getDouble(object, "radius");
+    double radius = JsonHelper.getDouble(object, "radius");
+    TeleportOnHitAction.Target target = TeleportOnHitAction.Target.fromString(JsonHelper.getString(object, "target", "OTHER"));
         List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "side_effects");
-        return new TeleportOnHitAction(chance, radius, extras);
+    return new TeleportOnHitAction(chance, radius, target, extras);
     }
 
     private MutationAction parseDisarmAction(JsonObject object) {
@@ -317,6 +354,128 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         double percent = JsonHelper.getDouble(object, "percent");
         int duration = parseTicks(object, "duration", 0);
         return new ShatterArmorOnHitAction(chance, percent, duration);
+    }
+
+    private MutationAction parseProjectileShroudAction(JsonObject object) {
+    double radius = JsonHelper.getDouble(object, "radius");
+    double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "destroy");
+        ProjectileShroudAuraAction.Mode mode = ProjectileShroudAuraAction.Mode.fromString(modeRaw);
+        double pushStrength = JsonHelper.getDouble(object, "push_strength", 0.4D);
+        double reflectFactor = JsonHelper.getDouble(object, "reflect_factor", 1.0D);
+        return new ProjectileShroudAuraAction(radius, chance, mode, pushStrength, reflectFactor);
+    }
+
+    private MutationAction parseInterferenceAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode");
+        InterferenceAuraAction.Mode mode = InterferenceAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        double chance = JsonHelper.getDouble(object, "chance", 1.0D);
+        float damage = JsonHelper.getFloat(object, "damage", 0.0F);
+        return new InterferenceAuraAction(mode, radius, chance, damage);
+    }
+
+    private MutationAction parseStasisFieldAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode");
+        StasisFieldAuraAction.Mode mode = StasisFieldAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        double slowFactor = JsonHelper.getDouble(object, "projectile_slow_factor", 0.5D);
+        double attackSpeedMultiplier = JsonHelper.getDouble(object, "attack_speed_multiplier", 1.0D);
+        int shieldCooldown = parseTicks(object, "shield_cooldown", 0);
+        return new StasisFieldAuraAction(mode, radius, slowFactor, attackSpeedMultiplier, shieldCooldown);
+    }
+
+    private MutationAction parseEntropyAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode");
+        EntropyAuraAction.Mode mode = EntropyAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        double chance = JsonHelper.getDouble(object, "chance", 1.0D);
+        int interval = parseTicks(object, "interval", 20);
+        int cooldown = parseTicks(object, "cooldown", 20);
+        int lockTicks = parseTicks(object, "lock", 80);
+        int durabilityDamage = JsonHelper.getInt(object, "durability_damage", 1);
+        return new EntropyAuraAction(mode, radius, chance, interval, cooldown, lockTicks, durabilityDamage);
+    }
+
+    private MutationAction parsePhantasmalVeilAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode", "health_mirage");
+        PhantasmalVeilAuraAction.Mode mode = PhantasmalVeilAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius", 6.0D);
+        int interval = parseTicks(object, "interval", 40);
+        int particles = JsonHelper.getInt(object, "particle_count", 6);
+        int cloneMin = JsonHelper.getInt(object, "clone_min", 0);
+        int cloneMax = JsonHelper.getInt(object, "clone_max", cloneMin);
+        int cloneLifetime = parseTicks(object, "clone_lifetime", 100);
+        boolean cloneGlow = JsonHelper.getBoolean(object, "clone_glow", false);
+        int shroudVisible = parseTicks(object, "shroud_visible", 20);
+        int shroudInvisible = parseTicks(object, "shroud_invisible", 20);
+        return new PhantasmalVeilAuraAction(mode, radius, interval, particles, cloneMin, cloneMax, cloneLifetime, cloneGlow, shroudVisible, shroudInvisible);
+    }
+
+    private MutationAction parsePsionicThornsAuraAction(JsonObject object) {
+        double reflectPercent = parseChance(object, "reflect_percent");
+        double maxDistance = JsonHelper.getDouble(object, "max_distance", 6.0D);
+        int fatigueDuration = parseTicks(object, "mining_fatigue_duration", 0);
+        int fatigueAmplifier = JsonHelper.getInt(object, "mining_fatigue_amplifier", 0);
+        double criticalBonus = JsonHelper.getDouble(object, "critical_bonus_factor", 0.0D);
+        return new PsionicThornsAuraAction(reflectPercent, maxDistance, fatigueDuration, fatigueAmplifier, criticalBonus);
+    }
+
+    private MutationAction parseDeepDarknessAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode", "darkness");
+        DeepDarknessAuraAction.Mode mode = DeepDarknessAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        int interval = parseTicks(object, "interval", 20);
+        int darknessDuration = parseTicks(object, "darkness_duration", 80);
+        boolean removeNightVision = JsonHelper.getBoolean(object, "remove_night_vision", true);
+        int lightDelay = parseTicks(object, "light_break_delay", 300);
+        int lightThreshold = JsonHelper.getInt(object, "light_threshold", 7);
+        return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, removeNightVision, lightDelay, lightThreshold);
+    }
+
+    private MutationAction parseVirulentGrowthAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode", "foliage_spread");
+        VirulentGrowthAuraAction.Mode mode = VirulentGrowthAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        int interval = parseTicks(object, "interval", 40);
+        int attempts = JsonHelper.getInt(object, "attempts", 4);
+        double chance = object.has("chance") ? parseChance(object, "chance") : 0.35D;
+        int stationaryThreshold = parseTicks(object, "stationary_threshold", 100);
+        int poisonDuration = parseTicks(object, "poison_duration", 100);
+        int poisonAmplifier = JsonHelper.getInt(object, "poison_amplifier", 0);
+        int fangCount = JsonHelper.getInt(object, "fang_count", 6);
+        int fangWarmup = parseTicks(object, "fang_warmup", 20);
+        return new VirulentGrowthAuraAction(mode, radius, interval, attempts, chance, stationaryThreshold, poisonDuration, poisonAmplifier, fangCount, fangWarmup);
+    }
+
+    private MutationAction parseHordeBeaconAuraAction(JsonObject object) {
+        String modeRaw = JsonHelper.getString(object, "mode", "fear_override");
+        HordeBeaconAuraAction.Mode mode = HordeBeaconAuraAction.Mode.fromString(modeRaw);
+        double radius = JsonHelper.getDouble(object, "radius");
+        int interval = parseTicks(object, "interval", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 160 : 20);
+        int markDuration = parseTicks(object, "mark_duration", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 0);
+        int speedDuration = parseTicks(object, "speed_duration", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 20);
+        int speedAmplifier = JsonHelper.getInt(object, "speed_amplifier", 0);
+        int retargetCooldown = parseTicks(object, "retarget_cooldown", 40);
+        return new HordeBeaconAuraAction(mode, radius, interval, markDuration, speedDuration, speedAmplifier, retargetCooldown);
+    }
+
+    private MutationAction parseAttributeAuraAction(JsonObject object) {
+        Identifier attributeId = Identifier.of(JsonHelper.getString(object, "attribute"));
+        String operationRaw = JsonHelper.getString(object, "mode", "add");
+        AttributeAuraAction.Operation operation = AttributeAuraAction.Operation.fromString(operationRaw);
+        double amount = JsonHelper.getDouble(object, "amount");
+        double radius = JsonHelper.getDouble(object, "radius");
+        String targetRaw = JsonHelper.getString(object, "target", "ALLY_MOBS");
+        AttributeAuraAction.Target target = AttributeAuraAction.Target.fromString(targetRaw);
+        boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self", target != AttributeAuraAction.Target.SELF);
+        return new AttributeAuraAction(attributeId, operation, amount, radius, target, excludeSelf);
+    }
+
+    private MutationAction parseAllyDeathHealAuraAction(JsonObject object) {
+        double radius = JsonHelper.getDouble(object, "radius");
+        float healAmount = JsonHelper.getFloat(object, "heal_amount");
+        return new AllyDeathHealAuraAction(radius, healAmount);
     }
 
     private StatusEffectOnHitAction.Target parseHitTarget(String raw) {

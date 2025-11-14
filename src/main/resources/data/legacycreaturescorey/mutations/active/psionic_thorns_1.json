@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/psionic_thorns_1",
+  "type": "ACTIVE",
+  "cost": 6,
+  "display_name": {
+    "literal": "Espinas Psiónicas I"
+  },
+  "description": {
+    "literal": "Refleja el 5% del daño cuerpo a cuerpo recibido de vuelta como daño mágico."
+  },
+  "weight": 65,
+  "actions": [
+    {
+      "type": "psionic_thorns",
+      "reflect_percent": 0.05,
+      "max_distance": 5.0
+    }
+  ]
+}

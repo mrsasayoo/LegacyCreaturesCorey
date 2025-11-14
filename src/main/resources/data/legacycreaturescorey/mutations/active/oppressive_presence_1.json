@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/oppressive_presence_1",
+  "type": "ACTIVE",
+  "cost": 7,
+  "display_name": {
+    "literal": "Presencia Opresiva I"
+  },
+  "description": {
+    "literal": "Aplica Lentitud I a los jugadores en un radio de 4 bloques."
+  },
+  "weight": 60,
+  "actions": [
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:slowness",
+      "duration": 40,
+      "amplifier": 0,
+      "radius": 4.0,
+      "interval": 40,
+      "target": "PLAYERS",
+      "exclude_self": true
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/oppressive_presence_2",
+    "legacycreaturescorey:active/oppressive_presence_3"
+  ]
+}

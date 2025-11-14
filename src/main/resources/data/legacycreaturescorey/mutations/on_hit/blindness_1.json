@@ -1,0 +1,31 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/blindness_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 8,
+    "display_name": {
+        "literal": "Deslumbrar I"
+    },
+    "description": {
+        "literal": "10% de probabilidad de cegar al objetivo durante 2 s y dejar un brillo residual."
+    },
+    "weight": 35,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.10,
+            "effect": "minecraft:blindness",
+            "duration": 40,
+            "amplifier": 0,
+            "target": "OTHER",
+            "extra_effects": [
+                {
+                    "effect": "minecraft:night_vision",
+                    "duration": 80,
+                    "amplifier": 0,
+                    "target": "OTHER"
+                }
+            ]
+        }
+    ]
+}

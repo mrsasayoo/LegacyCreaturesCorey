@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/horde_beacon_3",
+  "type": "ACTIVE",
+  "cost": 26,
+  "display_name": {
+    "literal": "Baliza de la Horda III"
+  },
+  "description": {
+    "literal": "Cada 8 segundos marca a un jugador. Durante 6 segundos, todos los aliados en 20 bloques se concentran en el objetivo marcado y ganan un pequeño aumento de velocidad."
+  },
+  "weight": 6,
+  "actions": [
+    {
+      "type": "horde_beacon_aura",
+      "mode": "target_mark",
+      "radius": 20.0,
+      "interval_ticks": 160,
+      "mark_duration_ticks": 120,
+      "speed_duration_ticks": 120,
+      "speed_amplifier": 0,
+      "retarget_cooldown_ticks": 40
+    }
+  ]
+}

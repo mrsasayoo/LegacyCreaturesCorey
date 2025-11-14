@@ -1,0 +1,20 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/disarm_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 18,
+    "display_name": {
+        "literal": "Desarme I"
+    },
+    "description": {
+        "literal": "7% de probabilidad de desarmar al jugador; el mob recibe Lentitud II durante 3 s."
+    },
+    "weight": 10,
+    "actions": [
+        {
+            "type": "disarm",
+            "chance": 0.07,
+            "self_slowness_seconds": 3
+        }
+    ]
+}

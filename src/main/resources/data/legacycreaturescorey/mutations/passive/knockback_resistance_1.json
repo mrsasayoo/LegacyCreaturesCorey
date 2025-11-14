@@ -25,5 +25,12 @@
     "legacycreaturescorey:passive/attack_damage_2",
     "legacycreaturescorey:passive/attack_speed_1",
     "legacycreaturescorey:passive/attack_speed_2"
-  ]
+  ],
+  "restrictions": {
+    "excluded_entity_types": [
+      "minecraft:iron_golem",
+      "minecraft:ravager",
+      "minecraft:warden"
+    ]
+  }
 }

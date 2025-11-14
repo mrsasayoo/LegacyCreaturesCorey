@@ -1,0 +1,26 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/vertical_thrust_3",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 11,
+    "display_name": {
+        "literal": "Levantamiento III"
+    },
+    "description": {
+        "literal": "20% de probabilidad de lanzar 2.5 bloques hacia arriba al objetivo."
+    },
+    "weight": 25,
+    "actions": [
+        {
+            "type": "vertical_thrust",
+            "chance": 0.20,
+            "upward_velocity": 1.2,
+            "self_downtime_seconds": 1.0
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/vertical_thrust_1",
+        "legacycreaturescorey:on_hit/vertical_thrust_2",
+        "legacycreaturescorey:on_hit/levitation_2"
+    ]
+}

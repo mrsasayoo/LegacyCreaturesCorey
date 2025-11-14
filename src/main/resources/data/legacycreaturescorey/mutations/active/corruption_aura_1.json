@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/corruption_aura_1",
+  "type": "ACTIVE",
+  "cost": 8,
+  "display_name": {
+    "literal": "Aura de Corrupción I"
+  },
+  "description": {
+    "literal": "Inflige 1 punto de daño mágico cada 4 segundos a los jugadores en un radio de 3 bloques."
+  },
+  "weight": 50,
+  "actions": [
+    {
+      "type": "damage_aura",
+      "amount": 1.0,
+      "range": 3.0,
+      "interval": 80
+    }
+  ]
+}

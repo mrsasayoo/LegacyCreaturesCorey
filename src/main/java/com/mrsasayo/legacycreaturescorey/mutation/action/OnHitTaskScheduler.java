@@ -3,7 +3,6 @@ package com.mrsasayo.legacycreaturescorey.mutation.action;
 import net.minecraft.server.world.ServerWorld;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -26,12 +25,21 @@ public final class OnHitTaskScheduler {
             return;
         }
 
-        Iterator<TimedTask> iterator = tasks.iterator();
-        while (iterator.hasNext()) {
-            TimedTask task = iterator.next();
+        int initialCount = tasks.size();
+        List<TimedTask> toRemove = null;
+
+        for (int index = 0; index < initialCount; index++) {
+            TimedTask task = tasks.get(index);
             if (task.tick(world)) {
-                iterator.remove();
+                if (toRemove == null) {
+                    toRemove = new ArrayList<>();
+                }
+                toRemove.add(task);
             }
+        }
+
+        if (toRemove != null) {
+            tasks.removeAll(toRemove);
         }
 
         if (tasks.isEmpty()) {

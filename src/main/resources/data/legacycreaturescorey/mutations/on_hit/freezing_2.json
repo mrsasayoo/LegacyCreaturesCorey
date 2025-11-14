@@ -1,0 +1,32 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/freezing_2",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 8,
+    "display_name": {
+        "literal": "Congelación II"
+    },
+    "description": {
+        "literal": "15% de probabilidad de congelar al objetivo durante 2 s."
+    },
+    "weight": 40,
+    "actions": [
+        {
+            "type": "freeze",
+            "chance": 0.15,
+            "freeze_seconds": 2
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/freezing_1",
+        "legacycreaturescorey:on_hit/freezing_3",
+        "legacycreaturescorey:on_hit/slowness_1",
+        "legacycreaturescorey:on_hit/slowness_2",
+        "legacycreaturescorey:on_hit/slowness_3"
+    ],
+    "restrictions": {
+        "excluded_entity_types": [
+            "minecraft:stray"
+        ]
+    }
+}

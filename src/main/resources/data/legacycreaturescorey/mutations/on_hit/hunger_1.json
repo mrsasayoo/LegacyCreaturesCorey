@@ -1,0 +1,27 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/hunger_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 3,
+    "display_name": {
+        "literal": "Inanición I"
+    },
+    "description": {
+        "literal": "15% de probabilidad de aplicar Hambre I durante 4 s."
+    },
+    "weight": 75,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.15,
+            "effect": "minecraft:hunger",
+            "duration": 80,
+            "amplifier": 0,
+            "target": "OTHER"
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/hunger_2",
+        "legacycreaturescorey:on_hit/hunger_3"
+    ]
+}

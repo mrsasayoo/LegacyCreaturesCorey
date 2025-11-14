@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/phantasmal_veil_3",
+  "type": "ACTIVE",
+  "cost": 7,
+  "display_name": {
+    "literal": "Velo Fantasmal III"
+  },
+  "description": {
+    "literal": "Envuelve a los aliados monstruosos cercanos en un velo intermitente que los oculta a intervalos regulares."
+  },
+  "weight": 50,
+  "actions": [
+    {
+      "type": "phantasmal_veil_aura",
+      "mode": "ally_shroud",
+      "radius": 8.0,
+      "interval_ticks": 20,
+      "particle_count": 6,
+      "shroud_visible_ticks": 40,
+      "shroud_invisible_ticks": 60
+    }
+  ]
+}

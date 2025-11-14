@@ -11,20 +11,26 @@ import java.util.List;
 public final class TeleportOnHitAction extends ProcOnHitAction {
     private final double radius;
     private final List<StatusEffectOnHitAction.AdditionalEffect> sideEffects;
+    private final Target target;
 
-    public TeleportOnHitAction(double chance, double radius, List<StatusEffectOnHitAction.AdditionalEffect> sideEffects) {
+    public TeleportOnHitAction(double chance,
+                               double radius,
+                               Target target,
+                               List<StatusEffectOnHitAction.AdditionalEffect> sideEffects) {
         super(chance);
         this.radius = Math.max(0.5D, radius);
+        this.target = target;
         this.sideEffects = sideEffects == null ? List.of() : List.copyOf(sideEffects);
     }
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim.getEntityWorld() instanceof ServerWorld world)) {
+        LivingEntity teleportee = target == Target.SELF ? attacker : victim;
+        if (!(teleportee.getEntityWorld() instanceof ServerWorld world)) {
             return;
         }
 
-        if (tryTeleportRandomly(world, victim, radius)) {
+        if (tryTeleportRandomly(world, teleportee, radius)) {
             if (!sideEffects.isEmpty()) {
                 for (StatusEffectOnHitAction.AdditionalEffect effect : sideEffects) {
                     effect.apply(attacker, victim);
@@ -34,7 +40,7 @@ public final class TeleportOnHitAction extends ProcOnHitAction {
     }
 
     private boolean tryTeleportRandomly(ServerWorld world, LivingEntity entity, double range) {
-    Random random = entity.getRandom();
+        Random random = entity.getRandom();
         for (int attempt = 0; attempt < 8; attempt++) {
             double dx = (random.nextDouble() * 2.0D - 1.0D) * range;
             double dz = (random.nextDouble() * 2.0D - 1.0D) * range;
@@ -44,11 +50,27 @@ public final class TeleportOnHitAction extends ProcOnHitAction {
             }
 
             Vec3d destination = new Vec3d(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D);
-        entity.refreshPositionAfterTeleport(destination);
-        entity.setHeadYaw(entity.getYaw());
-        entity.velocityModified = true;
-        return true;
+            entity.refreshPositionAfterTeleport(destination);
+            entity.setHeadYaw(entity.getYaw());
+            entity.velocityModified = true;
+            return true;
         }
         return false;
+    }
+
+    public enum Target {
+        SELF,
+        OTHER;
+
+        public static Target fromString(String raw) {
+            if (raw == null) {
+                return OTHER;
+            }
+            return switch (raw.trim().toUpperCase()) {
+                case "SELF", "ATTACKER" -> SELF;
+                case "OTHER", "VICTIM", "TARGET" -> OTHER;
+                default -> throw new IllegalArgumentException("Objetivo de teletransporte desconocido: " + raw);
+            };
+        }
     }
 }

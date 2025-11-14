@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/vanguards_bulwark_2",
+  "type": "ACTIVE",
+  "cost": 14,
+  "display_name": {
+    "literal": "Baluarte de la Vanguardia II"
+  },
+  "description": {
+    "literal": "Otorga +6 de armadura a los aliados dentro de 8 bloques."
+  },
+  "weight": 25,
+  "actions": [
+    {
+      "type": "attribute_aura",
+      "attribute": "minecraft:generic.armor",
+      "mode": "add",
+      "amount": 6.0,
+      "radius": 8.0,
+      "target": "ALLY_MOBS",
+      "exclude_self": true
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/vanguards_bulwark_1",
+    "legacycreaturescorey:active/vanguards_bulwark_3"
+  ]
+}

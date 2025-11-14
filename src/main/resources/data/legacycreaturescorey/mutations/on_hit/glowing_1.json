@@ -1,0 +1,27 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/glowing_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 2,
+    "display_name": {
+        "literal": "Resplandor I"
+    },
+    "description": {
+        "literal": "20% de probabilidad de resaltar al objetivo durante 1 s."
+    },
+    "weight": 95,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.20,
+            "effect": "minecraft:glowing",
+            "duration": 20,
+            "amplifier": 0,
+            "target": "OTHER"
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/glowing_2",
+        "legacycreaturescorey:on_hit/glowing_3"
+    ]
+}

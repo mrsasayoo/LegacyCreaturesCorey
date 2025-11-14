@@ -1,0 +1,50 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/oppressive_presence_3",
+  "type": "ACTIVE",
+  "cost": 20,
+  "display_name": {
+    "literal": "Presencia Opresiva III"
+  },
+  "description": {
+    "literal": "Aplica Lentitud I, Debilidad I y Fatiga de Minero II a los jugadores en un radio de 4 bloques."
+  },
+  "weight": 10,
+  "actions": [
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:slowness",
+      "duration": 60,
+      "amplifier": 0,
+      "radius": 4.0,
+      "interval": 40,
+      "target": "PLAYERS",
+      "exclude_self": true
+    },
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:weakness",
+      "duration": 60,
+      "amplifier": 0,
+      "radius": 4.0,
+      "interval": 40,
+      "target": "PLAYERS",
+      "exclude_self": true
+    },
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:mining_fatigue",
+      "duration": 100,
+      "amplifier": 1,
+      "radius": 4.0,
+      "interval": 40,
+      "target": "PLAYERS",
+      "exclude_self": true
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/oppressive_presence_1",
+    "legacycreaturescorey:active/oppressive_presence_2",
+    "legacycreaturescorey:active/stasis_field_3"
+  ]
+}

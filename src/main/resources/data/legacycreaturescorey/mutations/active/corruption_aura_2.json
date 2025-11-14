@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/corruption_aura_2",
+  "type": "ACTIVE",
+  "cost": 14,
+  "display_name": {
+    "literal": "Aura de Corrupción II"
+  },
+  "description": {
+    "literal": "Inflige 2 puntos de daño mágico cada 4 segundos a los jugadores en un radio de 4 bloques."
+  },
+  "weight": 25,
+  "actions": [
+    {
+      "type": "damage_aura",
+      "amount": 2.0,
+      "range": 4.0,
+      "interval": 80
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/corruption_aura_1"
+  ]
+}

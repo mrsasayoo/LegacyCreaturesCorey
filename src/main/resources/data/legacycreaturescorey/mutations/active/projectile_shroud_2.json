@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/projectile_shroud_2",
+  "type": "ACTIVE",
+  "cost": 15,
+  "display_name": {
+    "literal": "Velo de Proyectiles II"
+  },
+  "description": {
+    "literal": "40% de probabilidad de destruir proyectiles y empujar levemente al tirador."
+  },
+  "weight": 20,
+  "actions": [
+    {
+      "type": "projectile_shroud",
+      "radius": 4.0,
+      "chance": 0.40,
+      "mode": "shove_shooter",
+      "push_strength": 0.5
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/projectile_shroud_1",
+    "legacycreaturescorey:active/projectile_shroud_3"
+  ]
+}

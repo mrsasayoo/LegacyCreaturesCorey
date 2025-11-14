@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/projectile_shroud_3",
+  "type": "ACTIVE",
+  "cost": 24,
+  "display_name": {
+    "literal": "Velo de Proyectiles III"
+  },
+  "description": {
+    "literal": "60% de probabilidad de reflejar proyectiles hacia el atacante con la mitad de la velocidad original."
+  },
+  "weight": 7,
+  "actions": [
+    {
+      "type": "projectile_shroud",
+      "radius": 5.0,
+      "chance": 0.60,
+      "mode": "deflect",
+      "reflect_factor": 0.5
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/projectile_shroud_1",
+    "legacycreaturescorey:active/projectile_shroud_2",
+    "legacycreaturescorey:active/psionic_thorns_3"
+  ]
+}

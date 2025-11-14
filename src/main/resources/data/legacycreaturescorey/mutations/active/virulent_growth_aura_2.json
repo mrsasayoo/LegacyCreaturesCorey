@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/virulent_growth_aura_2",
+  "type": "ACTIVE",
+  "cost": 8,
+  "display_name": {
+    "literal": "Crecimiento Virulento II"
+  },
+  "description": {
+    "literal": "Enraiza a los jugadores que permanecen quietos sobre terreno natural dentro de 6 bloques, envenenándolos tras unos segundos."
+  },
+  "weight": 55,
+  "actions": [
+    {
+      "type": "virulent_growth_aura",
+      "mode": "stationary_poison",
+      "radius": 6.0,
+      "interval_ticks": 30,
+      "attempts": 2,
+      "chance": 0.25,
+      "stationary_threshold_ticks": 100,
+      "poison_duration_ticks": 120,
+      "poison_amplifier": 0
+    }
+  ]
+}

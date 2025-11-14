@@ -1,0 +1,27 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/mining_fatigue_2",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 6,
+    "display_name": {
+        "literal": "Fatiga Minera II"
+    },
+    "description": {
+        "literal": "15% de probabilidad de aplicar Fatiga de Minero I durante 8 s."
+    },
+    "weight": 50,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.15,
+            "effect": "minecraft:mining_fatigue",
+            "duration": 160,
+            "amplifier": 0,
+            "target": "OTHER"
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/mining_fatigue_1",
+        "legacycreaturescorey:on_hit/mining_fatigue_3"
+    ]
+}

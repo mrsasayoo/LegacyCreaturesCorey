@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/vertical_thrust_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 4,
+    "display_name": {
+        "literal": "Levantamiento I"
+    },
+    "description": {
+        "literal": "20% de probabilidad de lanzar 1 bloque hacia arriba al objetivo."
+    },
+    "weight": 75,
+    "actions": [
+        {
+            "type": "vertical_thrust",
+            "chance": 0.20,
+            "upward_velocity": 0.5
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/vertical_thrust_2",
+        "legacycreaturescorey:on_hit/vertical_thrust_3"
+    ]
+}

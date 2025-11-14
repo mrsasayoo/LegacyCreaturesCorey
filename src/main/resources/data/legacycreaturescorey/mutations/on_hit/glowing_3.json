@@ -1,0 +1,27 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/glowing_3",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 4,
+    "display_name": {
+        "literal": "Resplandor III"
+    },
+    "description": {
+        "literal": "20% de probabilidad de revelar claramente al objetivo durante varios destellos."
+    },
+    "weight": 55,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.20,
+            "effect": "minecraft:glowing",
+            "duration": 60,
+            "amplifier": 0,
+            "target": "OTHER"
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/glowing_1",
+        "legacycreaturescorey:on_hit/glowing_2"
+    ]
+}

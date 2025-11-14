@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/corruption_aura_3",
+  "type": "ACTIVE",
+  "cost": 22,
+  "display_name": {
+    "literal": "Aura de Corrupción III"
+  },
+  "description": {
+    "literal": "Inflige 3 de daño mágico cada 4 segundos y aplica Hambre I (1s) a los jugadores en un radio de 5 bloques."
+  },
+  "weight": 8,
+  "actions": [
+    {
+      "type": "damage_aura",
+      "amount": 3.0,
+      "range": 5.0,
+      "interval": 80
+    },
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:hunger",
+      "duration": 20,
+      "amplifier": 0,
+      "radius": 5.0,
+      "interval": 80,
+      "target": "PLAYERS",
+      "exclude_self": true
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/corruption_aura_1",
+    "legacycreaturescorey:active/corruption_aura_2"
+  ]
+}

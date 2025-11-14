@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/deep_darkness_aura_1",
+  "type": "ACTIVE",
+  "cost": 6,
+  "display_name": {
+    "literal": "Oscuridad Profunda I"
+  },
+  "description": {
+    "literal": "Reduce la iluminación en un radio de 8 bloques y anula la Visión Nocturna cercana."
+  },
+  "weight": 60,
+  "actions": [
+    {
+      "type": "deep_darkness_aura",
+      "radius": 8.0,
+      "interval_ticks": 20,
+      "darkness_duration_ticks": 80,
+      "remove_night_vision": true
+    }
+  ]
+}

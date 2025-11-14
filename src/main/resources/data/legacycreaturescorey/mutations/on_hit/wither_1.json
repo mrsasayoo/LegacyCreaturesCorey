@@ -1,0 +1,33 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/wither_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 6,
+    "display_name": {
+        "literal": "Marchitar I"
+    },
+    "description": {
+        "literal": "13% de probabilidad de aplicar Marchitez I durante 3 s."
+    },
+    "weight": 60,
+    "actions": [
+        {
+            "type": "status_effect_on_hit",
+            "chance": 0.13,
+            "effect": "minecraft:wither",
+            "duration": 60,
+            "amplifier": 0,
+            "target": "OTHER"
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/wither_2",
+        "legacycreaturescorey:on_hit/wither_3"
+    ],
+    "restrictions": {
+        "excluded_entity_types": [
+            "minecraft:wither_skeleton",
+            "minecraft:wither"
+        ]
+    }
+}

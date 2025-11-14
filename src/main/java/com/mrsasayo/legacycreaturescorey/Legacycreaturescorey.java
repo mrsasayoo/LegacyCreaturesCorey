@@ -4,7 +4,6 @@ import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyManager;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyTickHandler;
-import com.mrsasayo.legacycreaturescorey.item.ModItems;
 import com.mrsasayo.legacycreaturescorey.mob.MobSpawnHandler;
 import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
@@ -29,9 +28,8 @@ public class Legacycreaturescorey implements ModInitializer {
         
         CoreyConfig.INSTANCE.validate();
         ModDataAttachments.initialize();
-        ModItems.initialize();
-            MutationRegistry.initialize();
-            MutationDataLoader.register();
+        MutationRegistry.initialize();
+        MutationDataLoader.register();
         DifficultyTickHandler.register();
         MobSpawnHandler.register();
         TierParticleTicker.register();

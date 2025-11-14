@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/vanguards_bulwark_1",
+  "type": "ACTIVE",
+  "cost": 8,
+  "display_name": {
+    "literal": "Baluarte de la Vanguardia I"
+  },
+  "description": {
+    "literal": "Los aliados a 6 bloques reciben Regeneración I cada 2 segundos."
+  },
+  "weight": 45,
+  "actions": [
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:regeneration",
+      "duration": 80,
+      "amplifier": 0,
+      "radius": 6.0,
+      "interval": 40,
+      "target": "ALLY_MOBS",
+      "exclude_self": true
+    }
+  ],
+  "incompatible_with": [
+    "legacycreaturescorey:active/vanguards_bulwark_2",
+    "legacycreaturescorey:active/vanguards_bulwark_3"
+  ]
+}

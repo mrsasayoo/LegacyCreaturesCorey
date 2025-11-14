@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/teleportation_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 5,
+    "display_name": {
+        "literal": "Desplazamiento I"
+    },
+    "description": {
+        "literal": "5% de probabilidad de teletransportar al objetivo en un radio de 2 bloques."
+    },
+    "weight": 60,
+    "actions": [
+        {
+            "type": "teleport",
+            "chance": 0.05,
+            "radius": 2.0,
+            "target": "SELF"
+        }
+    ]
+}

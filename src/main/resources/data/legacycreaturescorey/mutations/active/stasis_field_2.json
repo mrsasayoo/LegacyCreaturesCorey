@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:active/stasis_field_2",
+  "type": "ACTIVE",
+  "cost": 10,
+  "display_name": {
+    "literal": "Campo de Estasis II"
+  },
+  "description": {
+    "literal": "Suprime los esprints de los jugadores en un radio de 6 bloques y aplica un enfriamiento a los escudos mientras reduce su velocidad de ataque."
+  },
+  "weight": 35,
+  "actions": [
+    {
+      "type": "stasis_field_aura",
+      "mode": "sprint_suppression",
+      "radius": 6.0,
+      "projectile_slow_factor": 1.0,
+      "attack_speed_multiplier": 0.85,
+      "shield_cooldown_ticks": 100
+    }
+  ]
+}

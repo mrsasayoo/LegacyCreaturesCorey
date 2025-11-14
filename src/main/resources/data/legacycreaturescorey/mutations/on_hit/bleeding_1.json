@@ -1,0 +1,30 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:on_hit/bleeding_1",
+    "type": "PASSIVE_ON_HIT",
+    "cost": 6,
+    "display_name": {
+        "literal": "Hemorragia I"
+    },
+    "description": {
+        "literal": "5% de probabilidad de infligir 4 pulsos de daño sangrante."
+    },
+    "weight": 55,
+    "actions": [
+        {
+            "type": "bleeding",
+            "chance": 0.05,
+            "damage_pulses": [
+                1.0,
+                1.0,
+                1.0,
+                2.0
+            ],
+            "interval_seconds": 4
+        }
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:on_hit/bleeding_2",
+        "legacycreaturescorey:on_hit/bleeding_3"
+    ]
+}
