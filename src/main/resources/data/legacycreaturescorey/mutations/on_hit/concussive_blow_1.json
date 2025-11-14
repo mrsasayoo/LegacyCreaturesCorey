@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/concussive_blow_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 5,
+	"display_name": {
+		"literal": "Golpe Conmocionador I"
+	},
+	"description": {
+		"literal": "14% de probabilidad de provocar un fuerte temblor de cámara en el objetivo."
+	},
+	"weight": 65,
+	"actions": [
+		{
+			"type": "concussive_blow",
+			"chance": 0.14,
+			"mode": "shake"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/concussive_blow_2",
+		"legacycreaturescorey:on_hit/concussive_blow_3"
+	]
+}

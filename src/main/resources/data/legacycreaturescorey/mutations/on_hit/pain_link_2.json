@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/pain_link_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 12,
+	"display_name": {
+		"literal": "Vínculo Doloroso II"
+	},
+	"description": {
+		"literal": "20% de probabilidad de enlazar a un jugador durante 5 s. Cada ataque suyo devuelve 2 de daño mágico y le otorga Fuerza I temporal."
+	},
+	"weight": 28,
+	"actions": [
+		{
+			"type": "pain_link",
+			"chance": 0.2,
+			"mode": "backlash"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/pain_link_1",
+		"legacycreaturescorey:on_hit/pain_link_3"
+	]
+}

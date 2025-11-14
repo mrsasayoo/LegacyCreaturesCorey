@@ -1,0 +1,25 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/mortal_wound_3",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 17,
+	"display_name": {
+		"literal": "Herida Mortal III"
+	},
+	"description": {
+		"literal": "26% de probabilidad de aplicar Herida Mortal Total durante 10 s, impidiendo toda curación recibida."
+	},
+	"weight": 12,
+	"actions": [
+		{
+			"type": "mortal_wound",
+			"chance": 0.26,
+			"effect": "legacycreaturescorey:mortal_wound_total",
+			"duration_ticks": 200
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/mortal_wound_1",
+		"legacycreaturescorey:on_hit/mortal_wound_2"
+	]
+}

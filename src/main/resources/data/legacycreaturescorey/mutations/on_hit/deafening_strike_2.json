@@ -1,0 +1,27 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/deafening_strike_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 9,
+	"display_name": {
+		"literal": "Golpe Ensordecedor II"
+	},
+	"description": {
+		"literal": "10% de probabilidad de aplicar Sonidos Fantasma durante 6 s, reproduciendo ruidos hostiles aleatorios alrededor del jugador."
+	},
+	"weight": 40,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.1,
+			"effect": "legacycreaturescorey:phantom_sounds",
+			"duration": 120,
+			"amplifier": 0,
+			"target": "OTHER"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/deafening_strike_1",
+		"legacycreaturescorey:on_hit/deafening_strike_3"
+	]
+}

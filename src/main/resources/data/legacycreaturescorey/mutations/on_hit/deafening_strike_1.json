@@ -1,0 +1,27 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/deafening_strike_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 5,
+	"display_name": {
+		"literal": "Golpe Ensordecedor I"
+	},
+	"description": {
+		"literal": "15% de probabilidad de aplicar Oidos Zumbando durante 4 s, reduciendo los sonidos hostiles en un 50%."
+	},
+	"weight": 65,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.15,
+			"effect": "legacycreaturescorey:hostile_muffle",
+			"duration": 80,
+			"amplifier": 0,
+			"target": "OTHER"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/deafening_strike_2",
+		"legacycreaturescorey:on_hit/deafening_strike_3"
+	]
+}

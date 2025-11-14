@@ -1,0 +1,25 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/chaos_touch_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 10,
+	"display_name": {
+		"literal": "Toque Caótico II"
+	},
+	"description": {
+		"literal": "18% de probabilidad de rotar toda la barra rápida del objetivo en una dirección aleatoria. Aplica Lentitud al atacante durante 2 s."
+	},
+	"weight": 35,
+	"actions": [
+		{
+			"type": "chaos_touch",
+			"chance": 0.18,
+			"mode": "rotate",
+			"self_slowness_ticks": 40
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/chaos_touch_1",
+		"legacycreaturescorey:on_hit/chaos_touch_3"
+	]
+}

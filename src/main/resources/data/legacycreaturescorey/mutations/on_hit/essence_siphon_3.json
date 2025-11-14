@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/essence_siphon_3",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 15,
+	"display_name": {
+		"literal": "Sifón de Esencia III"
+	},
+	"description": {
+		"literal": "24% de probabilidad de corromper un efecto positivo aleatorio, convirtiéndolo en su contraparte negativa durante 8 s."
+	},
+	"weight": 15,
+	"actions": [
+		{
+			"type": "essence_siphon",
+			"chance": 0.24,
+			"mode": "corrupt"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/essence_siphon_1",
+		"legacycreaturescorey:on_hit/essence_siphon_2"
+	]
+}

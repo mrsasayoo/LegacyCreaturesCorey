@@ -14,6 +14,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.AllyDeathHealAuraAction
 import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeMutationAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.BleedingOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.ChaosTouchOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.CriticalDamageOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageArmorOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageAuraAction;
@@ -21,15 +22,20 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.DeepDarknessAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisarmOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisableShieldOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.EntropyAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.EssenceSiphonOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ExperienceTheftOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.FrenzyOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.FreezeOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.IgniteOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.InterferenceAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.KnockbackOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.ConcussiveBlowOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.MortalWoundOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.PhantasmalVeilAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.PainLinkOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ProjectileShroudAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.PsionicThornsAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ShatterArmorOnHitAction;
@@ -44,6 +50,9 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.VirulentGrowthAuraActio
 import com.mrsasayo.legacycreaturescorey.mutation.action.HordeBeaconAuraAction;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -168,6 +177,12 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 MutationAction action = switch (normalized) {
                     case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
                     case "status_effect_on_hit", "status_effect" -> parseStatusEffectAction(actionObject);
+                    case "chaos_touch" -> parseChaosTouchAction(actionObject);
+                    case "frenzy" -> parseFrenzyAction(actionObject);
+                    case "pain_link" -> parsePainLinkAction(actionObject);
+                    case "essence_siphon" -> parseEssenceSiphonAction(actionObject);
+                    case "concussive_blow" -> parseConcussiveBlowAction(actionObject);
+                    case "mortal_wound" -> parseMortalWoundAction(actionObject);
                     case "damage_aura", "aura_damage" -> parseDamageAuraAction(actionObject);
                     case "heal", "heal_self" -> parseHealAction(actionObject);
                     case "summon_mob", "summon" -> parseSummonAction(actionObject);
@@ -224,6 +239,57 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         double chance = parseChance(object, "chance");
         List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "extra_effects");
         return new StatusEffectOnHitAction(effectId, duration, amplifier, target, chance, extras);
+    }
+
+    private MutationAction parseChaosTouchAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "swap_right");
+        ChaosTouchOnHitAction.Mode mode = ChaosTouchOnHitAction.Mode.fromString(modeRaw);
+        int slownessTicks = parseTicks(object, "self_slowness", 0);
+        return new ChaosTouchOnHitAction(chance, mode, slownessTicks);
+    }
+
+    private MutationAction parseFrenzyAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "surge");
+        FrenzyOnHitAction.Mode mode = FrenzyOnHitAction.Mode.fromString(modeRaw);
+        return new FrenzyOnHitAction(chance, mode);
+    }
+
+    private MutationAction parsePainLinkAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "retribution");
+        PainLinkOnHitAction.Mode mode = PainLinkOnHitAction.Mode.fromString(modeRaw);
+        return new PainLinkOnHitAction(chance, mode);
+    }
+
+    private MutationAction parseEssenceSiphonAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "weaken");
+        EssenceSiphonOnHitAction.Mode mode = EssenceSiphonOnHitAction.Mode.fromString(modeRaw);
+        return new EssenceSiphonOnHitAction(chance, mode);
+    }
+
+    private MutationAction parseConcussiveBlowAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String modeRaw = JsonHelper.getString(object, "mode", "shake");
+        ConcussiveBlowOnHitAction.Mode mode = ConcussiveBlowOnHitAction.Mode.fromString(modeRaw);
+        return new ConcussiveBlowOnHitAction(chance, mode);
+    }
+
+    private MutationAction parseMortalWoundAction(JsonObject object) {
+        double chance = parseChance(object, "chance");
+        String effectDefault = Legacycreaturescorey.MOD_ID + ":mortal_wound_minor";
+        Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect", effectDefault));
+        StatusEffect effect = Registries.STATUS_EFFECT.get(effectId);
+        if (effect == null) {
+            throw new IllegalArgumentException("No se encontró el efecto de estado '" + effectId + "'");
+        }
+        RegistryEntry<StatusEffect> entry = Registries.STATUS_EFFECT
+            .getEntry(Registries.STATUS_EFFECT.getRawId(effect))
+            .orElseThrow(() -> new IllegalArgumentException("No se pudo obtener la entrada del estado '" + effectId + "'"));
+        int duration = parseTicks(object, "duration", 100);
+        return new MortalWoundOnHitAction(chance, entry, duration);
     }
 
     private MutationAction parseDamageAuraAction(JsonObject object) {

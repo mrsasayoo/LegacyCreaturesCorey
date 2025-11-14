@@ -1,0 +1,27 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/unstable_hit_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 8,
+	"display_name": {
+		"literal": "Golpe Inestable II"
+	},
+	"description": {
+		"literal": "10% de probabilidad de aplicar Gravedad Aumentada durante 2 s, limitando los saltos del objetivo."
+	},
+	"weight": 45,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.1,
+			"effect": "legacycreaturescorey:heavy_gravity",
+			"duration": 40,
+			"amplifier": 0,
+			"target": "OTHER"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/unstable_hit_1",
+		"legacycreaturescorey:on_hit/unstable_hit_3"
+	]
+}

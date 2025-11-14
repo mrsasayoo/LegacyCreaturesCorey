@@ -9,6 +9,9 @@ import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
 import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
+import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
+import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -34,6 +37,9 @@ public class Legacycreaturescorey implements ModInitializer {
         MobSpawnHandler.register();
         TierParticleTicker.register();
         MutationRuntime.register();
+        ModStatusEffects.init();
+        StatusEffectTicker.register();
+        ModNetworking.init();
         
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayerEntity player) {

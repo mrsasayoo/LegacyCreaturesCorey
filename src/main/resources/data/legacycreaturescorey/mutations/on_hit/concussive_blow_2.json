@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/concussive_blow_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 9,
+	"display_name": {
+		"literal": "Golpe Conmocionador II"
+	},
+	"description": {
+		"literal": "18% de probabilidad de provocar visión de túnel: Ceguera y Visión Nocturna simultáneas durante 3 s."
+	},
+	"weight": 40,
+	"actions": [
+		{
+			"type": "concussive_blow",
+			"chance": 0.18,
+			"mode": "tunnel"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/concussive_blow_1",
+		"legacycreaturescorey:on_hit/concussive_blow_3"
+	]
+}

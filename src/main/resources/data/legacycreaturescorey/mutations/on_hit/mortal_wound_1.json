@@ -1,0 +1,25 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/mortal_wound_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 9,
+	"display_name": {
+		"literal": "Herida Mortal I"
+	},
+	"description": {
+		"literal": "18% de probabilidad de aplicar Herida Mortal Menor durante 6 s, reduciendo la curación recibida a un 67%."
+	},
+	"weight": 40,
+	"actions": [
+		{
+			"type": "mortal_wound",
+			"chance": 0.18,
+			"effect": "legacycreaturescorey:mortal_wound_minor",
+			"duration_ticks": 120
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/mortal_wound_2",
+		"legacycreaturescorey:on_hit/mortal_wound_3"
+	]
+}

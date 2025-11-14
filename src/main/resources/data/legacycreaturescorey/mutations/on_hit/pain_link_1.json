@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/pain_link_1",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 8,
+	"display_name": {
+		"literal": "Vínculo Doloroso I"
+	},
+	"description": {
+		"literal": "15% de probabilidad de enlazar a un jugador golpeado durante 4 s. Atacar o golpear de nuevo le inflige 1 de daño mágico."
+	},
+	"weight": 45,
+	"actions": [
+		{
+			"type": "pain_link",
+			"chance": 0.15,
+			"mode": "retribution"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/pain_link_2",
+		"legacycreaturescorey:on_hit/pain_link_3"
+	]
+}

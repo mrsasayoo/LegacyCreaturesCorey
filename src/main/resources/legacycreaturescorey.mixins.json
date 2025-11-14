@@ -3,7 +3,8 @@
 	"package": "com.mrsasayo.legacycreaturescorey.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"LivingEntityStatusEffectMixin",
+		"LivingEntityHealMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

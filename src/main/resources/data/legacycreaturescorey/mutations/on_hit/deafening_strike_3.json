@@ -1,0 +1,27 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/deafening_strike_3",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 14,
+	"display_name": {
+		"literal": "Golpe Ensordecedor III"
+	},
+	"description": {
+		"literal": "8% de probabilidad de aplicar Silencio Absoluto durante 5 s, bloqueando completamente los sonidos de mobs hostiles."
+	},
+	"weight": 15,
+	"actions": [
+		{
+			"type": "status_effect_on_hit",
+			"chance": 0.08,
+			"effect": "legacycreaturescorey:hostile_silence",
+			"duration": 100,
+			"amplifier": 0,
+			"target": "OTHER"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/deafening_strike_1",
+		"legacycreaturescorey:on_hit/deafening_strike_2"
+	]
+}

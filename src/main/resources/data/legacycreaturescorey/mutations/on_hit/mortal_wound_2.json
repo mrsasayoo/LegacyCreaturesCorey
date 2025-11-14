@@ -1,0 +1,25 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/mortal_wound_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 13,
+	"display_name": {
+		"literal": "Herida Mortal II"
+	},
+	"description": {
+		"literal": "22% de probabilidad de aplicar Herida Mortal Grave durante 8 s, limitando la curación recibida al 25%."
+	},
+	"weight": 25,
+	"actions": [
+		{
+			"type": "mortal_wound",
+			"chance": 0.22,
+			"effect": "legacycreaturescorey:mortal_wound_major",
+			"duration_ticks": 160
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/mortal_wound_1",
+		"legacycreaturescorey:on_hit/mortal_wound_3"
+	]
+}

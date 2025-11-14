@@ -1,0 +1,24 @@
+{
+	"enabled": true,
+	"id": "legacycreaturescorey:on_hit/frenzy_2",
+	"type": "PASSIVE_ON_HIT",
+	"cost": 11,
+	"display_name": {
+		"literal": "Frenesí II"
+	},
+	"description": {
+		"literal": "24% de probabilidad de obtener Velocidad y Prisa breves que se acumulan hasta 2 veces. El objetivo recibe Fuerza I durante 4 s como contrapeso."
+	},
+	"weight": 35,
+	"actions": [
+		{
+			"type": "frenzy",
+			"chance": 0.24,
+			"mode": "rampage"
+		}
+	],
+	"incompatible_with": [
+		"legacycreaturescorey:on_hit/frenzy_1",
+		"legacycreaturescorey:on_hit/frenzy_3"
+	]
+}
