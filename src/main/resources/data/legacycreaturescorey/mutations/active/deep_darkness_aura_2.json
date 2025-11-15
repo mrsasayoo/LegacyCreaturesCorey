@@ -14,7 +14,7 @@
     {
       "type": "deep_darkness_aura",
       "mode": "conditional_darkness",
-      "radius": 7.0,
+      "radius": 12.0,
       "interval_ticks": 20,
       "darkness_duration_ticks": 100,
       "remove_night_vision": false,

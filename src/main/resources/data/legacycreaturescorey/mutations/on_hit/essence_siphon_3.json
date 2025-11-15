@@ -7,7 +7,7 @@
 		"literal": "Sifón de Esencia III"
 	},
 	"description": {
-		"literal": "24% de probabilidad de corromper un efecto positivo aleatorio, convirtiéndolo en su contraparte negativa durante 8 s."
+		"literal": "24% de probabilidad de corromper un efecto positivo aleatorio, añadiendo su contraparte negativa durante 8 s sin eliminar el beneficio original."
 	},
 	"weight": 15,
 	"actions": [

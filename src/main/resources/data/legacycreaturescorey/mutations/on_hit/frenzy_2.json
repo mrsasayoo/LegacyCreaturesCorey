@@ -7,13 +7,13 @@
 		"literal": "Frenesí II"
 	},
 	"description": {
-		"literal": "24% de probabilidad de obtener Velocidad y Prisa breves que se acumulan hasta 2 veces. El objetivo recibe Fuerza I durante 4 s como contrapeso."
+		"literal": "30% de probabilidad de obtener Velocidad y Prisa breves que se acumulan hasta 2 veces. El objetivo recibe Fuerza I durante 4 s como contrapeso."
 	},
 	"weight": 35,
 	"actions": [
 		{
 			"type": "frenzy",
-			"chance": 0.24,
+			"chance": 0.30,
 			"mode": "rampage"
 		}
 	],

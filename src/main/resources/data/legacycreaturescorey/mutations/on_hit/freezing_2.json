@@ -14,7 +14,7 @@
         {
             "type": "freeze",
             "chance": 0.15,
-            "freeze_seconds": 2
+            "freeze_seconds": 4
         }
     ],
     "incompatible_with": [

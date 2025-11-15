@@ -2,7 +2,7 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/vertical_thrust_1",
     "type": "PASSIVE_ON_HIT",
-    "cost": 4,
+    "cost": 5,
     "display_name": {
         "literal": "Levantamiento I"
     },
@@ -14,7 +14,7 @@
         {
             "type": "vertical_thrust",
             "chance": 0.20,
-            "upward_velocity": 0.5
+            "upward_velocity": 0.4
         }
     ],
     "incompatible_with": [

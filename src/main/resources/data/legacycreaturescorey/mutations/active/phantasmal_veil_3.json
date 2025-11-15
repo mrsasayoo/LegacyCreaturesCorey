@@ -2,23 +2,34 @@
   "enabled": true,
   "id": "legacycreaturescorey:active/phantasmal_veil_3",
   "type": "ACTIVE",
-  "cost": 7,
+  "cost": 15,
   "display_name": {
     "literal": "Velo Fantasmal III"
   },
   "description": {
-    "literal": "Envuelve a los aliados monstruosos cercanos en un velo intermitente que los oculta a intervalos regulares."
+    "literal": "Cada 3 segundos vuelve invisibles durante 1 segundo a todas las criaturas cercanas, incluidos los jugadores."
   },
   "weight": 50,
   "actions": [
     {
-      "type": "phantasmal_veil_aura",
-      "mode": "ally_shroud",
+      "type": "status_effect_aura",
+      "effect": "minecraft:invisibility",
+      "duration": 20,
+      "amplifier": 0,
       "radius": 8.0,
-      "interval_ticks": 20,
-      "particle_count": 6,
-      "shroud_visible_ticks": 40,
-      "shroud_invisible_ticks": 60
+      "interval_ticks": 60,
+      "target": "PLAYERS",
+      "exclude_self": false
+    },
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:invisibility",
+      "duration": 20,
+      "amplifier": 0,
+      "radius": 8.0,
+      "interval_ticks": 60,
+      "target": "ALLY_MOBS",
+      "exclude_self": false
     }
   ]
 }

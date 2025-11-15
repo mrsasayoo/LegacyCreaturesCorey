@@ -1,0 +1,46 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:silverfish",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:stone",
+      "min": 6,
+      "max": 10
+    },
+    {
+      "item": "minecraft:deepslate",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:raw_iron",
+      "min": 3,
+      "max": 5,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:raw_gold",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:amethyst_shard",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:lapis_lazuli",
+      "min": 6,
+      "max": 9,
+      "weight": 1
+    }
+  ]
+}

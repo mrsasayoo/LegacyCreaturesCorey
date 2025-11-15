@@ -6,8 +6,11 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
 import java.util.UUID;
@@ -38,6 +41,11 @@ public final class ShatterArmorOnHitAction extends ProcOnHitAction {
         Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "shatter_armor_" + UUID.randomUUID().toString().replace("-", ""));
         EntityAttributeModifier modifier = new EntityAttributeModifier(id, percent, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         instance.addTemporaryModifier(modifier);
+    float pitch = 0.8F + world.getRandom().nextFloat() * 0.2F;
+    double centerY = victim.getY() + victim.getStandingEyeHeight() * 0.5D;
+    world.playSound(null, victim.getX(), centerY, victim.getZ(), SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.HOSTILE, 0.9F, pitch);
+    world.spawnParticles(ParticleTypes.CRIT, victim.getX(), centerY, victim.getZ(), 8, 0.35D, 0.25D, 0.35D, 0.05D);
+    world.spawnParticles(ParticleTypes.SMOKE, victim.getX(), centerY, victim.getZ(), 6, 0.25D, 0.2D, 0.25D, 0.01D);
 
         OnHitTaskScheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, duration));
     }

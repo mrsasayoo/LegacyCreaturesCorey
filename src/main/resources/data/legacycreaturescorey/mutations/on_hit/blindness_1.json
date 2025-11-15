@@ -15,7 +15,7 @@
             "type": "status_effect_on_hit",
             "chance": 0.10,
             "effect": "minecraft:blindness",
-            "duration": 40,
+            "duration": 80,
             "amplifier": 0,
             "target": "OTHER",
             "extra_effects": [

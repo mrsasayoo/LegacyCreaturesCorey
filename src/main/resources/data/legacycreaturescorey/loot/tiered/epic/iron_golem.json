@@ -1,0 +1,35 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:iron_golem",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 5,
+      "max": 7
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 3,
+      "max": 5,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:poppy",
+      "min": 2,
+      "max": 4,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:iron_block",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

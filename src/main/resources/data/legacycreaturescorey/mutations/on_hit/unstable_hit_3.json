@@ -7,13 +7,13 @@
 		"literal": "Golpe Inestable III"
 	},
 	"description": {
-		"literal": "8% de probabilidad de aplicar Inversion de Controles durante 1.5 s (W se convierte en S, A en D, etc.)."
+		"literal": "10% de probabilidad de aplicar Inversion de Controles durante 1.5 s (W se convierte en S, A en D, etc.)."
 	},
 	"weight": 20,
 	"actions": [
 		{
 			"type": "status_effect_on_hit",
-			"chance": 0.08,
+			"chance": 0.1,
 			"effect": "legacycreaturescorey:inverted_controls",
 			"duration": 30,
 			"amplifier": 0,

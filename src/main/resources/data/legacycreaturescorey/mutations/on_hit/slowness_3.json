@@ -2,12 +2,12 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/slowness_3",
     "type": "PASSIVE_ON_HIT",
-    "cost": 7,
+    "cost": 10,
     "display_name": {
         "literal": "Aletargado III"
     },
     "description": {
-        "literal": "15% de probabilidad de aplicar Lentitud I durante 5 s."
+        "literal": "15% de probabilidad de aplicar Lentitud I durante 6 s."
     },
     "weight": 40,
     "actions": [
@@ -15,7 +15,7 @@
             "type": "status_effect_on_hit",
             "chance": 0.15,
             "effect": "minecraft:slowness",
-            "duration": 100,
+            "duration": 120,
             "amplifier": 0,
             "target": "OTHER"
         }

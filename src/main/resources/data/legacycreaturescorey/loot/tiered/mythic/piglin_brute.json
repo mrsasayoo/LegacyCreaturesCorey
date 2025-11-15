@@ -1,0 +1,57 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:piglin_brute",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:gold_block",
+      "min": 2,
+      "max": 3
+    },
+    {
+      "item": "minecraft:gilded_blackstone",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:netherite_scrap",
+      "min": 1,
+      "max": 1,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:ancient_debris",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:lodestone",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "stack": {
+        "id": "minecraft:golden_axe",
+        "components": {
+          "minecraft:enchantments": {
+            "levels": {
+              "minecraft:sharpness": 5,
+              "minecraft:efficiency": 5,
+              "minecraft:unbreaking": 3
+            }
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

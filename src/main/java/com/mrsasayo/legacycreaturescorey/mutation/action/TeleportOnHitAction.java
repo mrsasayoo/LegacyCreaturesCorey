@@ -1,7 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -30,7 +33,10 @@ public final class TeleportOnHitAction extends ProcOnHitAction {
             return;
         }
 
-        if (tryTeleportRandomly(world, teleportee, radius)) {
+        Vec3d origin = new Vec3d(teleportee.getX(), teleportee.getY(), teleportee.getZ());
+        Vec3d destination = tryTeleportRandomly(world, teleportee, radius);
+        if (destination != null) {
+            playTeleportFeedback(world, teleportee, origin, destination);
             if (!sideEffects.isEmpty()) {
                 for (StatusEffectOnHitAction.AdditionalEffect effect : sideEffects) {
                     effect.apply(attacker, victim);
@@ -39,7 +45,7 @@ public final class TeleportOnHitAction extends ProcOnHitAction {
         }
     }
 
-    private boolean tryTeleportRandomly(ServerWorld world, LivingEntity entity, double range) {
+    private Vec3d tryTeleportRandomly(ServerWorld world, LivingEntity entity, double range) {
         Random random = entity.getRandom();
         for (int attempt = 0; attempt < 8; attempt++) {
             double dx = (random.nextDouble() * 2.0D - 1.0D) * range;
@@ -53,9 +59,18 @@ public final class TeleportOnHitAction extends ProcOnHitAction {
             entity.refreshPositionAfterTeleport(destination);
             entity.setHeadYaw(entity.getYaw());
             entity.velocityModified = true;
-            return true;
+            return destination;
         }
-        return false;
+        return null;
+    }
+
+    private void playTeleportFeedback(ServerWorld world, LivingEntity entity, Vec3d origin, Vec3d destination) {
+        float pitch = 0.85F + world.getRandom().nextFloat() * 0.2F;
+        world.playSound(null, origin.x, origin.y, origin.z, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 0.7F, pitch);
+        world.playSound(null, destination.x, destination.y, destination.z, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 0.7F, pitch + 0.15F);
+        double eyeHeight = entity.getStandingEyeHeight() * 0.5D;
+        world.spawnParticles(ParticleTypes.PORTAL, origin.x, origin.y + eyeHeight, origin.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
+        world.spawnParticles(ParticleTypes.PORTAL, destination.x, destination.y + eyeHeight, destination.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
     }
 
     public enum Target {

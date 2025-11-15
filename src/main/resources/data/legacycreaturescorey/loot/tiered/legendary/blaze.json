@@ -1,0 +1,53 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:blaze",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:blaze_rod",
+      "min": 4,
+      "max": 6
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "min": 6,
+      "max": 10
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:fire_charge",
+      "min": 4,
+      "max": 6,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:magma_cream",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:glowstone",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_strength"
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

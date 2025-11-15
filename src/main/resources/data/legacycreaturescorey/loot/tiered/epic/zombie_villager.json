@@ -1,0 +1,41 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:zombie_villager",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:emerald",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:emerald",
+      "min": 1,
+      "max": 2,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:book",
+      "min": 1,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:golden_carrot",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:golden_apple",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:stray",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:arrow",
+      "min": 8,
+      "max": 12
+    },
+    {
+      "item": "minecraft:powder_snow_bucket",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "stack": {
+        "id": "minecraft:tipped_arrow",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_slowness"
+          }
+        }
+      },
+      "min": 6,
+      "max": 8,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:blue_ice",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:packed_ice",
+      "min": 4,
+      "max": 6,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:long_swiftness"
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

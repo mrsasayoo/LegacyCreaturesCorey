@@ -1,0 +1,45 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:elder_guardian",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:prismarine_crystals",
+      "min": 12,
+      "max": 18
+    },
+    {
+      "item": "minecraft:sponge",
+      "min": 3,
+      "max": 4
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:heart_of_the_sea",
+      "min": 1,
+      "max": 1,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:netherite_scrap",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:trident",
+      "enchantments": ["minecraft:impaling","minecraft:loyalty","minecraft:channeling"],
+      "weight": 1
+    },
+    {
+      "item": "minecraft:beacon",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

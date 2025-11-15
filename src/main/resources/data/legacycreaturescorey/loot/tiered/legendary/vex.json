@@ -1,0 +1,50 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:vex",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:emerald",
+      "min": 2,
+      "max": 4
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:phantom_membrane",
+      "min": 2,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:experience_bottle",
+      "min": 6,
+      "max": 10,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:iron_sword",
+        "components": {
+          "minecraft:enchantments": {
+            "levels": {
+              "minecraft:sharpness": 3,
+              "minecraft:unbreaking": 3
+            }
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

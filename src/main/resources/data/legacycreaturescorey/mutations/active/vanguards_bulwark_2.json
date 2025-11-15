@@ -7,16 +7,17 @@
     "literal": "Baluarte de la Vanguardia II"
   },
   "description": {
-    "literal": "Otorga +6 de armadura a los aliados dentro de 8 bloques."
+    "literal": "Concede Resistencia I a los aliados dentro de 8 bloques durante 2 segundos cada 4 segundos."
   },
   "weight": 25,
   "actions": [
     {
-      "type": "attribute_aura",
-      "attribute": "minecraft:generic.armor",
-      "mode": "add",
-      "amount": 6.0,
+      "type": "status_effect_aura",
+      "effect": "minecraft:resistance",
+      "duration": 40,
+      "amplifier": 0,
       "radius": 8.0,
+      "interval_ticks": 80,
       "target": "ALLY_MOBS",
       "exclude_self": true
     }

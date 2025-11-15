@@ -2,18 +2,18 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/wither_3",
     "type": "PASSIVE_ON_HIT",
-    "cost": 13,
+    "cost": 20,
     "display_name": {
         "literal": "Marchitar III"
     },
     "description": {
-        "literal": "8% de probabilidad de aplicar Marchitez I durante 7 s."
+        "literal": "13% de probabilidad de aplicar Marchitez I durante 7 s."
     },
     "weight": 18,
     "actions": [
         {
             "type": "status_effect_on_hit",
-            "chance": 0.08,
+            "chance": 0.13,
             "effect": "minecraft:wither",
             "duration": 140,
             "amplifier": 0,

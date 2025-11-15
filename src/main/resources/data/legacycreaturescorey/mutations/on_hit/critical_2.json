@@ -7,13 +7,13 @@
 		"literal": "Instinto Critico II"
 	},
 	"description": {
-		"literal": "10% de probabilidad de añadir +3 de daño base al golpe."
+		"literal": "15% de probabilidad de añadir +3 de daño base al golpe."
 	},
 	"weight": 50,
 	"actions": [
 		{
 			"type": "critical_hit",
-			"chance": 0.1,
+			"chance": 0.15,
 			"bonus_damage": 3.0
 		}
 	],

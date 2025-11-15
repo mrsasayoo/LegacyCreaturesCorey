@@ -1,0 +1,56 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:zombie",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "min": 6,
+      "max": 8
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:gold_ingot",
+      "min": 1,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:emerald",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:golden_carrot",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:iron_sword",
+        "components": {
+          "minecraft:enchantments": {
+            "levels": {
+              "minecraft:sharpness": 2,
+              "minecraft:unbreaking": 2
+            }
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

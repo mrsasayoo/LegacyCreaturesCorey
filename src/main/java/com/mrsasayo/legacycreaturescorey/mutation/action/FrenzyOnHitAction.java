@@ -46,8 +46,8 @@ public final class FrenzyOnHitAction extends ProcOnHitAction {
 
     public enum Mode {
         SURGE(60, 0, false, 1, 0, 60, 0, false),
-        RAMPAGE(80, 0, true, 1, 80, 80, 0, false),
-        MANIA(100, 0, true, 3, 100, 100, 1, true);
+    RAMPAGE(80, 0, true, 2, 80, 80, 0, true),
+    MANIA(100, 0, true, 4, 100, 100, 1, true);
 
         private final int speedDurationTicks;
         private final int baseAmplifier;

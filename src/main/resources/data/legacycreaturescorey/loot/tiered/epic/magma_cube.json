@@ -1,0 +1,35 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:magma_cube",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:magma_cream",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:magma_cream",
+      "min": 2,
+      "max": 4,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:glowstone_dust",
+      "min": 3,
+      "max": 4,
+      "weight": 1
+    }
+  ]
+}

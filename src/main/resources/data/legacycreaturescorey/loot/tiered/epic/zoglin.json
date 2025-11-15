@@ -1,0 +1,35 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:zoglin",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:nether_wart",
+      "min": 2,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:bone",
+      "min": 3,
+      "max": 5,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:gold_ingot",
+      "min": 1,
+      "max": 2,
+      "weight": 1
+    }
+  ]
+}

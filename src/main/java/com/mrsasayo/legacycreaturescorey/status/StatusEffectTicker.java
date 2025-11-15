@@ -137,6 +137,17 @@ public final class StatusEffectTicker {
                     return;
                 }
                 entity.setVelocity(newX, velocity.y, newZ);
+                velocity = entity.getVelocity();
+                double upwardLimit = MathHelper.clamp(0.24D - amplifier * 0.02D, 0.18D, 0.26D);
+                if (velocity.y > upwardLimit) {
+                    entity.setVelocity(velocity.x, upwardLimit, velocity.z);
+                    velocity = entity.getVelocity();
+                }
+                if (!entity.isOnGround() && velocity.y < 0.0D) {
+                    double downwardBoost = MathHelper.clamp(1.02D + amplifier * 0.01D, 1.02D, 1.06D);
+                    entity.setVelocity(velocity.x, Math.max(velocity.y * downwardBoost, -2.5D), velocity.z);
+                    velocity = entity.getVelocity();
+                }
                 entity.velocityModified = true;
             }
         },
@@ -149,19 +160,30 @@ public final class StatusEffectTicker {
                 Vec3d velocity = entity.getVelocity();
                 boolean modified = false;
 
-                double upwardLimit = 0.30D - amplifier * 0.06D;
-                upwardLimit = MathHelper.clamp(upwardLimit, 0.18D, 0.32D);
+                double upwardLimit = 0.26D - amplifier * 0.05D;
+                upwardLimit = MathHelper.clamp(upwardLimit, 0.16D, 0.28D);
                 if (velocity.y > upwardLimit) {
                     entity.setVelocity(velocity.x, upwardLimit, velocity.z);
                     velocity = entity.getVelocity();
                     modified = true;
                 }
 
-                if (!entity.isOnGround() && velocity.y < -0.05D) {
-                    double fallMultiplier = 1.10D + amplifier * 0.05D;
-                    double newY = MathHelper.clamp(velocity.y * fallMultiplier, -3.5D, 1.0D);
-                    if (newY < velocity.y - 0.001D) {
-                        entity.setVelocity(velocity.x, newY, velocity.z);
+                if (!entity.isOnGround()) {
+                    if (velocity.y < -0.05D) {
+                        double fallMultiplier = 1.12D + amplifier * 0.05D;
+                        double newY = MathHelper.clamp(velocity.y * fallMultiplier, -4.0D, 1.0D);
+                        if (newY < velocity.y - 0.001D) {
+                            entity.setVelocity(velocity.x, newY, velocity.z);
+                            velocity = entity.getVelocity();
+                            modified = true;
+                        }
+                    }
+                    double damp = MathHelper.clamp(0.95D - amplifier * 0.02D, 0.85D, 0.95D);
+                    double newX = velocity.x * damp;
+                    double newZ = velocity.z * damp;
+                    if (Math.abs(newX - velocity.x) > 1.0E-4D || Math.abs(newZ - velocity.z) > 1.0E-4D) {
+                        entity.setVelocity(newX, entity.getVelocity().y, newZ);
+                        velocity = entity.getVelocity();
                         modified = true;
                     }
                 }

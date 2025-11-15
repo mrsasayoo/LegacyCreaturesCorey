@@ -1,0 +1,53 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:bogged",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:arrow",
+      "min": 10,
+      "max": 14
+    },
+    {
+      "item": "minecraft:moss_block",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:moss_carpet",
+      "min": 6,
+      "max": 8,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:spore_blossom",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:suspicious_stew",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_poison"
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

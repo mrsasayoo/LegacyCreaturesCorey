@@ -1,0 +1,41 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:zombie",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 1,
+      "max": 1,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:carrot",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:potato",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:golden_carrot",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:husk",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:sand",
+      "min": 4,
+      "max": 6,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:cactus",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:gold_nugget",
+      "min": 3,
+      "max": 5,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:glistering_melon_slice",
+      "min": 1,
+      "max": 2,
+      "weight": 1
+    }
+  ]
+}

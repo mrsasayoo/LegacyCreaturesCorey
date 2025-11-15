@@ -35,7 +35,7 @@ public class CoreyConfig {
 
     // Herramientas de depuración
     public boolean debugForceHighestAllowedTier = false;
-    public MobTier debugForceExactTier = null; // Si no es null y el tier es válido, se aplica directamente
+    public MobTier debugForceExactTier = MobTier.DEFINITIVE; // Si no es null y el tier es válido, se aplica directamente "MobTier.EPIC"
     public boolean debugLogProbabilityDetails = false;
     
     // Penalización por Muerte

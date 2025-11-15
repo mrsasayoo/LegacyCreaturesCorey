@@ -7,13 +7,13 @@
 		"literal": "Instinto Critico III"
 	},
 	"description": {
-		"literal": "13% de probabilidad de añadir +4 de daño base al golpe y otorgar Velocidad I al objetivo por 1 s."
+		"literal": "10% de probabilidad de añadir +4 de daño base al golpe y otorgar Velocidad I al objetivo por 1 s."
 	},
 	"weight": 25,
 	"actions": [
 		{
 			"type": "critical_hit",
-			"chance": 0.13,
+			"chance": 0.10,
 			"bonus_damage": 4.0,
 			"extra_effects": [
 				{

@@ -7,14 +7,14 @@
 		"literal": "Rompeescudos I"
 	},
 	"description": {
-		"literal": "20% de probabilidad de inutilizar el escudo del objetivo durante 3 s."
+		"literal": "15% de probabilidad de inutilizar el escudo del objetivo durante 2 s."
 	},
 	"weight": 50,
 	"actions": [
 		{
 			"type": "disable_shield",
-			"chance": 0.2,
-			"cooldown_ticks": 60
+			"chance": 0.15,
+			"cooldown_ticks": 40
 		}
 	],
 	"incompatible_with": [

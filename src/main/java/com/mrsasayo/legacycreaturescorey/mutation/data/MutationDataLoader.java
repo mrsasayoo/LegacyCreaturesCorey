@@ -311,7 +311,9 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         String targetRaw = JsonHelper.getString(object, "target", "PLAYERS");
         StatusEffectAuraAction.Target target = StatusEffectAuraAction.Target.fromString(targetRaw);
         boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self", target != StatusEffectAuraAction.Target.SELF);
-        return new StatusEffectAuraAction(effectId, duration, amplifier, radius, interval, target, excludeSelf);
+        boolean requiresUndead = JsonHelper.getBoolean(object, "requires_undead", false);
+        boolean requiresNonUndead = JsonHelper.getBoolean(object, "requires_non_undead", false);
+        return new StatusEffectAuraAction(effectId, duration, amplifier, radius, interval, target, excludeSelf, requiresUndead, requiresNonUndead);
     }
 
     private MutationAction parseHealAction(JsonObject object) {

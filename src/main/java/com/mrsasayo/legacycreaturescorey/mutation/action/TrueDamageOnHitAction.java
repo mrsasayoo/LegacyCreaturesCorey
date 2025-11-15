@@ -16,11 +16,14 @@ public final class TrueDamageOnHitAction extends ProcOnHitAction {
 	@Override
 	protected void onProc(LivingEntity attacker, LivingEntity victim) {
 		ActionContext.HitContext context = ActionContext.getHitContext();
-		if (context == null || context.blocked() || !(attacker.getEntityWorld() instanceof ServerWorld world)) {
+		if (context == null || !(attacker.getEntityWorld() instanceof ServerWorld world)) {
 			return;
 		}
 
 		float prevented = context.originalDamage() - context.finalDamage();
+		if (context.blocked()) {
+			prevented = Math.max(prevented, context.originalDamage());
+		}
 		if (prevented <= 0.0F) {
 			return;
 		}

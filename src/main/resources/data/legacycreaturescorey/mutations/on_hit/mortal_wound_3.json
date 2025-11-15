@@ -2,7 +2,7 @@
 	"enabled": true,
 	"id": "legacycreaturescorey:on_hit/mortal_wound_3",
 	"type": "PASSIVE_ON_HIT",
-	"cost": 17,
+	"cost": 30,
 	"display_name": {
 		"literal": "Herida Mortal III"
 	},

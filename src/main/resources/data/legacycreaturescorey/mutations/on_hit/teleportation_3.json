@@ -2,24 +2,24 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/teleportation_3",
     "type": "PASSIVE_ON_HIT",
-    "cost": 12,
+    "cost": 20,
     "display_name": {
         "literal": "Desplazamiento III"
     },
     "description": {
-        "literal": "5% de probabilidad de teletransportar y desorientar al objetivo con varios efectos."
+        "literal": "10% de probabilidad de teletransportar al objetivo hasta 5 bloques y saturarlo con ceguera, lentitud y resistencia mientras la zona chispea."
     },
     "weight": 20,
     "actions": [
         {
             "type": "teleport",
-            "chance": 0.05,
-            "radius": 2.0,
+            "chance": 0.1,
+            "radius": 5.0,
             "target": "SELF",
             "side_effects": [
                 {
                     "effect": "minecraft:blindness",
-                    "duration": 60,
+                    "duration": 80,
                     "amplifier": 0,
                     "target": "OTHER"
                 },
@@ -31,7 +31,7 @@
                 },
                 {
                     "effect": "minecraft:resistance",
-                    "duration": 40,
+                    "duration": 80,
                     "amplifier": 0,
                     "target": "OTHER"
                 }

@@ -1,0 +1,57 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:pillager",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:crossbow",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:arrow",
+      "min": 8,
+      "max": 12,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:emerald",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:firework_rocket",
+      "min": 2,
+      "max": 4,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:ominous_banner",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "stack": {
+        "id": "minecraft:crossbow",
+        "components": {
+          "minecraft:enchantments": {
+            "levels": {
+              "minecraft:quick_charge": 2,
+              "minecraft:piercing": 2
+            }
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

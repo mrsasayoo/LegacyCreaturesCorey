@@ -1,0 +1,35 @@
+{
+  "origin_tier": "leve",
+  "entity": "minecraft:snow_golem",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:snowball",
+      "min": 4,
+      "max": 8
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:pumpkin",
+      "min": 1,
+      "max": 1,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:carved_pumpkin",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:powder_snow_bucket",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

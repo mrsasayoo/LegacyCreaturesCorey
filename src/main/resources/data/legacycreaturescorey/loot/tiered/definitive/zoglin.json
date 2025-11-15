@@ -1,0 +1,46 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:zoglin",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:rotten_flesh",
+      "min": 8,
+      "max": 12
+    },
+    {
+      "item": "minecraft:block_of_netherite",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:netherite_ingot",
+      "min": 1,
+      "max": 2,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:wither_skeleton_skull",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:ancient_debris",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:block_of_gold",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    }
+  ]
+}

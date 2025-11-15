@@ -14,7 +14,7 @@
         {
             "type": "disarm",
             "chance": 0.07,
-            "self_slowness_seconds": 3
+            "self_slowness_seconds": 5
         }
     ]
 }

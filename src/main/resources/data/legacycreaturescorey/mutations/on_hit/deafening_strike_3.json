@@ -7,15 +7,15 @@
 		"literal": "Golpe Ensordecedor III"
 	},
 	"description": {
-		"literal": "8% de probabilidad de aplicar Silencio Absoluto durante 5 s, bloqueando completamente los sonidos de mobs hostiles."
+		"literal": "10% de probabilidad de aplicar Silencio Absoluto durante 5 s, bloqueando completamente los sonidos de mobs hostiles."
 	},
 	"weight": 15,
 	"actions": [
 		{
 			"type": "status_effect_on_hit",
-			"chance": 0.08,
+			"chance": 0.1,
 			"effect": "legacycreaturescorey:hostile_silence",
-			"duration": 100,
+			"duration": 120,
 			"amplifier": 0,
 			"target": "OTHER"
 		}

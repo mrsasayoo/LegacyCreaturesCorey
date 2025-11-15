@@ -1,0 +1,40 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:wither_skeleton",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:wither_skeleton_skull",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "item": "minecraft:coal",
+      "min": 6,
+      "max": 9
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:soul_sand",
+      "min": 6,
+      "max": 8,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "min": 4,
+      "max": 6,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:netherite_scrap",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    }
+  ]
+}

@@ -14,7 +14,7 @@
 		{
 			"type": "ignite",
 			"chance": 0.15,
-			"duration_seconds": 6
+			"duration_seconds": 7
 		}
 	],
 	"incompatible_with": [

@@ -11,6 +11,8 @@ import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
 import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
 import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.loot.CoreyLootModifiers;
+import com.mrsasayo.legacycreaturescorey.loot.data.TieredLootDataLoader;
 import com.mrsasayo.legacycreaturescorey.command.MutationCommand;
 import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
 import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
@@ -35,6 +37,7 @@ public class Legacycreaturescorey implements ModInitializer {
         ModDataAttachments.initialize();
         MutationRegistry.initialize();
         MutationDataLoader.register();
+        TieredLootDataLoader.register();
     MobAttributeDataLoader.register();
         DifficultyTickHandler.register();
         MobSpawnHandler.register();
@@ -44,6 +47,7 @@ public class Legacycreaturescorey implements ModInitializer {
         StatusEffectTicker.register();
         ModNetworking.init();
     MutationCommand.register();
+        CoreyLootModifiers.register();
         
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayerEntity player) {

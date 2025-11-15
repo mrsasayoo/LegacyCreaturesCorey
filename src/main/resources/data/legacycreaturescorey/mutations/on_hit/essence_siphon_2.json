@@ -7,7 +7,7 @@
 		"literal": "Sifón de Esencia II"
 	},
 	"description": {
-		"literal": "20% de probabilidad de robar un efecto positivo aleatorio durante 6 s, eliminándolo del objetivo."
+		"literal": "20% de probabilidad de obtener un efecto positivo aleatorio del objetivo durante 6 s."
 	},
 	"weight": 30,
 	"actions": [

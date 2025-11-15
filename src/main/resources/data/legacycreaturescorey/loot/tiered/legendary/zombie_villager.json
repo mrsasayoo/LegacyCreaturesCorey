@@ -1,0 +1,53 @@
+{
+  "origin_tier": "basico",
+  "entity": "minecraft:zombie_villager",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:emerald",
+      "min": 3,
+      "max": 6
+    },
+    {
+      "item": "minecraft:golden_apple",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:emerald_block",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:experience_bottle",
+      "min": 6,
+      "max": 10,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:brewing_stand",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:splash_potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:weakness"
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    }
+  ]
+}

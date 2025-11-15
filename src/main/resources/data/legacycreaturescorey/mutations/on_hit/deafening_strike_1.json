@@ -7,13 +7,13 @@
 		"literal": "Golpe Ensordecedor I"
 	},
 	"description": {
-		"literal": "15% de probabilidad de aplicar Oidos Zumbando durante 4 s, reduciendo los sonidos hostiles en un 50%."
+		"literal": "20% de probabilidad de aplicar Oidos Zumbando durante 4 s, reduciendo los sonidos hostiles en un 50%."
 	},
 	"weight": 65,
 	"actions": [
 		{
 			"type": "status_effect_on_hit",
-			"chance": 0.15,
+			"chance": 0.20,
 			"effect": "legacycreaturescorey:hostile_muffle",
 			"duration": 80,
 			"amplifier": 0,

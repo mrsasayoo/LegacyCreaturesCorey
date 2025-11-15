@@ -2,7 +2,7 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/push_3",
     "type": "PASSIVE_ON_HIT",
-    "cost": 7,
+    "cost": 12,
     "display_name": {
         "literal": "Empuje III"
     },

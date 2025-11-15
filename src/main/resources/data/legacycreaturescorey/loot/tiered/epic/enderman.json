@@ -1,0 +1,35 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:enderman",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:ender_pearl",
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:ender_pearl",
+      "min": 1,
+      "max": 2,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:chorus_fruit",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:eye_of_ender",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

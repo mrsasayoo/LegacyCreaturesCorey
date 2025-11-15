@@ -7,14 +7,14 @@
         "literal": "Desplazamiento I"
     },
     "description": {
-        "literal": "5% de probabilidad de teletransportar al objetivo en un radio de 2 bloques."
+        "literal": "10% de probabilidad de teletransportar al objetivo dentro de un radio de 5 bloques, dejando un rastro de portales."
     },
     "weight": 60,
     "actions": [
         {
             "type": "teleport",
-            "chance": 0.05,
-            "radius": 2.0,
+            "chance": 0.1,
+            "radius": 5.0,
             "target": "SELF"
         }
     ]

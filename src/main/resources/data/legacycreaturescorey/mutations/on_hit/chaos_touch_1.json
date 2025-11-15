@@ -7,15 +7,15 @@
 		"literal": "Toque Caótico I"
 	},
 	"description": {
-		"literal": "15% de probabilidad de desordenar la mano principal del objetivo intercambiándola con el siguiente espacio de la barra rápida. Aplica Lentitud al atacante durante 1 s."
+		"literal": "12% de probabilidad de desordenar la mano principal del objetivo intercambiándola con el siguiente espacio de la barra rápida. Aplica Lentitud al atacante durante 1 s."
 	},
 	"weight": 60,
 	"actions": [
 		{
 			"type": "chaos_touch",
-			"chance": 0.15,
+			"chance": 0.12,
 			"mode": "swap_right",
-			"self_slowness_ticks": 20
+			"self_slowness_ticks": 60
 		}
 	],
 	"incompatible_with": [

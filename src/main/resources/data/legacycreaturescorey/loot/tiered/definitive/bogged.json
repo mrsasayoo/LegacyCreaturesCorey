@@ -1,0 +1,60 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:bogged",
+  "rolls": {
+    "min": 2,
+    "max": 3
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:moss_block",
+      "min": 8,
+      "max": 12
+    },
+    {
+      "item": "minecraft:spore_blossom",
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:sniffer_egg",
+      "min": 1,
+      "max": 1,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:enchanted_golden_apple",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:totem_of_undying",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "stack": {
+        "id": "minecraft:suspicious_stew",
+        "components": {
+          "minecraft:suspicious_stew_effects": [
+            {
+              "effect": "minecraft:regeneration",
+              "duration": 200
+            },
+            {
+              "effect": "minecraft:night_vision",
+              "duration": 200
+            }
+          ]
+        }
+      },
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    }
+  ]
+}

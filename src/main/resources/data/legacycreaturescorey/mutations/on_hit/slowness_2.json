@@ -7,7 +7,7 @@
         "literal": "Aletargado II"
     },
     "description": {
-        "literal": "15% de probabilidad de aplicar Lentitud I durante 3 s."
+        "literal": "15% de probabilidad de aplicar Lentitud I durante 4 s."
     },
     "weight": 60,
     "actions": [
@@ -15,7 +15,7 @@
             "type": "status_effect_on_hit",
             "chance": 0.15,
             "effect": "minecraft:slowness",
-            "duration": 60,
+            "duration": 80,
             "amplifier": 0,
             "target": "OTHER"
         }

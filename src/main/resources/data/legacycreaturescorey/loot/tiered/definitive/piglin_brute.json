@@ -1,0 +1,46 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:piglin_brute",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:gold_block",
+      "min": 4,
+      "max": 6
+    },
+    {
+      "item": "minecraft:netherite_ingot",
+      "min": 1,
+      "max": 2
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:lodestone",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:gilded_blackstone",
+      "min": 6,
+      "max": 9,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:ancient_debris",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:snout_banner_pattern",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

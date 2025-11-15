@@ -7,6 +7,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
@@ -23,6 +24,8 @@ public final class StatusEffectAuraAction implements MutationAction {
     private final int interval;
     private final Target target;
     private final boolean excludeSelf;
+    private final boolean requireUndead;
+    private final boolean requireNonUndead;
 
     public StatusEffectAuraAction(Identifier effectId,
                                   int duration,
@@ -30,7 +33,9 @@ public final class StatusEffectAuraAction implements MutationAction {
                                   double radius,
                                   int interval,
                                   Target target,
-                                  boolean excludeSelf) {
+                                  boolean excludeSelf,
+                                  boolean requireUndead,
+                                  boolean requireNonUndead) {
         StatusEffect resolved = Registries.STATUS_EFFECT.get(effectId);
         this.effect = resolved != null
             ? Registries.STATUS_EFFECT.getEntry(Registries.STATUS_EFFECT.getRawId(resolved)).orElse(null)
@@ -41,11 +46,19 @@ public final class StatusEffectAuraAction implements MutationAction {
         this.interval = Math.max(1, interval);
         this.target = target;
         this.excludeSelf = excludeSelf;
+        this.requireUndead = requireUndead;
+        this.requireNonUndead = requireNonUndead;
     }
 
     @Override
     public void onTick(LivingEntity entity) {
         if (effect == null || !ActionContext.isServer(entity)) {
+            return;
+        }
+        if (requireUndead && !entity.getType().isIn(EntityTypeTags.UNDEAD)) {
+            return;
+        }
+        if (requireNonUndead && entity.getType().isIn(EntityTypeTags.UNDEAD)) {
             return;
         }
         if (entity.age % interval != 0) {

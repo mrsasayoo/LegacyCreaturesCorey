@@ -7,19 +7,20 @@
     "literal": "Baluarte de la Vanguardia III"
   },
   "description": {
-    "literal": "Resistencia I para aliados cercanos, curación de 4 corazones al caer un aliado y una poción de Daño Instantáneo II arrojada hacia arriba cada 7 s si el portador es no-muerto."
+    "literal": "Si el portador es no-muerto lanza una poción de Daño Instantáneo II cada 7 s; de lo contrario otorga Regeneración II a los aliados cercanos, además de curarse 5 corazones cuando cae un aliado."
   },
   "weight": 12,
   "actions": [
     {
       "type": "status_effect_aura",
-      "effect": "minecraft:resistance",
-      "duration": 80,
-      "amplifier": 0,
+      "effect": "minecraft:regeneration",
+      "duration": 60,
+      "amplifier": 1,
       "radius": 7.0,
-      "interval": 80,
+      "interval_ticks": 80,
       "target": "ALLY_MOBS",
-      "exclude_self": true
+      "exclude_self": true,
+      "requires_non_undead": true
     },
     {
       "type": "ally_death_heal",

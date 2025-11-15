@@ -1,0 +1,53 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:magma_cube",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:magma_cream",
+      "min": 6,
+      "max": 9
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:nether_wart",
+      "min": 3,
+      "max": 5,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:fire_charge",
+      "min": 4,
+      "max": 6,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:long_fire_resistance"
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:lava_bucket",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

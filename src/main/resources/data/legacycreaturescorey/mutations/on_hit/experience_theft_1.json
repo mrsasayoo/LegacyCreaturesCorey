@@ -14,7 +14,7 @@
         {
             "type": "experience_theft",
             "chance": 0.25,
-            "amount": 5
+            "amount": 10
         }
     ],
     "incompatible_with": [

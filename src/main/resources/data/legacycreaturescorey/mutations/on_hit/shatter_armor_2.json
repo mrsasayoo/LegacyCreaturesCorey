@@ -2,7 +2,7 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/shatter_armor_2",
     "type": "PASSIVE_ON_HIT",
-    "cost": 10,
+    "cost": 13,
     "display_name": {
         "literal": "Quebrar Armadura II"
     },

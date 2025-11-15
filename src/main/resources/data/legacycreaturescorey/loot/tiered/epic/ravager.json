@@ -1,0 +1,37 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:ravager",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:saddle",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:emerald",
+      "min": 2,
+      "max": 4,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:iron_block",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:ominous_bottle"
+      },
+      "min": 1,
+      "max": 2,
+      "weight": 1
+    }
+  ]
+}

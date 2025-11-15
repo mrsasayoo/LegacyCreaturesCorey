@@ -1,0 +1,46 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:hoglin",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:cooked_porkchop",
+      "min": 6,
+      "max": 10
+    },
+    {
+      "item": "minecraft:netherite_ingot",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:ancient_debris",
+      "min": 1,
+      "max": 2,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:netherite_upgrade_smithing_template",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:piglin_banner_pattern",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:porkchop",
+      "min": 10,
+      "max": 16,
+      "weight": 1
+    }
+  ]
+}

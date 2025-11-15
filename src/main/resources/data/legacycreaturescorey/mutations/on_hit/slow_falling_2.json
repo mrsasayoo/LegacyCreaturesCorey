@@ -2,7 +2,7 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/slow_falling_2",
     "type": "PASSIVE_ON_HIT",
-    "cost": 6,
+    "cost": 8,
     "display_name": {
         "literal": "Caída Lenta II"
     },

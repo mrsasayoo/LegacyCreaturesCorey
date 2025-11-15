@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.PlantBlock;
 import net.minecraft.block.TallPlantBlock;
 import net.minecraft.block.VineBlock;
 import net.minecraft.entity.LivingEntity;
@@ -22,12 +23,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.Heightmap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
@@ -164,7 +162,6 @@ public final class VirulentGrowthAuraAction implements MutationAction {
         private static final Handler INSTANCE = new Handler();
 
         private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-        private final Map<ServerWorld, Map<ServerPlayerEntity, PlayerTracker>> stationary = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {}
@@ -249,26 +246,35 @@ public final class VirulentGrowthAuraAction implements MutationAction {
         private void applyStationaryPoison(ServerWorld world, ActiveAura aura, long time) {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
+            if (radius <= 0.0D) {
+                return;
+            }
             double radiusSq = radius * radius;
-            Map<ServerPlayerEntity, PlayerTracker> trackers = stationary.computeIfAbsent(world, ignored -> new HashMap<>());
             List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (players.isEmpty()) {
                 return;
             }
-            Set<ServerPlayerEntity> present = new HashSet<>(players);
             for (ServerPlayerEntity player : players) {
-                PlayerTracker tracker = trackers.computeIfAbsent(player, ignored -> new PlayerTracker(player.getBlockPos(), time));
-                tracker.update(player.getBlockPos(), time, player.getVelocity().lengthSquared());
-                    if (time - tracker.lastMovementTick >= aura.action.getStationaryThresholdTicks() && isNaturalSupport(world, player.getBlockPos().down())) {
-                        player.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON,
-                            aura.action.getPoisonDurationTicks(),
-                            aura.action.getPoisonAmplifier(),
-                            true,
-                            true,
-                            true));
+                BlockPos feetPos = player.getBlockPos();
+                BlockState feetState = world.getBlockState(feetPos);
+                if (!isTriggerBlock(feetState) && !isTriggerBlock(world.getBlockState(feetPos.down()))) {
+                    continue;
                 }
+                if (aura.action.getPoisonDurationTicks() > 0) {
+                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON,
+                        aura.action.getPoisonDurationTicks(),
+                        aura.action.getPoisonAmplifier(),
+                        true,
+                        true,
+                        true));
+                }
+                player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS,
+                    60,
+                    0,
+                    true,
+                    true,
+                    true));
             }
-                trackers.entrySet().removeIf(entry -> !entry.getKey().isAlive() || !present.contains(entry.getKey()));
         }
 
         private void triggerRootSpikes(ServerWorld world, ActiveAura aura) {
@@ -316,17 +322,6 @@ public final class VirulentGrowthAuraAction implements MutationAction {
                 return pos;
             }
             return mutable.up();
-        }
-
-        private boolean isNaturalSupport(ServerWorld world, BlockPos below) {
-            BlockState state = world.getBlockState(below);
-            return state.isIn(BlockTags.DIRT)
-                || state.isIn(BlockTags.SAND)
-                || state.isIn(BlockTags.BASE_STONE_OVERWORLD)
-                || state.isOf(Blocks.GRASS_BLOCK)
-                || state.isOf(Blocks.STONE_BRICKS)
-                || state.isOf(Blocks.MOSS_BLOCK)
-                || state.isSolidBlock(world, below);
         }
 
         private boolean tryGrowFoliage(ServerWorld world, LivingEntity source, double radius, Random random) {
@@ -401,32 +396,39 @@ public final class VirulentGrowthAuraAction implements MutationAction {
             }
             if (list.isEmpty()) {
                 active.remove(world);
-                stationary.remove(world);
-            }
-            Map<ServerPlayerEntity, PlayerTracker> trackers = stationary.get(world);
-            if (trackers != null) {
-                trackers.entrySet().removeIf(entry -> !entry.getKey().isAlive());
-                if (trackers.isEmpty()) {
-                    stationary.remove(world);
-                }
             }
         }
-    }
 
-    private static final class PlayerTracker {
-        private BlockPos lastPos;
-        private long lastMovementTick;
-
-        private PlayerTracker(BlockPos initialPos, long tick) {
-            this.lastPos = initialPos;
-            this.lastMovementTick = tick;
-        }
-
-        private void update(BlockPos current, long tick, double velocitySq) {
-            if (!current.equals(lastPos) || velocitySq > 0.0004D) {
-                this.lastPos = current;
-                this.lastMovementTick = tick;
+        private boolean isTriggerBlock(BlockState state) {
+            if (state.isAir()) {
+                return false;
             }
+            if (state.isIn(BlockTags.LEAVES) || state.isIn(BlockTags.DIRT) || state.isIn(BlockTags.SAND)) {
+                return true;
+            }
+            Block block = state.getBlock();
+            if (block instanceof PlantBlock || block instanceof TallPlantBlock) {
+                return true;
+            }
+            return state.isOf(Blocks.GRASS_BLOCK)
+                || state.isOf(Blocks.MOSS_BLOCK)
+                || state.isOf(Blocks.MOSS_CARPET)
+                || state.isOf(Blocks.PODZOL)
+                || state.isOf(Blocks.MYCELIUM)
+                || state.isOf(Blocks.ROOTED_DIRT)
+                || state.isOf(Blocks.COARSE_DIRT)
+                || state.isOf(Blocks.DIRT_PATH)
+                || state.isOf(Blocks.FARMLAND)
+                || state.isOf(Blocks.DIRT)
+                || state.isOf(Blocks.MUD)
+                || state.isOf(Blocks.VINE)
+                || state.isOf(Blocks.CAVE_VINES)
+                || state.isOf(Blocks.CAVE_VINES_PLANT)
+                || state.isOf(Blocks.WEEPING_VINES)
+                || state.isOf(Blocks.WEEPING_VINES_PLANT)
+                || state.isOf(Blocks.TWISTING_VINES)
+                || state.isOf(Blocks.TWISTING_VINES_PLANT)
+                || state.isOf(Blocks.PALE_HANGING_MOSS);
         }
     }
 }

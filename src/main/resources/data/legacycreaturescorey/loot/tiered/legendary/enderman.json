@@ -1,0 +1,46 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:enderman",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:ender_pearl",
+      "min": 4,
+      "max": 6
+    },
+    {
+      "item": "minecraft:chorus_fruit",
+      "min": 3,
+      "max": 4
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:ender_eye",
+      "min": 2,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:purpur_block",
+      "min": 6,
+      "max": 10,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:amethyst_shard",
+      "min": 4,
+      "max": 6,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:ender_chest",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

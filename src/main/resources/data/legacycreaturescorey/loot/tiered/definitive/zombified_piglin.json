@@ -1,0 +1,45 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:zombified_piglin",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:gold_ingot",
+      "min": 12,
+      "max": 18
+    },
+    {
+      "item": "minecraft:netherite_ingot",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:gold_block",
+      "min": 3,
+      "max": 5,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:ancient_debris",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:enchanted_book",
+      "enchantments": ["minecraft:looting","minecraft:smite"],
+      "weight": 2
+    },
+    {
+      "item": "minecraft:gilded_blackstone",
+      "min": 6,
+      "max": 9,
+      "weight": 1
+    }
+  ]
+}

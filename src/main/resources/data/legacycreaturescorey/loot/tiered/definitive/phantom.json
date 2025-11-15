@@ -1,0 +1,45 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:phantom",
+  "rolls": {
+    "min": 2,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:phantom_membrane",
+      "min": 6,
+      "max": 10
+    },
+    {
+      "item": "minecraft:elytra",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:firework_rocket",
+      "min": 24,
+      "max": 48,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:echo_shard",
+      "min": 2,
+      "max": 4,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:netherite_scrap",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:enchanted_book",
+      "enchantments": ["minecraft:unbreaking","minecraft:mending"],
+      "weight": 1
+    }
+  ]
+}

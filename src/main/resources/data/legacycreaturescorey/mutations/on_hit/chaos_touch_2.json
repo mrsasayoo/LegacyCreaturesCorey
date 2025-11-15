@@ -7,15 +7,15 @@
 		"literal": "Toque Caótico II"
 	},
 	"description": {
-		"literal": "18% de probabilidad de rotar toda la barra rápida del objetivo en una dirección aleatoria. Aplica Lentitud al atacante durante 2 s."
+		"literal": "15% de probabilidad de rotar toda la barra rápida del objetivo en una dirección aleatoria. Aplica Lentitud al atacante durante 2 s."
 	},
 	"weight": 35,
 	"actions": [
 		{
 			"type": "chaos_touch",
-			"chance": 0.18,
+			"chance": 0.15,
 			"mode": "rotate",
-			"self_slowness_ticks": 40
+			"self_slowness_ticks": 80
 		}
 	],
 	"incompatible_with": [

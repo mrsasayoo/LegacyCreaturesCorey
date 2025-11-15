@@ -7,13 +7,13 @@
 		"literal": "Frenesí I"
 	},
 	"description": {
-		"literal": "20% de probabilidad de ganar Velocidad I durante 3 s al golpear a un enemigo."
+		"literal": "30% de probabilidad de ganar Velocidad I durante 3 s al golpear a un enemigo."
 	},
 	"weight": 55,
 	"actions": [
 		{
 			"type": "frenzy",
-			"chance": 0.2,
+			"chance": 0.3,
 			"mode": "surge"
 		}
 	],

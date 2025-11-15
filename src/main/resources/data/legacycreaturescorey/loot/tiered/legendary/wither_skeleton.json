@@ -1,0 +1,56 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:wither_skeleton",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:bone",
+      "min": 6,
+      "max": 9
+    },
+    {
+      "item": "minecraft:coal",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:soul_sand",
+      "min": 4,
+      "max": 6,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:blaze_powder",
+      "min": 3,
+      "max": 5,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:wither_skeleton_skull",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "stack": {
+        "id": "minecraft:stone_sword",
+        "components": {
+          "minecraft:enchantments": {
+            "levels": {
+              "minecraft:smite": 4,
+              "minecraft:unbreaking": 3
+            }
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

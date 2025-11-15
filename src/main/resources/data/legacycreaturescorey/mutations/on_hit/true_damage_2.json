@@ -7,13 +7,13 @@
 		"literal": "Golpe Verdadero II"
 	},
 	"description": {
-		"literal": "20% de probabilidad de ignorar toda la armadura. El atacante recibe Fatiga de Mineria IV durante 2.5 s tras activarse."
+		"literal": "10% de probabilidad de ignorar toda la armadura o bloqueo. El atacante recibe Fatiga de Minería IV durante 2.5 s tras activarse."
 	},
 	"weight": 8,
 	"actions": [
 		{
 			"type": "true_damage",
-			"chance": 0.2,
+			"chance": 0.1,
 			"side_effects": [
 				{
 					"effect": "minecraft:mining_fatigue",

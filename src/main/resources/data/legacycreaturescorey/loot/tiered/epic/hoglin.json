@@ -1,0 +1,35 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:hoglin",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:porkchop",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:leather",
+      "min": 2,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:gold_nugget",
+      "min": 4,
+      "max": 6,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:nether_wart",
+      "min": 2,
+      "max": 3,
+      "weight": 1
+    }
+  ]
+}

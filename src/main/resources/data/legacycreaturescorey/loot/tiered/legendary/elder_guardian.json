@@ -1,0 +1,46 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:elder_guardian",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:prismarine_shard",
+      "min": 8,
+      "max": 12
+    },
+    {
+      "item": "minecraft:prismarine_crystals",
+      "min": 6,
+      "max": 10
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:wet_sponge",
+      "min": 1,
+      "max": 2,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:sea_lantern",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:heart_of_the_sea",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:trident",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

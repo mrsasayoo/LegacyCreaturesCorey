@@ -2,7 +2,7 @@
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/shatter_armor_3",
     "type": "PASSIVE_ON_HIT",
-    "cost": 15,
+    "cost": 20,
     "display_name": {
         "literal": "Quebrar Armadura III"
     },

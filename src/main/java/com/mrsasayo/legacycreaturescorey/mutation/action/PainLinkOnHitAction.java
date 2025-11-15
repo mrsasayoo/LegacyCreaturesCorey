@@ -7,9 +7,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +63,7 @@ public final class PainLinkOnHitAction extends ProcOnHitAction {
 
         public static Mode fromString(String raw) {
             return switch (raw.trim().toUpperCase()) {
-                case "RETALIATION", "I" -> RETRIBUTION;
+                case "RETRIBUTION", "RETALIATION", "I" -> RETRIBUTION;
                 case "BACKLASH", "II" -> BACKLASH;
                 case "SACRIFICE", "III" -> SACRIFICE;
                 default -> throw new IllegalArgumentException("Modo de vínculo de dolor desconocido: " + raw);
@@ -106,26 +110,18 @@ public final class PainLinkOnHitAction extends ProcOnHitAction {
             ActiveLink link = new ActiveLink(world.getTime() + mode.durationTicks, mob, player, mode);
             linksByPlayer.put(player, link);
             linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).add(link);
+            link.playActivation(world);
         }
 
         private void tickWorld(ServerWorld world) {
             long time = world.getTime();
-            List<ServerPlayerEntity> toRemove = null;
-            for (Map.Entry<ServerPlayerEntity, ActiveLink> entry : linksByPlayer.entrySet()) {
+            var iterator = linksByPlayer.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<ServerPlayerEntity, ActiveLink> entry = iterator.next();
                 ActiveLink link = entry.getValue();
-                if (!link.isActive(time)) {
-                    if (toRemove == null) {
-                        toRemove = new ArrayList<>();
-                    }
-                    toRemove.add(entry.getKey());
-                }
-            }
-            if (toRemove != null) {
-                for (ServerPlayerEntity player : toRemove) {
-                    ActiveLink removed = linksByPlayer.remove(player);
-                    if (removed != null) {
-                        removeFromMob(removed);
-                    }
+                if (!link.tick(world, time)) {
+                    iterator.remove();
+                    removeFromMob(link);
                 }
             }
         }
@@ -167,6 +163,8 @@ public final class PainLinkOnHitAction extends ProcOnHitAction {
         private final ServerPlayerEntity player;
         private final Mode mode;
         private long lastSwingTick;
+        private long nextParticleTick;
+        private long nextGlowRefresh;
 
         private ActiveLink(long expiryTick, LivingEntity mob, ServerPlayerEntity player, Mode mode) {
             this.expiryTick = expiryTick;
@@ -174,10 +172,54 @@ public final class PainLinkOnHitAction extends ProcOnHitAction {
             this.player = player;
             this.mode = mode;
             this.lastSwingTick = Long.MIN_VALUE;
+            this.nextParticleTick = Long.MIN_VALUE;
+            this.nextGlowRefresh = Long.MIN_VALUE;
         }
 
-        boolean isActive(long worldTime) {
-            return player.isAlive() && mob.isAlive() && worldTime <= expiryTick;
+        void playActivation(ServerWorld world) {
+            if (!player.isAlive() || !mob.isAlive()) {
+                return;
+            }
+            double mobX = mob.getX();
+            double mobY = mob.getY() + mob.getStandingEyeHeight() * 0.5D;
+            double mobZ = mob.getZ();
+            double playerX = player.getX();
+            double playerY = player.getY() + player.getStandingEyeHeight() * 0.4D;
+            double playerZ = player.getZ();
+            float basePitch = 0.85F + world.getRandom().nextFloat() * 0.15F;
+            world.playSound(null, mobX, mobY, mobZ, SoundEvents.BLOCK_RESPAWN_ANCHOR_CHARGE, SoundCategory.HOSTILE, 0.6F, basePitch);
+            world.playSound(null, playerX, playerY, playerZ, SoundEvents.ENTITY_ENDERMAN_AMBIENT, SoundCategory.PLAYERS, 0.4F, 1.2F);
+            spawnBurst(world, new Vec3d(mobX, mobY, mobZ));
+            spawnBurst(world, new Vec3d(playerX, playerY, playerZ));
+            applyGlow();
+            long time = world.getTime();
+            nextParticleTick = time;
+            nextGlowRefresh = time;
+        }
+
+        boolean tick(ServerWorld world, long time) {
+            if (!isActive(world, time)) {
+                return false;
+            }
+            if (time >= nextGlowRefresh) {
+                applyGlow();
+                nextGlowRefresh = time + 10;
+            }
+            if (time >= nextParticleTick) {
+                spawnLinkParticles(world);
+                nextParticleTick = time + 2;
+            }
+            return true;
+        }
+
+        private boolean isActive(ServerWorld world, long time) {
+            if (!player.isAlive() || !mob.isAlive() || time > expiryTick) {
+                return false;
+            }
+            if (player.getEntityWorld() != world || mob.getEntityWorld() != world) {
+                return false;
+            }
+            return true;
         }
 
         void onPlayerSwing(ServerWorld world) {
@@ -205,6 +247,31 @@ public final class PainLinkOnHitAction extends ProcOnHitAction {
                 return;
             }
             player.damage(world, world.getDamageSources().magic(), redirected);
+        }
+
+        private void applyGlow() {
+            StatusEffectInstance marker = new StatusEffectInstance(StatusEffects.GLOWING, 12, 0, true, false, false);
+            player.addStatusEffect(marker);
+            if (mob.isAlive()) {
+                mob.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 12, 0, true, false, false));
+            }
+        }
+
+        private void spawnLinkParticles(ServerWorld world) {
+            Vec3d from = new Vec3d(mob.getX(), mob.getY() + mob.getStandingEyeHeight() * 0.6D, mob.getZ());
+            Vec3d to = new Vec3d(player.getX(), player.getY() + player.getStandingEyeHeight() * 0.4D, player.getZ());
+            Vec3d delta = to.subtract(from);
+            int segments = 10;
+            for (int i = 0; i <= segments; i++) {
+                double t = i / (double) segments;
+                Vec3d point = from.add(delta.multiply(t));
+                world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+            }
+        }
+
+        private void spawnBurst(ServerWorld world, Vec3d origin) {
+            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
+            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
         }
     }
 }

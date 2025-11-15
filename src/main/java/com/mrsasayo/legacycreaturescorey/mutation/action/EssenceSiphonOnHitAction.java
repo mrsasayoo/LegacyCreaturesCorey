@@ -75,8 +75,9 @@ public final class EssenceSiphonOnHitAction extends ProcOnHitAction {
     private void applyCorruption(LivingEntity victim, StatusEffectInstance effect, int durationTicks) {
         RegistryEntry<net.minecraft.entity.effect.StatusEffect> entry = effect.getEffectType();
         RegistryEntry<net.minecraft.entity.effect.StatusEffect> negative = CORRUPTION_MAP.getOrDefault(entry, StatusEffects.POISON);
-        victim.removeStatusEffect(entry);
-        victim.addStatusEffect(new StatusEffectInstance(negative, durationTicks, Math.max(0, effect.getAmplifier())));
+        int amplifier = Math.max(0, effect.getAmplifier());
+        StatusEffectInstance corrupted = new StatusEffectInstance(negative, durationTicks, amplifier, false, true, true);
+        victim.addStatusEffect(corrupted);
     }
 
     private List<StatusEffectInstance> getPositiveEffects(LivingEntity victim) {

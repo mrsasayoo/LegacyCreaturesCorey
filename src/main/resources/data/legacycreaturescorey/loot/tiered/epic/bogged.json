@@ -1,0 +1,42 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:bogged",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:arrow",
+      "min": 3,
+      "max": 5
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:moss_block",
+      "min": 2,
+      "max": 4,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:poisonous_potato",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:tipped_arrow",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:poison"
+          }
+        }
+      },
+      "min": 2,
+      "max": 4,
+      "weight": 1
+    }
+  ]
+}

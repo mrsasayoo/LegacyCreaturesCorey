@@ -7,16 +7,27 @@
     "literal": "Baluarte de la Vanguardia I"
   },
   "description": {
-    "literal": "Cada 14 segundos el portador no-muerto lanza hacia arriba una poción de Daño Instantáneo I que lo sana con 3 corazones pero puede dañar a jugadores cercanos."
+    "literal": "Si el portador es no-muerto lanza cada 13 segundos una poción de Daño Instantáneo I para curarse, y de lo contrario regenera a los aliados cercanos."
   },
   "weight": 45,
   "actions": [
     {
       "type": "undead_potion_burst",
-      "interval_ticks": 280,
+      "interval_ticks": 260,
       "potion": "minecraft:harming",
       "vertical_velocity": 0.7,
       "spread": 0.2
+    },
+    {
+      "type": "status_effect_aura",
+      "effect": "minecraft:regeneration",
+      "duration": 80,
+      "amplifier": 0,
+      "radius": 6.0,
+      "interval_ticks": 40,
+      "target": "ALLY_MOBS",
+      "exclude_self": true,
+      "requires_non_undead": true
     }
   ],
   "incompatible_with": [

@@ -1,0 +1,58 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:warden",
+  "rolls": {
+    "min": 1,
+    "max": 2
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:sculk_catalyst",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "item": "minecraft:echo_shard",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:disc_fragment_5",
+      "min": 5,
+      "max": 7,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:sculk_shrieker",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:sculk_sensor",
+      "min": 2,
+      "max": 3,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "enchantments": [
+              {
+                "id": "minecraft:swift_sneak",
+                "level": 3
+              }
+            ]
+          }
+        }
+      },
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}

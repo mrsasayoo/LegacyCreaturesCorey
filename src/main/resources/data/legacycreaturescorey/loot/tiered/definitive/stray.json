@@ -1,0 +1,52 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:stray",
+  "rolls": {
+    "min": 2,
+    "max": 3
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:arrow",
+      "min": 32,
+      "max": 48
+    },
+    {
+      "stack": {
+        "id": "minecraft:tipped_arrow",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_slowness"
+          }
+        }
+      },
+      "min": 8,
+      "max": 12
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:bow",
+      "enchantments": ["minecraft:power","minecraft:infinity","minecraft:mending"],
+      "weight": 2
+    },
+    {
+      "item": "minecraft:blue_ice",
+      "min": 4,
+      "max": 6,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:powder_snow_bucket",
+      "min": 2,
+      "max": 3,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:ice",
+      "min": 12,
+      "max": 20,
+      "weight": 2
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "origin_tier": "dificil",
+  "entity": "minecraft:iron_golem",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "item": "minecraft:iron_block",
+      "min": 6,
+      "max": 8
+    },
+    {
+      "item": "minecraft:netherite_ingot",
+      "min": 1,
+      "max": 1
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:iron_ingot",
+      "min": 32,
+      "max": 48,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:anvil",
+      "min": 1,
+      "max": 2,
+      "weight": 2
+    },
+    {
+      "item": "minecraft:beacon",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    },
+    {
+      "item": "minecraft:enchanted_book",
+      "enchantments": ["minecraft:protection","minecraft:unbreaking"],
+      "weight": 2
+    }
+  ]
+}

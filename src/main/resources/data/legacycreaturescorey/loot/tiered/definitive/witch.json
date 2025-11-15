@@ -1,0 +1,59 @@
+{
+  "origin_tier": "intermedia",
+  "entity": "minecraft:witch",
+  "rolls": {
+    "min": 3,
+    "max": 4
+  },
+  "guaranteed": [
+    {
+      "stack": {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_regeneration"
+          }
+        }
+      },
+      "min": 2,
+      "max": 3
+    },
+    {
+      "item": "minecraft:redstone_block",
+      "min": 4,
+      "max": 6
+    }
+  ],
+  "weighted": [
+    {
+      "item": "minecraft:enchanted_book",
+      "enchantments": ["minecraft:breach","minecraft:channeling"],
+      "weight": 2
+    },
+    {
+      "item": "minecraft:totem_of_undying",
+      "min": 1,
+      "max": 1,
+      "weight": 2
+    },
+    {
+      "stack": {
+        "id": "minecraft:splash_potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strong_harming"
+          }
+        }
+      },
+      "min": 3,
+      "max": 4,
+      "weight": 3
+    },
+    {
+      "item": "minecraft:beacon",
+      "min": 1,
+      "max": 1,
+      "weight": 1
+    }
+  ]
+}
