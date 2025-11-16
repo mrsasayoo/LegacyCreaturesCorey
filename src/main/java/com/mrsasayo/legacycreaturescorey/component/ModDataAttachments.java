@@ -9,13 +9,16 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.util.Identifier;
 
+import java.util.List;
+
 public class ModDataAttachments {
     
     private static final Codec<PlayerDifficultyData> PLAYER_DIFFICULTY_CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.INT.fieldOf("playerDifficulty").forGetter(PlayerDifficultyData::getPlayerDifficulty),
-            Codec.LONG.fieldOf("lastDeathPenaltyTime").forGetter(PlayerDifficultyData::getLastDeathPenaltyTime)
-        ).apply(instance, PlayerDifficultyData::new)
+            Codec.LONG.fieldOf("lastDeathPenaltyTime").forGetter(PlayerDifficultyData::getLastDeathPenaltyTime),
+            Codec.LONG.listOf().optionalFieldOf("recentDeaths", List.of()).forGetter(PlayerDifficultyData::getRecentDeathsList)
+        ).apply(instance, (difficulty, lastTime, recent) -> new PlayerDifficultyData(difficulty, lastTime, recent))
     );
 
     private static final Codec<MobLegacyData> MOB_LEGACY_CODEC = MobLegacyComponent.CODEC;

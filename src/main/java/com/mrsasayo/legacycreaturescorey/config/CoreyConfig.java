@@ -38,9 +38,18 @@ public class CoreyConfig {
     public MobTier debugForceExactTier = MobTier.DEFINITIVE; // Si no es null y el tier es válido, se aplica directamente "MobTier.EPIC"
     public boolean debugLogProbabilityDetails = false;
     
+    // ============ SISTEMAS ANTI-ABUSO ============
+    public boolean antiFarmDetectionEnabled = true;
+    public int antiFarmKillThreshold = 64;
+    public long antiFarmWindowTicks = 6000L; // 5 minutos aproximados
+    public int antiFarmBlockRadiusChunks = 4; // 4 chunks a cada lado = 9x9
+    public boolean antiFarmRestrictTieredSpawns = true;
+    public boolean antiFarmLogDetections = true;
+    public int antiFarmDailyDecayAmount = 64;
+    
     // Penalización por Muerte
-    public int deathPenaltyAmount = 8;
-    public long deathPenaltyCooldownTicks = 12000L; // 10 minutos (12000 ticks)
+    public int deathPenaltyAmount = 4;
+    public long deathPenaltyCooldownTicks = 1200L; // Ventana para detectar muertes rápidas (~1 minuto)
     
     // Prevenir instanciación externa
     private CoreyConfig() {}
@@ -50,8 +59,8 @@ public class CoreyConfig {
         if (maxGlobalDifficulty < 0) maxGlobalDifficulty = 1000;
     if (dailyIncreaseChance < 0.0 || dailyIncreaseChance > 1.0) dailyIncreaseChance = 1.0;
     if (playerDifficultyIncreaseChance < 0.0 || playerDifficultyIncreaseChance > 1.0) playerDifficultyIncreaseChance = 1.0;
-        if (deathPenaltyAmount < 0) deathPenaltyAmount = 8;
-        if (deathPenaltyCooldownTicks < 0) deathPenaltyCooldownTicks = 12000L;
+    if (deathPenaltyAmount < 0) deathPenaltyAmount = 8;
+    if (deathPenaltyCooldownTicks < 0) deathPenaltyCooldownTicks = 1200L;
     if (epicHealthMultiplier < 1.0) epicHealthMultiplier = 1.6;
     if (epicDamageMultiplier < 1.0) epicDamageMultiplier = 1.0;
     if (legendaryHealthMultiplier < epicHealthMultiplier) legendaryHealthMultiplier = 2.0;
@@ -68,5 +77,9 @@ public class CoreyConfig {
         if (debugForceExactTier == MobTier.NORMAL) {
             debugForceExactTier = null; // Normal no aporta para depuración forzada
         }
+        if (antiFarmKillThreshold < 1) antiFarmKillThreshold = 64;
+        if (antiFarmWindowTicks < 0L) antiFarmWindowTicks = 6000L;
+        if (antiFarmBlockRadiusChunks < 0) antiFarmBlockRadiusChunks = 0;
+        if (antiFarmDailyDecayAmount < 0) antiFarmDailyDecayAmount = 64;
     }
 }

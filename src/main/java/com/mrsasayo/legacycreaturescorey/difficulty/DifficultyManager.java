@@ -19,55 +19,100 @@ public class DifficultyManager {
         long lastDay = state.getLastDayChecked();
         
         if (currentDay > lastDay) {
+            long daysPassed = currentDay - lastDay;
+            state.decayChunkHeat(daysPassed, CoreyConfig.INSTANCE.antiFarmDailyDecayAmount);
+
+            int oldDifficulty = state.getGlobalDifficulty();
+            int targetDifficulty = (int) Math.min(CoreyConfig.INSTANCE.maxGlobalDifficulty, currentDay);
+            state.setGlobalDifficulty(targetDifficulty);
             state.setLastDayChecked(currentDay);
 
-            var random = server.getOverworld().random;
-            double globalChance = CoreyConfig.INSTANCE.dailyIncreaseChance;
-            double roll = random.nextDouble();
-            if (roll <= globalChance) {
-                int oldDifficulty = state.getGlobalDifficulty();
-                state.increaseGlobalDifficulty(CoreyConfig.INSTANCE.dailyIncreaseAmount);
-                int newDifficulty = state.getGlobalDifficulty();
-
+            if (oldDifficulty != targetDifficulty) {
                 Legacycreaturescorey.LOGGER.info(
-                    "📈 Dificultad Global: {} → {} (Día {}, tirada={})",
-                    oldDifficulty, newDifficulty, currentDay, String.format("%.2f", roll)
+                    "📈 Dificultad Global sincronizada: {} → {} (Día {})",
+                    oldDifficulty, targetDifficulty, currentDay
                 );
+            }
 
-                syncDifficultyToPlayers(server, CoreyConfig.INSTANCE.dailyIncreaseAmount, random);
+            triggerPlayerDifficultyRolls(server, daysPassed);
+        }
+    }
+
+    private static void triggerPlayerDifficultyRolls(MinecraftServer server, long daysPassed) {
+        if (daysPassed <= 0) {
+            return;
+        }
+
+        double chance = CoreyConfig.INSTANCE.playerDifficultyIncreaseChance;
+        int amount = CoreyConfig.INSTANCE.dailyIncreaseAmount;
+        if (chance <= 0.0 || amount <= 0) {
+            return;
+        }
+
+        var random = server.getOverworld().random;
+        for (long dayOffset = 0; dayOffset < daysPassed; dayOffset++) {
+            double roll = random.nextDouble();
+            if (roll <= chance) {
+                int affected = increaseDifficultyForOnlinePlayers(server, amount);
+                if (affected > 0) {
+                    Legacycreaturescorey.LOGGER.info(
+                        "🎲 Incremento diario (tirada {} ≤ {}): +{} dificultad para {} jugadores conectados",
+                        String.format("%.2f", roll),
+                        String.format("%.2f", chance),
+                        amount,
+                        affected
+                    );
+                }
             }
         }
     }
-    
-    private static void syncDifficultyToPlayers(MinecraftServer server, int amount, net.minecraft.util.math.random.Random random) {
-        double playerChance = CoreyConfig.INSTANCE.playerDifficultyIncreaseChance;
+
+    private static int increaseDifficultyForOnlinePlayers(MinecraftServer server, int amount) {
+        int affected = 0;
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            if (playerChance >= 1.0 || random.nextDouble() <= playerChance) {
-                PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-                data.increasePlayerDifficulty(amount);
-            }
+            PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
+            data.increasePlayerDifficulty(amount);
+            affected++;
         }
+        return affected;
     }
     
     public static void applyDeathPenalty(ServerPlayerEntity player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-    long currentTime = player.getEntityWorld().getTime();
-        long lastPenaltyTime = data.getLastDeathPenaltyTime();
-        long cooldown = CoreyConfig.INSTANCE.deathPenaltyCooldownTicks;
-        
-        if (currentTime - lastPenaltyTime >= cooldown) {
-            int currentDifficulty = data.getPlayerDifficulty();
-            int penalty = CoreyConfig.INSTANCE.deathPenaltyAmount;
-            int newDifficulty = Math.max(0, currentDifficulty - penalty);
-            
-            data.setPlayerDifficulty(newDifficulty);
-            data.setLastDeathPenaltyTime(currentTime);
-            
-            Legacycreaturescorey.LOGGER.info(
-                "💀 {} recibió penalización: {} → {}",
-                player.getName().getString(), currentDifficulty, newDifficulty
-            );
+        long currentTime = player.getEntityWorld().getTime();
+        long streakWindow = Math.max(0L, CoreyConfig.INSTANCE.deathPenaltyCooldownTicks);
+
+        data.recordDeath(currentTime);
+
+        int deathsInWindow = data.countRecentDeaths(currentTime, streakWindow);
+        if (deathsInWindow <= 0) {
+            deathsInWindow = 1;
         }
+
+        int basePenalty = Math.max(0, CoreyConfig.INSTANCE.deathPenaltyAmount);
+        if (basePenalty <= 0) {
+            data.setLastDeathPenaltyTime(currentTime);
+            return;
+        }
+
+        double multiplier = 1.0 / deathsInWindow;
+        int appliedPenalty = Math.max(1, (int) Math.round(basePenalty * multiplier));
+
+        int currentDifficulty = data.getPlayerDifficulty();
+        int newDifficulty = Math.max(0, currentDifficulty - appliedPenalty);
+
+        data.setPlayerDifficulty(newDifficulty);
+        data.setLastDeathPenaltyTime(currentTime);
+
+        Legacycreaturescorey.LOGGER.info(
+            "💀 {} penalización {} (x{} con {} muertes rápidas): {} → {}",
+            player.getName().getString(),
+            appliedPenalty,
+            String.format("%.2f", multiplier),
+            deathsInWindow,
+            currentDifficulty,
+            newDifficulty
+        );
     }
     
     public static void initializePlayerDifficulty(ServerPlayerEntity player) {

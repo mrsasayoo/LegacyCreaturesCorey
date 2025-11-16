@@ -1,6 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mob;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.antifarm.AntiFarmManager;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
@@ -28,6 +29,18 @@ public final class TierManager {
 
         if (currentTier != MobTier.NORMAL) {
             return currentTier;
+        }
+
+        if (AntiFarmManager.shouldBlockTieredSpawns(mob)) {
+            if (CoreyConfig.INSTANCE.debugLogProbabilityDetails) {
+                Legacycreaturescorey.LOGGER.debug(
+                    "🚧 {} spawn bloqueado por anti-granja en chunk {}|{}",
+                    mob.getType().getTranslationKey(),
+                    mob.getChunkPos().x,
+                    mob.getChunkPos().z
+                );
+            }
+            return MobTier.NORMAL;
         }
 
         EnumSet<MobTier> allowedTiers = determineAllowedTiers(mob.getType());
@@ -67,6 +80,29 @@ public final class TierManager {
             mob.getBlockZ()
         );
         return chosen;
+    }
+
+    /**
+     * Fuerza un tier específico sobre un mob ya spawneado aplicando los mismos
+     * efectos visuales y escalados que {@link #tryCategorize}, opcionalmente
+     * reasignando mutaciones basadas en el tier solicitado.
+     */
+    public static void forceTier(MobEntity mob, MobTier tier, boolean assignDefaultMutations) {
+        if (tier == null || mob == null) {
+            return;
+        }
+
+        var data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
+        data.setTier(tier);
+
+        applyBaseScaling(mob, tier);
+        applyVisuals(mob, tier);
+
+        if (assignDefaultMutations) {
+            MutationAssigner.assignMutations(mob, tier, data);
+        }
+
+        FuryHelper.applyFury(mob, data);
     }
 
     private static MobTier resolveTier(MobEntity mob, int effectiveDifficulty, EnumSet<MobTier> allowedTiers) {

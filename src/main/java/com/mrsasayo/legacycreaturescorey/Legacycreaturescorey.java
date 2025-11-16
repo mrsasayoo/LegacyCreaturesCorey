@@ -1,9 +1,11 @@
 package com.mrsasayo.legacycreaturescorey;
 
+import com.mrsasayo.legacycreaturescorey.antifarm.AntiFarmManager;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyManager;
 import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyTickHandler;
+import com.mrsasayo.legacycreaturescorey.command.corey.CoreyCommand;
 import com.mrsasayo.legacycreaturescorey.mob.MobSpawnHandler;
 import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
 import com.mrsasayo.legacycreaturescorey.mob.data.MobAttributeDataLoader;
@@ -38,7 +40,7 @@ public class Legacycreaturescorey implements ModInitializer {
         MutationRegistry.initialize();
         MutationDataLoader.register();
         TieredLootDataLoader.register();
-    MobAttributeDataLoader.register();
+        MobAttributeDataLoader.register();
         DifficultyTickHandler.register();
         MobSpawnHandler.register();
         TierParticleTicker.register();
@@ -46,8 +48,10 @@ public class Legacycreaturescorey implements ModInitializer {
         ModStatusEffects.init();
         StatusEffectTicker.register();
         ModNetworking.init();
-    MutationCommand.register();
+        MutationCommand.register();
+        CoreyCommand.register();
         CoreyLootModifiers.register();
+        AntiFarmManager.register();
         
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayerEntity player) {
