@@ -1,6 +1,7 @@
 package com.mrsasayo.legacycreaturescorey;
 
 import com.mrsasayo.legacycreaturescorey.antifarm.AntiFarmManager;
+import com.mrsasayo.legacycreaturescorey.antifarm.data.AntiFarmExclusionDataLoader;
 import com.mrsasayo.legacycreaturescorey.command.CoreyHudCommand;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
@@ -31,6 +32,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,10 @@ public class Legacycreaturescorey implements ModInitializer {
     
     public static final String MOD_ID = "legacycreaturescorey";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final String MOD_VERSION = FabricLoader.getInstance()
+        .getModContainer(MOD_ID)
+        .map(container -> container.getMetadata().getVersion().getFriendlyString())
+        .orElse("unknown");
 
     @Override
     public void onInitialize() {
@@ -60,6 +66,7 @@ public class Legacycreaturescorey implements ModInitializer {
         MobAttributeDataLoader.register();
         MobTierRuleDataLoader.register();
         BiomeTierWeightDataLoader.register();
+    AntiFarmExclusionDataLoader.register();
         MutationRuntime.register();
         ModStatusEffects.init();
         CoreyLootModifiers.register();

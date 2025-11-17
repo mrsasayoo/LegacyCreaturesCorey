@@ -54,6 +54,15 @@ public class CoreyConfig {
     public MobTier debugForceExactTier = MobTier.DEFINITIVE; // Si no es null y el tier es válido, se aplica directamente "MobTier.EPIC"
     public boolean debugLogProbabilityDetails = false;
     
+    // ============ LOOT ESCALADO ==========
+    public boolean tieredLootEnabled = true;
+    public boolean tieredLootStrictEntityTables = true;
+    public boolean tieredLootEpicEnabled = true;
+    public boolean tieredLootLegendaryEnabled = true;
+    public boolean tieredLootMythicEnabled = true;
+    public boolean tieredLootDefinitiveEnabled = true;
+    public boolean tieredLootTelemetryEnabled = false;
+
     // ============ SISTEMAS ANTI-ABUSO ============
     public boolean antiFarmDetectionEnabled = true;
     public int antiFarmKillThreshold = 64;
@@ -153,6 +162,13 @@ public class CoreyConfig {
         this.debugForceHighestAllowedTier = other.debugForceHighestAllowedTier;
         this.debugForceExactTier = other.debugForceExactTier;
         this.debugLogProbabilityDetails = other.debugLogProbabilityDetails;
+    this.tieredLootEnabled = other.tieredLootEnabled;
+    this.tieredLootStrictEntityTables = other.tieredLootStrictEntityTables;
+    this.tieredLootEpicEnabled = other.tieredLootEpicEnabled;
+    this.tieredLootLegendaryEnabled = other.tieredLootLegendaryEnabled;
+    this.tieredLootMythicEnabled = other.tieredLootMythicEnabled;
+    this.tieredLootDefinitiveEnabled = other.tieredLootDefinitiveEnabled;
+    this.tieredLootTelemetryEnabled = other.tieredLootTelemetryEnabled;
         this.antiFarmDetectionEnabled = other.antiFarmDetectionEnabled;
         this.antiFarmKillThreshold = other.antiFarmKillThreshold;
         this.antiFarmWindowTicks = other.antiFarmWindowTicks;

@@ -5,6 +5,7 @@ import com.mrsasayo.legacycreaturescorey.api.event.AntiFarmDashboardEvents;
 import com.mrsasayo.legacycreaturescorey.api.event.AntiFarmEvents;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.CoreyServerState;
+import com.mrsasayo.legacycreaturescorey.antifarm.data.AntiFarmExclusionDataLoader;
 import com.mrsasayo.legacycreaturescorey.mob.data.MobTierRuleDataLoader;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.EntityType;
@@ -124,6 +125,9 @@ public final class AntiFarmManager {
 
     private static boolean shouldIgnoreForAntiFarm(MobEntity mob, ChunkPos chunkPos) {
         if (mob.getCommandTags().contains(ANTI_FARM_EXEMPT_TAG)) {
+            return true;
+        }
+        if (AntiFarmExclusionDataLoader.isExcluded(mob.getType())) {
             return true;
         }
         return AntiFarmEvents.SHOULD_IGNORE.invoker().shouldIgnore(mob, chunkPos);

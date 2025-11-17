@@ -8,7 +8,7 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 - **Promoción de mobs**: `TierManager` puede ascender cualquier mob hostil a los tiers Épico, Legendario, Mítico o Definitivo con multiplicadores configurables de vida/daño, partículas dedicadas y nombres personalizados. Los tiers permitidos por mob se controlan vía datapacks (`data/<namespace>/legacycreaturescorey/mob_tier_rules.json`).
 - **Motor de mutaciones**: mutaciones activas/pasivas declaradas en JSON se aplican mediante `MutationAssigner` y se procesan por `MutationRuntime` en cada tick o golpe.
 - **Botín inteligente**: `TieredLootDataLoader` carga pools condicionales para cada mob/tier y `CoreyLootModifiers` inyecta recompensas únicas incluyendo stacks con componentes 1.21 (encantamientos extendidos, `stored_enchantments`, etc.).
-- **Anti-abuso**: `AntiFarmManager` monitoriza muertes por chunk, limpia el calor diariamente, bloquea promociones cuando las granjas detectadas exceden los umbrales y ahora atenúa la dificultad efectiva en zonas con calor alto.
+- **Anti-abuso**: `AntiFarmManager` monitoriza muertes por chunk, limpia el calor diariamente, bloquea promociones cuando las granjas detectadas exceden los umbrales, atenúa la dificultad efectiva en zonas calientes y admite exclusiones declaradas en datapacks (`anti_farm_exclusions.json`) además de hooks Fabric para terceros.
 - **Detección de sinergias**: `SynergyModule` identifica Armory, Arcaney, Artifactys y futuros módulos y expone su estado para que otros proyectos Legacy activen integraciones cuando estén listas.
 
 ## 📦 Instalación
@@ -23,7 +23,10 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 - Multiplicador por bioma: `biomeDifficultyMultiplier` (default 1.5) se aplica automáticamente en biomas peligrosos como Snowy Slopes, Deep Dark, Crimson Forest, etc.
 - Multiplicadores por tier: `epicHealthMultiplier`, `legendaryDamageMultiplier`, etc.
 - Probabilidades relativas: `*_ChanceMultiplier` para cada tier.
+- Botín escalado: `tieredLootEnabled` y `tieredLootStrictEntityTables` controlan cuándo interviene `CoreyLootModifiers`, mientras que `tieredLoot<Epic|Legendary|Mythic|Definitive>Enabled` permite activar/desactivar cada tier sin tocar datapacks.
+- Telemetría de botín: `tieredLootTelemetryEnabled` publica `TieredLootTelemetryEvents.TierLootApplied` con snapshots antes/después de modificar los drops para dashboards y alertas.
 - Anti-granjas: `antiFarmKillThreshold`, `antiFarmWindowTicks`, `antiFarmBlockRadiusChunks`, `antiFarmDailyDecayAmount`, `antiFarmHeatPenaltyEnabled`, `antiFarmHeatPenaltyMinMultiplier`, `antiFarmHeatPenaltyExponent`.
+- Exclusiones anti-farm: crea `data/<namespace>/legacycreaturescorey/anti_farm_exclusions.json` con `{"entries": ["minecraft:villager", "#minecraft:bosses"]}` para omitir mobs o tags completos sin depender de command tags.
 - Reglas de tiers por mob: `mob_tier_rules.json` permite definir explícitamente qué tiers puede alcanzar cada entidad (además de los tags heredados). El archivo por defecto se incluye en `data/legacycreaturescorey/mob_tier_rules.json` y se puede sobrescribir en datapacks.
 - Herramientas de debug: `debugForceExactTier`, `debugForceHighestAllowedTier`, `debugLogProbabilityDetails`.
 
@@ -40,6 +43,7 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 - `/corey tier <entidad> <tier>` fuerza promociones y `/corey spawn mob ...` permite generar hordas de prueba con mutaciones personalizadas.
 - `/corey debug chunk activity` inspecciona el estado del anti-farming en el chunk actual.
 - `MutationCommand` ofrece herramientas para recargar mutaciones desde datapacks sin reiniciar el servidor.
+- Telemetría/Integraciones: `AntiFarmEvents` permite anular detecciones o ajustar thresholds, mientras que `AntiFarmDashboardEvents` + `AntiFarmDashboardApi` entregan datos de calor para dashboards y bots.
 
 ## 🔌 Sinergias con Otros Mods
 | Mod | Estado | Funcionalidad |

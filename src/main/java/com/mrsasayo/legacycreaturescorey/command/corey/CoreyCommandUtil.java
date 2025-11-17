@@ -10,13 +10,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -60,7 +57,7 @@ public final class CoreyCommandUtil {
 
     public static MobEntity findNearestMob(ServerPlayerEntity player, double radius) {
         Box box = player.getBoundingBox().expand(radius);
-    return player.getEntityWorld().getEntitiesByClass(MobEntity.class, box, Entity::isAlive)
+        return player.getEntityWorld().getEntitiesByClass(MobEntity.class, box, Entity::isAlive)
             .stream()
             .min((a, b) -> Double.compare(a.squaredDistanceTo(player), b.squaredDistanceTo(player)))
             .orElse(null);
@@ -76,22 +73,4 @@ public final class CoreyCommandUtil {
         return null;
     }
 
-    public static Optional<BlockPos> raycastBlock(ServerPlayerEntity player, double distance) {
-        Vec3d start = player.getCameraPosVec(1.0F);
-        Vec3d direction = player.getRotationVec(1.0F);
-        Vec3d end = start.add(direction.multiply(distance));
-        RaycastContext context = new RaycastContext(
-            start,
-            end,
-            RaycastContext.ShapeType.OUTLINE,
-            RaycastContext.FluidHandling.NONE,
-            player
-        );
-        var world = player.getEntityWorld();
-        var result = world.raycast(context);
-        if (result.getType() == net.minecraft.util.hit.HitResult.Type.BLOCK) {
-            return Optional.of(result.getBlockPos());
-        }
-        return Optional.empty();
-    }
 }

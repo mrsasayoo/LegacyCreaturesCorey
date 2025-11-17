@@ -5,6 +5,7 @@ import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.CoreyServerState;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.synergy.SynergyManager;
+import com.mrsasayo.legacycreaturescorey.synergy.SynergyStatus;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Lightweight health-check runner to validate bootstrap requirements.
@@ -104,7 +106,15 @@ public final class CoreyHealthMonitor {
         if (statuses.isEmpty()) {
             return new HealthCheckResult("Synergies", false, "SynergyManager no inicializado");
         }
-        return new HealthCheckResult("Synergies", true, statuses.size() + " estados registrados");
+        long detected = statuses.stream().filter(SynergyStatus::detected).count();
+        long enabled = statuses.stream().filter(SynergyStatus::enabled).count();
+        long disabled = detected - enabled;
+        long missing = statuses.size() - detected;
+        boolean healthy = disabled == 0;
+        String detail = String.format(Locale.ROOT,
+            "Activas: %d · Detectadas: %d · Inactivas: %d · Faltantes: %d",
+            enabled, detected, Math.max(disabled, 0), Math.max(missing, 0));
+        return new HealthCheckResult("Synergies", healthy, detail);
     }
 
     private static HealthCheckResult checkServerState(MinecraftServer server) {
