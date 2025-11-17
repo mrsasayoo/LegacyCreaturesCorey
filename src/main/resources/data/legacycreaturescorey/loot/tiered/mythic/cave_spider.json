@@ -48,12 +48,7 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:bane_of_arthropods",
-                "level": 5
-              }
-            ]
+            "minecraft:bane_of_arthropods": 5
           }
         }
       },

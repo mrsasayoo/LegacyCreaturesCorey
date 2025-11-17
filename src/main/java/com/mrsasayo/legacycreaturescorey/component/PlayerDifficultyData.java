@@ -9,18 +9,23 @@ public class PlayerDifficultyData {
     private int playerDifficulty;
     private long lastDeathPenaltyTime;
     private final long[] recentDeathTicks;
+    private boolean difficultyHudEnabled;
     
     // Constructor por defecto
     public PlayerDifficultyData() {
-        this(0, 0L, List.of());
+        this(0, 0L, List.of(), false);
     }
     
     // Constructor con valores
     public PlayerDifficultyData(int playerDifficulty, long lastDeathPenaltyTime) {
-        this(playerDifficulty, lastDeathPenaltyTime, List.of());
+        this(playerDifficulty, lastDeathPenaltyTime, List.of(), false);
     }
 
     public PlayerDifficultyData(int playerDifficulty, long lastDeathPenaltyTime, List<Long> recentDeaths) {
+        this(playerDifficulty, lastDeathPenaltyTime, recentDeaths, false);
+    }
+
+    public PlayerDifficultyData(int playerDifficulty, long lastDeathPenaltyTime, List<Long> recentDeaths, boolean difficultyHudEnabled) {
         this.playerDifficulty = Math.max(0, playerDifficulty);
         this.lastDeathPenaltyTime = Math.max(0L, lastDeathPenaltyTime);
         this.recentDeathTicks = new long[MAX_TRACKED_DEATHS];
@@ -28,6 +33,7 @@ public class PlayerDifficultyData {
         for (int i = 0; i < len; i++) {
             this.recentDeathTicks[i] = Math.max(0L, recentDeaths.get(i));
         }
+        this.difficultyHudEnabled = difficultyHudEnabled;
     }
     
     public int getPlayerDifficulty() {
@@ -79,5 +85,17 @@ public class PlayerDifficultyData {
 
     public List<Long> getRecentDeathsList() {
         return Arrays.stream(this.recentDeathTicks).boxed().toList();
+    }
+
+    public boolean isDifficultyHudEnabled() {
+        return difficultyHudEnabled;
+    }
+
+    public void setDifficultyHudEnabled(boolean enabled) {
+        this.difficultyHudEnabled = enabled;
+    }
+
+    public void toggleDifficultyHud() {
+        this.difficultyHudEnabled = !this.difficultyHudEnabled;
     }
 }

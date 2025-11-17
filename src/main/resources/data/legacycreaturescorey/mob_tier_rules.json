@@ -1,0 +1,184 @@
+{
+  "entries": [
+    {
+      "id": "minecraft:bee",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:goat",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:dolphin",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:llama",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:wolf",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:polar_bear",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:panda",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:fox",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:snow_golem",
+      "tiers": ["epic"]
+    },
+    {
+      "id": "minecraft:spider",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:drowned",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:zombie_villager",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:endermite",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:skeleton",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:silverfish",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:slime",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:zombie",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:husk",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:pillager",
+      "tiers": ["epic", "legendary"]
+    },
+    {
+      "id": "minecraft:shulker",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:vex",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:hoglin",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:zoglin",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:ghast",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:phantom",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:bogged",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:stray",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:magma_cube",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:creeper",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:breeze",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:witch",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:blaze",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:cave_spider",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:zombified_piglin",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:enderman",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:ravager",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:iron_golem",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:elder_guardian",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:warden",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:vindicator",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:piglin_brute",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:evoker",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:guardian",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:wither_skeleton",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    },
+    {
+      "id": "minecraft:creaking",
+      "tiers": ["epic", "legendary", "mythic", "definitive"]
+    }
+  ]
+}

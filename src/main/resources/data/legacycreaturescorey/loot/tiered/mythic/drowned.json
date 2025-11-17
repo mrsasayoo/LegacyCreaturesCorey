@@ -29,12 +29,7 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:impaling",
-                "level": 5
-              }
-            ]
+            "minecraft:impaling": 5
           }
         }
       },

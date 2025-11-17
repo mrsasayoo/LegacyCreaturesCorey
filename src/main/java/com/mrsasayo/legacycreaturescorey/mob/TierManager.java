@@ -2,11 +2,15 @@ package com.mrsasayo.legacycreaturescorey.mob;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.antifarm.AntiFarmManager;
+import com.mrsasayo.legacycreaturescorey.api.event.TierEvents;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mob.data.MobAttributeDataLoader;
+import com.mrsasayo.legacycreaturescorey.mob.data.MobTierRuleDataLoader;
+import com.mrsasayo.legacycreaturescorey.mob.data.BiomeTierWeightDataLoader;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationAssigner;
+import com.mrsasayo.legacycreaturescorey.synergy.SynergyManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -46,7 +50,7 @@ public final class TierManager {
         EnumSet<MobTier> allowedTiers = determineAllowedTiers(mob.getType());
         if (allowedTiers.isEmpty()) {
             if (CoreyConfig.INSTANCE.debugLogProbabilityDetails) {
-                Legacycreaturescorey.LOGGER.info("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
             } else {
                 Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
             }
@@ -56,7 +60,7 @@ public final class TierManager {
         MobTier chosen = resolveTier(mob, effectiveDifficulty, allowedTiers);
         if (chosen == MobTier.NORMAL) {
             if (CoreyConfig.INSTANCE.debugLogProbabilityDetails) {
-                Legacycreaturescorey.LOGGER.info(
+                Legacycreaturescorey.LOGGER.debug(
                     "🎲 {} permaneció Normal | dificultad={} | permitidos={}",
                     mob.getType().getTranslationKey(),
                     effectiveDifficulty,
@@ -71,6 +75,8 @@ public final class TierManager {
         applyVisuals(mob, chosen);
         MutationAssigner.assignMutations(mob, chosen, data);
         FuryHelper.applyFury(mob, data);
+        SynergyManager.onMobTiered(mob, chosen, data);
+        TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, chosen, false);
         Legacycreaturescorey.LOGGER.info(
             "⚔️ {} promovido a tier {} en ({}, {}, {})",
             mob.getType().getTranslationKey(),
@@ -93,6 +99,12 @@ public final class TierManager {
         }
 
         var data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
+        if (assignDefaultMutations) {
+            data.clearMutations();
+            data.setFarmed(false);
+            data.setFurious(false);
+        }
+
         data.setTier(tier);
 
         applyBaseScaling(mob, tier);
@@ -103,6 +115,8 @@ public final class TierManager {
         }
 
         FuryHelper.applyFury(mob, data);
+        SynergyManager.onMobTiered(mob, tier, data);
+        TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, tier, true);
     }
 
     private static MobTier resolveTier(MobEntity mob, int effectiveDifficulty, EnumSet<MobTier> allowedTiers) {
@@ -112,7 +126,7 @@ public final class TierManager {
             return config.debugForceExactTier;
         }
         if (config.debugForceExactTier != null && !allowedTiers.contains(config.debugForceExactTier) && config.debugLogProbabilityDetails) {
-            Legacycreaturescorey.LOGGER.info(
+            Legacycreaturescorey.LOGGER.debug(
                 "🚫 {} no permite forzar tier {}. Permitidos: {}",
                 mob.getType().getTranslationKey(),
                 config.debugForceExactTier,
@@ -126,14 +140,19 @@ public final class TierManager {
                 return forced;
             }
             if (config.debugLogProbabilityDetails) {
-                Legacycreaturescorey.LOGGER.info(
+                Legacycreaturescorey.LOGGER.debug(
                     "⚠️ {} no tiene tiers superiores a Normal disponibles",
                     mob.getType().getTranslationKey()
                 );
             }
         }
 
-        return TierProbabilityCalculator.chooseTier(effectiveDifficulty, allowedTiers, mob.getRandom());
+        return TierProbabilityCalculator.chooseTier(
+            effectiveDifficulty,
+            allowedTiers,
+            mob.getRandom(),
+            tier -> BiomeTierWeightDataLoader.getMultiplier(mob, tier)
+        );
     }
 
     private static MobTier findHighestAllowedTier(EnumSet<MobTier> allowedTiers) {
@@ -150,31 +169,8 @@ public final class TierManager {
     }
 
     private static EnumSet<MobTier> determineAllowedTiers(EntityType<?> type) {
-        EnumSet<MobTier> tiers = EnumSet.noneOf(MobTier.class);
-
-        if (type.isIn(ModEntityTypeTags.TIER_LEVE)) {
-            tiers.add(MobTier.NORMAL);
-            tiers.add(MobTier.EPIC);
-            return tiers;
-        }
-
-        if (type.isIn(ModEntityTypeTags.TIER_BASIC)) {
-            tiers.add(MobTier.NORMAL);
-            tiers.add(MobTier.EPIC);
-            tiers.add(MobTier.LEGENDARY);
-            return tiers;
-        }
-
-        if (type.isIn(ModEntityTypeTags.TIER_INTERMEDIATE) || type.isIn(ModEntityTypeTags.TIER_HARD)) {
-            tiers.add(MobTier.NORMAL);
-            tiers.add(MobTier.EPIC);
-            tiers.add(MobTier.LEGENDARY);
-            tiers.add(MobTier.MYTHIC);
-            tiers.add(MobTier.DEFINITIVE);
-            return tiers;
-        }
-
-        return tiers;
+        EnumSet<MobTier> datapackTiers = MobTierRuleDataLoader.getAllowedTiers(type);
+        return datapackTiers != null ? datapackTiers : EnumSet.noneOf(MobTier.class);
     }
 
     private static void applyBaseScaling(MobEntity mob, MobTier tier) {

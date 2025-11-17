@@ -19,6 +19,7 @@ import com.mrsasayo.legacycreaturescorey.mob.MobLegacyData;
 import com.mrsasayo.legacycreaturescorey.mob.TierManager;
 import com.mrsasayo.legacycreaturescorey.mutation.Mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
+import com.mrsasayo.legacycreaturescorey.health.CoreyHealthMonitor;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -109,8 +110,13 @@ public final class CoreyCommand {
         root.then(buildReloadNode());
         root.then(buildMutationNode());
         root.then(buildMenuNode());
-
+        root.then(buildHealthNode());
         return root;
+    }
+
+    private static ArgumentBuilder<ServerCommandSource, ?> buildHealthNode() {
+        return CommandManager.literal("health")
+            .executes(ctx -> CoreyHealthMonitor.runCommand(ctx.getSource()));
     }
 
     // region Debug -----------------------------------------------------------
@@ -858,9 +864,13 @@ public final class CoreyCommand {
     private static ArgumentBuilder<ServerCommandSource, ?> buildReloadNode() {
         LiteralArgumentBuilder<ServerCommandSource> reload = CommandManager.literal("reload");
         reload.then(CommandManager.literal("config").executes(ctx -> {
-            CoreyConfig.INSTANCE.validate();
-            ctx.getSource().sendFeedback(() -> Text.literal("Configuración revalidada."), true);
-            return 1;
+            CoreyConfig.ReloadResult result = CoreyConfig.INSTANCE.reloadFromDisk();
+            if (result.success()) {
+                ctx.getSource().sendFeedback(() -> Text.literal(result.message()), true);
+                return 1;
+            }
+            ctx.getSource().sendError(Text.literal(result.message()));
+            return 0;
         }));
 
         reload.then(CommandManager.literal("mutations").executes(ctx -> {

@@ -17,8 +17,9 @@ public class ModDataAttachments {
         instance.group(
             Codec.INT.fieldOf("playerDifficulty").forGetter(PlayerDifficultyData::getPlayerDifficulty),
             Codec.LONG.fieldOf("lastDeathPenaltyTime").forGetter(PlayerDifficultyData::getLastDeathPenaltyTime),
-            Codec.LONG.listOf().optionalFieldOf("recentDeaths", List.of()).forGetter(PlayerDifficultyData::getRecentDeathsList)
-        ).apply(instance, (difficulty, lastTime, recent) -> new PlayerDifficultyData(difficulty, lastTime, recent))
+            Codec.LONG.listOf().optionalFieldOf("recentDeaths", List.of()).forGetter(PlayerDifficultyData::getRecentDeathsList),
+            Codec.BOOL.optionalFieldOf("hudEnabled", false).forGetter(PlayerDifficultyData::isDifficultyHudEnabled)
+        ).apply(instance, (difficulty, lastTime, recent, hud) -> new PlayerDifficultyData(difficulty, lastTime, recent, hud))
     );
 
     private static final Codec<MobLegacyData> MOB_LEGACY_CODEC = MobLegacyComponent.CODEC;

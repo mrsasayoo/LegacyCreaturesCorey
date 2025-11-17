@@ -41,11 +41,9 @@
         "id": "minecraft:golden_axe",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:sharpness": 5,
-              "minecraft:efficiency": 5,
-              "minecraft:unbreaking": 3
-            }
+            "minecraft:sharpness": 5,
+            "minecraft:efficiency": 5,
+            "minecraft:unbreaking": 3
           }
         }
       },

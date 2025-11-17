@@ -26,9 +26,17 @@
   ],
   "weighted": [
     {
-      "item": "minecraft:bow",
-      "enchantments": ["minecraft:power","minecraft:infinity","minecraft:mending"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:bow",
+        "components": {
+          "minecraft:enchantments": {
+            "minecraft:power": 1,
+            "minecraft:infinity": 1,
+            "minecraft:mending": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:blue_ice",

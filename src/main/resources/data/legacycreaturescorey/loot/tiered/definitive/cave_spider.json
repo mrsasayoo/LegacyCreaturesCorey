@@ -19,9 +19,16 @@
   ],
   "weighted": [
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:bane_of_arthropods","minecraft:looting"],
-      "weight": 3
+      "weight": 3,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:bane_of_arthropods": 1,
+            "minecraft:looting": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:totem_of_undying",

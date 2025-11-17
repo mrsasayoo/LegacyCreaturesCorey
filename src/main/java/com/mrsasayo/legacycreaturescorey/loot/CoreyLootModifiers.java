@@ -1,11 +1,13 @@
 package com.mrsasayo.legacycreaturescorey.loot;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.api.event.TierLootEvents;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mob.MobLegacyData;
 import com.mrsasayo.legacycreaturescorey.loot.data.TieredLootManager;
 import com.mrsasayo.legacycreaturescorey.loot.data.TieredMobLoot;
+import com.mrsasayo.legacycreaturescorey.synergy.SynergyManager;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -65,20 +67,27 @@ public final class CoreyLootModifiers {
                 mob.getType().getTranslationKey(), tier.getDisplayName());
         }
 
-        generateTieredLoot(mob, tier, context, drops);
+        boolean allowLegacyLoot = TierLootEvents.BEFORE_TIER_LOOT.invoker().allowTierLoot(mob, tier, context, drops);
+        boolean appliedLegacyLoot = false;
+        if (allowLegacyLoot) {
+            appliedLegacyLoot = generateTieredLoot(mob, tier, context, drops);
+        }
+        SynergyManager.onLootGenerated(mob, tier, context, drops);
+        TierLootEvents.AFTER_TIER_LOOT.invoker().onTierLootApplied(mob, tier, context, drops, appliedLegacyLoot);
     }
 
-    private static void generateTieredLoot(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops) {
+    private static boolean generateTieredLoot(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops) {
         Identifier entityId = Registries.ENTITY_TYPE.getId(mob.getType());
         if (entityId == null) {
-            return;
+            return false;
         }
 
         TieredMobLoot table = TieredLootManager.get(tier, entityId).orElse(null);
         if (table == null) {
-            return;
+            return false;
         }
 
         table.apply(context, drops);
+        return true;
     }
 }

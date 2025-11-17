@@ -41,10 +41,8 @@
         "id": "minecraft:golden_axe",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:smite": 6,
-              "minecraft:unbreaking": 1
-            }
+            "minecraft:smite": 6,
+            "minecraft:unbreaking": 1
           }
         }
       },

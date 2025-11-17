@@ -41,11 +41,9 @@
         "id": "minecraft:iron_axe",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:sharpness": 5,
-              "minecraft:unbreaking": 3,
-              "minecraft:efficiency": 5
-            }
+            "minecraft:sharpness": 5,
+            "minecraft:unbreaking": 3,
+            "minecraft:efficiency": 5
           }
         }
       },

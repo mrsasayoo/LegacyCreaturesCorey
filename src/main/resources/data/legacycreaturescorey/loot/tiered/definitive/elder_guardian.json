@@ -31,9 +31,17 @@
       "weight": 2
     },
     {
-      "item": "minecraft:trident",
-      "enchantments": ["minecraft:impaling","minecraft:loyalty","minecraft:channeling"],
-      "weight": 1
+      "weight": 1,
+      "stack": {
+        "id": "minecraft:trident",
+        "components": {
+          "minecraft:enchantments": {
+            "minecraft:impaling": 1,
+            "minecraft:loyalty": 1,
+            "minecraft:channeling": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:beacon",

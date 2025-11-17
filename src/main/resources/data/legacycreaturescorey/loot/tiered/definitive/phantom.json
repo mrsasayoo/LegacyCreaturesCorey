@@ -37,9 +37,16 @@
       "weight": 2
     },
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:unbreaking","minecraft:mending"],
-      "weight": 1
+      "weight": 1,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:unbreaking": 1,
+            "minecraft:mending": 1
+          }
+        }
+      }
     }
   ]
 }

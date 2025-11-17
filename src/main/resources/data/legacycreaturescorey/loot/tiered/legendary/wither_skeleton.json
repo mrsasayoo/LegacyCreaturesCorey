@@ -41,10 +41,8 @@
         "id": "minecraft:stone_sword",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:smite": 4,
-              "minecraft:unbreaking": 3
-            }
+            "minecraft:smite": 4,
+            "minecraft:unbreaking": 3
           }
         }
       },

@@ -25,9 +25,17 @@
       "weight": 3
     },
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:silk_touch","minecraft:efficiency","minecraft:unbreaking"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:silk_touch": 1,
+            "minecraft:efficiency": 1,
+            "minecraft:unbreaking": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:totem_of_undying",

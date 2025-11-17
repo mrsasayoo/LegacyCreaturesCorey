@@ -1,0 +1,154 @@
+{
+  "defaults": {
+    "epic": 1.0,
+    "legendary": 1.0,
+    "mythic": 1.0,
+    "definitive": 1.0
+  },
+  "entries": [
+    {
+      "biome": "minecraft:dark_forest",
+      "tiers": {
+        "legendary": 1.25,
+        "mythic": 1.35
+      }
+    },
+    {
+      "biome": "minecraft:deep_dark",
+      "tiers": {
+        "mythic": 1.55,
+        "definitive": 1.75
+      }
+    },
+    {
+      "biome": "minecraft:deep_ocean",
+      "tiers": {
+        "legendary": 1.2,
+        "mythic": 1.3
+      }
+    },
+    {
+      "biome": "minecraft:dripstone_caves",
+      "tiers": {
+        "legendary": 1.15,
+        "mythic": 1.25
+      }
+    },
+    {
+      "biome": "minecraft:mangrove_swamp",
+      "tiers": {
+        "epic": 1.15,
+        "legendary": 1.2
+      }
+    },
+    {
+      "biome": "minecraft:swamp",
+      "tiers": {
+        "epic": 1.1,
+        "legendary": 1.15
+      }
+    },
+    {
+      "biome": "minecraft:crimson_forest",
+      "tiers": {
+        "legendary": 1.2,
+        "mythic": 1.4,
+        "definitive": 1.5
+      }
+    },
+    {
+      "biome": "minecraft:the_end",
+      "tiers": {
+        "legendary": 1.3,
+        "mythic": 1.45,
+        "definitive": 1.6
+      }
+    },
+    {
+      "biome": "minecraft:warped_forest",
+      "tiers": {
+        "legendary": 1.25,
+        "mythic": 1.35,
+        "definitive": 1.45
+      }
+    },
+    {
+      "biome": "minecraft:basalt_deltas",
+      "tiers": {
+        "epic": 1.1,
+        "legendary": 1.3,
+        "mythic": 1.45
+      }
+    },
+    {
+      "biome": "minecraft:nether_wastes",
+      "tiers": {
+        "epic": 1.05,
+        "legendary": 1.15
+      }
+    },
+    {
+      "biome": "minecraft:badlands",
+      "tiers": {
+        "epic": 1.05,
+        "legendary": 1.15
+      }
+    },
+    {
+      "biome": "minecraft:savanna",
+      "tiers": {
+        "epic": 0.95,
+        "legendary": 0.9
+      }
+    },
+    {
+      "biome": "minecraft:plains",
+      "tiers": {
+        "epic": 0.85
+      }
+    },
+    {
+      "biome": "minecraft:desert",
+      "tiers": {
+        "epic": 0.8,
+        "legendary": 0.75
+      }
+    },
+    {
+      "biome": "minecraft:snowy_plains",
+      "tiers": {
+        "legendary": 1.05,
+        "mythic": 1.1
+      }
+    },
+    {
+      "biome": "minecraft:windswept_hills",
+      "tiers": {
+        "legendary": 1.1,
+        "mythic": 1.2
+      }
+    },
+    {
+      "biome": "minecraft:jungle",
+      "tiers": {
+        "epic": 1.1,
+        "legendary": 1.15,
+        "mythic": 1.2
+      }
+    },
+    {
+      "biome": "minecraft:sparse_jungle",
+      "tiers": {
+        "epic": 1.05,
+        "legendary": 1.1
+      }
+    },
+    {
+      "biome": "minecraft:mushroom_fields",
+      "tiers": {
+        "epic": 0.5,
+        "legendary": 0.4
+      }
+    }
+  ]
+}

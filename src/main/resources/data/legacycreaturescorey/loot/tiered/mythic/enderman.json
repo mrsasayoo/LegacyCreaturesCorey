@@ -41,12 +41,7 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:silk_touch",
-                "level": 1
-              }
-            ]
+            "minecraft:silk_touch": 1
           }
         }
       },

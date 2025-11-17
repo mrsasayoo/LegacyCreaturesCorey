@@ -31,9 +31,16 @@
       "weight": 2
     },
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:blast_protection","minecraft:respiration"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:blast_protection": 1,
+            "minecraft:respiration": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:netherite_scrap",

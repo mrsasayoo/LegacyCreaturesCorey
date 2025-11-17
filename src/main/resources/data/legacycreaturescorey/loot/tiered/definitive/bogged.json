@@ -42,11 +42,11 @@
         "components": {
           "minecraft:suspicious_stew_effects": [
             {
-              "effect": "minecraft:regeneration",
+              "id": "minecraft:regeneration",
               "duration": 200
             },
             {
-              "effect": "minecraft:night_vision",
+              "id": "minecraft:night_vision",
               "duration": 200
             }
           ]

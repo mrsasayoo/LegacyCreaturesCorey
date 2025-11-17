@@ -41,12 +41,7 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:swift_sneak",
-                "level": 3
-              }
-            ]
+            "minecraft:swift_sneak": 3
           }
         }
       },

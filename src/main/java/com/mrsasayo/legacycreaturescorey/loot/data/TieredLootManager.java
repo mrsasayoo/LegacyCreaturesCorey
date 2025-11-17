@@ -38,4 +38,16 @@ public final class TieredLootManager {
     public static void clear() {
         LOOT.clear();
     }
+
+    public static Map<MobTier, Map<Identifier, TieredMobLoot>> getAll() {
+        EnumMap<MobTier, Map<Identifier, TieredMobLoot>> snapshot = new EnumMap<>(MobTier.class);
+        for (MobTier tier : MobTier.values()) {
+            if (tier == MobTier.NORMAL) {
+                continue;
+            }
+            Map<Identifier, TieredMobLoot> tierMap = LOOT.getOrDefault(tier, Collections.emptyMap());
+            snapshot.put(tier, tierMap);
+        }
+        return Collections.unmodifiableMap(snapshot);
+    }
 }

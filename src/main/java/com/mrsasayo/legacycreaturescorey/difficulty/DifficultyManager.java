@@ -4,10 +4,14 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.component.PlayerDifficultyData;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
+import com.mrsasayo.legacycreaturescorey.network.DifficultySyncPayload;
+import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class DifficultyManager {
+
+    private static final int PLAYER_ROLL_INCREMENT = 1;
     
     public static long getCurrentDay(MinecraftServer server) {
         return server.getOverworld().getTime() / 24000L;
@@ -32,47 +36,48 @@ public class DifficultyManager {
                     "📈 Dificultad Global sincronizada: {} → {} (Día {})",
                     oldDifficulty, targetDifficulty, currentDay
                 );
+                broadcastDifficultySnapshot(server, state);
             }
 
-            triggerPlayerDifficultyRolls(server, daysPassed);
+            triggerPlayerDifficultyRolls(server, state, daysPassed);
         }
     }
 
-    private static void triggerPlayerDifficultyRolls(MinecraftServer server, long daysPassed) {
+    private static void triggerPlayerDifficultyRolls(MinecraftServer server, CoreyServerState state, long daysPassed) {
         if (daysPassed <= 0) {
             return;
         }
 
         double chance = CoreyConfig.INSTANCE.playerDifficultyIncreaseChance;
-        int amount = CoreyConfig.INSTANCE.dailyIncreaseAmount;
-        if (chance <= 0.0 || amount <= 0) {
+        if (chance <= 0.0) {
             return;
         }
 
-        var random = server.getOverworld().random;
-        for (long dayOffset = 0; dayOffset < daysPassed; dayOffset++) {
-            double roll = random.nextDouble();
-            if (roll <= chance) {
-                int affected = increaseDifficultyForOnlinePlayers(server, amount);
-                if (affected > 0) {
-                    Legacycreaturescorey.LOGGER.info(
-                        "🎲 Incremento diario (tirada {} ≤ {}): +{} dificultad para {} jugadores conectados",
-                        String.format("%.2f", roll),
-                        String.format("%.2f", chance),
-                        amount,
-                        affected
-                    );
-                }
-            }
+        double roll = server.getOverworld().random.nextDouble();
+        if (roll > chance) {
+            return;
+        }
+
+        int affected = increaseDifficultyForOnlinePlayers(server, state, PLAYER_ROLL_INCREMENT);
+        if (affected > 0) {
+            Legacycreaturescorey.LOGGER.info(
+                "🎲 Incremento diario único tras {} día(s) (tirada {} ≤ {}): +{} para {} jugadores conectados",
+                daysPassed,
+                String.format("%.2f", roll),
+                String.format("%.2f", chance),
+                PLAYER_ROLL_INCREMENT,
+                affected
+            );
         }
     }
 
-    private static int increaseDifficultyForOnlinePlayers(MinecraftServer server, int amount) {
+    private static int increaseDifficultyForOnlinePlayers(MinecraftServer server, CoreyServerState state, int amount) {
         int affected = 0;
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             data.increasePlayerDifficulty(amount);
             affected++;
+            sendDifficultySnapshot(player, state, data);
         }
         return affected;
     }
@@ -113,23 +118,59 @@ public class DifficultyManager {
             currentDifficulty,
             newDifficulty
         );
+
+    MinecraftServer server = player.getEntityWorld().getServer();
+        if (server != null) {
+            CoreyServerState state = CoreyServerState.get(server);
+            sendDifficultySnapshot(player, state, data);
+        }
     }
     
     public static void initializePlayerDifficulty(ServerPlayerEntity player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        
-        if (data.getPlayerDifficulty() == 0) {
-            MinecraftServer server = player.getEntityWorld().getServer();
-            if (server != null) {
-                CoreyServerState state = CoreyServerState.get(server);
-                data.setPlayerDifficulty(state.getGlobalDifficulty());
-                
-                Legacycreaturescorey.LOGGER.info(
-                    "🎮 {} inicializado con dificultad: {}",
-                    player.getName().getString(),
-                    state.getGlobalDifficulty()
-                );
-            }
+        MinecraftServer server = player.getEntityWorld().getServer();
+        if (server == null) {
+            return;
         }
+
+        CoreyServerState state = CoreyServerState.get(server);
+        if (data.getPlayerDifficulty() == 0) {
+            data.setPlayerDifficulty(state.getGlobalDifficulty());
+
+            Legacycreaturescorey.LOGGER.info(
+                "🎮 {} inicializado con dificultad: {}",
+                player.getName().getString(),
+                state.getGlobalDifficulty()
+            );
+        }
+
+        sendDifficultySnapshot(player, state, data);
+    }
+
+    private static void broadcastDifficultySnapshot(MinecraftServer server, CoreyServerState state) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
+            sendDifficultySnapshot(player, state, data);
+        }
+    }
+
+    private static void sendDifficultySnapshot(ServerPlayerEntity player, CoreyServerState state, PlayerDifficultyData data) {
+        DifficultySyncPayload payload = new DifficultySyncPayload(
+            state.getGlobalDifficulty(),
+            CoreyConfig.INSTANCE.maxGlobalDifficulty,
+            data.getPlayerDifficulty(),
+            CoreyConfig.INSTANCE.enableDifficultyHud && data.isDifficultyHudEnabled()
+        );
+        ModNetworking.sendDifficultyUpdate(player, payload);
+    }
+
+    public static void syncPlayer(ServerPlayerEntity player) {
+    MinecraftServer server = player.getEntityWorld().getServer();
+        if (server == null) {
+            return;
+        }
+        CoreyServerState state = CoreyServerState.get(server);
+        PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
+        sendDifficultySnapshot(player, state, data);
     }
 }

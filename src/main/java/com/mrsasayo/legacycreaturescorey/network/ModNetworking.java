@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.network;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 /**
@@ -12,9 +12,14 @@ public final class ModNetworking {
 
     public static void init() {
         PayloadTypeRegistry.playS2C().register(ClientEffectPayload.ID, ClientEffectPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(DifficultySyncPayload.ID, DifficultySyncPayload.CODEC);
     }
 
     public static void sendClientEffect(ServerPlayerEntity player, ClientEffectPayload payload) {
+        ServerPlayNetworking.send(player, payload);
+    }
+
+    public static void sendDifficultyUpdate(ServerPlayerEntity player, DifficultySyncPayload payload) {
         ServerPlayNetworking.send(player, payload);
     }
 }

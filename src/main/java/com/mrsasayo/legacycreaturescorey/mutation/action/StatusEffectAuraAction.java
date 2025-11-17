@@ -5,11 +5,9 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public final class StatusEffectAuraAction implements MutationAction {
     private final boolean requireUndead;
     private final boolean requireNonUndead;
 
-    public StatusEffectAuraAction(Identifier effectId,
+    public StatusEffectAuraAction(RegistryEntry<StatusEffect> effect,
                                   int duration,
                                   int amplifier,
                                   double radius,
@@ -36,10 +34,7 @@ public final class StatusEffectAuraAction implements MutationAction {
                                   boolean excludeSelf,
                                   boolean requireUndead,
                                   boolean requireNonUndead) {
-        StatusEffect resolved = Registries.STATUS_EFFECT.get(effectId);
-        this.effect = resolved != null
-            ? Registries.STATUS_EFFECT.getEntry(Registries.STATUS_EFFECT.getRawId(resolved)).orElse(null)
-            : null;
+        this.effect = effect;
         this.duration = Math.max(1, duration);
         this.amplifier = Math.max(0, amplifier);
         this.radius = Math.max(0.5D, radius);

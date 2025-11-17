@@ -1,9 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.antifarm;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.api.event.AntiFarmDashboardEvents;
+import com.mrsasayo.legacycreaturescorey.api.event.AntiFarmEvents;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.CoreyServerState;
-import com.mrsasayo.legacycreaturescorey.mob.ModEntityTypeTags;
+import com.mrsasayo.legacycreaturescorey.mob.data.MobTierRuleDataLoader;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -38,12 +40,12 @@ public final class AntiFarmManager {
         if (!isTieredMob(mob.getType())) {
             return;
         }
-        if (shouldIgnoreForAntiFarm(mob)) {
+        ChunkPos chunkPos = new ChunkPos(mob.getBlockPos());
+        if (shouldIgnoreForAntiFarm(mob, chunkPos)) {
             return;
         }
 
         CoreyServerState state = CoreyServerState.get(world.getServer());
-    ChunkPos chunkPos = new ChunkPos(mob.getBlockPos());
         long chunkKey = chunkPos.toLong();
 
         if (state.isChunkSpawnBlocked(chunkKey)) {
@@ -55,8 +57,18 @@ public final class AntiFarmManager {
         int killCount = data.registerKill(world.getTime(), window);
         state.setChunkActivity(chunkKey, data);
 
-        if (killCount >= CoreyConfig.INSTANCE.antiFarmKillThreshold) {
-            activateSafeZone(world, state, chunkPos, mob);
+        int threshold = AntiFarmEvents.THRESHOLD_MODIFIER.invoker().modifyThreshold(mob, chunkPos, CoreyConfig.INSTANCE.antiFarmKillThreshold);
+        AntiFarmDashboardEvents.CHUNK_ACTIVITY_UPDATED.invoker().onChunkActivityUpdated(
+            world,
+            chunkPos,
+            data,
+            AntiFarmDashboardEvents.UpdateReason.KILL_RECORDED,
+            threshold,
+            0
+        );
+
+        if (killCount >= threshold) {
+            activateSafeZone(world, state, chunkPos, mob, threshold);
         }
     }
 
@@ -75,7 +87,7 @@ public final class AntiFarmManager {
         return state.isChunkSpawnBlocked(chunkKey);
     }
 
-    private static void activateSafeZone(ServerWorld world, CoreyServerState state, ChunkPos center, MobEntity sample) {
+    private static void activateSafeZone(ServerWorld world, CoreyServerState state, ChunkPos center, MobEntity sample, int threshold) {
         int radius = Math.max(0, CoreyConfig.INSTANCE.antiFarmBlockRadiusChunks);
         long tick = world.getTime();
         for (int dx = -radius; dx <= radius; dx++) {
@@ -94,16 +106,26 @@ public final class AntiFarmManager {
                 sample.getType().getTranslationKey()
             );
         }
+        ChunkActivityData centerData = state.getChunkActivity(center.toLong());
+        AntiFarmDashboardEvents.CHUNK_ACTIVITY_UPDATED.invoker().onChunkActivityUpdated(
+            world,
+            center,
+            centerData,
+            AntiFarmDashboardEvents.UpdateReason.SAFE_ZONE_ACTIVATED,
+            threshold,
+            radius
+        );
+        AntiFarmEvents.CHUNK_BLOCKED.invoker().onChunkBlocked(world, center, sample, radius);
     }
 
     private static boolean isTieredMob(EntityType<?> type) {
-        return type.isIn(ModEntityTypeTags.TIER_LEVE)
-            || type.isIn(ModEntityTypeTags.TIER_BASIC)
-            || type.isIn(ModEntityTypeTags.TIER_INTERMEDIATE)
-            || type.isIn(ModEntityTypeTags.TIER_HARD);
+        return MobTierRuleDataLoader.getAllowedTiers(type) != null;
     }
 
-    private static boolean shouldIgnoreForAntiFarm(MobEntity mob) {
-        return mob.getCommandTags().contains(ANTI_FARM_EXEMPT_TAG);
+    private static boolean shouldIgnoreForAntiFarm(MobEntity mob, ChunkPos chunkPos) {
+        if (mob.getCommandTags().contains(ANTI_FARM_EXEMPT_TAG)) {
+            return true;
+        }
+        return AntiFarmEvents.SHOULD_IGNORE.invoker().shouldIgnore(mob, chunkPos);
     }
 }

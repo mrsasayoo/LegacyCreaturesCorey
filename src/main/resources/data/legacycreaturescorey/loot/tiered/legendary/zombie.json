@@ -41,10 +41,8 @@
         "id": "minecraft:iron_sword",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:sharpness": 2,
-              "minecraft:unbreaking": 2
-            }
+            "minecraft:sharpness": 2,
+            "minecraft:unbreaking": 2
           }
         }
       },

@@ -16,12 +16,7 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:fortune",
-                "level": 5
-              }
-            ]
+            "minecraft:fortune": 5
           }
         }
       },
@@ -35,16 +30,8 @@
         "id": "minecraft:enchanted_book",
         "components": {
           "minecraft:stored_enchantments": {
-            "enchantments": [
-              {
-                "id": "minecraft:channeling",
-                "level": 1
-              },
-              {
-                "id": "minecraft:impaling",
-                "level": 7
-              }
-            ]
+            "minecraft:channeling": 1,
+            "minecraft:impaling": 7
           }
         }
       },
@@ -57,11 +44,9 @@
         "id": "minecraft:trident",
         "components": {
           "minecraft:enchantments": {
-            "levels": {
-              "minecraft:impaling": 7,
-              "minecraft:loyalty": 4,
-              "minecraft:channeling": 1
-            }
+            "minecraft:impaling": 7,
+            "minecraft:loyalty": 4,
+            "minecraft:channeling": 1
           }
         }
       },

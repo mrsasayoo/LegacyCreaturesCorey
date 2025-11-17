@@ -37,9 +37,16 @@
       "weight": 1
     },
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:protection","minecraft:unbreaking"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:protection": 1,
+            "minecraft:unbreaking": 1
+          }
+        }
+      }
     }
   ]
 }

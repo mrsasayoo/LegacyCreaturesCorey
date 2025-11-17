@@ -26,9 +26,16 @@
   ],
   "weighted": [
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:breach","minecraft:channeling"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:breach": 1,
+            "minecraft:channeling": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:totem_of_undying",

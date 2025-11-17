@@ -31,9 +31,16 @@
       "weight": 2
     },
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:looting","minecraft:smite"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:looting": 1,
+            "minecraft:smite": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:gilded_blackstone",

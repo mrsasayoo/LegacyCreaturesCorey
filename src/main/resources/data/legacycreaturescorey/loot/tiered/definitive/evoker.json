@@ -19,9 +19,17 @@
   ],
   "weighted": [
     {
-      "item": "minecraft:enchanted_book",
-      "enchantments": ["minecraft:soul_speed","minecraft:swift_sneak","minecraft:mending"],
-      "weight": 2
+      "weight": 2,
+      "stack": {
+        "id": "minecraft:enchanted_book",
+        "components": {
+          "minecraft:stored_enchantments": {
+            "minecraft:soul_speed": 1,
+            "minecraft:swift_sneak": 1,
+            "minecraft:mending": 1
+          }
+        }
+      }
     },
     {
       "item": "minecraft:ominous_bottle",

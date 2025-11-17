@@ -7,12 +7,16 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.api.event.TieredLootTableEvents;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryOps;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
@@ -41,6 +45,8 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
     private static final String DIRECTORY = "loot/tiered";
     private static final Identifier RELOAD_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "tiered_loot");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
+    private static final RegistryWrapper.WrapperLookup REGISTRY_LOOKUP = BuiltinRegistries.createWrapperLookup();
+    private static final RegistryOps<JsonElement> REGISTRY_OPS = RegistryOps.of(JsonOps.INSTANCE, REGISTRY_LOOKUP);
 
     private TieredLootDataLoader() {}
 
@@ -100,7 +106,9 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             }
         }
 
-    TieredLootManager.apply(parsed);
+        TieredLootTableEvents.MODIFY.invoker().modify(parsed);
+        TieredLootManager.apply(parsed);
+        TieredLootTableEvents.POST_APPLY.invoker().onTieredLootTablesApplied(TieredLootManager.getAll());
     }
 
     private MobTier resolveTier(Identifier resourceId) {
@@ -275,7 +283,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
 
     private ItemStack parseStack(Identifier resourceId, JsonObject entry, String context) {
         if (entry.has("stack")) {
-            DataResult<ItemStack> result = ItemStack.CODEC.parse(JsonOps.INSTANCE, entry.get("stack"));
+            DataResult<ItemStack> result = ItemStack.CODEC.parse(REGISTRY_OPS, entry.get("stack"));
             return result.resultOrPartial(error -> Legacycreaturescorey.LOGGER.warn("Invalid stack definition in {} entry {}: {}", resourceId, context, error)).map(ItemStack::copy).orElse(ItemStack.EMPTY);
         }
 

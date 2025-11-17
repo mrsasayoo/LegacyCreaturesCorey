@@ -6,6 +6,7 @@ import net.minecraft.util.math.random.Random;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.function.Function;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 
 public final class TierProbabilityCalculator {
@@ -20,7 +21,12 @@ public final class TierProbabilityCalculator {
     private TierProbabilityCalculator() {
     }
 
-    public static MobTier chooseTier(int effectiveDifficulty, EnumSet<MobTier> allowedTiers, Random random) {
+    public static MobTier chooseTier(
+        int effectiveDifficulty,
+        EnumSet<MobTier> allowedTiers,
+        Random random,
+        Function<MobTier, Double> extraMultiplierProvider
+    ) {
         Objects.requireNonNull(allowedTiers, "allowedTiers");
         Objects.requireNonNull(random, "random");
 
@@ -35,16 +41,24 @@ public final class TierProbabilityCalculator {
 
             double baseChance = stage.getChance(tier);
             double multiplier = getMultiplier(tier);
-            double chance = baseChance * multiplier;
+            double biomeMultiplier = 1.0D;
+            if (extraMultiplierProvider != null) {
+                Double provided = extraMultiplierProvider.apply(tier);
+                if (provided != null) {
+                    biomeMultiplier = Math.max(0.0D, provided);
+                }
+            }
+            double chance = baseChance * multiplier * biomeMultiplier;
             double roll = chance >= 1.0D ? -1.0D : random.nextDouble();
             if (verbose) {
                 Legacycreaturescorey.LOGGER.info(
-                    "🎯 Probabilidad {} => {} (stage={}, base={}, multiplier={}, roll={})",
+                    "🎯 Probabilidad {} => {} (stage={}, base={}, tierMultiplier={}, biomeMultiplier={}, roll={})",
                     tier,
                     chance,
                     stage,
                     baseChance,
                     multiplier,
+                    biomeMultiplier,
                     roll >= 0.0D ? roll : "auto"
                 );
             }
