@@ -98,6 +98,8 @@ final class MutationSchemaValidator {
         Set<String> seenKeys = new HashSet<>();
         register(builder, seenKeys, MutationSchemaValidator::validateAttributeAction, "attribute", "attribute_modifier");
         register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnHitAction, "status_effect_on_hit", "status_effect");
+    register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnDeathAction, "status_effect_on_death", "on_death_status_effect", "status_effect_death");
+    register(builder, seenKeys, MutationSchemaValidator::validateGroundHazardOnDeathAction, "ground_hazard_on_death", "ground_hazard");
         register(builder, seenKeys, MutationSchemaValidator::validateDamageAuraAction, "damage_aura", "aura_damage");
         register(builder, seenKeys, MutationSchemaValidator::validateHealAction, "heal", "heal_self");
         register(builder, seenKeys, MutationSchemaValidator::validateSummonAction, "summon_mob", "summon");
@@ -173,6 +175,34 @@ final class MutationSchemaValidator {
         requireInteger(action, "amplifier", collector, path + ".amplifier", false, 0);
         requireString(action, "target", collector, path + ".target", false);
         validateAdditionalEffects(path, action, collector);
+    }
+
+    private static void validateStatusEffectOnDeathAction(String path, JsonObject action, ValidationCollector collector) {
+        requireIdentifier(action, "effect", collector, path + ".effect", true);
+        requireInteger(action, "duration", collector, path + ".duration", true, 1);
+        requireInteger(action, "amplifier", collector, path + ".amplifier", false, 0);
+        requireString(action, "target", collector, path + ".target", false);
+        requireNumber(action, "radius", collector, path + ".radius", false);
+        requireInteger(action, "delay_ticks", collector, path + ".delay_ticks", false, 0);
+        requireNumber(action, "delay_seconds", collector, path + ".delay_seconds", false);
+        requireNumber(action, "damage", collector, path + ".damage", false);
+        requireNumber(action, "pull_strength", collector, path + ".pull_strength", false);
+    }
+
+    private static void validateGroundHazardOnDeathAction(String path, JsonObject action, ValidationCollector collector) {
+        requireNumber(action, "radius", collector, path + ".radius", true);
+        requireInteger(action, "duration_ticks", collector, path + ".duration_ticks", false, 1);
+        requireNumber(action, "duration_seconds", collector, path + ".duration_seconds", false);
+        requireInteger(action, "interval_ticks", collector, path + ".interval_ticks", false, 1);
+        requireNumber(action, "interval_seconds", collector, path + ".interval_seconds", false);
+        requireNumber(action, "damage", collector, path + ".damage", false);
+        requireIdentifier(action, "status_effect", collector, path + ".status_effect", false);
+        requireInteger(action, "status_duration_ticks", collector, path + ".status_duration_ticks", false, 0);
+        requireNumber(action, "status_duration_seconds", collector, path + ".status_duration_seconds", false);
+        requireInteger(action, "status_amplifier", collector, path + ".status_amplifier", false, 0);
+        requireString(action, "target", collector, path + ".target", false);
+        requireString(action, "particle", collector, path + ".particle", false);
+        requireInteger(action, "particle_count", collector, path + ".particle_count", false, 0);
     }
 
     private static void validateDamageAuraAction(String path, JsonObject action, ValidationCollector collector) {

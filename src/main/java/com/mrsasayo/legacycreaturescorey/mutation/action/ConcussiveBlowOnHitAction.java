@@ -71,7 +71,7 @@ public final class ConcussiveBlowOnHitAction extends ProcOnHitAction {
     }
 
     private void queueRotationStep(ServerWorld world, ServerPlayerEntity player, float targetYaw, float targetPitch, int delayTicks) {
-        OnHitTaskScheduler.schedule(world, new OnHitTaskScheduler.TimedTask() {
+    MutationTaskScheduler.schedule(world, new MutationTaskScheduler.TimedTask() {
             private int ticksRemaining = delayTicks;
 
             @Override

@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Schedules lightweight tasks that need to run on subsequent world ticks after a proc.
+ * Schedules lightweight tasks that need to run on subsequent world ticks after a mutation proc.
  */
-public final class OnHitTaskScheduler {
+public final class MutationTaskScheduler {
     private static final Map<ServerWorld, List<TimedTask>> TASKS = new WeakHashMap<>();
 
-    private OnHitTaskScheduler() {}
+    private MutationTaskScheduler() {}
 
     public static void schedule(ServerWorld world, TimedTask task) {
         TASKS.computeIfAbsent(world, ignored -> new ArrayList<>()).add(task);

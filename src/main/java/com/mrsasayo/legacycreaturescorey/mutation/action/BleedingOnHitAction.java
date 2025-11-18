@@ -26,10 +26,10 @@ public final class BleedingOnHitAction extends ProcOnHitAction {
         if (!(attacker.getEntityWorld() instanceof ServerWorld world)) {
             return;
         }
-        OnHitTaskScheduler.schedule(world, new DamageTask(world, attacker, victim, damagePulses, intervalTicks));
+        MutationTaskScheduler.schedule(world, new DamageTask(world, attacker, victim, damagePulses, intervalTicks));
     }
 
-    private static final class DamageTask implements OnHitTaskScheduler.TimedTask {
+    private static final class DamageTask implements MutationTaskScheduler.TimedTask {
         private final ServerWorld world;
         private final LivingEntity attacker;
         private final LivingEntity victim;

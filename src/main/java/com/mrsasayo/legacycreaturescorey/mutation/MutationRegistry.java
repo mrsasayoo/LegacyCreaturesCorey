@@ -14,11 +14,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Registro temporal de mutaciones hardcodeadas hasta implementar carga por JSON.
+ * Administración central de mutaciones cargadas desde JSON con un pequeño respaldo en código.
  */
 public final class MutationRegistry {
     private static final Map<Identifier, Mutation> MUTATIONS = new LinkedHashMap<>();
@@ -27,14 +28,7 @@ public final class MutationRegistry {
     private MutationRegistry() {}
 
     public static void initialize() {
-        register(createExtraHealthMutation());
-        register(createSpeedMutation());
-        register(createKnockbackResistanceMutation());
-        register(createVenomStrikeMutation());
-        register(createCripplingBlowMutation());
-        register(createRegenerationMutation());
-        register(createDamageAuraMutation());
-        Legacycreaturescorey.LOGGER.info("✅ Mutaciones hardcodeadas registradas: {}", MUTATIONS.size());
+        Legacycreaturescorey.LOGGER.debug("Mutation registry initialized");
     }
 
     public static Mutation get(Identifier id) {
@@ -45,32 +39,50 @@ public final class MutationRegistry {
         return Collections.unmodifiableCollection(MUTATIONS.values());
     }
 
-    private static void register(Mutation mutation) {
-        Identifier id = mutation.getId();
-        if (MUTATIONS.containsKey(id)) {
-            throw new IllegalStateException("Duplicate mutation id: " + id);
-        }
-        MUTATIONS.put(id, mutation);
-    }
-
     public static void registerDynamicMutations(Collection<Mutation> mutations) {
         for (Identifier id : DYNAMIC_MUTATION_IDS) {
             MUTATIONS.remove(id);
         }
         DYNAMIC_MUTATION_IDS.clear();
 
-        for (Mutation mutation : mutations) {
+        Collection<Mutation> source = mutations;
+        boolean loadedFromJson = true;
+        if (source == null || source.isEmpty()) {
+            source = createFallbackMutations();
+            if (source.isEmpty()) {
+                Legacycreaturescorey.LOGGER.error("❌ No se pudieron registrar mutaciones: la carga JSON falló y no hay respaldo disponible.");
+                return;
+            }
+            loadedFromJson = false;
+            Legacycreaturescorey.LOGGER.warn("⚠️ No se cargaron mutaciones desde JSON; reinyectando {} mutaciones de respaldo.", source.size());
+        }
+
+        for (Mutation mutation : source) {
             Identifier id = mutation.getId();
             if (MUTATIONS.containsKey(id) && !DYNAMIC_MUTATION_IDS.contains(id)) {
-                Legacycreaturescorey.LOGGER.warn("⚠️ Reemplazando mutación estática {} mediante JSON", id);
+                Legacycreaturescorey.LOGGER.warn("⚠️ Reemplazando mutación existente {} mediante {}", id, loadedFromJson ? "JSON" : "respaldo");
             }
             MUTATIONS.put(id, mutation);
             DYNAMIC_MUTATION_IDS.add(id);
         }
 
-        if (!mutations.isEmpty()) {
-            Legacycreaturescorey.LOGGER.info("🧾 Mutaciones cargadas desde JSON: {}", mutations.size());
+        if (loadedFromJson) {
+            Legacycreaturescorey.LOGGER.info("🧾 Mutaciones cargadas desde JSON: {}", source.size());
+        } else {
+            Legacycreaturescorey.LOGGER.info("✅ Se restauró el conjunto básico de mutaciones ({}) para mantener la jugabilidad.", source.size());
         }
+    }
+
+    private static Collection<Mutation> createFallbackMutations() {
+        return List.of(
+            createExtraHealthMutation(),
+            createSpeedMutation(),
+            createKnockbackResistanceMutation(),
+            createVenomStrikeMutation(),
+            createCripplingBlowMutation(),
+            createRegenerationMutation(),
+            createDamageAuraMutation()
+        );
     }
 
     private static Mutation createExtraHealthMutation() {

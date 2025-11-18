@@ -16,6 +16,7 @@ import com.mrsasayo.legacycreaturescorey.mob.data.BiomeTierWeightDataLoader;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
 import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
+import com.mrsasayo.legacycreaturescorey.item.ModItems;
 import com.mrsasayo.legacycreaturescorey.health.CoreyHealthMonitor;
 import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
 import com.mrsasayo.legacycreaturescorey.loot.CoreyLootModifiers;
@@ -70,6 +71,7 @@ public class Legacycreaturescorey implements ModInitializer {
         MutationRuntime.register();
         ModStatusEffects.init();
         CoreyLootModifiers.register();
+        ModItems.init();
     }
 
     private void registerEvents() {

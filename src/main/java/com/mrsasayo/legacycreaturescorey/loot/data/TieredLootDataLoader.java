@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.api.event.TieredLootTableEvents;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
@@ -13,11 +11,8 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -47,7 +42,6 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
     private static final String DIRECTORY = "loot/tiered";
     private static final Identifier RELOAD_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "tiered_loot");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
-    private RegistryOps<JsonElement> registryOps = RegistryOps.of(JsonOps.INSTANCE, BuiltinRegistries.createWrapperLookup());
 
     private TieredLootDataLoader() {}
 
@@ -64,8 +58,6 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
 
     @Override
     public void reload(ResourceManager manager) {
-        this.registryOps = RegistryOps.of(JsonOps.INSTANCE, BuiltinRegistries.createWrapperLookup());
-
         EnumMap<MobTier, Map<Identifier, TieredMobLoot>> parsed = new EnumMap<>(MobTier.class);
         EnumMap<MobTier, Map<Identifier, Identifier>> sources = new EnumMap<>(MobTier.class);
         for (MobTier tier : MobTier.values()) {
@@ -265,8 +257,8 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         List<TieredMobLoot.Drop> drops = new ArrayList<>(array.size());
         for (int i = 0; i < array.size(); i++) {
             JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
-            ItemStack template = parseStack(resourceId, entry, key + "[" + i + "]");
-            if (template.isEmpty()) {
+            TieredMobLoot.StackProvider template = parseStack(resourceId, entry, key + "[" + i + "]");
+            if (template == null) {
                 continue;
             }
             try {
@@ -288,8 +280,8 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         List<TieredMobLoot.WeightedDrop> drops = new ArrayList<>(array.size());
         for (int i = 0; i < array.size(); i++) {
             JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
-            ItemStack template = parseStack(resourceId, entry, key + "[" + i + "]");
-            if (template.isEmpty()) {
+            TieredMobLoot.StackProvider template = parseStack(resourceId, entry, key + "[" + i + "]");
+            if (template == null) {
                 continue;
             }
             try {
@@ -349,29 +341,47 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         return new IntRange(min, max);
     }
 
-    private ItemStack parseStack(Identifier resourceId, JsonObject entry, String context) {
+    private TieredMobLoot.StackProvider parseStack(Identifier resourceId, JsonObject entry, String context) {
+        String sourceDescription = resourceId + " -> " + context;
+
         if (entry.has("stack")) {
-            DataResult<ItemStack> result = ItemStack.CODEC.parse(this.registryOps, entry.get("stack"));
-            return result.resultOrPartial(error -> Legacycreaturescorey.LOGGER.warn("Invalid stack definition in {} entry {}: {}", resourceId, context, error)).map(ItemStack::copy).orElse(ItemStack.EMPTY);
+            JsonElement stackElement = entry.get("stack");
+            return TieredMobLoot.StackProvider.fromJson(stackElement, sourceDescription);
         }
 
         if (!entry.has("item")) {
             Legacycreaturescorey.LOGGER.warn("Missing 'item' or 'stack' in {} entry {}", resourceId, context);
-            return ItemStack.EMPTY;
+            return null;
         }
 
         String rawId = JsonHelper.getString(entry, "item");
+        Identifier itemId;
         try {
-            Identifier itemId = Identifier.of(rawId);
-            Item item = Registries.ITEM.get(itemId);
-            if (item == null || Registries.ITEM.getRawId(item) == -1) {
-                Legacycreaturescorey.LOGGER.warn("Unknown item '{}' in {} entry {}", rawId, resourceId, context);
-                return ItemStack.EMPTY;
-            }
-            return new ItemStack(item);
+            itemId = Identifier.of(rawId);
         } catch (Exception exception) {
             Legacycreaturescorey.LOGGER.warn("Invalid item identifier '{}' in {} entry {}", rawId, resourceId, context);
-            return ItemStack.EMPTY;
+            return null;
         }
+
+        Item item = Registries.ITEM.get(itemId);
+        if (item == null || Registries.ITEM.getRawId(item) == -1) {
+            Legacycreaturescorey.LOGGER.warn("Unknown item '{}' in {} entry {}", rawId, resourceId, context);
+            return null;
+        }
+
+        if (entry.has("components")) {
+            try {
+                JsonObject stackObject = new JsonObject();
+                stackObject.addProperty("id", rawId);
+                JsonObject components = JsonHelper.getObject(entry, "components");
+                stackObject.add("components", components.deepCopy());
+                return TieredMobLoot.StackProvider.fromJson(stackObject, sourceDescription);
+            } catch (IllegalArgumentException exception) {
+                Legacycreaturescorey.LOGGER.warn("Invalid components definition for {} entry {}: {}", resourceId, context, exception.getMessage());
+                return null;
+            }
+        }
+
+        return TieredMobLoot.StackProvider.ofItem(item);
     }
 }

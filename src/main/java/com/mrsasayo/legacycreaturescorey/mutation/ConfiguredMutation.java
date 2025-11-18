@@ -2,9 +2,11 @@ package com.mrsasayo.legacycreaturescorey.mutation;
 
 import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -82,6 +84,13 @@ public final class ConfiguredMutation extends AbstractMutation {
     public void onHit(LivingEntity attacker, LivingEntity target) {
         for (MutationAction action : actions) {
             action.onHit(attacker, target);
+        }
+    }
+
+    @Override
+    public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
+        for (MutationAction action : actions) {
+            action.onDeath(entity, source, killer);
         }
     }
 

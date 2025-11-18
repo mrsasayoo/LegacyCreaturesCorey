@@ -1,9 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -62,6 +64,11 @@ public interface Mutation {
      * Se invoca cuando la entidad con esta mutación inflige daño a otra.
      */
     default void onHit(LivingEntity attacker, LivingEntity target) {}
+
+    /**
+     * Called when the owning entity dies.
+     */
+    default void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {}
 
     /**
      * Devuelve true si la mutación puede asignarse a la entidad dada.

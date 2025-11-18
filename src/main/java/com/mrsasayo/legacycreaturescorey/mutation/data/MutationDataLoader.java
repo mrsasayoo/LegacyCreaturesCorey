@@ -20,19 +20,27 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.CriticalDamageOnHitActi
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageArmorOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DamageAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DeepDarknessAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.DetonatingRemainsOnDeathAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisarmOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.DisableShieldOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.EntropyAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.EssenceSiphonOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ExperienceTheftOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.FakeLootPileOnDeathAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.FinalBurstOnDeathAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.FinalGambitOnDeathAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.FrenzyOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.FreezeOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.GhostFragmentsOnDeathAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.GroundHazardManager;
+import com.mrsasayo.legacycreaturescorey.mutation.action.GroundHazardOnDeathAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.HealOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.IgniteOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.InterferenceAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.KnockbackOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.ConcussiveBlowOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.LootScatterOnDeathAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.MortalWoundOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.PhantasmalVeilAuraAction;
@@ -42,6 +50,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.PsionicThornsAuraAction
 import com.mrsasayo.legacycreaturescorey.mutation.action.ShatterArmorOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.StasisFieldAuraAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectAuraAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectOnDeathAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectOnHitAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.SummonMobAction;
 import com.mrsasayo.legacycreaturescorey.mutation.action.TeleportOnHitAction;
@@ -54,6 +63,9 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleType;
+import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
@@ -296,6 +308,14 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     MutationAction action = switch (normalized) {
                         case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
                         case "status_effect_on_hit", "status_effect" -> parseStatusEffectAction(actionObject);
+                        case "status_effect_on_death", "on_death_status_effect", "status_effect_death" -> parseStatusEffectOnDeathAction(actionObject);
+                        case "ground_hazard_on_death", "ground_hazard" -> parseGroundHazardOnDeathAction(actionObject);
+                        case "loot_scatter", "scatter_loot" -> parseLootScatterAction(actionObject);
+                        case "ghost_fragments", "ghost_fragment" -> parseGhostFragmentsAction(actionObject);
+                        case "fake_loot_pile", "fake_loot" -> parseFakeLootPileAction(actionObject);
+                        case "detonating_remains", "corpse_mine" -> parseDetonatingRemainsAction(actionObject);
+                        case "final_burst", "final_explosion" -> parseFinalBurstAction(actionObject);
+                        case "final_gambit" -> parseFinalGambitAction(actionObject);
                         case "chaos_touch" -> parseChaosTouchAction(actionObject);
                         case "frenzy" -> parseFrenzyAction(actionObject);
                         case "pain_link" -> parsePainLinkAction(actionObject);
@@ -360,6 +380,138 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
             List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "extra_effects");
             return new StatusEffectOnHitAction(effect, duration, amplifier, target, chance, extras);
+        }
+
+        private MutationAction parseStatusEffectOnDeathAction(JsonObject object) {
+            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect"));
+            RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
+            int duration = JsonHelper.getInt(object, "duration");
+            int amplifier = JsonHelper.getInt(object, "amplifier", 0);
+            String targetRaw = JsonHelper.getString(object, "target", "players_in_radius");
+            StatusEffectOnDeathAction.Target target = StatusEffectOnDeathAction.Target.fromString(targetRaw);
+            double radius = JsonHelper.getDouble(object, "radius", 6.0D);
+            double chance = parseChance(object, "chance");
+            int delayTicks = parseTicks(object, "delay", 0);
+            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
+            double pullStrength = JsonHelper.getDouble(object, "pull_strength", 0.0D);
+            return new StatusEffectOnDeathAction(effect, duration, amplifier, target, radius, chance, delayTicks, damage, pullStrength);
+        }
+
+        private MutationAction parseGroundHazardOnDeathAction(JsonObject object) {
+            double radius = JsonHelper.getDouble(object, "radius");
+            int duration = parseTicks(object, "duration", 140);
+            int interval = parseTicks(object, "interval", 20);
+            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
+            RegistryEntry<StatusEffect> statusEffect = null;
+            if (object.has("status_effect")) {
+                Identifier effectId = Identifier.of(JsonHelper.getString(object, "status_effect"));
+                statusEffect = resolveStatusEffect(effectId);
+            }
+            int statusDuration = parseTicks(object, "status_duration", statusEffect == null ? 0 : 100);
+            int statusAmplifier = JsonHelper.getInt(object, "status_amplifier", 0);
+            String targetRaw = JsonHelper.getString(object, "target", "players");
+            GroundHazardManager.Target target = GroundHazardManager.Target.fromString(targetRaw);
+            ParticleEffect particle = parseParticle(object, "particle");
+            int particleCount = JsonHelper.getInt(object, "particle_count", particle == null ? 0 : 8);
+            double chance = parseChance(object, "chance");
+            int delay = parseTicks(object, "delay", 0);
+            GroundHazardManager.HazardConfig config = new GroundHazardManager.HazardConfig(
+                radius,
+                duration,
+                interval,
+                damage,
+                statusEffect,
+                statusDuration,
+                statusAmplifier,
+                target,
+                particle,
+                particleCount
+            );
+            return new GroundHazardOnDeathAction(config, chance, delay);
+        }
+
+        private MutationAction parseLootScatterAction(JsonObject object) {
+            double radius = JsonHelper.getDouble(object, "radius", 2.5D);
+            double horizontal = JsonHelper.getDouble(object, "horizontal_velocity", 0.8D);
+            double vertical = JsonHelper.getDouble(object, "vertical_velocity", 0.4D);
+            return new LootScatterOnDeathAction(radius, horizontal, vertical);
+        }
+
+        private MutationAction parseGhostFragmentsAction(JsonObject object) {
+            int min = JsonHelper.getInt(object, "min_count", 2);
+            int max = JsonHelper.getInt(object, "max_count", min);
+            return new GhostFragmentsOnDeathAction(min, max);
+        }
+
+        private MutationAction parseFakeLootPileAction(JsonObject object) {
+            double searchRadius = JsonHelper.getDouble(object, "search_radius", 2.5D);
+            int lifetime = parseTicks(object, "lifetime", 160);
+            double scatterHorizontal = JsonHelper.getDouble(object, "scatter_horizontal", 0.7D);
+            double scatterVertical = JsonHelper.getDouble(object, "scatter_vertical", 0.4D);
+            double explosionRadius = JsonHelper.getDouble(object, "explosion_radius", 4.0D);
+            float explosionDamage = JsonHelper.getFloat(object, "explosion_damage", 5.0F);
+            return new FakeLootPileOnDeathAction(searchRadius, lifetime, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
+        }
+
+        private MutationAction parseDetonatingRemainsAction(JsonObject object) {
+            int linger = parseTicks(object, "linger", 80);
+            double triggerRadius = JsonHelper.getDouble(object, "trigger_radius", 1.5D);
+            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
+            RegistryEntry<StatusEffect> statusEffect = null;
+            if (object.has("status_effect")) {
+                Identifier effectId = Identifier.of(JsonHelper.getString(object, "status_effect"));
+                statusEffect = resolveStatusEffect(effectId);
+            }
+            int statusDuration = parseTicks(object, "status_duration", statusEffect == null ? 0 : 100);
+            int statusAmplifier = JsonHelper.getInt(object, "status_amplifier", 0);
+            boolean harmless = JsonHelper.getBoolean(object, "harmless", damage <= 0.0F && statusEffect == null);
+            double chance = parseChance(object, "chance");
+            double chainRadius = JsonHelper.getDouble(object, "chain_radius", 0.0D);
+            int chainDuration = parseTicks(object, "chain_duration", 0);
+            return new DetonatingRemainsOnDeathAction(linger,
+                triggerRadius,
+                damage,
+                statusEffect,
+                statusDuration,
+                statusAmplifier,
+                harmless,
+                chance,
+                chainRadius,
+                chainDuration);
+        }
+
+        private MutationAction parseFinalBurstAction(JsonObject object) {
+            double radius = JsonHelper.getDouble(object, "radius", 4.0D);
+            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
+            double pushStrength = JsonHelper.getDouble(object, "push_strength", 0.0D);
+            double verticalBoost = JsonHelper.getDouble(object, "vertical_boost", pushStrength > 0.0D ? 0.35D : 0.0D);
+            int fireRadius = JsonHelper.getInt(object, "fire_radius", 0);
+            int fireDuration = parseTicks(object, "fire_duration", 0);
+            return new FinalBurstOnDeathAction(radius, damage, pushStrength, verticalBoost, fireRadius, fireDuration);
+        }
+
+        private MutationAction parseFinalGambitAction(JsonObject object) {
+            String modeRaw = JsonHelper.getString(object, "mode", "projectile_purge");
+            FinalGambitOnDeathAction.Mode mode = FinalGambitOnDeathAction.Mode.fromString(modeRaw);
+            double radius = JsonHelper.getDouble(object, "radius", 6.0D);
+            int cooldown = parseTicks(object, "cooldown", 100);
+            int collapseDuration = parseTicks(object, "duration", 0);
+            return new FinalGambitOnDeathAction(mode, radius, cooldown, collapseDuration);
+        }
+
+        private ParticleEffect parseParticle(JsonObject object, String key) {
+            if (!object.has(key)) {
+                return null;
+            }
+            Identifier id = Identifier.of(JsonHelper.getString(object, key));
+            ParticleType<?> particleType = Registries.PARTICLE_TYPE.get(id);
+            if (particleType == null) {
+                throw new IllegalArgumentException("Partícula desconocida '" + id + "'");
+            }
+            if (particleType instanceof SimpleParticleType simple) {
+                return simple;
+            }
+            throw new IllegalArgumentException("La partícula '" + id + "' requiere datos adicionales y no es compatible con ground_hazard_on_death");
         }
 
         private MutationAction parseChaosTouchAction(JsonObject object) {

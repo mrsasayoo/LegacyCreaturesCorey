@@ -47,10 +47,10 @@ public final class ShatterArmorOnHitAction extends ProcOnHitAction {
     world.spawnParticles(ParticleTypes.CRIT, victim.getX(), centerY, victim.getZ(), 8, 0.35D, 0.25D, 0.35D, 0.05D);
     world.spawnParticles(ParticleTypes.SMOKE, victim.getX(), centerY, victim.getZ(), 6, 0.25D, 0.2D, 0.25D, 0.01D);
 
-        OnHitTaskScheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, duration));
+        MutationTaskScheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, duration));
     }
 
-    private static final class RemoveModifierTask implements OnHitTaskScheduler.TimedTask {
+    private static final class RemoveModifierTask implements MutationTaskScheduler.TimedTask {
         private final LivingEntity entity;
         private final RegistryEntry<EntityAttribute> attribute;
         private final Identifier modifierId;
