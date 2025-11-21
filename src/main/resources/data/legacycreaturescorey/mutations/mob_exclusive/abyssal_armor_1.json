@@ -1,0 +1,33 @@
+{
+    "type": "ACTIVE",
+    "cost": 6,
+    "weight": 60,
+    "display_name": {
+        "literal": "Abyssal Armor I"
+    },
+    "description": {
+        "literal": "Thorns deal extra damage and armor is increased."
+    },
+    "restrictions": {
+        "entity_types": [
+            "minecraft:elder_guardian"
+        ]
+    },
+    "actions": [
+        {
+            "action": {
+                "type": "attribute",
+                "attribute": "minecraft:generic.armor",
+                "mode": "add",
+                "amount": 4.0
+            }
+        },
+        {
+            "action": {
+                "type": "psionic_thorns",
+                "reflect_percent": 0.2,
+                "max_distance": 6.0
+            }
+        }
+    ]
+}

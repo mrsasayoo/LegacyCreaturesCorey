@@ -1,0 +1,49 @@
+ID_de_Minecraft,vida_original(tier_normal),epico_vida,legendario_vida,mitico_vida,definitivo_vida,categoria,observaciones
+minecraft:bee,10,20,40,no_permitido,no_permitido,Tier_Leve,"luego de picar se muere a menos que una mutacion le indique que no, esta siempre aplicara veneno es todos sus tiers, es decir tendra incompatibilidad con la mutacion poison_{1,2,3}, si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos"
+minecraft:goat,10,20,40,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:dolphin,10,20,30,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:llama,15 - 30,30 - 60,45 - 90,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:wolf,8,20,32,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:polar_bear,30,50,70,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:panda,10 - 20,20 - 40,30 - 80,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:fox,10,20,32,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:snow_golem,4,12,20,no_permitido,no_permitido,Tier_Leve,si se categoriza epica o legendario o mitico o definitivo aparecera en el mundo enfurecido con valores altos
+minecraft:spider,16,32,48,64,80,Tier_Básico,
+minecraft:drowned,20,40,60,80,100,Tier_Básico,
+minecraft:zombie_villager,20,40,60,80,no_permitido,Tier_Básico,
+minecraft:endermite,8,16,24,no_permitido,no_permitido,Tier_Básico,
+minecraft:skeleton,20,30,40,50,60,Tier_Básico,
+minecraft:silverfish,8,16,24,no_permitido,no_permitido,Tier_Básico,
+minecraft:slime,Grande: 16,32,48,64,no_permitido,Tier_Básico,
+minecraft:slime,Mediano: 4,8,12,16,no_permitido,Tier_Básico,
+minecraft:slime,Pequeño: 1,2,4,8,no_permitido,Tier_Básico,
+minecraft:zombie,20,40,60,80,no_permitido,Tier_Básico,
+minecraft:husk,20,40,60,80,100,Tier_Básico,
+minecraft:pillager,24,48,72,96,120,Tier_Básico,
+minecraft:shulker,30,55,80,105,130,Tier_Intermedio,
+minecraft:vex,14,25,36,47,58,Tier_Intermedio,este mob se muere con el tiempo a menos que una mutacion indique lo contrario
+minecraft:hoglin,40,70,100,130,160,Tier_Intermedio,
+minecraft:zoglin,40,69,98,127,156,Tier_Intermedio,
+minecraft:ghast,10,20,30,40,50,Tier_Intermedio,
+minecraft:phantom,20,35,50,65,80,Tier_Intermedio,
+minecraft:bogged,16,24,32,40,48,Tier_Intermedio,"incompatibilidad con la mutacion poison_{1,2,3}"
+minecraft:stray,20,28,36,44,52,Tier_Intermedio,"incompatibilidad con la mutacion slowness_{1,2,3}"
+minecraft:magma_cube,Grande: 16,32,48,64,no_permitido,Tier_Intermedio,
+minecraft:magma_cube,Mediano: 4,8,12,16,no_permitido,Tier_Intermedio,
+minecraft:magma_cube,Pequeño: 1,2,4,8,no_permitido,Tier_Intermedio,
+minecraft:creeper,20,20,20,20,20,Tier_Intermedio,"tendra una mutacion predefinida, es decir siempre tendra movement_speed_1 en todas sus categorias, exepto normal, cuando es epico obtiene un bonus de velocidad de 0.05, mas la mutacion, este tendra 0.1 de velocidad extra, cuando es legendario su explocion es un 20% mas grande, cuando es mitico, su desactivacion no se desactiva, explotara si o si apenas inicia su autodestruccion, cuando es definitivo, su explocion es el doble de grande y deja encendidoel terreno de manera aleatoria"
+minecraft:breeze,30,45,60,75,90,Tier_Intermedio,
+minecraft:witch,26,40,54,68,82,Tier_Intermedio,
+minecraft:blaze,20,34,48,62,76,Tier_Intermedio,"incompatibilidad con la mutacion fire_{1,2,3}"
+minecraft:cave_spider,12,24,36,48,60,Tier_Intermedio,
+minecraft:zombified_piglin,20,38,56,74,92,Tier_Intermedio,
+minecraft:enderman,40,70,100,130,160,Tier_Intermedio,
+minecraft:ravager,100,180,260,340,420,Tier_Difícil,
+minecraft:iron_golem,100,180,260,340,420,Tier_Difícil,
+minecraft:elder_guardian,80,120,160,200,240,Tier_Difícil,
+minecraft:warden,500,550,600,650,700,Tier_Difícil,
+minecraft:vindicator,24,46,68,90,112,Tier_Difícil,"incompatible con wither_{1,2,3}"
+minecraft:piglin_brute,50,90,130,170,210,Tier_Difícil,
+minecraft:evoker,24,35,46,57,68,Tier_Difícil,
+minecraft:guardian,30,55,80,105,130,Tier_Difícil,
+minecraft:wither_skeleton,20,40,60,80,100,Tier_Difícil,"incompatible con wither_{1,2,3}"

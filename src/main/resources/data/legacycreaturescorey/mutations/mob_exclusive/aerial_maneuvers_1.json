@@ -1,0 +1,26 @@
+{
+  "type": "PASSIVE_ATTRIBUTE",
+  "cost": 4,
+  "weight": 60,
+  "display_name": {
+    "literal": "Aerial Maneuvers I"
+  },
+  "description": {
+    "literal": "Moves 20% faster."
+  },
+  "restrictions": {
+    "entity_types": [
+      "minecraft:ghast"
+    ]
+  },
+  "actions": [
+    {
+      "action": {
+        "type": "attribute",
+        "attribute": "minecraft:generic.movement_speed",
+        "mode": "multiply",
+        "amount": 0.2
+      }
+    }
+  ]
+}

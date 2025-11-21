@@ -101,7 +101,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
     private static final MutationSchemaValidator SCHEMA_VALIDATOR = MutationSchemaValidator.INSTANCE;
 
-    private MutationDataLoader() {}
+    private MutationDataLoader() {
+    }
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
@@ -118,14 +119,16 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
     public void reload(ResourceManager manager) {
         List<Mutation> parsed = new ArrayList<>();
         ActionParser actionParser = new ActionParser();
-        Map<Identifier, Resource> resources = manager.findResources(DIRECTORY, identifier -> identifier.getPath().endsWith(".json"));
+        Map<Identifier, Resource> resources = manager.findResources(DIRECTORY,
+                identifier -> identifier.getPath().endsWith(".json"));
         for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
             Identifier resourceId = entry.getKey();
             try {
                 Identifier mutationId = toMutationId(resourceId);
                 Resource resource = entry.getValue();
                 try (InputStream stream = resource.getInputStream();
-                     BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+                        BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                     JsonElement element = JsonParser.parseReader(reader);
                     JsonObject root = JsonHelper.asObject(element, "mutation");
                     List<String> schemaErrors = SCHEMA_VALIDATOR.validate(mutationId, root);
@@ -141,14 +144,15 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                             parsed.add(mutation);
                         }
                     } catch (ActionParser.ParseException exception) {
-                        Legacycreaturescorey.LOGGER.error("❌ Acción inválida en {}: {}", resourceId, exception.getMessage());
+                        Legacycreaturescorey.LOGGER.error("❌ Acción inválida en {}: {}", resourceId,
+                                exception.getMessage());
                     }
                 }
             } catch (Exception exception) {
-                Legacycreaturescorey.LOGGER.error("❌ Error al cargar la mutación {}: {}", resourceId, exception.getMessage());
+                Legacycreaturescorey.LOGGER.error("❌ Error al cargar la mutación {}: {}", resourceId,
+                        exception.getMessage());
             }
         }
-
 
         MutationDataEvents.MODIFY.invoker().modify(parsed);
         MutationRegistry.registerDynamicMutations(parsed);
@@ -167,7 +171,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         return Identifier.of(resourceId.getNamespace(), trimmed);
     }
 
-    private Mutation parseMutation(Identifier fileId, JsonObject root, ActionParser actionParser) throws ActionParser.ParseException {
+    private Mutation parseMutation(Identifier fileId, JsonObject root, ActionParser actionParser)
+            throws ActionParser.ParseException {
         boolean enabled = JsonHelper.getBoolean(root, "enabled", true);
         if (!enabled) {
             return null;
@@ -182,9 +187,9 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         MutationType type = MutationType.valueOf(rawType.trim().toUpperCase(Locale.ROOT));
 
         int cost = JsonHelper.getInt(root, "cost", 1);
-    Text displayName = parseText(root, "display_name");
-    Text description = parseText(root, "description");
-    int weight = JsonHelper.getInt(root, "weight", 1);
+        Text displayName = parseText(root, "display_name");
+        Text description = parseText(root, "description");
+        int weight = JsonHelper.getInt(root, "weight", 1);
         Set<Identifier> incompatibleWith = parseIdentifierSet(root, "incompatible_with");
         MutationRestrictions restrictions = parseRestrictions(root);
 
@@ -193,9 +198,9 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             throw new IllegalArgumentException("No hay acciones definidas");
         }
 
-        return new ConfiguredMutation(id, type, cost, displayName, description, weight, actions, incompatibleWith, restrictions);
+        return new ConfiguredMutation(id, type, cost, displayName, description, weight, actions, incompatibleWith,
+                restrictions);
     }
-
 
     private Set<Identifier> parseIdentifierSet(JsonObject root, String key) {
         if (!root.has(key)) {
@@ -235,12 +240,13 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 if (obj.has("with")) {
                     JsonArray with = JsonHelper.getArray(obj, "with");
                     for (int i = 0; i < with.size(); i++) {
-                        withArgs.add(Objects.requireNonNullElse(parseTextElement(with.get(i), context + "[" + i + "]"), Text.literal("")));
+                        withArgs.add(Objects.requireNonNullElse(parseTextElement(with.get(i), context + "[" + i + "]"),
+                                Text.literal("")));
                     }
                 }
                 return withArgs.isEmpty()
-                    ? Text.translatable(key)
-                    : Text.translatable(key, withArgs.toArray());
+                        ? Text.translatable(key)
+                        : Text.translatable(key, withArgs.toArray());
             }
         }
         throw new IllegalArgumentException("Formato de texto inválido en " + context);
@@ -256,12 +262,11 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         EntitySelector excluded = parseEntitySelector(object, "excluded_entity_types");
         boolean requiresWater = JsonHelper.getBoolean(object, "requires_water", false);
         return new MutationRestrictions(
-            allowed.ids(),
-            excluded.ids(),
-            allowed.tags(),
-            excluded.tags(),
-            requiresWater
-        );
+                allowed.ids(),
+                excluded.ids(),
+                allowed.tags(),
+                excluded.tags(),
+                requiresWater);
     }
 
     private EntitySelector parseEntitySelector(JsonObject object, String key) {
@@ -291,7 +296,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
     }
 
     private static final class ActionParser {
-        private ActionParser() {}
+        private ActionParser() {
+        }
 
         private List<MutationAction> parseActions(Identifier mutationId, JsonObject root) throws ParseException {
             if (!root.has("actions")) {
@@ -308,7 +314,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     MutationAction action = switch (normalized) {
                         case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
                         case "status_effect_on_hit", "status_effect" -> parseStatusEffectAction(actionObject);
-                        case "status_effect_on_death", "on_death_status_effect", "status_effect_death" -> parseStatusEffectOnDeathAction(actionObject);
+                        case "status_effect_on_death", "on_death_status_effect", "status_effect_death" ->
+                            parseStatusEffectOnDeathAction(actionObject);
                         case "ground_hazard_on_death", "ground_hazard" -> parseGroundHazardOnDeathAction(actionObject);
                         case "loot_scatter", "scatter_loot" -> parseLootScatterAction(actionObject);
                         case "ghost_fragments", "ghost_fragment" -> parseGhostFragmentsAction(actionObject);
@@ -342,12 +349,17 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                         case "shatter_armor", "armor_shatter" -> parseShatterArmorAction(actionObject);
                         case "projectile_shroud" -> parseProjectileShroudAction(actionObject);
                         case "interference_aura", "aura_interference" -> parseInterferenceAuraAction(actionObject);
-                        case "stasis_field_aura", "aura_stasis", "stasis_field" -> parseStasisFieldAuraAction(actionObject);
+                        case "stasis_field_aura", "aura_stasis", "stasis_field" ->
+                            parseStasisFieldAuraAction(actionObject);
                         case "entropy_aura", "aura_entropy", "entropy" -> parseEntropyAuraAction(actionObject);
-                        case "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal" -> parsePhantasmalVeilAuraAction(actionObject);
-                        case "psionic_thorns", "psionic_thorns_aura", "thorns_aura" -> parsePsionicThornsAuraAction(actionObject);
-                        case "deep_darkness_aura", "darkness_aura", "deep_darkness" -> parseDeepDarknessAuraAction(actionObject);
-                        case "virulent_growth_aura", "growth_aura", "virulent_growth" -> parseVirulentGrowthAuraAction(actionObject);
+                        case "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal" ->
+                            parsePhantasmalVeilAuraAction(actionObject);
+                        case "psionic_thorns", "psionic_thorns_aura", "thorns_aura" ->
+                            parsePsionicThornsAuraAction(actionObject);
+                        case "deep_darkness_aura", "darkness_aura", "deep_darkness" ->
+                            parseDeepDarknessAuraAction(actionObject);
+                        case "virulent_growth_aura", "growth_aura", "virulent_growth" ->
+                            parseVirulentGrowthAuraAction(actionObject);
                         case "horde_beacon_aura", "horde_beacon" -> parseHordeBeaconAuraAction(actionObject);
                         case "undead_potion_burst", "potion_burst" -> parseUndeadPotionBurstAction(actionObject);
                         case "attribute_aura" -> parseAttributeAuraAction(actionObject);
@@ -356,7 +368,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                     };
                     actions.add(action);
                 } catch (Exception exception) {
-                    throw new ParseException("Acción inválida en la mutación " + mutationId + " (índice " + i + "): " + exception.getMessage(), exception);
+                    throw new ParseException("Acción inválida en la mutación " + mutationId + " (índice " + i + "): "
+                            + exception.getMessage(), exception);
                 }
             }
             return actions;
@@ -394,7 +407,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             int delayTicks = parseTicks(object, "delay", 0);
             float damage = JsonHelper.getFloat(object, "damage", 0.0F);
             double pullStrength = JsonHelper.getDouble(object, "pull_strength", 0.0D);
-            return new StatusEffectOnDeathAction(effect, duration, amplifier, target, radius, chance, delayTicks, damage, pullStrength);
+            return new StatusEffectOnDeathAction(effect, duration, amplifier, target, radius, chance, delayTicks,
+                    damage, pullStrength);
         }
 
         private MutationAction parseGroundHazardOnDeathAction(JsonObject object) {
@@ -416,17 +430,16 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             double chance = parseChance(object, "chance");
             int delay = parseTicks(object, "delay", 0);
             GroundHazardManager.HazardConfig config = new GroundHazardManager.HazardConfig(
-                radius,
-                duration,
-                interval,
-                damage,
-                statusEffect,
-                statusDuration,
-                statusAmplifier,
-                target,
-                particle,
-                particleCount
-            );
+                    radius,
+                    duration,
+                    interval,
+                    damage,
+                    statusEffect,
+                    statusDuration,
+                    statusAmplifier,
+                    target,
+                    particle,
+                    particleCount);
             return new GroundHazardOnDeathAction(config, chance, delay);
         }
 
@@ -450,7 +463,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             double scatterVertical = JsonHelper.getDouble(object, "scatter_vertical", 0.4D);
             double explosionRadius = JsonHelper.getDouble(object, "explosion_radius", 4.0D);
             float explosionDamage = JsonHelper.getFloat(object, "explosion_damage", 5.0F);
-            return new FakeLootPileOnDeathAction(searchRadius, lifetime, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
+            return new FakeLootPileOnDeathAction(searchRadius, lifetime, scatterHorizontal, scatterVertical,
+                    explosionRadius, explosionDamage);
         }
 
         private MutationAction parseDetonatingRemainsAction(JsonObject object) {
@@ -469,15 +483,15 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             double chainRadius = JsonHelper.getDouble(object, "chain_radius", 0.0D);
             int chainDuration = parseTicks(object, "chain_duration", 0);
             return new DetonatingRemainsOnDeathAction(linger,
-                triggerRadius,
-                damage,
-                statusEffect,
-                statusDuration,
-                statusAmplifier,
-                harmless,
-                chance,
-                chainRadius,
-                chainDuration);
+                    triggerRadius,
+                    damage,
+                    statusEffect,
+                    statusDuration,
+                    statusAmplifier,
+                    harmless,
+                    chance,
+                    chainRadius,
+                    chainDuration);
         }
 
         private MutationAction parseFinalBurstAction(JsonObject object) {
@@ -511,7 +525,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             if (particleType instanceof SimpleParticleType simple) {
                 return simple;
             }
-            throw new IllegalArgumentException("La partícula '" + id + "' requiere datos adicionales y no es compatible con ground_hazard_on_death");
+            throw new IllegalArgumentException("La partícula '" + id
+                    + "' requiere datos adicionales y no es compatible con ground_hazard_on_death");
         }
 
         private MutationAction parseChaosTouchAction(JsonObject object) {
@@ -575,10 +590,12 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             int interval = parseTicks(object, "interval", 20);
             String targetRaw = JsonHelper.getString(object, "target", "PLAYERS");
             StatusEffectAuraAction.Target target = StatusEffectAuraAction.Target.fromString(targetRaw);
-            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self", target != StatusEffectAuraAction.Target.SELF);
+            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self",
+                    target != StatusEffectAuraAction.Target.SELF);
             boolean requiresUndead = JsonHelper.getBoolean(object, "requires_undead", false);
             boolean requiresNonUndead = JsonHelper.getBoolean(object, "requires_non_undead", false);
-            return new StatusEffectAuraAction(effect, duration, amplifier, radius, interval, target, excludeSelf, requiresUndead, requiresNonUndead);
+            return new StatusEffectAuraAction(effect, duration, amplifier, radius, interval, target, excludeSelf,
+                    requiresUndead, requiresNonUndead);
         }
 
         private MutationAction parseHealAction(JsonObject object) {
@@ -661,7 +678,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         private MutationAction parseTeleportAction(JsonObject object) {
             double chance = parseChance(object, "chance");
             double radius = JsonHelper.getDouble(object, "radius");
-            TeleportOnHitAction.Target target = TeleportOnHitAction.Target.fromString(JsonHelper.getString(object, "target", "OTHER"));
+            TeleportOnHitAction.Target target = TeleportOnHitAction.Target
+                    .fromString(JsonHelper.getString(object, "target", "OTHER"));
             List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "side_effects");
             return new TeleportOnHitAction(chance, radius, target, extras);
         }
@@ -745,16 +763,32 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             boolean cloneGlow = JsonHelper.getBoolean(object, "clone_glow", false);
             int shroudVisible = parseTicks(object, "shroud_visible", 20);
             int shroudInvisible = parseTicks(object, "shroud_invisible", 20);
-            return new PhantasmalVeilAuraAction(mode, radius, interval, particles, cloneMin, cloneMax, cloneLifetime, cloneGlow, shroudVisible, shroudInvisible);
+            return new PhantasmalVeilAuraAction(mode, radius, interval, particles, cloneMin, cloneMax, cloneLifetime,
+                    cloneGlow, shroudVisible, shroudInvisible);
         }
 
         private MutationAction parsePsionicThornsAuraAction(JsonObject object) {
             double reflectPercent = parseChance(object, "reflect_percent");
             double maxDistance = JsonHelper.getDouble(object, "max_distance", 6.0D);
-            int fatigueDuration = parseTicks(object, "mining_fatigue_duration", 0);
-            int fatigueAmplifier = JsonHelper.getInt(object, "mining_fatigue_amplifier", 0);
             double criticalBonus = JsonHelper.getDouble(object, "critical_bonus_factor", 0.0D);
-            return new PsionicThornsAuraAction(reflectPercent, maxDistance, fatigueDuration, fatigueAmplifier, criticalBonus);
+            boolean enableCritBonus = criticalBonus > 0;
+
+            List<PsionicThornsAuraAction.ThornsEffect> effects = new ArrayList<>();
+
+            if (object.has("mining_fatigue_duration")) {
+                int duration = parseTicks(object, "mining_fatigue_duration", 0);
+                int amplifier = JsonHelper.getInt(object, "mining_fatigue_amplifier", 0);
+                if (duration > 0) {
+                    RegistryEntry<StatusEffect> miningFatigue = resolveStatusEffect(
+                            Identifier.of("minecraft:mining_fatigue"));
+                    effects.add(new PsionicThornsAuraAction.ThornsEffect(miningFatigue, duration, amplifier));
+                }
+            }
+
+            effects.addAll(parseThornsEffects(object, "effects"));
+
+            return new PsionicThornsAuraAction(reflectPercent, maxDistance, enableCritBonus, (float) criticalBonus,
+                    effects);
         }
 
         private MutationAction parseDeepDarknessAuraAction(JsonObject object) {
@@ -768,7 +802,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             boolean removeNightVision = JsonHelper.getBoolean(object, "remove_night_vision", true);
             int lightDelay = parseTicks(object, "light_break_delay", 300);
             int lightThreshold = JsonHelper.getInt(object, "light_threshold", 7);
-            return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, statusEffectEntry, removeNightVision, lightDelay, lightThreshold);
+            return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, statusEffectEntry,
+                    removeNightVision, lightDelay, lightThreshold);
         }
 
         private MutationAction parseVirulentGrowthAuraAction(JsonObject object) {
@@ -783,7 +818,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             int poisonAmplifier = JsonHelper.getInt(object, "poison_amplifier", 0);
             int fangCount = JsonHelper.getInt(object, "fang_count", 6);
             int fangWarmup = parseTicks(object, "fang_warmup", 20);
-            return new VirulentGrowthAuraAction(mode, radius, interval, attempts, chance, stationaryThreshold, poisonDuration, poisonAmplifier, fangCount, fangWarmup);
+            return new VirulentGrowthAuraAction(mode, radius, interval, attempts, chance, stationaryThreshold,
+                    poisonDuration, poisonAmplifier, fangCount, fangWarmup);
         }
 
         private MutationAction parseHordeBeaconAuraAction(JsonObject object) {
@@ -791,11 +827,14 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             HordeBeaconAuraAction.Mode mode = HordeBeaconAuraAction.Mode.fromString(modeRaw);
             double radius = JsonHelper.getDouble(object, "radius");
             int interval = parseTicks(object, "interval", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 160 : 20);
-            int markDuration = parseTicks(object, "mark_duration", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 0);
-            int speedDuration = parseTicks(object, "speed_duration", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 20);
+            int markDuration = parseTicks(object, "mark_duration",
+                    mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 0);
+            int speedDuration = parseTicks(object, "speed_duration",
+                    mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 20);
             int speedAmplifier = JsonHelper.getInt(object, "speed_amplifier", 0);
             int retargetCooldown = parseTicks(object, "retarget_cooldown", 40);
-            return new HordeBeaconAuraAction(mode, radius, interval, markDuration, speedDuration, speedAmplifier, retargetCooldown);
+            return new HordeBeaconAuraAction(mode, radius, interval, markDuration, speedDuration, speedAmplifier,
+                    retargetCooldown);
         }
 
         private MutationAction parseUndeadPotionBurstAction(JsonObject object) {
@@ -815,7 +854,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             double radius = JsonHelper.getDouble(object, "radius");
             String targetRaw = JsonHelper.getString(object, "target", "ALLY_MOBS");
             AttributeAuraAction.Target target = AttributeAuraAction.Target.fromString(targetRaw);
-            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self", target != AttributeAuraAction.Target.SELF);
+            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self",
+                    target != AttributeAuraAction.Target.SELF);
             return new AttributeAuraAction(attributeId, operation, amount, radius, target, excludeSelf);
         }
 
@@ -831,8 +871,9 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 throw new IllegalArgumentException("No se encontró el efecto de estado '" + id + "'");
             }
             return Registries.STATUS_EFFECT
-                .getEntry(Registries.STATUS_EFFECT.getRawId(effect))
-                .orElseThrow(() -> new IllegalArgumentException("No se pudo obtener la entrada del estado '" + id + "'"));
+                    .getEntry(Registries.STATUS_EFFECT.getRawId(effect))
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No se pudo obtener la entrada del estado '" + id + "'"));
         }
 
         private RegistryEntry<Potion> resolvePotion(Identifier id) {
@@ -841,8 +882,8 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 throw new IllegalArgumentException("Poción desconocida '" + id + "'");
             }
             return Registries.POTION
-                .getEntry(Registries.POTION.getRawId(potion))
-                .orElseThrow(() -> new IllegalArgumentException("No se pudo obtener la poción '" + id + "'"));
+                    .getEntry(Registries.POTION.getRawId(potion))
+                    .orElseThrow(() -> new IllegalArgumentException("No se pudo obtener la poción '" + id + "'"));
         }
 
         private StatusEffectOnHitAction.Target parseHitTarget(String raw) {
@@ -876,6 +917,23 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 String targetRaw = JsonHelper.getString(entry, "target", "other");
                 StatusEffectOnHitAction.Target target = parseHitTarget(targetRaw);
                 effects.add(new StatusEffectOnHitAction.AdditionalEffect(effect, duration, amplifier, target));
+            }
+            return effects;
+        }
+
+        private List<PsionicThornsAuraAction.ThornsEffect> parseThornsEffects(JsonObject object, String key) {
+            if (!object.has(key)) {
+                return List.of();
+            }
+            JsonArray array = JsonHelper.getArray(object, key);
+            List<PsionicThornsAuraAction.ThornsEffect> effects = new ArrayList<>(array.size());
+            for (int i = 0; i < array.size(); i++) {
+                JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
+                Identifier effectId = Identifier.of(JsonHelper.getString(entry, "effect"));
+                RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
+                int duration = JsonHelper.getInt(entry, "duration");
+                int amplifier = JsonHelper.getInt(entry, "amplifier", 0);
+                effects.add(new PsionicThornsAuraAction.ThornsEffect(effect, duration, amplifier));
             }
             return effects;
         }
