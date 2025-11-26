@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/aerial_maneuvers_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 19,
+    "display_name": {
+        "literal": "Maniobras Aéreas III"
+    },
+    "description": {
+        "literal": "Dispara ráfagas de fuego rápido con ligera imprecisión."
+    },
+    "weight": 10,
+    "actions": {
+        "cooldown_ticks": 200,
+        "shots_per_burst": 3,
+        "ticks_between_shots": 5,
+        "variance_degrees": 5.0,
+        "fireball_power": 1
+    },
+    "entity_types": [
+        "minecraft:ghast"
+    ],
+    "incompatible_with": []
+}

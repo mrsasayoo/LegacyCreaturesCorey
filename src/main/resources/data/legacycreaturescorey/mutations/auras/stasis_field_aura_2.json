@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/stasis_field_aura_2",
+  "type": "auras",
+  "display_name": "Stasis Field Aura II",
+  "cost": 16,
+  "description": "Deniega la movilidad de los jugadores atrapados en la zona de estasis.",
+  "weight": 22,
+  "actions": {
+    "radius": 6.0,
+    "shield_cooldown_ticks": 100,
+    "attack_speed_multiplier": 0.8
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

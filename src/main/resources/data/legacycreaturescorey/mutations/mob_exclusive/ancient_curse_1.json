@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ancient_curse_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Maldición Antigua I"
+    },
+    "description": {
+        "literal": "Fatiga Minera: 20% de probabilidad de aplicar Fatiga Minera I por 4 segundos al golpear."
+    },
+    "weight": 65,
+    "actions": {
+        "chance": 0.20,
+        "duration_ticks": 80,
+        "amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:husk"
+    ],
+    "incompatible_with": []
+}

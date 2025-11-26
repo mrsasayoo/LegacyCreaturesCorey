@@ -92,7 +92,7 @@ public final class StatusEffectTicker {
                     effectIterator.remove();
                     continue;
                 }
-                tracked.apply(entity, state.amplifier);
+                tracked.apply(entity, state);
             }
 
             if (entry.isEmpty()) {
@@ -117,50 +117,51 @@ public final class StatusEffectTicker {
     private enum TrackedEffect {
         SLIPPERY_FLOOR {
             @Override
-            void apply(LivingEntity entity, int amplifier) {
-                if (!entity.isOnGround() || entity.isSneaking()) {
+            void apply(LivingEntity entity, EffectState state) {
+                if (entity.isSneaking() || shouldSkipPlayerAbilities(entity)) {
                     return;
                 }
-                if (shouldSkipPlayerAbilities(entity)) {
-                    return;
-                }
+
                 Vec3d velocity = entity.getVelocity();
-                double horizontalSpeedSq = velocity.horizontalLengthSquared();
-                if (horizontalSpeedSq < 1.0E-4D) {
+                Vec3d horizontal = new Vec3d(velocity.x, 0.0D, velocity.z);
+                double horizontalSq = horizontal.lengthSquared();
+                if (horizontalSq > 1.0E-4D) {
+                    state.setSlideDirection(horizontal);
+                }
+
+                Vec3d direction = horizontalSq > 1.0E-4D ? horizontal.normalize() : state.getSlideDirection();
+                if (direction == Vec3d.ZERO) {
                     return;
                 }
-                double factor = 1.04D + amplifier * 0.02D;
-                factor = MathHelper.clamp(factor, 1.0D, 1.12D);
-                double newX = MathHelper.clamp(velocity.x * factor, -0.9D, 0.9D);
-                double newZ = MathHelper.clamp(velocity.z * factor, -0.9D, 0.9D);
-                if (newX == velocity.x && newZ == velocity.z) {
-                    return;
+
+                double baseSpeed = Math.sqrt(Math.max(horizontalSq, 0.0D));
+                double inertiaFloor = 0.24D + state.amplifier * 0.05D;
+                double acceleration = 1.12D + state.amplifier * 0.06D;
+                double newSpeed = Math.min(Math.max(baseSpeed, inertiaFloor) * acceleration, 1.35D);
+                Vec3d newHorizontal = direction.multiply(newSpeed);
+
+                double vertical = velocity.y;
+                if (entity.isOnGround()) {
+                    vertical = Math.min(vertical + 0.02D, 0.25D);
+                } else if (vertical < 0.0D) {
+                    double downwardBoost = 1.01D + state.amplifier * 0.02D;
+                    vertical = Math.max(velocity.y * downwardBoost, -2.2D);
                 }
-                entity.setVelocity(newX, velocity.y, newZ);
-                velocity = entity.getVelocity();
-                double upwardLimit = MathHelper.clamp(0.24D - amplifier * 0.02D, 0.18D, 0.26D);
-                if (velocity.y > upwardLimit) {
-                    entity.setVelocity(velocity.x, upwardLimit, velocity.z);
-                    velocity = entity.getVelocity();
-                }
-                if (!entity.isOnGround() && velocity.y < 0.0D) {
-                    double downwardBoost = MathHelper.clamp(1.02D + amplifier * 0.01D, 1.02D, 1.06D);
-                    entity.setVelocity(velocity.x, Math.max(velocity.y * downwardBoost, -2.5D), velocity.z);
-                    velocity = entity.getVelocity();
-                }
+
+                entity.setVelocity(newHorizontal.x, vertical, newHorizontal.z);
                 entity.velocityModified = true;
             }
         },
         HEAVY_GRAVITY {
             @Override
-            void apply(LivingEntity entity, int amplifier) {
+            void apply(LivingEntity entity, EffectState state) {
                 if (shouldSkipPlayerAbilities(entity)) {
                     return;
                 }
                 Vec3d velocity = entity.getVelocity();
                 boolean modified = false;
 
-                double upwardLimit = 0.26D - amplifier * 0.05D;
+                double upwardLimit = 0.26D - state.amplifier * 0.05D;
                 upwardLimit = MathHelper.clamp(upwardLimit, 0.16D, 0.28D);
                 if (velocity.y > upwardLimit) {
                     entity.setVelocity(velocity.x, upwardLimit, velocity.z);
@@ -170,7 +171,7 @@ public final class StatusEffectTicker {
 
                 if (!entity.isOnGround()) {
                     if (velocity.y < -0.05D) {
-                        double fallMultiplier = 1.12D + amplifier * 0.05D;
+                        double fallMultiplier = 1.12D + state.amplifier * 0.05D;
                         double newY = MathHelper.clamp(velocity.y * fallMultiplier, -4.0D, 1.0D);
                         if (newY < velocity.y - 0.001D) {
                             entity.setVelocity(velocity.x, newY, velocity.z);
@@ -178,7 +179,7 @@ public final class StatusEffectTicker {
                             modified = true;
                         }
                     }
-                    double damp = MathHelper.clamp(0.95D - amplifier * 0.02D, 0.85D, 0.95D);
+                    double damp = MathHelper.clamp(0.95D - state.amplifier * 0.02D, 0.85D, 0.95D);
                     double newX = velocity.x * damp;
                     double newZ = velocity.z * damp;
                     if (Math.abs(newX - velocity.x) > 1.0E-4D || Math.abs(newZ - velocity.z) > 1.0E-4D) {
@@ -194,7 +195,7 @@ public final class StatusEffectTicker {
             }
         };
 
-        abstract void apply(LivingEntity entity, int amplifier);
+        abstract void apply(LivingEntity entity, EffectState state);
 
         static TrackedEffect from(RegistryEntry<StatusEffect> entry) {
             StatusEffect effect = entry.value();
@@ -237,9 +238,38 @@ public final class StatusEffectTicker {
     private static final class EffectState {
         private final RegistryEntry<StatusEffect> entry;
         private int amplifier;
+        private double cachedDirX;
+        private double cachedDirZ;
+        private int cachedDirTicks;
 
         private EffectState(RegistryEntry<StatusEffect> entry) {
             this.entry = entry;
+        }
+
+        Vec3d getSlideDirection() {
+            if (cachedDirTicks <= 0) {
+                return Vec3d.ZERO;
+            }
+            cachedDirTicks--;
+            if (Math.abs(cachedDirX) <= 1.0E-4D && Math.abs(cachedDirZ) <= 1.0E-4D) {
+                return Vec3d.ZERO;
+            }
+            return new Vec3d(cachedDirX, 0.0D, cachedDirZ);
+        }
+
+        void setSlideDirection(Vec3d direction) {
+            if (direction == null) {
+                return;
+            }
+            Vec3d horizontal = new Vec3d(direction.x, 0.0D, direction.z);
+            double lenSq = horizontal.lengthSquared();
+            if (lenSq < 1.0E-4D) {
+                return;
+            }
+            Vec3d normalized = horizontal.normalize();
+            this.cachedDirX = normalized.x;
+            this.cachedDirZ = normalized.z;
+            this.cachedDirTicks = 6;
         }
     }
 

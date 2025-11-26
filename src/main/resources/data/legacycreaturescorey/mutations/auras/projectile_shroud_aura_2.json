@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/projectile_shroud_aura_2",
+  "type": "auras",
+  "display_name": "Projectile Shroud Aura II",
+  "cost": 15,
+  "description": "El manto reactivo también desvía energía contra el tirador.",
+  "weight": 20,
+  "actions": {
+    "radius": 3.0,
+    "chance": 0.4,
+    "push_strength": 0.5
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

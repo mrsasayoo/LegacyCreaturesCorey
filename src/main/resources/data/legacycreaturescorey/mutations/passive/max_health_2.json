@@ -10,14 +10,11 @@
     "literal": "Aumenta la salud máxima en 20 puntos."
   },
   "weight": 70,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.max_health",
-      "mode": "add",
-      "amount": 20.0
-    }
-  ],
+  "actions": {
+    "attribute": "minecraft:generic.max_health",
+    "mode": "ADD",
+    "amount": 20.0
+  },
   "incompatible_with": [
     "legacycreaturescorey:passive/max_health_1",
     "legacycreaturescorey:passive/max_health_3"

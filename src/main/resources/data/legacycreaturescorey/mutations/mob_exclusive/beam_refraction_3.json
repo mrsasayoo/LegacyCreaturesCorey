@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/beam_refraction_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 20,
+    "display_name": {
+        "literal": "Refacción del Rayo III"
+    },
+    "description": {
+        "literal": "Rayo Dividido: El rayo se divide para alcanzar hasta dos objetivos con el 60% del daño."
+    },
+    "weight": 9,
+    "actions": {
+        "damage_bonus": 0.0,
+        "cooldown_ticks": 0,
+        "split_damage_ratio": 0.6,
+        "max_targets": 2
+    },
+    "entity_types": [
+        "minecraft:guardian"
+    ],
+    "incompatible_with": []
+}

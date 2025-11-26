@@ -1,29 +1,26 @@
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:passive/attack_damage_2",
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 10,
-  "display_name": {
-    "literal": "Daño de Ataque II"
-  },
-  "description": {
-    "literal": "Aumenta el daño de ataque en 4 puntos."
-  },
-  "weight": 30,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.attack_damage",
-      "mode": "add",
-      "amount": 4.0
-    }
-  ],
-  "incompatible_with": [
-    "legacycreaturescorey:passive/attack_damage_1",
-    "legacycreaturescorey:passive/knockback_resistance_1",
-    "legacycreaturescorey:passive/knockback_resistance_2",
-    "legacycreaturescorey:passive/knockback_resistance_3",
-    "legacycreaturescorey:passive/attack_speed_1",
-    "legacycreaturescorey:passive/attack_speed_2"
-  ]
+	"enabled": true,
+	"id": "legacycreaturescorey:passive/attack_damage_2",
+	"type": "passive",
+	"cost": 10,
+	"display_name": {
+		"literal": "Daño de Ataque II"
+	},
+	"description": {
+		"literal": "Aumenta el daño de ataque en 4 puntos."
+	},
+	"weight": 30,
+	"actions": {
+		"attribute": "minecraft:generic.attack_damage",
+		"mode": "ADD",
+		"amount": 4.0
+	},
+	"incompatible_with": [
+		"legacycreaturescorey:passive/attack_damage_1",
+		"legacycreaturescorey:passive/knockback_resistance_1",
+		"legacycreaturescorey:passive/knockback_resistance_2",
+		"legacycreaturescorey:passive/knockback_resistance_3",
+		"legacycreaturescorey:passive/attack_speed_1",
+		"legacycreaturescorey:passive/attack_speed_2"
+	]
 }

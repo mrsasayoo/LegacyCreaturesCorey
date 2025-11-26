@@ -1,29 +1,26 @@
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:passive/attack_speed_2",
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 12,
-  "display_name": {
-    "literal": "Velocidad de Ataque II"
-  },
-  "description": {
-    "literal": "Incrementa la velocidad de ataque en 0.2."
-  },
-  "weight": 20,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.attack_speed",
-      "mode": "add",
-      "amount": 0.2
-    }
-  ],
-  "incompatible_with": [
-    "legacycreaturescorey:passive/attack_speed_1",
-    "legacycreaturescorey:passive/attack_damage_1",
-    "legacycreaturescorey:passive/attack_damage_2",
-    "legacycreaturescorey:passive/knockback_resistance_1",
-    "legacycreaturescorey:passive/knockback_resistance_2",
-    "legacycreaturescorey:passive/knockback_resistance_3"
-  ]
+	"enabled": true,
+	"id": "legacycreaturescorey:passive/attack_speed_2",
+	"type": "passive",
+	"cost": 12,
+	"display_name": {
+		"literal": "Velocidad de Ataque II"
+	},
+	"description": {
+		"literal": "Incrementa la velocidad de ataque en 0.2."
+	},
+	"weight": 20,
+	"actions": {
+		"attribute": "minecraft:generic.attack_speed",
+		"mode": "ADD",
+		"amount": 0.2
+	},
+	"incompatible_with": [
+		"legacycreaturescorey:passive/attack_speed_1",
+		"legacycreaturescorey:passive/attack_damage_1",
+		"legacycreaturescorey:passive/attack_damage_2",
+		"legacycreaturescorey:passive/knockback_resistance_1",
+		"legacycreaturescorey:passive/knockback_resistance_2",
+		"legacycreaturescorey:passive/knockback_resistance_3"
+	]
 }

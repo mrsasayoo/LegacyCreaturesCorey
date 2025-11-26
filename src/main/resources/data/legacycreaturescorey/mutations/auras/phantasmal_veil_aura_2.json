@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/phantasmal_veil_aura_2",
+  "type": "auras",
+  "display_name": "Phantasmal Veil Aura II",
+  "cost": 16,
+  "description": "Materializa copias ilusorias que distraen a los jugadores.",
+  "weight": 20,
+  "actions": {
+    "radius": 6.0,
+    "interval_ticks": 160,
+    "clone_min": 1,
+    "clone_max": 2,
+    "clone_lifetime_ticks": 100,
+    "clone_glow": false
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

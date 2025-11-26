@@ -1,0 +1,20 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_maneuvers_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Maniobras Abisales I"
+    },
+    "description": {
+        "literal": "Corre un 20% más rápido siempre que tenga un objetivo."
+    },
+    "weight": 60,
+    "actions": {
+        "speed_bonus": 0.2
+    },
+    "entity_types": [
+        "minecraft:wither"
+    ],
+    "incompatible_with": []
+}

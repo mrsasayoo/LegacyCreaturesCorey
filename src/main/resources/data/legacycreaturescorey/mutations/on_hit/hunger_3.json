@@ -1,27 +1,32 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/hunger_3",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 7,
-    "display_name": {
-        "literal": "Inanición III"
-    },
-    "description": {
-        "literal": "7% de probabilidad de aplicar Hambre I durante 12 s."
-    },
-    "weight": 37,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.07,
-            "effect": "minecraft:hunger",
-            "duration": 240,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/hunger_1",
-        "legacycreaturescorey:on_hit/hunger_2"
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/hunger_3",
+  "type": "on_hit",
+  "cost": 7,
+  "display_name": {
+    "literal": "Inanición III"
+  },
+  "description": {
+    "literal": "7% de probabilidad de aplicar Hambre I durante 12 s."
+  },
+  "weight": 35,
+  "actions": {
+    "chance": 0.07,
+    "duration_seconds": 12,
+    "effects": [
+      {
+        "id": "minecraft:hunger",
+        "duration": 240,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
     ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/hunger_1",
+    "legacycreaturescorey:on_hit/hunger_2"
+  ]
 }

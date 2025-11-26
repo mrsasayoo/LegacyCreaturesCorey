@@ -1,24 +1,27 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/frenzy_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 7,
-	"display_name": {
-		"literal": "Frenesí I"
-	},
-	"description": {
-		"literal": "30% de probabilidad de ganar Velocidad I durante 3 s al golpear a un enemigo."
-	},
-	"weight": 55,
-	"actions": [
-		{
-			"type": "frenzy",
-			"chance": 0.3,
-			"mode": "surge"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/frenzy_2",
-		"legacycreaturescorey:on_hit/frenzy_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/frenzy_1",
+  "type": "on_hit",
+  "cost": 6,
+  "display_name": {
+    "literal": "Frenesí I"
+  },
+  "description": {
+    "literal": "30% de probabilidad de ganar Velocidad I durante 3 s al golpear a un enemigo."
+  },
+  "weight": 65,
+  "actions": {
+    "chance": 0.3,
+    "speed_duration_seconds": 3,
+    "apply_haste": false,
+    "stackable": false,
+    "max_stacks": 1,
+    "player_buff_duration_seconds": 3,
+    "player_buff_amplifier": 0
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/frenzy_2",
+    "legacycreaturescorey:on_hit/frenzy_3"
+  ]
 }

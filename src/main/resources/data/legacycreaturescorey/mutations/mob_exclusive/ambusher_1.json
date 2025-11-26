@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ambusher_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Emboscador I"
+    },
+    "description": {
+        "literal": "El Creeper se detiene si el jugador está cerca pero no lo ve, esperando el momento perfecto para atacar."
+    },
+    "weight": 65,
+    "actions": {
+        "detection_range": 16.0,
+        "fov_threshold": 0.5
+    },
+    "entity_types": [
+        "minecraft:creeper"
+    ],
+    "incompatible_with": []
+}

@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/aquatic_stalker_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 15,
+    "display_name": {
+        "literal": "Acechador Acuático III"
+    },
+    "description": {
+        "literal": "Fantasma de las Profundidades: Se vuelve semi-transparente (invisible) mientras está en el agua."
+    },
+    "weight": 18,
+    "actions": [
+        {
+            "type": "aquatic_stalker",
+            "mode": "GHOST_OF_THE_DEEP",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.AquaticStalkerAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:drowned"
+    ]
+}

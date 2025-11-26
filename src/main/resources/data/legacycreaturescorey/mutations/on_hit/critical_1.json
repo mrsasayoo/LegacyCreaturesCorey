@@ -1,24 +1,22 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/critical_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 4,
-	"display_name": {
-		"literal": "Instinto Critico I"
-	},
-	"description": {
-		"literal": "20% de probabilidad de añadir +2 de daño base al golpe."
-	},
-	"weight": 75,
-	"actions": [
-		{
-			"type": "critical_hit",
-			"chance": 0.2,
-			"bonus_damage": 2.0
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/critical_2",
-		"legacycreaturescorey:on_hit/critical_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/critical_1",
+  "type": "on_hit",
+  "cost": 4,
+  "display_name": {
+    "literal": "Instinto Critico I"
+  },
+  "description": {
+    "literal": "7% de probabilidad de añadir +2 de daño base al golpe."
+  },
+  "weight": 75,
+  "actions": {
+    "chance": 0.07,
+    "bonus_damage": 2.0
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/critical_2",
+    "legacycreaturescorey:on_hit/critical_3"
+  ]
 }

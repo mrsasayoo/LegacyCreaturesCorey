@@ -1,31 +1,29 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/bleeding_3",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 13,
-    "display_name": {
-        "literal": "Hemorragia III"
-    },
-    "description": {
-        "literal": "3% de probabilidad de infligir una cadena letal de daño sangrante."
-    },
-    "weight": 15,
-    "actions": [
-        {
-            "type": "bleeding",
-            "chance": 0.03,
-            "damage_pulses": [
-                1.0,
-                2.0,
-                3.0,
-                5.0
-            ],
-            "interval_seconds": 4
-        }
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/bleeding_3",
+  "type": "on_hit",
+  "cost": 13,
+  "display_name": {
+    "literal": "Hemorragia III"
+  },
+  "description": {
+    "literal": "3% de probabilidad de infligir una cadena letal de daño sangrante."
+  },
+  "weight": 15,
+  "actions": {
+    "chance": 0.03,
+    "damage_pulses": [
+      3.0,
+      3.0,
+      3.0,
+      3.0
     ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/bleeding_1",
-        "legacycreaturescorey:on_hit/bleeding_2",
-        "legacycreaturescorey:on_hit/mortal_wound_3"
-    ]
+    "interval_seconds": 4
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/bleeding_1",
+    "legacycreaturescorey:on_hit/bleeding_2",
+    "legacycreaturescorey:on_hit/mortal_wound_3"
+  ]
 }

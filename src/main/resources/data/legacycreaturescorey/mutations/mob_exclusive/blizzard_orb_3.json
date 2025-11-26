@@ -1,0 +1,29 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/blizzard_orb_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 18,
+    "display_name": {
+        "literal": "Orbe de Ventisca III"
+    },
+    "description": {
+        "literal": "Convoca un orbe guiado que persigue al objetivo y lo envuelve en una ventisca durante 5 segundos."
+    },
+    "weight": 14,
+    "actions": {
+        "projectile_damage": 3.0,
+        "knockback_strength": 0.45,
+        "vertical_boost": 0.32,
+        "players_only": true,
+        "blindness_duration_ticks": 60,
+        "blindness_radius": 3.5,
+        "orb_duration_ticks": 100,
+        "orb_radius": 5.0,
+        "orb_cooldown_ticks": 240,
+        "slowness_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:snow_golem"
+    ],
+    "incompatible_with": []
+}

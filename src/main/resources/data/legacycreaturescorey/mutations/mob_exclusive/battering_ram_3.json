@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/battering_ram_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 13,
+    "display_name": {
+        "literal": "Battering Ram III"
+    },
+    "description": {
+        "literal": "Golpe Conmocionante: +6 de daño y aplica Debilidad I y Náuseas I durante 4 segundos."
+    },
+    "weight": 20,
+    "actions": {
+        "damage_bonus": 6.0,
+        "knockback_bonus": 0.5,
+        "weakness_duration_ticks": 80,
+        "weakness_amplifier": 0,
+        "nausea_duration_ticks": 80,
+        "nausea_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:goat"
+    ],
+    "incompatible_with": []
+}

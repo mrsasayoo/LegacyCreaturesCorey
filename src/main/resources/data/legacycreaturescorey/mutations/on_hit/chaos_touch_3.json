@@ -1,25 +1,20 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/chaos_touch_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 25,
-	"display_name": {
-		"literal": "Toque Caótico III"
-	},
-	"description": {
-		"literal": "20% de probabilidad de barajar completamente la barra rápida del objetivo. Aplica Lentitud al atacante durante 3 s."
-	},
-	"weight": 15,
-	"actions": [
-		{
-			"type": "chaos_touch",
-			"chance": 0.20,
-			"mode": "shuffle",
-			"self_slowness_ticks": 200
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/chaos_touch_1",
-		"legacycreaturescorey:on_hit/chaos_touch_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/chaos_touch_3",
+  "type": "on_hit",
+  "cost": 18,
+  "display_name": "Toque Caótico III",
+  "description": "5% de probabilidad de barajar completamente la hotbar del objetivo, aplicando Lentitud II al atacante durante 2 s.",
+  "weight": 5,
+  "actions": {
+    "chance": 0.05,
+    "mode": "shuffle",
+    "self_slowness_ticks": 20
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/chaos_touch_1",
+    "legacycreaturescorey:on_hit/chaos_touch_2",
+    "legacycreaturescorey:on_hit/concussive_blow_3"
+  ]
 }

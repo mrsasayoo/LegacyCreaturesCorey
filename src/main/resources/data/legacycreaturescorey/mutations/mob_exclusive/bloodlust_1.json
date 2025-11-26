@@ -1,0 +1,20 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bloodlust_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 4,
+    "display_name": {
+        "literal": "Sed de Sangre I"
+    },
+    "description": {
+        "literal": "Al ejecutar a un aldeano o golem, el vindicador se cura al instante."
+    },
+    "weight": 70,
+    "actions": {
+        "heal_amount": 10.0
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ],
+    "incompatible_with": []
+}

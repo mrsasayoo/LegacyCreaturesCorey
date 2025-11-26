@@ -26,12 +26,16 @@ public final class ModStatusEffects {
         new NotifyingStatusEffect(StatusEffectCategory.HARMFUL, 0xAD3DE1, ClientEffectType.PHANTOM_SOUNDS, 1.0F));
     public static final StatusEffect CAMERA_SHAKE = register("camera_shake",
         new NotifyingStatusEffect(StatusEffectCategory.HARMFUL, 0xFF3366, ClientEffectType.CAMERA_SHAKE, 0.6F));
+    public static final StatusEffect BLEEDING = register("bleeding",
+        new bleeding_status_effect());
     public static final StatusEffect MORTAL_WOUND_MINOR = register("mortal_wound_minor",
         new HealingReductionStatusEffect(StatusEffectCategory.HARMFUL, 0x9E3030, 0.67F));
     public static final StatusEffect MORTAL_WOUND_MAJOR = register("mortal_wound_major",
         new HealingReductionStatusEffect(StatusEffectCategory.HARMFUL, 0x5B0B0B, 0.25F));
     public static final StatusEffect MORTAL_WOUND_TOTAL = register("mortal_wound_total",
         new HealingReductionStatusEffect(StatusEffectCategory.HARMFUL, 0x1A0000, 0.0F));
+    public static final StatusEffect PRECARIOUS_HUNGER = register("precarious_hunger",
+        new precarious_hunger_status_effect());
 
     private ModStatusEffects() {}
 

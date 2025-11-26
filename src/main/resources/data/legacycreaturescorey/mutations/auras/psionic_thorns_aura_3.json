@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/psionic_thorns_aura_3",
+  "type": "auras",
+  "display_name": "Psionic Thorns Aura III",
+  "cost": 30,
+  "description": "La corona psiónica devuelve incluso los golpes más devastadores.",
+  "weight": 1,
+  "actions": {
+    "reflection_percentage": 0.3,
+    "radius": 5.0,
+    "effects": [
+      {
+        "id": "minecraft:speed",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      },
+      {
+        "id": "minecraft:strength",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/projectile_shroud_aura_3"
+  ]
+}

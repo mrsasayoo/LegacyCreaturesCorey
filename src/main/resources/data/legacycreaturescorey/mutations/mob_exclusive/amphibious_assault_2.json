@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/amphibious_assault_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 10,
+    "display_name": {
+        "literal": "Asalto Anfibio II"
+    },
+    "description": {
+        "literal": "Levitación Terrestre: El Guardián puede flotar y moverse libremente fuera del agua."
+    },
+    "weight": 35,
+    "actions": {
+        "hover_height": 1.0,
+        "vertical_adjustment_speed": 0.15,
+        "fall_speed": 0.04,
+        "horizontal_speed": 0.15,
+        "ground_search_depth": 4
+    },
+    "entity_types": [
+        "minecraft:guardian",
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
+}

@@ -1,24 +1,27 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/pain_link_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 16,
-	"display_name": {
-		"literal": "Vínculo Doloroso III"
-	},
-	"description": {
-		"literal": "25% de probabilidad de enlazar a un jugador durante 6 s, redirigiendo el 20% del daño que reciba al atacante. El objetivo gana Resistencia I como defensa desesperada."
-	},
-	"weight": 12,
-	"actions": [
-		{
-			"type": "pain_link",
-			"chance": 0.25,
-			"mode": "sacrifice"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/pain_link_1",
-		"legacycreaturescorey:on_hit/pain_link_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/pain_link_3",
+  "type": "on_hit",
+  "cost": 17,
+  "display_name": {
+    "literal": "Vínculo Doloroso III"
+  },
+  "description": {
+    "literal": "5% de probabilidad de crear un \"Vínculo de Sacrificio\" durante 6 s. El 20% del daño recibido por el mob se redirige al jugador, que obtiene Resistencia I."
+  },
+  "weight": 10,
+  "actions": {
+    "chance": 0.05,
+    "duration_seconds": 6,
+    "redirect_ratio": 0.2,
+    "player_buff": {
+      "id": "minecraft:resistance",
+      "duration_seconds": 4,
+      "amplifier": 0
+    }
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/pain_link_1",
+    "legacycreaturescorey:on_hit/pain_link_2"
+  ]
 }

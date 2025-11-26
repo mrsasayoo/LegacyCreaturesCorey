@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/corruption_aura_2",
+  "type": "auras",
+  "display_name": "Corruption Aura II",
+  "cost": 14,
+  "description": "Canaliza corrupción intensa que drena a los jugadores que se acercan demasiado.",
+  "weight": 25,
+  "actions": {
+    "radius": 4.0,
+    "interval_ticks": 80,
+    "damage": 2.0
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

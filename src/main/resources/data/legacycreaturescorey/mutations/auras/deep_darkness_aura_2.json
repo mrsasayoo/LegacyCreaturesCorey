@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/deep_darkness_aura_2",
+  "type": "auras",
+  "display_name": "Deep Darkness Aura II",
+  "cost": 13,
+  "description": "Manipula la oscuridad del entorno para castigar a quienes se alejan de la luz.",
+  "weight": 30,
+  "actions": {
+    "radius": 10.0,
+    "interval_ticks": 20,
+    "darkness_duration_ticks": 40,
+    "light_threshold": 7,
+    "light_check_range": 2,
+    "remove_night_vision": false,
+    "effects": [
+      {
+        "id": "minecraft:darkness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

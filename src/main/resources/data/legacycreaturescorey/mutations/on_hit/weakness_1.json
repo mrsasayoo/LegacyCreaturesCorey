@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/weakness_1",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 10,
     "display_name": {
         "literal": "Debilitación I"
@@ -10,14 +10,18 @@
         "literal": "10% de probabilidad de aplicar Debilidad I durante 6 s."
     },
     "weight": 25,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.10,
-            "effect": "minecraft:weakness",
-            "duration": 120,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ]
+    "actions": {
+        "chance": 0.10,
+        "target": "OTHER",
+        "effects": [
+            {
+                "id": "minecraft:weakness",
+                "duration_ticks": 120,
+                "amplifier": 0,
+                "ambient": true,
+                "show_particles": true,
+                "show_icon": true
+            }
+        ]
+    }
 }

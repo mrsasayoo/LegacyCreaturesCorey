@@ -1,24 +1,23 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/essence_siphon_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 7,
-	"display_name": {
-		"literal": "Sifón de Esencia I"
-	},
-	"description": {
-		"literal": "18% de probabilidad de reducir en 5 s un efecto positivo aleatorio del objetivo."
-	},
-	"weight": 50,
-	"actions": [
-		{
-			"type": "essence_siphon",
-			"chance": 0.18,
-			"mode": "weaken"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/essence_siphon_2",
-		"legacycreaturescorey:on_hit/essence_siphon_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/essence_siphon_1",
+  "type": "on_hit",
+  "cost": 6,
+  "display_name": {
+    "literal": "Sifón de Esencia I"
+  },
+  "description": {
+    "literal": "18% de probabilidad de reducir en 5 s un efecto positivo aleatorio del objetivo."
+  },
+  "weight": 60,
+  "actions": {
+    "chance": 0.18,
+    "mode": "weaken",
+    "duration_seconds": 5
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/essence_siphon_2",
+    "legacycreaturescorey:on_hit/essence_siphon_3"
+  ]
 }

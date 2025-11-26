@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/slow_falling_1",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 4,
     "display_name": {
         "literal": "Caída Lenta I"
@@ -10,16 +10,21 @@
         "literal": "15% de probabilidad de aplicar Caída Lenta I durante 3 s."
     },
     "weight": 65,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.15,
-            "effect": "minecraft:slow_falling",
-            "duration": 60,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ],
+    "actions": {
+        "chance": 0.15,
+        "duration_seconds": 3,
+        "amplifier": 0,
+        "effects": [
+            {
+                "id": "minecraft:slow_falling",
+                "duration": 60,
+                "amplifier": 0,
+                "ambient": true,
+                "show_particles": true,
+                "show_icon": true
+            }
+        ]
+    },
     "incompatible_with": [
         "legacycreaturescorey:on_hit/slow_falling_2",
         "legacycreaturescorey:on_hit/slow_falling_3"

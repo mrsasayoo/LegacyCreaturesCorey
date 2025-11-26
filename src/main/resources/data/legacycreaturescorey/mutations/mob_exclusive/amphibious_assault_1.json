@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/amphibious_assault_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Asalto Anfibio I"
+    },
+    "description": {
+        "literal": "Capacidad Pulmonar: El Guardián puede sobrevivir fuera del agua sin asfixiarse."
+    },
+    "weight": 65,
+    "actions": {
+        "extended_breath_ticks": 1200
+    },
+    "entity_types": [
+        "minecraft:guardian",
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
+}

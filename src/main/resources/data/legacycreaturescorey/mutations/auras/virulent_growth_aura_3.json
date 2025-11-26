@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/virulent_growth_aura_3",
+  "type": "auras",
+  "display_name": "Virulent Growth Aura III",
+  "cost": 22,
+  "description": "Brotes espinosos emergen bajo los invasores para diezmarlos.",
+  "weight": 9,
+  "actions": {
+    "radius": 8.0,
+    "interval_ticks": 120,
+    "fang_count": 3,
+    "fang_warmup_ticks": 10
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/deep_darkness_aura_3"
+  ]
+}

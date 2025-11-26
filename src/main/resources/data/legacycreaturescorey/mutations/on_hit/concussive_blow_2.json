@@ -1,24 +1,36 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/concussive_blow_2",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 9,
-	"display_name": {
-		"literal": "Golpe Conmocionador II"
-	},
-	"description": {
-		"literal": "18% de probabilidad de provocar visión de túnel: Ceguera y Visión Nocturna simultáneas durante 3 s."
-	},
-	"weight": 40,
-	"actions": [
-		{
-			"type": "concussive_blow",
-			"chance": 0.18,
-			"mode": "tunnel"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/concussive_blow_1",
-		"legacycreaturescorey:on_hit/concussive_blow_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/concussive_blow_2",
+  "type": "on_hit",
+  "cost": 8,
+  "display_name": "Golpe Conmocionador II",
+  "description": "15% de probabilidad de forzar una visión de túnel (Oscuridad opresiva) durante 3 s.",
+  "weight": 45,
+  "actions": {
+    "chance": 0.15,
+    "mode": "tunnel",
+    "player_status_effects": [
+      {
+        "id": "minecraft:darkness",
+        "duration": 60,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      },
+      {
+        "id": "minecraft:night_vision",
+        "duration": 60,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": false,
+        "show_icon": false
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/concussive_blow_1",
+    "legacycreaturescorey:on_hit/concussive_blow_3"
+  ]
 }

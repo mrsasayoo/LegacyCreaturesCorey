@@ -12,21 +12,18 @@ import java.util.List;
 public final class PsionicThornsAuraAction implements MutationAction {
     private final double reflectionPercentage;
     private final double maxDistance;
-    private final boolean enableCritBonus;
-    private final float critBonusMultiplier;
+
     private final List<ThornsEffect> effects;
 
     private final Handler handler = new Handler();
 
     public PsionicThornsAuraAction(double reflectionPercentage,
             double maxDistance,
-            boolean enableCritBonus,
-            float critBonusMultiplier,
+
             List<ThornsEffect> effects) {
         this.reflectionPercentage = reflectionPercentage;
         this.maxDistance = maxDistance;
-        this.enableCritBonus = enableCritBonus;
-        this.critBonusMultiplier = critBonusMultiplier;
+
         this.effects = effects == null ? List.of() : List.copyOf(effects);
     }
 

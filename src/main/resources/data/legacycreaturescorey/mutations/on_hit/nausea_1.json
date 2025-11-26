@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/nausea_1",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 7,
     "display_name": {
         "literal": "Mareo I"
@@ -10,14 +10,19 @@
         "literal": "10% de probabilidad de aplicar Náusea durante 4 s."
     },
     "weight": 40,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.10,
-            "effect": "minecraft:nausea",
-            "duration": 160,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ]
+    "actions": {
+        "chance": 0.10,
+        "duration_seconds": 4,
+        "amplifier": 0,
+        "effects": [
+            {
+                "id": "minecraft:nausea",
+                "duration": 80,
+                "amplifier": 0,
+                "ambient": true,
+                "show_particles": true,
+                "show_icon": true
+            }
+        ]
+    }
 }

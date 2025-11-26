@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/acidic_core_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 8,
+    "display_name": {
+        "literal": "Núcleo Ácido II"
+    },
+    "description": {
+        "literal": "Genera un charco venenoso de 3x3 que dura 6 segundos."
+    },
+    "weight": 45,
+    "actions": {
+        "radius": 1.5,
+        "duration_ticks": 120,
+        "effect_duration_ticks": 40,
+        "effect_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:slime"
+    ],
+    "incompatible_with": []
+}

@@ -1,25 +1,30 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/mortal_wound_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 10,
-	"display_name": {
-		"literal": "Herida Mortal I"
-	},
-	"description": {
-		"literal": "18% de probabilidad de aplicar Herida Mortal Menor durante 6 s, reduciendo la curación recibida a un 67%."
-	},
-	"weight": 40,
-	"actions": [
-		{
-			"type": "mortal_wound",
-			"chance": 0.18,
-			"effect": "legacycreaturescorey:mortal_wound_minor",
-			"duration_ticks": 120
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/mortal_wound_2",
-		"legacycreaturescorey:on_hit/mortal_wound_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/mortal_wound_1",
+  "type": "on_hit",
+  "cost": 7,
+  "display_name": {
+    "literal": "Herida Mortal I"
+  },
+  "description": {
+    "literal": "15% de probabilidad de aplicar \"Herida Leve\" durante 4 s, reduciendo la curación recibida en un 33%."
+  },
+  "weight": 55,
+  "actions": {
+    "chance": 0.15,
+    "effects": [
+      {
+        "id": "legacycreaturescorey:mortal_wound_minor",
+        "duration": 80,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/mortal_wound_2",
+    "legacycreaturescorey:on_hit/mortal_wound_3"
+  ]
 }

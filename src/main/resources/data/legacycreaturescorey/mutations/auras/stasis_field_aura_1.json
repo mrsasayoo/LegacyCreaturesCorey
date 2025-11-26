@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/stasis_field_aura_1",
+  "type": "auras",
+  "display_name": "Stasis Field Aura I",
+  "cost": 8,
+  "description": "Distorsiona la trayectoria de proyectiles que cruzan su campo.",
+  "weight": 50,
+  "actions": {
+    "radius": 5.0,
+    "projectile_slow_factor": 0.5
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

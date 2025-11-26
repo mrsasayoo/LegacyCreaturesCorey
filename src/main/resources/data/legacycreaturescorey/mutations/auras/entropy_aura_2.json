@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/entropy_aura_2",
+  "type": "auras",
+  "display_name": "Entropy Aura II",
+  "cost": 15,
+  "description": "La entropía degrada lentamente la protección de cualquier jugador que se acerque.",
+  "weight": 25,
+  "actions": {
+    "radius": 5.0,
+    "interval_ticks": 100,
+    "durability_damage": 1
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

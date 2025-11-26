@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/phantasmal_veil_aura_3",
+  "type": "auras",
+  "display_name": "Phantasmal Veil Aura III",
+  "cost": 32,
+  "description": "Oculta repentinamente a todas las criaturas cercanas tras un velo etéreo.",
+  "weight": 1,
+  "actions": {
+    "radius": 5.0,
+    "interval_ticks": 60,
+    "shroud_visible_ticks": 60,
+    "shroud_invisible_ticks": 20,
+    "effects": [
+      {
+        "id": "minecraft:invisibility",
+        "duration": 20,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

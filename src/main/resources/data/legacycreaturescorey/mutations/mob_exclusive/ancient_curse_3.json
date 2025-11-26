@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ancient_curse_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 16,
+    "display_name": {
+        "literal": "Maldición Antigua III"
+    },
+    "description": {
+        "literal": "Maldición de la Momia: 10% de probabilidad de maldecir al jugador, reduciendo la efectividad de la comida en un 25%."
+    },
+    "weight": 15,
+    "actions": {
+        "chance": 0.1,
+        "curse_duration_ticks": 600
+    },
+    "entity_types": [
+        "minecraft:husk"
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:passive/detonating_remains_on_death",
+        "legacycreaturescorey:passive/final_burst_on_death"
+    ]
+}

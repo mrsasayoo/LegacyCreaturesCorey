@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_maneuvers_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 13,
+    "display_name": {
+        "literal": "Maniobras Abisales II"
+    },
+    "description": {
+        "literal": "Cada 12s canaliza un Golpe de Parpadeo y se teletransporta tras su presa."
+    },
+    "weight": 28,
+    "actions": {
+        "cooldown_ticks": 240,
+        "charge_ticks": 40,
+        "slowness_duration_ticks": 40,
+        "slowness_amplifier": 3
+    },
+    "entity_types": [
+        "minecraft:wither"
+    ],
+    "incompatible_with": []
+}

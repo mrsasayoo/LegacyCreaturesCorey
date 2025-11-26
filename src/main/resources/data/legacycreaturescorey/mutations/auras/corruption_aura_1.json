@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/corruption_aura_1",
+  "type": "auras",
+  "display_name": "Corruption Aura I",
+  "cost": 8,
+  "description": "Irradia corrupción leve que desgasta lentamente a los invasores cercanos.",
+  "weight": 50,
+  "actions": {
+    "radius": 3.0,
+    "interval_ticks": 80,
+    "damage": 1.0
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

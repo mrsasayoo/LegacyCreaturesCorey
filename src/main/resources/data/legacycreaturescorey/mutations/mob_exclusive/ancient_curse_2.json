@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ancient_curse_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 10,
+    "display_name": {
+        "literal": "Maldición Antigua II"
+    },
+    "description": {
+        "literal": "Arenas Malditas: Al morir, libera una nube persistente que aplica Hambre I a quienes entren en ella."
+    },
+    "weight": 35,
+    "actions": {
+        "cloud_radius": 2.5,
+        "cloud_duration_ticks": 300,
+        "effect_duration_ticks": 100,
+        "effect_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:husk"
+    ],
+    "incompatible_with": []
+}

@@ -1,25 +1,29 @@
 {
 	"enabled": true,
 	"id": "legacycreaturescorey:on_hit/unstable_hit_3",
-	"type": "PASSIVE_ON_HIT",
+	"type": "on_hit",
 	"cost": 13,
 	"display_name": {
 		"literal": "Golpe Inestable III"
 	},
 	"description": {
-		"literal": "10% de probabilidad de aplicar Inversion de Controles durante 1.5 s (W se convierte en S, A en D, etc.)."
+		"literal": "10% de probabilidad de invertir los controles del objetivo durante 1.5 s."
 	},
 	"weight": 20,
-	"actions": [
-		{
-			"type": "status_effect_on_hit",
-			"chance": 0.1,
-			"effect": "legacycreaturescorey:inverted_controls",
-			"duration": 30,
-			"amplifier": 0,
-			"target": "OTHER"
-		}
-	],
+	"actions": {
+		"chance": 0.10,
+		"target": "OTHER",
+		"effects": [
+			{
+				"id": "legacycreaturescorey:inverted_controls",
+				"duration_ticks": 30,
+				"amplifier": 0,
+				"ambient": true,
+				"show_particles": true,
+				"show_icon": true
+			}
+		]
+	},
 	"incompatible_with": [
 		"legacycreaturescorey:on_hit/unstable_hit_1",
 		"legacycreaturescorey:on_hit/unstable_hit_2"

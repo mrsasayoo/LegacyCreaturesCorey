@@ -4,6 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
 import com.mrsasayo.legacycreaturescorey.difficulty.EffectiveDifficultyCalculator;
 import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.PhantasmalHandler;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -20,6 +21,10 @@ public final class MobSpawnHandler {
 
     private static void onEntityLoad(Entity entity, ServerWorld world) {
         if (!(entity instanceof MobEntity mob)) {
+            return;
+        }
+
+        if (PhantasmalHandler.INSTANCE.isIllusion(mob)) {
             return;
         }
 

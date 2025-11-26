@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/horde_beacon_aura_3",
+  "type": "auras",
+  "display_name": "Horde Beacon Aura III",
+  "cost": 26,
+  "description": "Convierte al mob en un faro que señala presas y acelera a todo aliado cercano.",
+  "weight": 6,
+  "actions": {
+    "radius": 20.0,
+    "interval_ticks": 400,
+    "mark_duration_ticks": 100,
+    "speed_duration_ticks": 100,
+    "speed_amplifier": 0
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

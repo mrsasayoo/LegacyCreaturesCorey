@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/beam_refraction_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 12,
+    "display_name": {
+        "literal": "Refacción del Rayo II"
+    },
+    "description": {
+        "literal": "Descarga Prismática: Puede lanzar su rayo como proyectil cada 3 segundos."
+    },
+    "weight": 30,
+    "actions": {
+        "damage_bonus": 0.0,
+        "cooldown_ticks": 60,
+        "projectile_damage_ratio": 1.0
+    },
+    "entity_types": [
+        "minecraft:guardian"
+    ],
+    "incompatible_with": []
+}

@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/blizzard_orb_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 11,
+    "display_name": {
+        "literal": "Orbe de Ventisca II"
+    },
+    "description": {
+        "literal": "La bola de nieve cargada explota en una ventisca que ciega a todo jugador cercano."
+    },
+    "weight": 30,
+    "actions": {
+        "projectile_damage": 3.0,
+        "knockback_strength": 0.45,
+        "vertical_boost": 0.32,
+        "players_only": true,
+        "blindness_duration_ticks": 60,
+        "blindness_radius": 3.0
+    },
+    "entity_types": [
+        "minecraft:snow_golem"
+    ],
+    "incompatible_with": []
+}

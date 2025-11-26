@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/psionic_thorns_aura_2",
+  "type": "auras",
+  "display_name": "Psionic Thorns Aura II",
+  "cost": 14,
+  "description": "El rebote psiónico refuerza las defensas y agota al agresor.",
+  "weight": 30,
+  "actions": {
+    "reflection_percentage": 0.2,
+    "radius": 5.0,
+    "effects": [
+      {
+        "id": "minecraft:speed",
+        "duration": 40,
+        "amplifier": 1,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

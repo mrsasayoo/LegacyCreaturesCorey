@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/arctic_fortitude_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 11,
+    "display_name": {
+        "literal": "Fortaleza Ártica II"
+    },
+    "description": {
+        "literal": "Caminante de Hielo: Inmune a Lentitud y Congelación. Gana Velocidad I sobre nieve o hielo."
+    },
+    "weight": 30,
+    "actions": [
+        {
+            "type": "arctic_fortitude",
+            "mode": "ICE_WALKER",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.ArcticFortitudeAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:polar_bear"
+    ]
+}

@@ -25,7 +25,7 @@ public final class MutationRuntime {
     private MutationRuntime() {}
 
     public static void register() {
-        RealityCollapseManager.initializeCallbacks();
+        //RealityCollapseManager.initializeCallbacks();
         ServerTickEvents.END_WORLD_TICK.register(MutationRuntime::handleWorldTick);
         ServerLivingEntityEvents.AFTER_DAMAGE.register(MutationRuntime::handleAfterDamage);
         ServerLivingEntityEvents.AFTER_DEATH.register(MutationRuntime::handleAfterDeath);
@@ -68,7 +68,7 @@ public final class MutationRuntime {
     private static void runActiveMutations(MobEntity mob, MobLegacyData data) {
         for (Identifier id : data.getMutations()) {
             Mutation mutation = MutationRegistry.get(id);
-            if (mutation == null || mutation.getType() != MutationType.ACTIVE) {
+            if (mutation == null || !mutation.getType().runsEachTick()) {
                 continue;
             }
             mutation.onTick(mob);
@@ -86,7 +86,7 @@ public final class MutationRuntime {
         try {
             for (Identifier id : data.getMutations()) {
                 Mutation mutation = MutationRegistry.get(id);
-                if (mutation == null || mutation.getType() != MutationType.PASSIVE_ON_HIT) {
+                if (mutation == null || !mutation.getType().triggersOnHit()) {
                     continue;
                 }
                 mutation.onHit(attacker, victim);

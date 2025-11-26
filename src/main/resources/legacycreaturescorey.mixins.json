@@ -5,7 +5,20 @@
 	"mixins": [
 		"LivingEntityStatusEffectMixin",
 		"LivingEntityHealMixin",
-		"ItemEntityMixin"
+		"LivingEntityDamageMixin",
+		"LivingEntityKillMixin",
+		"GoatRamDamageMixin",
+		"VindicatorDamageMixin",
+		"SnowballEntityMixin",
+		"ItemEntityMixin",
+		"BeeEntityMixin",
+		"HungerManagerMixin",
+		"entity_damage_cooldown_accessor",
+		"living_entity_hurt_time_accessor",
+		"persistent_projectile_entity_accessor",
+		"mob_entity_goal_accessor",
+		"general.flee_entity_goal_mixin",
+		"general.phantom_swoop_movement_goal_mixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/entropy_aura_3",
+  "type": "auras",
+  "display_name": "Entropy Aura III",
+  "cost": 30,
+  "description": "Desencadena caos total, bloqueando armas y herramientas de los enemigos.",
+  "weight": 1,
+  "actions": {
+    "radius": 8.0,
+    "interval_ticks": 60,
+    "lock_chance": 0.5,
+    "lock_duration_ticks": 80
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

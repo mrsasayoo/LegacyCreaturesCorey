@@ -1,0 +1,123 @@
+package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
+
+import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
+import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
+import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+
+import java.util.Locale;
+import java.util.List;
+
+abstract class status_effect_single_target_base_action extends ProcOnHitAction {
+    private final List<status_effect_config_parser.status_effect_config_entry> effects;
+    private final Target target;
+
+    protected status_effect_single_target_base_action(mutation_action_config config,
+            RegistryEntry<net.minecraft.entity.effect.StatusEffect> defaultEffect,
+            int defaultDurationTicks,
+            int defaultAmplifier,
+            Target defaultTarget,
+            double defaultChance) {
+        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        this.effects = resolveEffects(config, defaultEffect, defaultDurationTicks, defaultAmplifier);
+        this.target = resolveTarget(config.getString("target", defaultTarget.name()));
+    }
+
+    private List<status_effect_config_parser.status_effect_config_entry> resolveEffects(
+            mutation_action_config config,
+            RegistryEntry<net.minecraft.entity.effect.StatusEffect> fallbackEffect,
+            int fallbackDurationTicks,
+            int fallbackAmplifier) {
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
+        if (fallbackEffect != null && fallbackDurationTicks > 0) {
+            fallback = List.of(status_effect_config_parser.createEntry(
+                    fallbackEffect,
+                    fallbackDurationTicks,
+                    fallbackAmplifier,
+                    true,
+                    true,
+                    true));
+        }
+        List<status_effect_config_parser.status_effect_config_entry> parsed = status_effect_config_parser.parseList(config,
+                "effects",
+                fallback);
+        if (!parsed.isEmpty()) {
+            return parsed;
+        }
+        RegistryEntry<net.minecraft.entity.effect.StatusEffect> resolved = resolveEffect(config, fallbackEffect);
+        int duration = resolveDurationTicks(config, fallbackDurationTicks);
+        int amplifier = Math.max(0, config.getInt("amplifier", fallbackAmplifier));
+        if (resolved == null || duration <= 0) {
+            return List.of();
+        }
+        return List.of(status_effect_config_parser.createEntry(resolved, duration, amplifier, true, true, true));
+    }
+
+    private RegistryEntry<net.minecraft.entity.effect.StatusEffect> resolveEffect(mutation_action_config config,
+            RegistryEntry<net.minecraft.entity.effect.StatusEffect> fallback) {
+        Identifier override = config.getIdentifier("effect", null);
+        if (override != null) {
+            net.minecraft.entity.effect.StatusEffect resolved = Registries.STATUS_EFFECT.get(override);
+            if (resolved != null) {
+                RegistryEntry<net.minecraft.entity.effect.StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(resolved);
+                if (entry != null) {
+                    return entry;
+                }
+            }
+        }
+        return fallback;
+    }
+
+    private int resolveDurationTicks(mutation_action_config config, int fallbackTicks) {
+        int ticks = config.getInt("duration_ticks", -1);
+        if (ticks >= 0) {
+            return ticks;
+        }
+        int seconds = config.getInt("duration_seconds", -1);
+        if (seconds >= 0) {
+            return seconds * 20;
+        }
+        return Math.max(0, fallbackTicks);
+    }
+
+    private Target resolveTarget(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return Target.OTHER;
+        }
+        return switch (raw.trim().toUpperCase(Locale.ROOT)) {
+            case "SELF", "ATTACKER" -> Target.SELF;
+            case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
+            default -> Target.OTHER;
+        };
+    }
+
+    @Override
+    protected void onProc(LivingEntity attacker, LivingEntity victim) {
+        LivingEntity receiver = target == Target.SELF ? attacker : victim;
+        if (ActionContext.isServer(receiver)) {
+            status_effect_config_parser.applyEffects(receiver, effects);
+        }
+        applyAdditionalEffects(attacker, victim);
+    }
+
+    protected void applyAdditionalEffects(LivingEntity attacker, LivingEntity victim) {
+    }
+
+    protected static int secondsToTicks(int seconds) {
+        return Math.max(0, seconds * 20);
+    }
+
+    protected static RegistryEntry<net.minecraft.entity.effect.StatusEffect> asEntry(net.minecraft.entity.effect.StatusEffect effect) {
+        return Registries.STATUS_EFFECT.getEntry(effect);
+    }
+
+    protected enum Target {
+        SELF,
+        OTHER
+    }
+}

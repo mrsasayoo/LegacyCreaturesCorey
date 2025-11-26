@@ -10,12 +10,9 @@
     "literal": "Aumenta la velocidad de movimiento base en 0.05."
   },
   "weight": 50,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.movement_speed",
-      "mode": "add",
-      "amount": 0.05
-    }
-  ]
+  "actions": {
+    "attribute": "minecraft:generic.movement_speed",
+    "mode": "ADD",
+    "amount": 0.05
+  }
 }

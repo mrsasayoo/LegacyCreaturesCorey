@@ -1,0 +1,30 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/deep_darkness_aura_3",
+  "type": "auras",
+  "display_name": "Deep Darkness Aura III",
+  "cost": 21,
+  "description": "Desata oscuridad absoluta al estilo del Warden para sofocar cualquier intento de acercamiento.",
+  "weight": 10,
+  "actions": {
+    "radius": 10.0,
+    "interval_ticks": 20,
+    "darkness_duration_ticks": 60,
+    "light_threshold": 0,
+    "remove_night_vision": false,
+    "effects": [
+      {
+        "id": "minecraft:darkness",
+        "duration": 60,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/virulent_growth_aura_3"
+  ]
+}

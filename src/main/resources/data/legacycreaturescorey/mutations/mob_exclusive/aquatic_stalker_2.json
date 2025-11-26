@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/aquatic_stalker_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 9,
+    "display_name": {
+        "literal": "Acechador Acuático II"
+    },
+    "description": {
+        "literal": "Impulso Abisal: Puede realizar una carga rápida de 6 bloques bajo el agua (Cooldown 7s)."
+    },
+    "weight": 38,
+    "actions": [
+        {
+            "type": "aquatic_stalker",
+            "mode": "ABYSSAL_IMPULSE",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.AquaticStalkerAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:drowned"
+    ]
+}

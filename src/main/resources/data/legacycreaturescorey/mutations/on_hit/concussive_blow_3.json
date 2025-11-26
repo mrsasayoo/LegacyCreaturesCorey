@@ -1,24 +1,29 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/concussive_blow_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 13,
-	"display_name": {
-		"literal": "Golpe Conmocionador III"
-	},
-	"description": {
-		"literal": "22% de probabilidad de desorientar por completo al objetivo, girándolo 180° y aplicando Náusea. El atacante sufre Fatiga Minera breve como rebote."
-	},
-	"weight": 18,
-	"actions": [
-		{
-			"type": "concussive_blow",
-			"chance": 0.22,
-			"mode": "disorient"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/concussive_blow_1",
-		"legacycreaturescorey:on_hit/concussive_blow_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/concussive_blow_3",
+  "type": "on_hit",
+  "cost": 13,
+  "display_name": "Golpe Conmocionador III",
+  "description": "10% de probabilidad de desorientar al jugador, girándolo 180° y provocando náusea durante unos segundos.",
+  "weight": 20,
+  "actions": {
+    "chance": 0.1,
+    "mode": "disorient",
+    "player_status_effects": [
+      {
+        "id": "minecraft:nausea",
+        "duration": 120,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/concussive_blow_1",
+    "legacycreaturescorey:on_hit/concussive_blow_2",
+    "legacycreaturescorey:on_hit/chaos_touch_3"
+  ]
 }

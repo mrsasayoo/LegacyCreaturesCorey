@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bamboo_eater_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 9,
+    "display_name": {
+        "literal": "Comedor de Bambú II"
+    },
+    "description": {
+        "literal": "Snack Fortificado: Al comer bambú (2s), gana Resistencia I (4s) y se cura 4 puntos de vida (Cooldown 6s)."
+    },
+    "weight": 38,
+    "actions": {
+        "heal_amount": 4.0,
+        "stop_ticks": 40,
+        "resistance_duration_ticks": 120,
+        "resistance_amplifier": 0,
+        "cooldown_ticks": 300
+    },
+    "entity_types": [
+        "minecraft:panda"
+    ]
+}

@@ -1,25 +1,23 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/anti_shield_2",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 11,
-	"display_name": {
-		"literal": "Rompeescudos II"
-	},
-	"description": {
-		"literal": "20% de probabilidad de inutilizar el escudo del objetivo durante 4 s."
-	},
-	"weight": 30,
-	"actions": [
-		{
-			"type": "disable_shield",
-			"chance": 0.20,
-			"cooldown_ticks": 80
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/anti_shield_1",
-		"legacycreaturescorey:on_hit/true_damage_1",
-		"legacycreaturescorey:on_hit/true_damage_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/anti_shield_2",
+  "type": "on_hit",
+  "cost": 11,
+  "display_name": {
+    "literal": "Rompeescudos II"
+  },
+  "description": {
+    "literal": "20% de probabilidad de inutilizar el escudo del objetivo durante 4 s."
+  },
+  "weight": 30,
+  "actions": {
+    "chance": 0.2,
+    "cooldown_ticks": 80
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/anti_shield_1",
+    "legacycreaturescorey:on_hit/true_damage_1",
+    "legacycreaturescorey:on_hit/true_damage_2"
+  ]
 }

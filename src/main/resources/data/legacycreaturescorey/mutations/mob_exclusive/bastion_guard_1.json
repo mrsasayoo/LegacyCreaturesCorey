@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bastion_guard_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Bastion Guard I"
+    },
+    "description": {
+        "literal": "Fortaleza Ígnea: Es inmune al fuego y la lava y disipa cualquier combustión al instante."
+    },
+    "weight": 60,
+    "actions": {
+        "effect_duration_ticks": 200,
+        "effect_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:piglin_brute"
+    ],
+    "incompatible_with": []
+}

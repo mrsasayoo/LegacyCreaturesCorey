@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/boar_frenzy_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 11,
+    "display_name": {
+        "literal": "Frenesí de Jabalí II"
+    },
+    "description": {
+        "literal": "Aumenta su cadencia por cada jugador o piglin que lo rodee."
+    },
+    "weight": 32,
+    "actions": {
+        "bonus_per_entity": 0.05,
+        "max_bonus_multiplier": 0.2,
+        "radius": 12.0,
+        "max_entities": 4
+    },
+    "entity_types": [
+        "minecraft:hoglin",
+        "minecraft:zoglin"
+    ],
+    "incompatible_with": []
+}

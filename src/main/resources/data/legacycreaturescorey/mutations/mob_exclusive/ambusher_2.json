@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ambusher_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 10,
+    "display_name": {
+        "literal": "Emboscador II"
+    },
+    "description": {
+        "literal": "En la oscuridad (nivel de luz < 6), el Creeper se vuelve invisible, revelando solo sus ojos brillantes."
+    },
+    "weight": 35,
+    "actions": {
+        "light_level_threshold": 6,
+        "invisibility_duration": 40,
+        "invisibility_amplifier": 0,
+        "show_particles": false
+    },
+    "entity_types": [
+        "minecraft:creeper"
+    ],
+    "incompatible_with": []
+}

@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/vanguards_bulwark_aura_2",
+  "type": "auras",
+  "display_name": "Vanguard's Bulwark Aura II",
+  "cost": 15,
+  "description": "Refuerza la resistencia del escuadrón del mob.",
+  "weight": 25,
+  "actions": {
+    "radius": 8.0,
+    "interval_ticks": 80,
+    "effects": [
+      {
+        "id": "minecraft:resistance",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

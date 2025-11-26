@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/levitation_1",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 9,
     "display_name": {
         "literal": "Levitar I"
@@ -10,14 +10,19 @@
         "literal": "10% de probabilidad de aplicar Levitación I durante 1 s."
     },
     "weight": 30,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.10,
-            "effect": "minecraft:levitation",
-            "duration": 20,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ]
+    "actions": {
+        "chance": 0.1,
+        "duration_seconds": 1,
+        "effects": [
+            {
+                "id": "minecraft:levitation",
+                "duration": 20,
+                "amplifier": 0,
+                "ambient": true,
+                "show_particles": true,
+                "show_icon": true
+            }
+        ]
+    },
+    "entity_types": []
 }

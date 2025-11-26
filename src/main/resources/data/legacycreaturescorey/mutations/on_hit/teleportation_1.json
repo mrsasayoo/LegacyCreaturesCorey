@@ -1,21 +1,18 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/teleportation_1",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 5,
     "display_name": {
         "literal": "Desplazamiento I"
     },
     "description": {
-        "literal": "10% de probabilidad de teletransportar al objetivo dentro de un radio de 5 bloques, dejando un rastro de portales."
+        "literal": "5% de probabilidad de teletransportar al jugador golpeado dentro de un radio de 2 bloques."
     },
     "weight": 60,
-    "actions": [
-        {
-            "type": "teleport",
-            "chance": 0.1,
-            "radius": 5.0,
-            "target": "SELF"
-        }
-    ]
+    "actions": {
+        "chance": 0.05,
+        "radius": 2.0,
+        "target": "OTHER"
+    }
 }

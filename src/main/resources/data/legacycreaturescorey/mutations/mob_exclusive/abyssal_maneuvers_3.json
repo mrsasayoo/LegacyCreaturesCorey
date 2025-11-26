@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_maneuvers_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 21,
+    "display_name": {
+        "literal": "Maniobras Abisales III"
+    },
+    "description": {
+        "literal": "Invoca un Vórtice de Almas que atrae a todos los jugadores cercanos."
+    },
+    "weight": 9,
+    "actions": {
+        "cooldown_ticks": 300,
+        "pull_radius": 10.0,
+        "pull_strength": 1.5
+    },
+    "entity_types": [
+        "minecraft:wither"
+    ],
+    "incompatible_with": []
+}

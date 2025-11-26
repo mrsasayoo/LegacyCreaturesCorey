@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/alphas_vengeance_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 16,
+    "display_name": {
+        "literal": "Venganza del Alfa III"
+    },
+    "description": {
+        "literal": "Al morir, el lobo suelta un 'Aullido Final' que otorga a todos los lobos aliados en un radio de 20 bloques Regeneración I y Fuerza I durante 10 segundos."
+    },
+    "weight": 15,
+    "actions": {
+        "radius": 20.0,
+        "effect_duration_ticks": 200,
+        "regeneration_amplifier": 0,
+        "strength_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:wolf"
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:passive/loot_scatter_on_death"
+    ]
+}

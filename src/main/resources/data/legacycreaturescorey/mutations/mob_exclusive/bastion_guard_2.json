@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bastion_guard_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 13,
+    "display_name": {
+        "literal": "Bastion Guard II"
+    },
+    "description": {
+        "literal": "Golpe de Pomo: Al recibir daño tiene una probabilidad del 20% de contraatacar con un empuje brutal."
+    },
+    "weight": 28,
+    "actions": {
+        "trigger_chance": 0.2,
+        "cooldown_ticks": 20,
+        "knockback_strength": 1.5,
+        "vertical_boost": 0.4
+    },
+    "entity_types": [
+        "minecraft:piglin_brute"
+    ],
+    "incompatible_with": []
+}

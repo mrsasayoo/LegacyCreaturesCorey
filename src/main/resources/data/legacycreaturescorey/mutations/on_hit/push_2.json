@@ -1,24 +1,21 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/push_2",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 7,
-    "display_name": {
-        "literal": "Empuje II"
-    },
-    "description": {
-        "literal": "15% de probabilidad de empujar 3 bloques al objetivo."
-    },
-    "weight": 60,
-    "actions": [
-        {
-            "type": "knockback",
-            "chance": 0.15,
-            "distance": 3.0
-        }
-    ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/push_1",
-        "legacycreaturescorey:on_hit/push_3"
-    ]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/push_2",
+  "type": "on_hit",
+  "cost": 5,
+  "display_name": {
+    "literal": "Empuje II"
+  },
+  "description": {
+    "literal": "15% de probabilidad de empujar 3 bloques al objetivo."
+  },
+  "weight": 60,
+  "actions": {
+    "chance": 0.15,
+    "distance": 3.0
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/push_1",
+    "legacycreaturescorey:on_hit/push_3"
+  ]
 }

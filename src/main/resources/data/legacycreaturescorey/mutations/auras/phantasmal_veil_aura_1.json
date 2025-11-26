@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/phantasmal_veil_aura_1",
+  "type": "auras",
+  "display_name": "Phantasmal Veil Aura I",
+  "cost": 3,
+  "description": "Emite ilusiones visuales que confunden la percepción de la batalla.",
+  "weight": 90,
+  "actions": {
+    "radius": 15.0,
+    "interval_ticks": 60,
+    "particle_count": 5
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

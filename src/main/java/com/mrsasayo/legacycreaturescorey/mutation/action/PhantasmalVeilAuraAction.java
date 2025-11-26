@@ -15,7 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.text.Text;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Creates misleading visual cues around the caster to obscure their true condition.
+ * Creates misleading visual cues around the caster to obscure their true
+ * condition.
  */
 public final class PhantasmalVeilAuraAction implements MutationAction {
     private final Mode mode;
@@ -46,15 +47,15 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
     }
 
     public PhantasmalVeilAuraAction(Mode mode,
-                                    double radius,
-                                    int intervalTicks,
-                                    int particleCount,
-                                    int cloneMinCount,
-                                    int cloneMaxCount,
-                                    int cloneLifetimeTicks,
-                                    boolean cloneGlow,
-                                    int shroudVisibleTicks,
-                                    int shroudInvisibleTicks) {
+            double radius,
+            int intervalTicks,
+            int particleCount,
+            int cloneMinCount,
+            int cloneMaxCount,
+            int cloneLifetimeTicks,
+            boolean cloneGlow,
+            int shroudVisibleTicks,
+            int shroudInvisibleTicks) {
         this.mode = mode;
         this.radius = Math.max(0.5D, radius);
         this.intervalTicks = Math.max(1, intervalTicks);
@@ -161,12 +162,13 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
         private static final Handler INSTANCE = new Handler();
 
         private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-    private final Map<ServerWorld, List<IllusionRecord>> clones = new WeakHashMap<>();
-    private final Map<LivingEntity, IllusionRecord> cloneLookup = new WeakHashMap<>();
+        private final Map<ServerWorld, List<IllusionRecord>> clones = new WeakHashMap<>();
+        private final Map<LivingEntity, IllusionRecord> cloneLookup = new WeakHashMap<>();
         private final Map<MobEntity, ShroudState> shroudStates = new WeakHashMap<>();
         private boolean initialized;
 
-        private Handler() {}
+        private Handler() {
+        }
 
         void ensureInitialized() {
             if (initialized) {
@@ -233,7 +235,8 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+            List<ServerPlayerEntity> players = world
+                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (players.isEmpty()) {
                 aura.lastTriggerTick = time;
                 return;
@@ -249,13 +252,16 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
                 double offsetY = random.nextDouble() * Math.max(0.5D, source.getHeight());
                 double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
                 ParticleEffect effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-                world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
+                        0.0D);
             }
 
             if (random.nextBoolean()) {
-                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_HURT, SoundCategory.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
+                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_HURT,
+                        SoundCategory.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
             } else {
-                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
+                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP,
+                        SoundCategory.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
             }
 
             aura.lastTriggerTick = time;
@@ -296,7 +302,8 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
             List<MobEntity> mobs = world.getEntitiesByClass(MobEntity.class, sourceMob.getBoundingBox().expand(radius),
-                mob -> mob.isAlive() && mob != sourceMob && mob.getType().getSpawnGroup() == SpawnGroup.MONSTER && sourceMob.squaredDistanceTo(mob) <= radiusSq);
+                    mob -> mob.isAlive() && mob != sourceMob && mob.getType().getSpawnGroup() == SpawnGroup.MONSTER
+                            && sourceMob.squaredDistanceTo(mob) <= radiusSq);
             if (mobs.isEmpty()) {
                 return;
             }
@@ -330,12 +337,16 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             clone.setNoGravity(true);
             clone.setSilent(true);
             clone.setInvisible(false);
-            clone.setPersistent();
-            clone.setCustomName(Text.literal("Ilusión"));
-            clone.setCustomNameVisible(false);
+            // clone.setPersistent(); // Removed to prevent categorization/persistence
+            // issues
+            if (sourceMob.hasCustomName()) {
+                clone.setCustomName(sourceMob.getCustomName());
+                clone.setCustomNameVisible(sourceMob.isCustomNameVisible());
+            }
             clone.setHealth(Math.max(1.0F, clone.getMaxHealth() * 0.25F));
             if (aura.action.shouldCloneGlow()) {
-                clone.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, aura.action.getCloneLifetimeTicks(), 0, true, true, true));
+                clone.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING,
+                        aura.action.getCloneLifetimeTicks(), 0, true, true, true));
             }
 
             if (!world.spawnEntity(clone)) {
@@ -424,7 +435,8 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             return false;
         }
 
-        private void discardClone(ServerWorld world, IllusionRecord record, boolean playEffects, boolean removeFromRegistry) {
+        private void discardClone(ServerWorld world, IllusionRecord record, boolean playEffects,
+                boolean removeFromRegistry) {
             cloneLookup.remove(record.illusion());
             if (removeFromRegistry) {
                 List<IllusionRecord> list = clones.get(world);
@@ -437,8 +449,10 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
             }
             MobEntity clone = record.illusion();
             if (playEffects) {
-                world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D, 0.2D, 0.4D, 0.01D);
-                world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.ENTITY_EVOKER_CAST_SPELL, SoundCategory.HOSTILE, 0.7F, 1.4F);
+                world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
+                        0.2D, 0.4D, 0.01D);
+                world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.ENTITY_EVOKER_CAST_SPELL,
+                        SoundCategory.HOSTILE, 0.7F, 1.4F);
             }
             if (clone.isAlive()) {
                 clone.discard();
@@ -465,7 +479,8 @@ public final class PhantasmalVeilAuraAction implements MutationAction {
         }
     }
 
-    private record IllusionRecord(MobEntity illusion, LivingEntity owner, long expiryTick) {}
+    private record IllusionRecord(MobEntity illusion, LivingEntity owner, long expiryTick) {
+    }
 
     private static final class ShroudState {
         private boolean invisible;

@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/axe_mastery_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 22,
+    "display_name": {
+        "literal": "Maestría con Hacha III"
+    },
+    "description": {
+        "literal": "Hacha de Retorno: Lanza su hacha 10 bloques y regresa. El mob se queda quieto mientras ataca (Cooldown 8s)."
+    },
+    "weight": 8,
+    "actions": {
+        "max_distance": 10.0,
+        "travel_speed": 0.8,
+        "cooldown_ticks": 160,
+        "hit_radius": 0.75
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ]
+}

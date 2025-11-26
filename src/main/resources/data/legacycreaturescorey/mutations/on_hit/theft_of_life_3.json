@@ -1,24 +1,21 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/theft_of_life_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 12,
-	"display_name": {
-		"literal": "Robo de Vida III"
-	},
-	"description": {
-		"literal": "20% de probabilidad de curar 8 puntos de vida al golpear."
-	},
-	"weight": 20,
-	"actions": [
-		{
-			"type": "heal_on_hit",
-			"chance": 0.2,
-			"amount": 8.0
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/theft_of_life_1",
-		"legacycreaturescorey:on_hit/theft_of_life_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/theft_of_life_3",
+  "type": "on_hit",
+  "cost": 12,
+  "display_name": {
+    "literal": "Robo de Vida III"
+  },
+  "description": {
+    "literal": "20% de probabilidad de absorber 8 puntos de vida del objetivo."
+  },
+  "weight": 20,
+  "actions": {
+    "chance": 0.2,
+    "heal_amount": 8.0
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/theft_of_life_1",
+    "legacycreaturescorey:on_hit/theft_of_life_2"
+  ]
 }

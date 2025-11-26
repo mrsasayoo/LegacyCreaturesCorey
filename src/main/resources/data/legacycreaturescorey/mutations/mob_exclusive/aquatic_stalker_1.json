@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/aquatic_stalker_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 4,
+    "display_name": {
+        "literal": "Acechador Acuático I"
+    },
+    "description": {
+        "literal": "Nado Veloz: Se mueve un 33% más rápido cuando está en el agua."
+    },
+    "weight": 70,
+    "actions": [
+        {
+            "type": "aquatic_stalker",
+            "mode": "SWIFT_SWIM",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.AquaticStalkerAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:drowned"
+    ]
+}

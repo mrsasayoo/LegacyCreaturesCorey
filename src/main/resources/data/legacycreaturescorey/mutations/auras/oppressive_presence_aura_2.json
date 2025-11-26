@@ -1,0 +1,33 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/oppressive_presence_aura_2",
+  "type": "auras",
+  "display_name": "Oppressive Presence Aura II",
+  "cost": 13,
+  "description": "Drena la fuerza y movilidad de quienes intentan rodear al mob.",
+  "weight": 30,
+  "actions": {
+    "radius": 5.0,
+    "tick_interval": 20,
+    "effects": [
+      {
+        "id": "minecraft:slowness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      },
+      {
+        "id": "minecraft:weakness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

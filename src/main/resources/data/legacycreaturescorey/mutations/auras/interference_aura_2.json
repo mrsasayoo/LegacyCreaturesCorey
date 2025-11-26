@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/interference_aura_2",
+  "type": "auras",
+  "display_name": "Interference Aura II",
+  "cost": 12,
+  "description": "Sabotea las acciones de soporte del jugador, interrumpiendo comidas y pociones.",
+  "weight": 28,
+  "actions": {
+    "radius": 6.0,
+    "chance": 0.4
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

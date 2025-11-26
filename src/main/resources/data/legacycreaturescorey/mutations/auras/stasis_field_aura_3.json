@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/stasis_field_aura_3",
+  "type": "auras",
+  "display_name": "Stasis Field Aura III",
+  "cost": 26,
+  "description": "Bloquea teletransportes y anula la ofensiva de sus víctimas.",
+  "weight": 6,
+  "actions": {
+    "radius": 8.0,
+    "attack_speed_multiplier": 0.5
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/oppressive_presence_aura_3"
+  ]
+}

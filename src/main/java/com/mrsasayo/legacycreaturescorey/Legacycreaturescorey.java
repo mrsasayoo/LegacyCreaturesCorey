@@ -21,7 +21,6 @@ import com.mrsasayo.legacycreaturescorey.health.CoreyHealthMonitor;
 import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
 import com.mrsasayo.legacycreaturescorey.loot.CoreyLootModifiers;
 import com.mrsasayo.legacycreaturescorey.loot.data.TieredLootDataLoader;
-import com.mrsasayo.legacycreaturescorey.command.MutationCommand;
 import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
 import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
 import com.mrsasayo.legacycreaturescorey.synergy.SynergyManager;
@@ -80,7 +79,6 @@ public class Legacycreaturescorey implements ModInitializer {
         TierParticleTicker.register();
         StatusEffectTicker.register();
         ModNetworking.init();
-        MutationCommand.register();
         CoreyCommand.register();
         CoreyHudCommand.register();
         AntiFarmManager.register();

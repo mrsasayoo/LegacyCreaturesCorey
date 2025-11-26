@@ -1,25 +1,22 @@
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:passive/armor_3",
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 10,
-  "display_name": {
-    "literal": "Armadura III"
-  },
-  "description": {
-    "literal": "Aumenta la armadura en 12 puntos."
-  },
-  "weight": 25,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.armor",
-      "mode": "add",
-      "amount": 12.0
-    }
-  ],
-  "incompatible_with": [
-    "legacycreaturescorey:passive/armor_1",
-    "legacycreaturescorey:passive/armor_2"
-  ]
+	"enabled": true,
+	"id": "legacycreaturescorey:passive/armor_3",
+	"type": "passive",
+	"cost": 10,
+	"display_name": {
+		"literal": "Armadura III"
+	},
+	"description": {
+		"literal": "Aumenta la armadura en 12 puntos."
+	},
+	"weight": 25,
+	"actions": {
+		"attribute": "minecraft:generic.armor",
+		"mode": "ADD",
+		"amount": 12.0
+	},
+	"incompatible_with": [
+		"legacycreaturescorey:passive/armor_1",
+		"legacycreaturescorey:passive/armor_2"
+	]
 }

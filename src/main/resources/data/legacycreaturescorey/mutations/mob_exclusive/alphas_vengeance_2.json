@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/alphas_vengeance_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 10,
+    "display_name": {
+        "literal": "Venganza del Alfa II"
+    },
+    "description": {
+        "literal": "Cuando un lobo aliado muere cerca, este se cura 4 puntos de vida y entra en un estado de 'Furia', ganando Fuerza I durante 6 segundos."
+    },
+    "weight": 35,
+    "actions": {
+        "radius": 12.0,
+        "heal_amount": 4.0,
+        "fury_duration_ticks": 120,
+        "fury_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:wolf"
+    ]
+}

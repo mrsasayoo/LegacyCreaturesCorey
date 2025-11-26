@@ -1,19 +1,54 @@
 package com.mrsasayo.legacycreaturescorey.mutation;
 
 /**
- * Clasifica las mutaciones según la manera en que se expresan en un mob.
+ * Clasifica las mutaciones según la manera en que se expresan en un mob y
+ * previa a qué eventos deben ejecutarse.
  */
 public enum MutationType {
+    /** Modificaciones pasivas que ajustan atributos base (vida, daño, velocidad, etc.). */
+    PASSIVE_ATTRIBUTE(false, false),
+    /** Ajustes pasivos que no modifican atributos directamente. */
+    PASSIVE(false, false),
+    /** Efectos que se activan cuando la entidad golpea a un objetivo. */
+    PASSIVE_ON_HIT(false, true),
+    /** Nuevo on-hit directo descrito en el plan maestro. */
+    ON_HIT(false, true),
+    /** Habilidades que ejecutan lógica periódica por tick. */
+    ACTIVE(true, false),
+    /** Auras que siguen el mismo ciclo de tick. */
+    AURAS(true, false),
+    /** Mutaciones exclusivas de mobs que suelen ejecutarse por tick o eventos especiales. */
+    MOB_EXCLUSIVE(true, false),
+    /** Mutaciones que reaccionan cuando el mob recibe daño. */
+    ON_BEING_HIT(false, false),
+    /** Mutaciones que reaccionan al morir. */
+    ON_DEATH(false, false),
+    /** Mutaciones que mezclan efectos de varias categorías. */
+    SYNERGY(false, false),
+    /** Mutaciones condicionadas al terreno. */
+    TERRAIN(false, false);
+
+    private final boolean executesOnTick;
+    private final boolean executesOnHit;
+
+    MutationType(boolean executesOnTick, boolean executesOnHit) {
+        this.executesOnTick = executesOnTick;
+        this.executesOnHit = executesOnHit;
+    }
+
     /**
-     * Modificaciones pasivas que ajustan atributos base (vida, daño, velocidad, etc.).
+     * @return {@code true} si el runtime debe invocar {@link com.mrsasayo.legacycreaturescorey.mutation.Mutation#onTick}
+     *         cada vez que corresponde.
      */
-    PASSIVE_ATTRIBUTE,
+    public boolean runsEachTick() {
+        return executesOnTick;
+    }
+
     /**
-     * Efectos que se activan cuando la entidad golpea a un objetivo.
+     * @return {@code true} si el runtime debe invocar {@link com.mrsasayo.legacycreaturescorey.mutation.Mutation#onHit}
+     *         cuando el mob inflige daño.
      */
-    PASSIVE_ON_HIT,
-    /**
-     * Habilidades que ejecutan lógica periódica por tick.
-     */
-    ACTIVE
+    public boolean triggersOnHit() {
+        return executesOnHit;
+    }
 }

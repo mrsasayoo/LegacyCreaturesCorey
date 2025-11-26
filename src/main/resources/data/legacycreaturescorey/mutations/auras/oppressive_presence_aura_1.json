@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/oppressive_presence_aura_1",
+  "type": "auras",
+  "display_name": "Oppressive Presence Aura I",
+  "cost": 7,
+  "description": "La presencia del mob vuelve pesados los pasos de los oponentes.",
+  "weight": 60,
+  "actions": {
+    "radius": 4.0,
+    "tick_interval": 20,
+    "effects": [
+      {
+        "id": "minecraft:slowness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

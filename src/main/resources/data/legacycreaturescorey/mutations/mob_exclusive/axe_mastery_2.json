@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/axe_mastery_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 14,
+    "display_name": {
+        "literal": "Maestría con Hacha II"
+    },
+    "description": {
+        "literal": "Corte Circular: Ataque de área que golpea a enemigos en un arco frontal (Cooldown 6s)."
+    },
+    "weight": 25,
+    "actions": {
+        "slash_range": 3.0,
+        "cone_dot_threshold": 0.5,
+        "cooldown_ticks": 120
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ]
+}

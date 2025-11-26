@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/projectile_shroud_aura_3",
+  "type": "auras",
+  "display_name": "Projectile Shroud Aura III",
+  "cost": 24,
+  "description": "La cortina defensiva es capaz de reflejar proyectiles hacia sus dueños.",
+  "weight": 7,
+  "actions": {
+    "radius": 3.0,
+    "chance": 0.6,
+    "reflect_damage_factor": 0.3
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/psionic_thorns_aura_3"
+  ]
+}

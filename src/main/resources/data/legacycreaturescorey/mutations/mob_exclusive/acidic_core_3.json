@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/acidic_core_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 14,
+    "display_name": {
+        "literal": "Núcleo Ácido III"
+    },
+    "description": {
+        "literal": "Lanza glóbulos ácidos que explotan en nubes venenosas."
+    },
+    "weight": 18,
+    "actions": {
+        "min_globules": 3,
+        "max_globules": 5,
+        "min_horizontal_speed": 0.3,
+        "max_horizontal_speed": 0.6,
+        "min_vertical_speed": 0.2,
+        "max_vertical_speed": 0.5
+    },
+    "entity_types": [
+        "minecraft:slime"
+    ],
+    "incompatible_with": []
+}

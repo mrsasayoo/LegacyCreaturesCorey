@@ -44,13 +44,15 @@ final class CoreyMutationCommand {
                     .then(CommandManager.argument("objetivo", EntityArgumentType.entity())
                         .executes(ctx -> forceMutations(ctx,
                             List.of(IdentifierArgumentType.getIdentifier(ctx, "mutacion")),
-                            false)))))
+                            false,
+                            true)))))
             .then(CommandManager.literal("replace")
                 .then(CommandManager.argument("mutaciones", StringArgumentType.greedyString())
                     .suggests(CoreyCommandShared.MUTATION_LIST_SUGGESTIONS)
                     .then(CommandManager.argument("objetivo", EntityArgumentType.entity())
                         .executes(ctx -> forceMutations(ctx,
                             CoreyCommandShared.parseMutations(StringArgumentType.getString(ctx, "mutaciones")),
+                            true,
                             true))))));
 
         return mutations;
@@ -96,7 +98,10 @@ final class CoreyMutationCommand {
         return 1;
     }
 
-    private static int forceMutations(CommandContext<ServerCommandSource> ctx, List<Identifier> requested, boolean replaceExisting) throws CommandSyntaxException {
+    private static int forceMutations(CommandContext<ServerCommandSource> ctx,
+                                      List<Identifier> requested,
+                                      boolean replaceExisting,
+                                      boolean ignoreRestrictions) throws CommandSyntaxException {
         if (requested == null || requested.isEmpty()) {
             ctx.getSource().sendError(Text.literal("Debes especificar al menos una mutación."));
             return 0;
@@ -106,10 +111,14 @@ final class CoreyMutationCommand {
             ctx.getSource().sendError(Text.literal("El objetivo no es un mob válido."));
             return 0;
         }
-        return applyMutations(ctx.getSource(), mob, requested, replaceExisting);
+        return applyMutations(ctx.getSource(), mob, requested, replaceExisting, ignoreRestrictions);
     }
 
-    private static int applyMutations(ServerCommandSource source, MobEntity mob, List<Identifier> requested, boolean replaceExisting) {
+    private static int applyMutations(ServerCommandSource source,
+                                      MobEntity mob,
+                                      List<Identifier> requested,
+                                      boolean replaceExisting,
+                                      boolean ignoreRestrictions) {
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         List<Identifier> original = new ArrayList<>(data.getMutations());
         if (replaceExisting && !original.isEmpty()) {
@@ -123,10 +132,12 @@ final class CoreyMutationCommand {
                 source.sendError(Text.literal("Mutación desconocida: " + id));
                 continue;
             }
-            String failure = mutation.getApplyFailureReason(mob, working);
-            if (failure != null) {
-                source.sendError(Text.literal("No se pudo aplicar " + id + ": " + failure));
-                continue;
+            if (!ignoreRestrictions) {
+                String failure = mutation.getApplyFailureReason(mob, working);
+                if (failure != null) {
+                    source.sendError(Text.literal("No se pudo aplicar " + id + ": " + failure));
+                    continue;
+                }
             }
             mutation.onApply(mob);
             data.addMutation(id);

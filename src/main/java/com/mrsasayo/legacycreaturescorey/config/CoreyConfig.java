@@ -53,6 +53,7 @@ public class CoreyConfig {
     public boolean debugForceHighestAllowedTier = false;
     public MobTier debugForceExactTier = MobTier.DEFINITIVE; // Si no es null y el tier es válido, se aplica directamente "MobTier.EPIC"
     public boolean debugLogProbabilityDetails = false;
+    public boolean debugTraceBlockBreakDenials = false;
     
     // ============ LOOT ESCALADO ==========
     public boolean tieredLootEnabled = true;
@@ -162,6 +163,7 @@ public class CoreyConfig {
         this.debugForceHighestAllowedTier = other.debugForceHighestAllowedTier;
         this.debugForceExactTier = other.debugForceExactTier;
         this.debugLogProbabilityDetails = other.debugLogProbabilityDetails;
+        this.debugTraceBlockBreakDenials = other.debugTraceBlockBreakDenials;
     this.tieredLootEnabled = other.tieredLootEnabled;
     this.tieredLootStrictEntityTables = other.tieredLootStrictEntityTables;
     this.tieredLootEpicEnabled = other.tieredLootEpicEnabled;

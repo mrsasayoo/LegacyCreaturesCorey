@@ -1,36 +1,33 @@
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:passive/knockback_resistance_2",
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 4,
-  "display_name": {
-    "literal": "Resistencia al Empuje II"
-  },
-  "description": {
-    "literal": "Aumenta la resistencia al empuje en 0.25."
-  },
-  "weight": 60,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.knockback_resistance",
-      "mode": "add",
-      "amount": 0.25
-    }
-  ],
-  "incompatible_with": [
-    "legacycreaturescorey:passive/knockback_resistance_1",
-    "legacycreaturescorey:passive/knockback_resistance_3",
-    "legacycreaturescorey:passive/attack_damage_1",
-    "legacycreaturescorey:passive/attack_damage_2",
-    "legacycreaturescorey:passive/attack_speed_1",
-    "legacycreaturescorey:passive/attack_speed_2"
-  ],
-  "restrictions": {
-    "excluded_entity_types": [
-      "minecraft:iron_golem",
-      "minecraft:ravager",
-      "minecraft:warden"
-    ]
-  }
+	"enabled": true,
+	"id": "legacycreaturescorey:passive/knockback_resistance_2",
+	"type": "passive",
+	"cost": 4,
+	"display_name": {
+		"literal": "Resistencia al Empuje II"
+	},
+	"description": {
+		"literal": "Aumenta la resistencia al empuje en 0.25."
+	},
+	"weight": 60,
+	"actions": {
+		"attribute": "minecraft:generic.knockback_resistance",
+		"mode": "ADD",
+		"amount": 0.25
+	},
+	"incompatible_with": [
+		"legacycreaturescorey:passive/knockback_resistance_1",
+		"legacycreaturescorey:passive/knockback_resistance_3",
+		"legacycreaturescorey:passive/attack_damage_1",
+		"legacycreaturescorey:passive/attack_damage_2",
+		"legacycreaturescorey:passive/attack_speed_1",
+		"legacycreaturescorey:passive/attack_speed_2"
+	],
+	"restrictions": {
+		"excluded_entity_types": [
+			"minecraft:iron_golem",
+			"minecraft:ravager",
+			"minecraft:warden"
+		]
+	}
 }

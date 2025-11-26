@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/blizzard_orb_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Orbe de Ventisca I"
+    },
+    "description": {
+        "literal": "Cargas de nieve comprimida que ya dañan a los jugadores y los empujan con fuerza duplicada."
+    },
+    "weight": 60,
+    "actions": {
+        "projectile_damage": 3.0,
+        "knockback_strength": 0.4,
+        "vertical_boost": 0.3,
+        "players_only": true
+    },
+    "entity_types": [
+        "minecraft:snow_golem"
+    ],
+    "incompatible_with": []
+}

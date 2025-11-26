@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/apiarian_warfare_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Guerra Apícola I"
+    },
+    "description": {
+        "literal": "Miel Pegajosa: Sus ataques cuerpo a cuerpo tienen un 25% de probabilidad de aplicar Lentitud I por 3 segundos."
+    },
+    "weight": 65,
+    "actions": {
+        "chance": 0.25,
+        "duration_ticks": 60,
+        "amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:bee"
+    ],
+    "incompatible_with": []
+}

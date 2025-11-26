@@ -1,32 +1,30 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/critical_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 11,
-	"display_name": {
-		"literal": "Instinto Critico III"
-	},
-	"description": {
-		"literal": "10% de probabilidad de añadir +4 de daño base al golpe y otorgar Velocidad I al objetivo por 1 s."
-	},
-	"weight": 25,
-	"actions": [
-		{
-			"type": "critical_hit",
-			"chance": 0.10,
-			"bonus_damage": 4.0,
-			"extra_effects": [
-				{
-					"effect": "minecraft:speed",
-					"duration": 20,
-					"amplifier": 0,
-					"target": "OTHER"
-				}
-			]
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/critical_1",
-		"legacycreaturescorey:on_hit/critical_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/critical_3",
+  "type": "on_hit",
+  "cost": 11,
+  "display_name": {
+    "literal": "Instinto Critico III"
+  },
+  "description": {
+    "literal": "13% de probabilidad de añadir +4 de daño base al golpe. El objetivo recibe Velocidad I durante 1 s como contrapeso."
+  },
+  "weight": 25,
+  "actions": {
+    "chance": 0.13,
+    "bonus_damage": 4.0,
+    "extra_effects": [
+      {
+        "effect": "minecraft:speed",
+        "duration": 20,
+        "amplifier": 0,
+        "target": "OTHER"
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/critical_1",
+    "legacycreaturescorey:on_hit/critical_2"
+  ]
 }

@@ -1,25 +1,19 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/chaos_touch_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 6,
-	"display_name": {
-		"literal": "Toque Caótico I"
-	},
-	"description": {
-		"literal": "12% de probabilidad de desordenar la mano principal del objetivo intercambiándola con el siguiente espacio de la barra rápida. Aplica Lentitud al atacante durante 1 s."
-	},
-	"weight": 60,
-	"actions": [
-		{
-			"type": "chaos_touch",
-			"chance": 0.12,
-			"mode": "swap_right",
-			"self_slowness_ticks": 60
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/chaos_touch_2",
-		"legacycreaturescorey:on_hit/chaos_touch_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/chaos_touch_1",
+  "type": "on_hit",
+  "cost": 7,
+  "display_name": "Toque Caótico I",
+  "description": "10% de probabilidad de intercambiar la mano principal del jugador con el siguiente espacio de la hotbar, aplicando Lentitud II al atacante durante 2 s.",
+  "weight": 15,
+  "actions": {
+    "chance": 0.1,
+    "mode": "swap_right",
+    "self_slowness_ticks": 40
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/chaos_touch_2",
+    "legacycreaturescorey:on_hit/chaos_touch_3"
+  ]
 }

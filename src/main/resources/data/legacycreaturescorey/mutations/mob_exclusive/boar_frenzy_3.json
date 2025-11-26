@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/boar_frenzy_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 18,
+    "display_name": {
+        "literal": "Frenesí de Jabalí III"
+    },
+    "description": {
+        "literal": "Cada baja desata un frenesí sangriento que lo sana y potencia."
+    },
+    "weight": 14,
+    "actions": {
+        "heal_percent": 0.2,
+        "effect_duration_ticks": 200,
+        "strength_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:hoglin",
+        "minecraft:zoglin"
+    ],
+    "incompatible_with": []
+}

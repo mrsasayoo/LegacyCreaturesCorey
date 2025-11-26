@@ -1,0 +1,24 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bastion_guard_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 21,
+    "display_name": {
+        "literal": "Bastion Guard III"
+    },
+    "description": {
+        "literal": "Postura Defensiva: Bloquea la mayoría del daño frontal durante 4 segundos e ignora el empuje."
+    },
+    "weight": 9,
+    "actions": {
+        "duration_ticks": 80,
+        "cooldown_ticks": 240,
+        "activation_threshold": 0.4,
+        "damage_reduction": 0.75,
+        "forward_dot_threshold": 0.5
+    },
+    "entity_types": [
+        "minecraft:piglin_brute"
+    ],
+    "incompatible_with": []
+}

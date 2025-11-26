@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/interference_aura_1",
+  "type": "auras",
+  "display_name": "Interference Aura I",
+  "cost": 6,
+  "description": "Gera una interferencia arcana que complica la colocación de bloques enemigos.",
+  "weight": 55,
+  "actions": {
+    "radius": 5.0,
+    "chance": 0.2
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

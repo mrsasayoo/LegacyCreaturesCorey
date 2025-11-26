@@ -1,7 +1,7 @@
 {
 	"enabled": true,
 	"id": "legacycreaturescorey:on_hit/fire_3",
-	"type": "PASSIVE_ON_HIT",
+	"type": "on_hit",
 	"cost": 9,
 	"display_name": {
 		"literal": "Garra Ignea III"
@@ -10,13 +10,11 @@
 		"literal": "15% de probabilidad de incendiar al objetivo durante 6 s."
 	},
 	"weight": 25,
-	"actions": [
-		{
-			"type": "ignite",
-			"chance": 0.15,
-			"duration_seconds": 7
-		}
-	],
+	"actions": {
+		"chance": 0.15,
+		"duration_seconds": 6
+	},
+	"entity_types": [],
 	"incompatible_with": [
 		"legacycreaturescorey:on_hit/fire_1",
 		"legacycreaturescorey:on_hit/fire_2"

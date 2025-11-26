@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/experience_theft_3",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 4,
     "display_name": {
         "literal": "Robo de XP III"
@@ -10,13 +10,11 @@
         "literal": "25% de probabilidad de robar 15 orbes de experiencia."
     },
     "weight": 50,
-    "actions": [
-        {
-            "type": "experience_theft",
-            "chance": 0.25,
-            "amount": 30
-        }
-    ],
+    "actions": {
+        "chance": 0.25,
+        "amount": 15
+    },
+    "entity_types": [],
     "incompatible_with": [
         "legacycreaturescorey:on_hit/experience_theft_1",
         "legacycreaturescorey:on_hit/experience_theft_2"

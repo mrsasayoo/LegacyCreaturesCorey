@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/interference_aura_3",
+  "type": "auras",
+  "display_name": "Interference Aura III",
+  "cost": 19,
+  "description": "Neutraliza proyectiles arcanos y convierte la energía residual en contra del enemigo.",
+  "weight": 9,
+  "actions": {
+    "radius": 8.0,
+    "chance": 1.0,
+    "pearl_damage": 5.0
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

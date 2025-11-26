@@ -1,33 +1,20 @@
 {
-    "type": "ACTIVE",
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_armor_1",
+    "type": "MOB_EXCLUSIVE",
     "cost": 6,
-    "weight": 60,
     "display_name": {
-        "literal": "Abyssal Armor I"
+        "literal": "Armadura Abisal I"
     },
     "description": {
-        "literal": "Thorns deal extra damage and armor is increased."
+        "literal": "Sus espinas infligen daño mágico adicional."
     },
-    "restrictions": {
-        "entity_types": [
-            "minecraft:elder_guardian"
-        ]
+    "weight": 60,
+    "actions": {
+        "bonus_magic_damage": 1.0
     },
-    "actions": [
-        {
-            "action": {
-                "type": "attribute",
-                "attribute": "minecraft:generic.armor",
-                "mode": "add",
-                "amount": 4.0
-            }
-        },
-        {
-            "action": {
-                "type": "psionic_thorns",
-                "reflect_percent": 0.2,
-                "max_distance": 6.0
-            }
-        }
-    ]
+    "entity_types": [
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
 }

@@ -1,24 +1,28 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/concussive_blow_1",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 5,
-	"display_name": {
-		"literal": "Golpe Conmocionador I"
-	},
-	"description": {
-		"literal": "14% de probabilidad de provocar un fuerte temblor de cámara en el objetivo."
-	},
-	"weight": 65,
-	"actions": [
-		{
-			"type": "concussive_blow",
-			"chance": 0.14,
-			"mode": "shake"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/concussive_blow_2",
-		"legacycreaturescorey:on_hit/concussive_blow_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/concussive_blow_1",
+  "type": "on_hit",
+  "cost": 4,
+  "display_name": "Golpe Conmocionador I",
+  "description": "20% de probabilidad de sacudir violentamente la cámara del objetivo durante un instante.",
+  "weight": 75,
+  "actions": {
+    "chance": 0.2,
+    "mode": "shake",
+    "player_status_effects": [
+      {
+        "id": "legacycreaturescorey:camera_shake",
+        "duration": 10,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/concussive_blow_2",
+    "legacycreaturescorey:on_hit/concussive_blow_3"
+  ]
 }

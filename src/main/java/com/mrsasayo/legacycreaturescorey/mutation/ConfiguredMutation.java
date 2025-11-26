@@ -22,31 +22,36 @@ public final class ConfiguredMutation extends AbstractMutation {
     private final MutationRestrictions restrictions;
 
     public ConfiguredMutation(Identifier id,
-                              MutationType type,
-                              int cost,
-                              Text displayName,
-                              Text description,
-                              int weight,
-                              List<MutationAction> actions,
-                              Set<Identifier> incompatibleIds,
-                              MutationRestrictions restrictions) {
+            MutationType type,
+            int cost,
+            Text displayName,
+            Text description,
+            int weight,
+            List<MutationAction> actions,
+            Set<Identifier> incompatibleIds,
+            MutationRestrictions restrictions) {
         super(id,
-            type,
-            cost,
-            weight,
-            displayName != null ? displayName : createDefaultName(id),
-            description != null ? description : createDefaultDescription(id));
+                type,
+                cost,
+                weight,
+                displayName != null ? displayName : createDefaultName(id),
+                description != null ? description : createDefaultDescription(id));
         this.actions = List.copyOf(Objects.requireNonNull(actions, "actions"));
         this.incompatibleIds = incompatibleIds == null
-            ? Collections.emptySet()
-            : Set.copyOf(incompatibleIds);
+                ? Collections.emptySet()
+                : Set.copyOf(incompatibleIds);
         this.restrictions = restrictions == null ? MutationRestrictions.empty() : restrictions;
+    }
+
+    public List<MutationAction> getActions() {
+        return actions;
     }
 
     @Override
     public String getApplyFailureReason(MobEntity entity, List<Identifier> existingMutations) {
         String r = restrictions.whyCannotApply(entity);
-        if (r != null) return r;
+        if (r != null)
+            return r;
 
         if (!incompatibleIds.isEmpty()) {
             for (Identifier existing : existingMutations) {
@@ -84,6 +89,20 @@ public final class ConfiguredMutation extends AbstractMutation {
     public void onHit(LivingEntity attacker, LivingEntity target) {
         for (MutationAction action : actions) {
             action.onHit(attacker, target);
+        }
+    }
+
+    @Override
+    public void onDamage(LivingEntity entity, DamageSource source, float amount) {
+        for (MutationAction action : actions) {
+            action.onDamage(entity, source, amount);
+        }
+    }
+
+    @Override
+    public void onKill(LivingEntity entity, LivingEntity target) {
+        for (MutationAction action : actions) {
+            action.onKill(entity, target);
         }
     }
 

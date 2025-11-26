@@ -1,26 +1,20 @@
 {
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 4,
-  "weight": 60,
+  "enabled": true,
+  "id": "legacycreaturescorey:mob_exclusive/aerial_maneuvers_1",
+  "type": "MOB_EXCLUSIVE",
+  "cost": 6,
   "display_name": {
-    "literal": "Aerial Maneuvers I"
+    "literal": "Maniobras Aéreas I"
   },
   "description": {
-    "literal": "Moves 20% faster."
+    "literal": "El ghast acelera un 20% cuando fija un objetivo."
   },
-  "restrictions": {
-    "entity_types": [
-      "minecraft:ghast"
-    ]
+  "weight": 60,
+  "actions": {
+    "speed_bonus": 0.2
   },
-  "actions": [
-    {
-      "action": {
-        "type": "attribute",
-        "attribute": "minecraft:generic.movement_speed",
-        "mode": "multiply",
-        "amount": 0.2
-      }
-    }
-  ]
+  "entity_types": [
+    "minecraft:ghast"
+  ],
+  "incompatible_with": []
 }

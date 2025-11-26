@@ -1,40 +1,21 @@
 {
-    "type": "ACTIVE",
-    "cost": 8,
-    "weight": 50,
-    "display_name": {
-        "literal": "Abyssal Armor II"
-    },
-    "description": {
-        "literal": "Thorns reflect damage and apply Slowness."
-    },
-    "restrictions": {
-        "entity_types": [
-            "minecraft:elder_guardian"
-        ]
-    },
-    "actions": [
-        {
-            "action": {
-                "type": "attribute",
-                "attribute": "minecraft:generic.armor",
-                "mode": "add",
-                "amount": 6.0
-            }
-        },
-        {
-            "action": {
-                "type": "psionic_thorns",
-                "reflect_percent": 0.3,
-                "max_distance": 6.0,
-                "effects": [
-                    {
-                        "effect": "minecraft:slowness",
-                        "duration": 100,
-                        "amplifier": 0
-                    }
-                ]
-            }
-        }
-    ]
+  "enabled": true,
+  "id": "legacycreaturescorey:mob_exclusive/abyssal_armor_2",
+  "type": "MOB_EXCLUSIVE",
+  "cost": 13,
+  "display_name": {
+    "literal": "Armadura Abisal II"
+  },
+  "description": {
+    "literal": "Las espinas aplican Presión de las Profundidades, causando Lentitud II."
+  },
+  "weight": 28,
+  "actions": {
+    "slowness_duration_ticks": 60,
+    "slowness_amplifier": 1
+  },
+  "entity_types": [
+    "minecraft:elder_guardian"
+  ],
+  "incompatible_with": []
 }

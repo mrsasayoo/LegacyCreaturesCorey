@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/arctic_fortitude_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Fortaleza Ártica I"
+    },
+    "description": {
+        "literal": "Pelaje Grueso: Tiene 6 puntos de armadura natural y un 25% de resistencia al empuje."
+    },
+    "weight": 60,
+    "actions": [
+        {
+            "type": "arctic_fortitude",
+            "mode": "THICK_FUR",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.ArcticFortitudeAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:polar_bear"
+    ]
+}

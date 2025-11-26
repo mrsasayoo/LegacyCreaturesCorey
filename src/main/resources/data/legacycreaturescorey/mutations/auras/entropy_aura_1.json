@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/entropy_aura_1",
+  "type": "auras",
+  "display_name": "Entropy Aura I",
+  "cost": 4,
+  "description": "Convierte el aire en caos impredecible, saboteando la coordinación del inventario enemigo.",
+  "weight": 80,
+  "actions": {
+    "radius": 10.0,
+    "slot_lock_chance": 0.1,
+    "cooldown_ticks": 40
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

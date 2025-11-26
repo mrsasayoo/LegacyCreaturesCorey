@@ -1,24 +1,21 @@
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:passive/follow_range_2",
-  "type": "PASSIVE_ATTRIBUTE",
-  "cost": 6,
-  "display_name": {
-    "literal": "Rango de Seguimiento II"
-  },
-  "description": {
-    "literal": "Aumenta el rango de seguimiento en 10 bloques."
-  },
-  "weight": 50,
-  "actions": [
-    {
-      "type": "attribute",
-      "attribute": "minecraft:generic.follow_range",
-      "mode": "add",
-      "amount": 10.0
-    }
-  ],
-  "incompatible_with": [
-    "legacycreaturescorey:passive/follow_range_1"
-  ]
+	"enabled": true,
+	"id": "legacycreaturescorey:passive/follow_range_2",
+	"type": "passive",
+	"cost": 6,
+	"display_name": {
+		"literal": "Rango de Seguimiento II"
+	},
+	"description": {
+		"literal": "Aumenta el rango de seguimiento en 10 bloques."
+	},
+	"weight": 50,
+	"actions": {
+		"attribute": "minecraft:generic.follow_range",
+		"mode": "ADD",
+		"amount": 10.0
+	},
+	"incompatible_with": [
+		"legacycreaturescorey:passive/follow_range_1"
+	]
 }

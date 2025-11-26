@@ -1,24 +1,28 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/frenzy_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 15,
-	"display_name": {
-		"literal": "Frenesí III"
-	},
-	"description": {
-		"literal": "30% de probabilidad de entrar en manía: Velocidad y Prisa que se acumulan hasta 4 veces durante 5 s. El objetivo obtiene Fuerza II por 5 s."
-	},
-	"weight": 15,
-	"actions": [
-		{
-			"type": "frenzy",
-			"chance": 0.3,
-			"mode": "mania"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/frenzy_1",
-		"legacycreaturescorey:on_hit/frenzy_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/frenzy_3",
+  "type": "on_hit",
+  "cost": 16,
+  "display_name": {
+    "literal": "Frenesí III"
+  },
+  "description": {
+    "literal": "30% de probabilidad de entrar en manía: Velocidad y Prisa que se acumulan hasta 4 veces durante 5 s. El objetivo obtiene Fuerza II por 5 s."
+  },
+  "weight": 12,
+  "actions": {
+    "chance": 0.3,
+    "speed_duration_seconds": 5,
+    "haste_duration_seconds": 5,
+    "apply_haste": true,
+    "stackable": true,
+    "max_stacks": 4,
+    "player_buff_duration_seconds": 5,
+    "player_buff_amplifier": 1
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/frenzy_1",
+    "legacycreaturescorey:on_hit/frenzy_2"
+  ]
 }

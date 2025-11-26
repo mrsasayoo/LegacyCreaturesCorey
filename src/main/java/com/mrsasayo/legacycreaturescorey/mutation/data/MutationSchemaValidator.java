@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Performs lightweight schema validation of mutation JSON files before parsing them into runtime objects.
+ * Performs lightweight schema validation of mutation JSON files before parsing
+ * them into runtime objects.
  */
 final class MutationSchemaValidator {
     static final MutationSchemaValidator INSTANCE = new MutationSchemaValidator();
@@ -40,13 +41,15 @@ final class MutationSchemaValidator {
         validateText(root, collector, "display_name");
         validateText(root, collector, "description");
 
-        if (!root.has("actions") || !root.get("actions").isJsonArray()) {
-            collector.error("actions", "Se requiere un arreglo 'actions'");
-            return;
-        }
-        JsonArray array = root.getAsJsonArray("actions");
-        if (array.isEmpty()) {
-            collector.error("actions", "Debe incluir al menos una acción");
+            if (!hasValidActionsContainer(root)) {
+                collector.error("actions", "Se requiere una configuración de acciones válida (objeto o arreglo)");
+                return;
+            }
+            if (root.get("actions").isJsonArray()) {
+                JsonArray array = root.getAsJsonArray("actions");
+                if (array.isEmpty()) {
+                    collector.error("actions", "Debe incluir al menos una acción");
+                }
         }
     }
 
@@ -65,10 +68,18 @@ final class MutationSchemaValidator {
     }
 
     private void validateActions(JsonObject root, ValidationCollector collector) {
-        if (!root.has("actions") || !root.get("actions").isJsonArray()) {
+        if (!root.has("actions")) {
+            return;
+        }
+        if (!root.get("actions").isJsonArray()) {
+            // Nuevo formato 1:1: la configuración específica se define como objeto sin tipo propio.
             return;
         }
         JsonArray array = root.getAsJsonArray("actions");
+        if (array.size() == 1 && array.get(0).isJsonObject() && !array.get(0).getAsJsonObject().has("type")) {
+            // Caso puente: arreglo con único objeto sin campo type (extraído por MutationDataLoader).
+            return;
+        }
         for (int i = 0; i < array.size(); i++) {
             JsonElement element = array.get(i);
             String path = "actions[" + i + "]";
@@ -93,38 +104,78 @@ final class MutationSchemaValidator {
         }
     }
 
+    private boolean hasValidActionsContainer(JsonObject root) {
+        if (!root.has("actions")) {
+            return false;
+        }
+        JsonElement element = root.get("actions");
+        if (element.isJsonObject()) {
+            return true;
+        }
+        if (element.isJsonArray()) {
+            JsonArray array = element.getAsJsonArray();
+            if (array.isEmpty()) {
+                return true;
+            }
+            if (array.size() == 1 && array.get(0).isJsonObject() && !array.get(0).getAsJsonObject().has("type")) {
+                return true;
+            }
+            // Formato legado debe incluir campo type en cada acción; se valida después.
+            return true;
+        }
+        return false;
+    }
+
     private static Map<String, ActionValidator> createValidators() {
         ImmutableMap.Builder<String, ActionValidator> builder = ImmutableMap.builder();
         Set<String> seenKeys = new HashSet<>();
-        register(builder, seenKeys, MutationSchemaValidator::validateAttributeAction, "attribute", "attribute_modifier");
-        register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnHitAction, "status_effect_on_hit", "status_effect");
-    register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnDeathAction, "status_effect_on_death", "on_death_status_effect", "status_effect_death");
-    register(builder, seenKeys, MutationSchemaValidator::validateGroundHazardOnDeathAction, "ground_hazard_on_death", "ground_hazard");
+        register(builder, seenKeys, MutationSchemaValidator::validateAttributeAction, "attribute",
+                "attribute_modifier");
+        register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnHitAction, "status_effect_on_hit",
+                "status_effect");
+        register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectOnDeathAction,
+                "status_effect_on_death", "on_death_status_effect", "status_effect_death");
+        register(builder, seenKeys, MutationSchemaValidator::validateGroundHazardOnDeathAction,
+                "ground_hazard_on_death", "ground_hazard");
         register(builder, seenKeys, MutationSchemaValidator::validateDamageAuraAction, "damage_aura", "aura_damage");
         register(builder, seenKeys, MutationSchemaValidator::validateHealAction, "heal", "heal_self");
         register(builder, seenKeys, MutationSchemaValidator::validateSummonAction, "summon_mob", "summon");
-        register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectAuraAction, "status_effect_aura", "aura_status_effect");
+        register(builder, seenKeys, MutationSchemaValidator::validateStatusEffectAuraAction, "status_effect_aura",
+                "aura_status_effect");
         register(builder, seenKeys, MutationSchemaValidator::validateCriticalAction, "critical_hit", "critical_damage");
         register(builder, seenKeys, MutationSchemaValidator::validateHealOnHitAction, "heal_on_hit", "lifesteal");
         register(builder, seenKeys, MutationSchemaValidator::validateDamageArmorAction, "damage_armor", "anti_armor");
-        register(builder, seenKeys, MutationSchemaValidator::validateIgniteAction, "ignite", "ignite_on_hit", "set_on_fire");
+        register(builder, seenKeys, MutationSchemaValidator::validateIgniteAction, "ignite", "ignite_on_hit",
+                "set_on_fire");
         register(builder, seenKeys, MutationSchemaValidator::validateBleedingAction, "bleed", "bleeding");
         register(builder, seenKeys, MutationSchemaValidator::validateKnockbackAction, "knockback", "push");
-        register(builder, seenKeys, MutationSchemaValidator::validateTeleportAction, "teleport", "teleport_on_hit", "teleportation");
-        register(builder, seenKeys, MutationSchemaValidator::validateExperienceTheftAction, "experience_theft", "xp_theft");
+        register(builder, seenKeys, MutationSchemaValidator::validateTeleportAction, "teleport", "teleport_on_hit",
+                "teleportation");
+        register(builder, seenKeys, MutationSchemaValidator::validateExperienceTheftAction, "experience_theft",
+                "xp_theft");
         register(builder, seenKeys, MutationSchemaValidator::validateVerticalThrustAction, "vertical_thrust", "launch");
-        register(builder, seenKeys, MutationSchemaValidator::validateShatterArmorAction, "shatter_armor", "armor_shatter");
+        register(builder, seenKeys, MutationSchemaValidator::validateShatterArmorAction, "shatter_armor",
+                "armor_shatter");
         register(builder, seenKeys, MutationSchemaValidator::validateProjectileShroudAction, "projectile_shroud");
-        register(builder, seenKeys, MutationSchemaValidator::validateInterferenceAuraAction, "interference_aura", "aura_interference");
-        register(builder, seenKeys, MutationSchemaValidator::validateStasisFieldAction, "stasis_field_aura", "aura_stasis", "stasis_field");
-        register(builder, seenKeys, MutationSchemaValidator::validateEntropyAuraAction, "entropy_aura", "aura_entropy", "entropy");
-        register(builder, seenKeys, MutationSchemaValidator::validatePsionicThornsAction, "psionic_thorns", "psionic_thorns_aura", "thorns_aura");
-        register(builder, seenKeys, MutationSchemaValidator::validateDeepDarknessAction, "deep_darkness_aura", "darkness_aura", "deep_darkness");
-        register(builder, seenKeys, MutationSchemaValidator::validateVirulentGrowthAction, "virulent_growth_aura", "growth_aura", "virulent_growth");
-        register(builder, seenKeys, MutationSchemaValidator::validateHordeBeaconAction, "horde_beacon_aura", "horde_beacon");
-        register(builder, seenKeys, MutationSchemaValidator::validateUndeadPotionBurstAction, "undead_potion_burst", "potion_burst");
+        register(builder, seenKeys, MutationSchemaValidator::validateInterferenceAuraAction, "interference_aura",
+                "aura_interference");
+        register(builder, seenKeys, MutationSchemaValidator::validateStasisFieldAction, "stasis_field_aura",
+                "aura_stasis", "stasis_field");
+        register(builder, seenKeys, MutationSchemaValidator::validateEntropyAuraAction, "entropy_aura", "aura_entropy",
+                "entropy");
+        register(builder, seenKeys, MutationSchemaValidator::validatePsionicThornsAction, "psionic_thorns",
+                "psionic_thorns_aura", "thorns_aura");
+        register(builder, seenKeys, MutationSchemaValidator::validateDeepDarknessAction, "deep_darkness_aura",
+                "darkness_aura", "deep_darkness");
+        register(builder, seenKeys, MutationSchemaValidator::validateVirulentGrowthAction, "virulent_growth_aura",
+                "growth_aura", "virulent_growth");
+        register(builder, seenKeys, MutationSchemaValidator::validateHordeBeaconAction, "horde_beacon_aura",
+                "horde_beacon");
+        register(builder, seenKeys, MutationSchemaValidator::validateUndeadPotionBurstAction, "undead_potion_burst",
+                "potion_burst");
         register(builder, seenKeys, MutationSchemaValidator::validateAttributeAuraAction, "attribute_aura");
-        register(builder, seenKeys, MutationSchemaValidator::validateAllyDeathHealAction, "ally_death_heal", "ally_death_aura");
+        register(builder, seenKeys, MutationSchemaValidator::validateAllyDeathHealAction, "ally_death_heal",
+                "ally_death_aura");
         register(builder, seenKeys, MutationSchemaValidator::validateChaosTouchAction, "chaos_touch");
         register(builder, seenKeys, MutationSchemaValidator::validateFrenzyAction, "frenzy");
         register(builder, seenKeys, MutationSchemaValidator::validatePainLinkAction, "pain_link");
@@ -133,17 +184,20 @@ final class MutationSchemaValidator {
         register(builder, seenKeys, MutationSchemaValidator::validateMortalWoundAction, "mortal_wound");
         register(builder, seenKeys, MutationSchemaValidator::validateDisarmAction, "disarm", "disarm_on_hit");
         register(builder, seenKeys, MutationSchemaValidator::validateFreezeAction, "freeze", "freeze_on_hit");
-        register(builder, seenKeys, MutationSchemaValidator::validateDisableShieldAction, "disable_shield", "anti_shield");
-        register(builder, seenKeys, MutationSchemaValidator::validateTrueDamageAction, "true_damage", "true_damage_on_hit");
-        register(builder, seenKeys, MutationSchemaValidator::validatePhantasmalVeilAuraAction, "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal");
+        register(builder, seenKeys, MutationSchemaValidator::validateDisableShieldAction, "disable_shield",
+                "anti_shield");
+        register(builder, seenKeys, MutationSchemaValidator::validateTrueDamageAction, "true_damage",
+                "true_damage_on_hit");
+        register(builder, seenKeys, MutationSchemaValidator::validatePhantasmalVeilAuraAction, "phantasmal_veil",
+                "phantasmal_veil_aura", "aura_phantasmal");
         return builder.build();
     }
 
     private static void register(ImmutableMap.Builder<String, ActionValidator> builder,
-                                 Set<String> seenKeys,
-                                 ActionValidator validator,
-                                 String primary,
-                                 String... aliases) {
+            Set<String> seenKeys,
+            ActionValidator validator,
+            String primary,
+            String... aliases) {
         put(builder, seenKeys, primary, validator);
         if (aliases != null) {
             for (String alias : aliases) {
@@ -153,11 +207,12 @@ final class MutationSchemaValidator {
     }
 
     private static void put(ImmutableMap.Builder<String, ActionValidator> builder,
-                            Set<String> seenKeys,
-                            String key,
-                            ActionValidator validator) {
+            Set<String> seenKeys,
+            String key,
+            ActionValidator validator) {
         if (!seenKeys.add(key)) {
-            Legacycreaturescorey.LOGGER.warn("⚠️ Acción duplicada '{}' en MutationSchemaValidator. Se ignorará el alias repetido.", key);
+            Legacycreaturescorey.LOGGER
+                    .warn("⚠️ Acción duplicada '{}' en MutationSchemaValidator. Se ignorará el alias repetido.", key);
             return;
         }
         builder.put(key, validator);
@@ -177,7 +232,8 @@ final class MutationSchemaValidator {
         validateAdditionalEffects(path, action, collector);
     }
 
-    private static void validateStatusEffectOnDeathAction(String path, JsonObject action, ValidationCollector collector) {
+    private static void validateStatusEffectOnDeathAction(String path, JsonObject action,
+            ValidationCollector collector) {
         requireIdentifier(action, "effect", collector, path + ".effect", true);
         requireInteger(action, "duration", collector, path + ".duration", true, 1);
         requireInteger(action, "amplifier", collector, path + ".amplifier", false, 0);
@@ -189,7 +245,8 @@ final class MutationSchemaValidator {
         requireNumber(action, "pull_strength", collector, path + ".pull_strength", false);
     }
 
-    private static void validateGroundHazardOnDeathAction(String path, JsonObject action, ValidationCollector collector) {
+    private static void validateGroundHazardOnDeathAction(String path, JsonObject action,
+            ValidationCollector collector) {
         requireNumber(action, "radius", collector, path + ".radius", true);
         requireInteger(action, "duration_ticks", collector, path + ".duration_ticks", false, 1);
         requireNumber(action, "duration_seconds", collector, path + ".duration_seconds", false);
@@ -348,7 +405,7 @@ final class MutationSchemaValidator {
     private static void validateChaosTouchAction(String path, JsonObject action, ValidationCollector collector) {
         requireString(action, "mode", collector, path + ".mode", false);
         requireInteger(action, "self_slowness_ticks", collector, path + ".self_slowness_ticks", false, 0);
-    requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
+        requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
     }
 
     private static void validateFrenzyAction(String path, JsonObject action, ValidationCollector collector) {
@@ -365,24 +422,29 @@ final class MutationSchemaValidator {
 
     private static void validateConcussiveBlowAction(String path, JsonObject action, ValidationCollector collector) {
         requireString(action, "mode", collector, path + ".mode", false);
+        requireInteger(action, "rotation_step_ticks", collector, path + ".rotation_step_ticks", false, 1);
+        requireInteger(action, "shake_duration_ticks", collector, path + ".shake_duration_ticks", false, 1);
+        requireNumber(action, "shake_intensity", collector, path + ".shake_intensity", false);
+        validateEffectList(path, action, "player_status_effects", collector);
+        validateEffectList(path, action, "attacker_status_effects", collector);
     }
 
     private static void validateMortalWoundAction(String path, JsonObject action, ValidationCollector collector) {
         requireIdentifier(action, "effect", collector, path + ".effect", false);
         requireInteger(action, "duration_ticks", collector, path + ".duration_ticks", false, 0);
-    requireNumber(action, "duration_seconds", collector, path + ".duration_seconds", false);
+        requireNumber(action, "duration_seconds", collector, path + ".duration_seconds", false);
     }
 
     private static void validateDisarmAction(String path, JsonObject action, ValidationCollector collector) {
         requireInteger(action, "self_slowness_ticks", collector, path + ".self_slowness_ticks", false, 0);
-    requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
+        requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
     }
 
     private static void validateFreezeAction(String path, JsonObject action, ValidationCollector collector) {
         requireInteger(action, "freeze_ticks", collector, path + ".freeze_ticks", false, 0);
-    requireNumber(action, "freeze_seconds", collector, path + ".freeze_seconds", false);
+        requireNumber(action, "freeze_seconds", collector, path + ".freeze_seconds", false);
         requireInteger(action, "self_slowness_ticks", collector, path + ".self_slowness_ticks", false, 0);
-    requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
+        requireNumber(action, "self_slowness_seconds", collector, path + ".self_slowness_seconds", false);
     }
 
     private static void validateDisableShieldAction(String path, JsonObject action, ValidationCollector collector) {
@@ -393,19 +455,20 @@ final class MutationSchemaValidator {
         validateEffectList(path, action, "side_effects", collector);
     }
 
-    private static void validatePhantasmalVeilAuraAction(String path, JsonObject action, ValidationCollector collector) {
+    private static void validatePhantasmalVeilAuraAction(String path, JsonObject action,
+            ValidationCollector collector) {
         requireNumber(action, "radius", collector, path + ".radius", false);
         requireInteger(action, "interval", collector, path + ".interval", false, 1);
         requireInteger(action, "particle_count", collector, path + ".particle_count", false, 0);
         requireInteger(action, "clone_min", collector, path + ".clone_min", false, 0);
         requireInteger(action, "clone_max", collector, path + ".clone_max", false, 0);
         requireInteger(action, "clone_lifetime_ticks", collector, path + ".clone_lifetime_ticks", false, 0);
-    requireNumber(action, "clone_lifetime_seconds", collector, path + ".clone_lifetime_seconds", false);
+        requireNumber(action, "clone_lifetime_seconds", collector, path + ".clone_lifetime_seconds", false);
         requireBoolean(action, "clone_glow", collector, false);
         requireInteger(action, "shroud_visible_ticks", collector, path + ".shroud_visible_ticks", false, 0);
-    requireNumber(action, "shroud_visible_seconds", collector, path + ".shroud_visible_seconds", false);
+        requireNumber(action, "shroud_visible_seconds", collector, path + ".shroud_visible_seconds", false);
         requireInteger(action, "shroud_invisible_ticks", collector, path + ".shroud_invisible_ticks", false, 0);
-    requireNumber(action, "shroud_invisible_seconds", collector, path + ".shroud_invisible_seconds", false);
+        requireNumber(action, "shroud_invisible_seconds", collector, path + ".shroud_invisible_seconds", false);
     }
 
     private static void validateAdditionalEffects(String path, JsonObject action, ValidationCollector collector) {
@@ -429,11 +492,46 @@ final class MutationSchemaValidator {
                 continue;
             }
             JsonObject obj = element.getAsJsonObject();
-            requireIdentifier(obj, "effect", collector, entryPath + ".effect", true);
-            requireInteger(obj, "duration", collector, entryPath + ".duration", true, 1);
+            if (!obj.has("id") && !obj.has("effect")) {
+                collector.error(entryPath, "Cada efecto debe definir el campo 'id'");
+            } else if (obj.has("id")) {
+                requireIdentifier(obj, "id", collector, entryPath + ".id", true);
+            } else {
+                requireIdentifier(obj, "effect", collector, entryPath + ".effect", true);
+            }
+            validateDurationField(obj, collector, entryPath);
             requireInteger(obj, "amplifier", collector, entryPath + ".amplifier", false, 0);
+            requireBoolean(obj, "ambient", collector, false);
+            requireBoolean(obj, "show_particles", collector, false);
+            requireBoolean(obj, "show_icon", collector, false);
             requireString(obj, "target", collector, entryPath + ".target", false);
         }
+    }
+
+    private static void validateDurationField(JsonObject obj,
+            ValidationCollector collector,
+            String path) {
+        if (hasNumber(obj, "duration")) {
+            requireInteger(obj, "duration", collector, path + ".duration", true, 1);
+            return;
+        }
+        if (hasNumber(obj, "duration_ticks")) {
+            requireInteger(obj, "duration_ticks", collector, path + ".duration_ticks", true, 1);
+            return;
+        }
+        if (hasNumber(obj, "duration_seconds")) {
+            requireNumber(obj, "duration_seconds", collector, path + ".duration_seconds", true);
+            return;
+        }
+        collector.error(path + ".duration", "Se requiere duration, duration_ticks o duration_seconds");
+    }
+
+    private static boolean hasNumber(JsonObject object, String key) {
+        if (!object.has(key)) {
+            return false;
+        }
+        JsonElement element = object.get(key);
+        return element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber();
     }
 
     private static void validateChanceField(String path, JsonObject action, ValidationCollector collector) {
@@ -463,7 +561,8 @@ final class MutationSchemaValidator {
         for (int i = 0; i < array.size(); i++) {
             JsonElement element = array.get(i);
             if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) {
-                collector.error("restrictions." + key + "[" + i + "]", "Debe ser un identificador o un tag (#namespace:id)");
+                collector.error("restrictions." + key + "[" + i + "]",
+                        "Debe ser un identificador o un tag (#namespace:id)");
                 continue;
             }
             String raw = element.getAsString();
@@ -494,10 +593,12 @@ final class MutationSchemaValidator {
         }
         if (element.isJsonObject()) {
             JsonObject obj = element.getAsJsonObject();
-            if (obj.has("literal") && obj.get("literal").isJsonPrimitive() && obj.get("literal").getAsJsonPrimitive().isString()) {
+            if (obj.has("literal") && obj.get("literal").isJsonPrimitive()
+                    && obj.get("literal").getAsJsonPrimitive().isString()) {
                 return;
             }
-            if (obj.has("translate") && obj.get("translate").isJsonPrimitive() && obj.get("translate").getAsJsonPrimitive().isString()) {
+            if (obj.has("translate") && obj.get("translate").isJsonPrimitive()
+                    && obj.get("translate").getAsJsonPrimitive().isString()) {
                 return;
             }
         }
@@ -505,10 +606,10 @@ final class MutationSchemaValidator {
     }
 
     private static void requireString(JsonObject object,
-                                      String key,
-                                      ValidationCollector collector,
-                                      String path,
-                                      boolean required) {
+            String key,
+            ValidationCollector collector,
+            String path,
+            boolean required) {
         if (!object.has(key) || object.get(key).isJsonNull()) {
             if (required) {
                 collector.error(path, "Campo obligatorio ausente");
@@ -533,11 +634,11 @@ final class MutationSchemaValidator {
     }
 
     private static void requireInteger(JsonObject object,
-                                       String key,
-                                       ValidationCollector collector,
-                                       String path,
-                                       boolean required,
-                                       int min) {
+            String key,
+            ValidationCollector collector,
+            String path,
+            boolean required,
+            int min) {
         if (!object.has(key) || object.get(key).isJsonNull()) {
             if (required) {
                 collector.error(path, "Campo obligatorio ausente");
@@ -560,10 +661,10 @@ final class MutationSchemaValidator {
     }
 
     private static void requireNumber(JsonObject object,
-                                      String key,
-                                      ValidationCollector collector,
-                                      String path,
-                                      boolean required) {
+            String key,
+            ValidationCollector collector,
+            String path,
+            boolean required) {
         if (!object.has(key) || object.get(key).isJsonNull()) {
             if (required) {
                 collector.error(path, "Campo obligatorio ausente");
@@ -576,10 +677,10 @@ final class MutationSchemaValidator {
     }
 
     private static void requireIdentifier(JsonObject object,
-                                          String key,
-                                          ValidationCollector collector,
-                                          String path,
-                                          boolean required) {
+            String key,
+            ValidationCollector collector,
+            String path,
+            boolean required) {
         if (!object.has(key) || object.get(key).isJsonNull()) {
             if (required) {
                 collector.error(path, "Campo obligatorio ausente");
@@ -597,10 +698,10 @@ final class MutationSchemaValidator {
     }
 
     private static void requireArray(JsonObject object,
-                                     String key,
-                                     ValidationCollector collector,
-                                     String path,
-                                     boolean required) {
+            String key,
+            ValidationCollector collector,
+            String path,
+            boolean required) {
         if (!object.has(key) || object.get(key).isJsonNull()) {
             if (required) {
                 collector.error(path, "Campo obligatorio ausente");

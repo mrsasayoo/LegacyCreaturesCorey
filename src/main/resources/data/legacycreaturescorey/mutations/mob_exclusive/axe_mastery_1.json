@@ -1,0 +1,19 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/axe_mastery_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 7,
+    "display_name": {
+        "literal": "Maestría con Hacha I"
+    },
+    "description": {
+        "literal": "Golpes Veloces: Sus ataques son un 15% más rápidos."
+    },
+    "weight": 55,
+    "actions": {
+        "attack_speed_bonus": 0.15
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ]
+}

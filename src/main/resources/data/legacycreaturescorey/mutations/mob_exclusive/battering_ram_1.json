@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/battering_ram_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 4,
+    "display_name": {
+        "literal": "Battering Ram I"
+    },
+    "description": {
+        "literal": "Cornada Reforzada: La embestida inflige 2 puntos de daño adicional."
+    },
+    "weight": 70,
+    "actions": {
+        "damage_bonus": 2.0,
+        "knockback_bonus": 0.0
+    },
+    "entity_types": [
+        "minecraft:goat"
+    ],
+    "incompatible_with": []
+}

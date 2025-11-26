@@ -1,32 +1,32 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/teleportation_2",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 10,
-    "display_name": {
-        "literal": "Desplazamiento II"
-    },
-    "description": {
-        "literal": "10% de probabilidad de teletransportar al objetivo en un radio de 5 bloques y cegarlo brevemente entre destellos de portal."
-    },
-    "weight": 40,
-    "actions": [
-        {
-            "type": "teleport",
-            "chance": 0.1,
-            "radius": 5.0,
-            "target": "SELF",
-            "side_effects": [
-                {
-                    "effect": "minecraft:blindness",
-                    "duration": 60,
-                    "amplifier": 0,
-                    "target": "OTHER"
-                }
-            ]
-        }
-    ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/teleportation_1"
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/teleportation_2",
+  "type": "on_hit",
+  "cost": 8,
+  "display_name": {
+    "literal": "Desplazamiento II"
+  },
+  "description": {
+    "literal": "4% de probabilidad de teletransportar al jugador en un radio de 2 bloques y aplicarle Ceguera I por 1 s."
+  },
+  "weight": 40,
+  "actions": {
+    "chance": 0.04,
+    "radius": 2.0,
+    "target": "OTHER",
+    "side_effects": [
+      {
+        "id": "minecraft:blindness",
+        "duration_seconds": 1,
+        "amplifier": 0,
+        "target": "OTHER",
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
     ]
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/teleportation_1"
+  ]
 }

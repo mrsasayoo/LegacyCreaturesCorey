@@ -1,25 +1,29 @@
 {
 	"enabled": true,
 	"id": "legacycreaturescorey:on_hit/unstable_hit_1",
-	"type": "PASSIVE_ON_HIT",
+	"type": "on_hit",
 	"cost": 4,
 	"display_name": {
 		"literal": "Golpe Inestable I"
 	},
 	"description": {
-		"literal": "15% de probabilidad de aplicar Suelos Resbaladizos durante 3 s (similar a caminar sobre hielo)."
+		"literal": "15% de probabilidad de forzar al objetivo a moverse como si estuviera sobre hielo durante 3 s."
 	},
 	"weight": 70,
-	"actions": [
-		{
-			"type": "status_effect_on_hit",
-			"chance": 0.15,
-			"effect": "legacycreaturescorey:slippery_floor",
-			"duration": 60,
-			"amplifier": 0,
-			"target": "OTHER"
-		}
-	],
+	"actions": {
+		"chance": 0.15,
+		"target": "OTHER",
+		"effects": [
+			{
+				"id": "legacycreaturescorey:slippery_floor",
+				"duration_ticks": 60,
+				"amplifier": 0,
+				"ambient": true,
+				"show_particles": true,
+				"show_icon": true
+			}
+		]
+	},
 	"incompatible_with": [
 		"legacycreaturescorey:on_hit/unstable_hit_2",
 		"legacycreaturescorey:on_hit/unstable_hit_3"

@@ -1,0 +1,43 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/oppressive_presence_aura_3",
+  "type": "auras",
+  "display_name": "Oppressive Presence Aura III",
+  "cost": 20,
+  "description": "La presión ambiental ahoga cualquier intento de contraataque enemigo.",
+  "weight": 10,
+  "actions": {
+    "radius": 4.0,
+    "tick_interval": 20,
+    "effects": [
+      {
+        "id": "minecraft:slowness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      },
+      {
+        "id": "minecraft:weakness",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      },
+      {
+        "id": "minecraft:mining_fatigue",
+        "duration": 40,
+        "amplifier": 1,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:auras/stasis_field_aura_3"
+  ]
+}

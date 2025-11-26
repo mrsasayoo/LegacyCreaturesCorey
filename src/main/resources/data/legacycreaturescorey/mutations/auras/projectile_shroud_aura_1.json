@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/projectile_shroud_aura_1",
+  "type": "auras",
+  "display_name": "Projectile Shroud Aura I",
+  "cost": 9,
+  "description": "Proyecta un manto cinético que destruye parte de los proyectiles entrantes.",
+  "weight": 45,
+  "actions": {
+    "radius": 3.0,
+    "chance": 0.25
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

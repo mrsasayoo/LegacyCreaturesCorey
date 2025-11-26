@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/virulent_growth_aura_1",
+  "type": "auras",
+  "display_name": "Virulent Growth Aura I",
+  "cost": 6,
+  "description": "El entorno florece de forma agresiva para obstruir líneas de visión.",
+  "weight": 65,
+  "actions": {
+    "radius": 6.0,
+    "interval_ticks": 40,
+    "attempts": 3,
+    "spread_chance": 0.65
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

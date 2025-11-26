@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bloodlust_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 18,
+    "display_name": {
+        "literal": "Sed de Sangre III"
+    },
+    "description": {
+        "literal": "Tras matar a un jugador, el vindicador ruge y obtiene Fuerza y Regeneración."
+    },
+    "weight": 14,
+    "actions": {
+        "effect_duration_ticks": 200,
+        "strength_amplifier": 0,
+        "regeneration_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ],
+    "incompatible_with": []
+}

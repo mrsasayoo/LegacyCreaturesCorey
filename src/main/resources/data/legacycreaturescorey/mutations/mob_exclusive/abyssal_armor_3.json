@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_armor_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 21,
+    "display_name": {
+        "literal": "Armadura Abisal III"
+    },
+    "description": {
+        "literal": "Canaliza Disparo de Espinas y lanza proyectiles en 13 direcciones."
+    },
+    "weight": 9,
+    "actions": {
+        "cooldown_ticks": 300,
+        "channel_ticks": 20,
+        "projectile_speed": 0.8,
+        "projectile_damage": 4.0
+    },
+    "entity_types": [
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
+}

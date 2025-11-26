@@ -1,26 +1,23 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/shatter_armor_3",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 20,
-    "display_name": {
-        "literal": "Quebrar Armadura III"
-    },
-    "description": {
-        "literal": "15% de probabilidad de reducir la armadura del objetivo en un 35% durante 3 s."
-    },
-    "weight": 15,
-    "actions": [
-        {
-            "type": "shatter_armor",
-            "chance": 0.15,
-            "percent": 0.35,
-            "duration_seconds": 3
-        }
-    ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/shatter_armor_1",
-        "legacycreaturescorey:on_hit/shatter_armor_2",
-        "legacycreaturescorey:defensive/caustic_blood_3"
-    ]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/shatter_armor_3",
+  "type": "on_hit",
+  "cost": 15,
+  "display_name": {
+    "literal": "Quebrar Armadura III"
+  },
+  "description": {
+    "literal": "15% de probabilidad de reducir la armadura del objetivo en un 35% durante 3 s."
+  },
+  "weight": 15,
+  "actions": {
+    "chance": 0.15,
+    "reduction_percent": 0.35,
+    "duration_seconds": 3
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/shatter_armor_1",
+    "legacycreaturescorey:on_hit/shatter_armor_2",
+    "legacycreaturescorey:defensive/caustic_blood_3"
+  ]
 }

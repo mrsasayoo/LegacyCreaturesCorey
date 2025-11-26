@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/boar_frenzy_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Frenesí de Jabalí I"
+    },
+    "description": {
+        "literal": "Cuando su salud cae por debajo del 50% corre más rápido."
+    },
+    "weight": 65,
+    "actions": {
+        "speed_bonus": 0.15,
+        "health_threshold": 0.5
+    },
+    "entity_types": [
+        "minecraft:hoglin",
+        "minecraft:zoglin"
+    ],
+    "incompatible_with": []
+}

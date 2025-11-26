@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/psionic_thorns_aura_1",
+  "type": "auras",
+  "display_name": "Psionic Thorns Aura I",
+  "cost": 6,
+  "description": "Los ataques cuerpo a cuerpo devuelven una fracción del daño recibido.",
+  "weight": 65,
+  "actions": {
+    "reflection_percentage": 0.1,
+    "radius": 5.0,
+    "effects": [
+      {
+        "id": "minecraft:speed",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

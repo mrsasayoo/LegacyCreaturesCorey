@@ -1,33 +1,37 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/wither_2",
-    "type": "PASSIVE_ON_HIT",
-    "cost": 13,
-    "display_name": {
-        "literal": "Marchitar II"
-    },
-    "description": {
-        "literal": "13% de probabilidad de aplicar Marchitez I durante 5 s."
-    },
-    "weight": 40,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.13,
-            "effect": "minecraft:wither",
-            "duration": 100,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/wither_1",
-        "legacycreaturescorey:on_hit/wither_3"
-    ],
-    "restrictions": {
-        "excluded_entity_types": [
-            "minecraft:wither_skeleton",
-            "minecraft:wither"
-        ]
-    }
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/wither_2",
+  "type": "on_hit",
+  "cost": 9,
+  "display_name": {
+    "literal": "Marchitar II"
+  },
+  "description": {
+    "literal": "13% de probabilidad de aplicar Marchitez I durante 5 s."
+  },
+  "weight": 40,
+  "actions": {
+    "chance": 0.13,
+    "target": "OTHER",
+    "effects": [
+      {
+        "id": "minecraft:wither",
+        "duration_ticks": 100,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/wither_1",
+    "legacycreaturescorey:on_hit/wither_3"
+  ],
+  "restrictions": {
+    "excluded_entity_types": [
+      "minecraft:wither_skeleton",
+      "minecraft:wither"
+    ]
+  }
 }

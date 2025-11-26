@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/apiarian_warfare_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 15,
+    "display_name": {
+        "literal": "Guerra Apícola III"
+    },
+    "description": {
+        "literal": "Ducha de Miel: Al morir, explota creando un área de miel pegajosa (15s) y aplicando Lentitud II (4s) a jugadores cercanos."
+    },
+    "weight": 15,
+    "actions": {
+        "honey_duration_ticks": 300,
+        "debuff_duration_ticks": 80,
+        "debuff_amplifier": 1,
+        "debuff_radius": 4.0
+    },
+    "entity_types": [
+        "minecraft:bee"
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:passive/swarm_tactics_3"
+    ]
+}

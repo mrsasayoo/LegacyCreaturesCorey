@@ -1,24 +1,22 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/anti_armor_2",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 6,
-	"display_name": {
-		"literal": "Rompearmaduras II"
-	},
-	"description": {
-		"literal": "7% de probabilidad de dañar 24 puntos a una pieza de armadura aleatoria."
-	},
-	"weight": 40,
-	"actions": [
-		{
-			"type": "damage_armor",
-			"chance": 0.07,
-			"damage": 24
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/anti_armor_1",
-		"legacycreaturescorey:on_hit/anti_armor_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/anti_armor_2",
+  "type": "on_hit",
+  "cost": 6,
+  "display_name": {
+    "literal": "Rompearmaduras II"
+  },
+  "description": {
+    "literal": "7% de probabilidad de dañar 24 puntos a una pieza de armadura aleatoria."
+  },
+  "weight": 40,
+  "actions": {
+    "chance": 0.07,
+    "damage": 24
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/anti_armor_1",
+    "legacycreaturescorey:on_hit/anti_armor_3"
+  ]
 }

@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/acidic_core_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 3,
+    "display_name": {
+        "literal": "Núcleo Ácido I"
+    },
+    "description": {
+        "literal": "Al morir deja un charco de partículas verdes inofensivas."
+    },
+    "weight": 75,
+    "actions": {
+        "particle_count": 20,
+        "horizontal_spread": 0.5,
+        "vertical_spread": 0.1
+    },
+    "entity_types": [
+        "minecraft:slime"
+    ],
+    "incompatible_with": []
+}

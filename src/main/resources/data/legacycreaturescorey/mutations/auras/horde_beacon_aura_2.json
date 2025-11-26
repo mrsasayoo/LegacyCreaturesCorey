@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/horde_beacon_aura_2",
+  "type": "auras",
+  "display_name": "Horde Beacon Aura II",
+  "cost": 15,
+  "description": "Sincroniza a los aliados para que ignoren el miedo y ataquen objetivos prioritarios.",
+  "weight": 25,
+  "actions": {
+    "radius": 12.0,
+    "retarget_cooldown_ticks": 100
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

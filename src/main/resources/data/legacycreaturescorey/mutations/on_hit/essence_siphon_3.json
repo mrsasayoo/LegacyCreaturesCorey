@@ -1,24 +1,23 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/essence_siphon_3",
-	"type": "PASSIVE_ON_HIT",
-	"cost": 15,
-	"display_name": {
-		"literal": "Sifón de Esencia III"
-	},
-	"description": {
-		"literal": "24% de probabilidad de corromper un efecto positivo aleatorio, añadiendo su contraparte negativa durante 8 s sin eliminar el beneficio original."
-	},
-	"weight": 15,
-	"actions": [
-		{
-			"type": "essence_siphon",
-			"chance": 0.24,
-			"mode": "corrupt"
-		}
-	],
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/essence_siphon_1",
-		"legacycreaturescorey:on_hit/essence_siphon_2"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/essence_siphon_3",
+  "type": "on_hit",
+  "cost": 17,
+  "display_name": {
+    "literal": "Sifón de Esencia III"
+  },
+  "description": {
+    "literal": "24% de probabilidad de corromper un efecto positivo aleatorio, añadiendo su contraparte negativa durante 8 s sin eliminar el beneficio original."
+  },
+  "weight": 10,
+  "actions": {
+    "chance": 0.05,
+    "mode": "corrupt",
+    "duration_seconds": 8
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/essence_siphon_1",
+    "legacycreaturescorey:on_hit/essence_siphon_2"
+  ]
 }

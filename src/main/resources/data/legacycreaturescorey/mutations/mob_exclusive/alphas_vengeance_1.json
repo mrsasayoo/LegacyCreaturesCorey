@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/alphas_vengeance_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 5,
+    "display_name": {
+        "literal": "Venganza del Alfa I"
+    },
+    "description": {
+        "literal": "Cuando un lobo aliado muere en un radio de 12 bloques, este lobo gana Velocidad I por 8 segundos."
+    },
+    "weight": 65,
+    "actions": {
+        "radius": 12.0,
+        "speed_duration_ticks": 160,
+        "speed_amplifier": 0
+    },
+    "entity_types": [
+        "minecraft:wolf"
+    ]
+}

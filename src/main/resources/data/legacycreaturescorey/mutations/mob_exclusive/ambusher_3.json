@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/ambusher_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 16,
+    "display_name": {
+        "literal": "Emboscador III"
+    },
+    "description": {
+        "literal": "Explosión Volátil: El Creeper explota con el doble de potencia y genera fuego. Una vez iniciada la detonación, es imparable."
+    },
+    "weight": 15,
+    "actions": {
+        "explosion_power": 6.0,
+        "forced_fuse_ticks": 28,
+        "creates_fire": true
+    },
+    "entity_types": [
+        "minecraft:creeper"
+    ],
+    "incompatible_with": [
+        "legacycreaturescorey:passive/detonating_remains_on_death",
+        "legacycreaturescorey:passive/final_burst_on_death"
+    ]
+}

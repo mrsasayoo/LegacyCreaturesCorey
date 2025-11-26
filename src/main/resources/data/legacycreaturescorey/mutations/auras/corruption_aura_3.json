@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/corruption_aura_3",
+  "type": "auras",
+  "display_name": "Corruption Aura III",
+  "cost": 22,
+  "description": "El aura corrupta castiga con dolor y hambruna a cualquiera que permanezca en su radio.",
+  "weight": 8,
+  "actions": {
+    "radius": 5.0,
+    "interval_ticks": 80,
+    "damage": 3.0,
+    "hunger_duration_ticks": 20,
+    "hunger_amplifier": 0,
+    "effects": [
+      {
+        "id": "minecraft:hunger",
+        "duration": 20,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

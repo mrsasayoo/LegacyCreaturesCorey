@@ -1,0 +1,25 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/amphibious_assault_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 16,
+    "display_name": {
+        "literal": "Asalto Anfibio III"
+    },
+    "description": {
+        "literal": "Rayo Abrasador: El rayo del Guardián inflige daño extra y quema al objetivo si se dispara fuera del agua."
+    },
+    "weight": 15,
+    "actions": {
+        "bonus_damage": 2.0,
+        "fire_duration_seconds": 4,
+        "ignite_progress_threshold": 0.5,
+        "ignite_ground": true,
+        "ignite_cooldown_ticks": 20
+    },
+    "entity_types": [
+        "minecraft:guardian",
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
+}

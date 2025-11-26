@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/horde_beacon_aura_1",
+  "type": "auras",
+  "display_name": "Horde Beacon Aura I",
+  "cost": 7,
+  "description": "Amplifica la conciencia de toda horda cercana para detectar intrusos.",
+  "weight": 60,
+  "actions": {
+    "radius": 16.0,
+    "follow_range_bonus": 0.4
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

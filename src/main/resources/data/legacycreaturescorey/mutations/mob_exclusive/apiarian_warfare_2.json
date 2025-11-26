@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/apiarian_warfare_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 9,
+    "display_name": {
+        "literal": "Guerra Apícola II"
+    },
+    "description": {
+        "literal": "Trampa de Miel: Al ser golpeada, tiene un 20% de probabilidad de dejar caer un bloque de miel temporal (6s)."
+    },
+    "weight": 38,
+    "actions": {
+        "chance": 0.2,
+        "honey_duration_ticks": 120,
+        "hurt_time_trigger": 9
+    },
+    "entity_types": [
+        "minecraft:bee"
+    ],
+    "incompatible_with": []
+}

@@ -1,0 +1,23 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/arctic_fortitude_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 17,
+    "display_name": {
+        "literal": "Fortaleza Ártica III"
+    },
+    "description": {
+        "literal": "Furia Inquebrantable: Al bajar del 40% de salud, gana inmunidad al empuje y Resistencia I."
+    },
+    "weight": 12,
+    "actions": [
+        {
+            "type": "arctic_fortitude",
+            "mode": "UNBREAKABLE_FURY",
+            "comment": "Logic in com.mrsasayo.legacycreaturescorey.mutation.action.ArcticFortitudeAction"
+        }
+    ],
+    "entity_types": [
+        "minecraft:polar_bear"
+    ]
+}

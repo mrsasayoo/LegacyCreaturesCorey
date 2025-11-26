@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/vanguards_bulwark_aura_1",
+  "type": "auras",
+  "display_name": "Vanguard's Bulwark Aura I",
+  "cost": 8,
+  "description": "Genera un pulso protector que regenera lentamente a los aliados.",
+  "weight": 50,
+  "actions": {
+    "radius": 6.0,
+    "interval_ticks": 20,
+    "effects": [
+      {
+        "id": "minecraft:regeneration",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

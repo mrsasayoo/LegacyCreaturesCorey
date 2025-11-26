@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bloodlust_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 11,
+    "display_name": {
+        "literal": "Sed de Sangre II"
+    },
+    "description": {
+        "literal": "Cuanto más herido está el objetivo, más fuerte golpea el vindicador."
+    },
+    "weight": 32,
+    "actions": {
+        "bonus_per_segment": 0.05,
+        "segment_size": 0.1,
+        "max_bonus_multiplier": 0.5
+    },
+    "entity_types": [
+        "minecraft:vindicator"
+    ],
+    "incompatible_with": []
+}

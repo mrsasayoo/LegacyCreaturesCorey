@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/beam_refraction_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Refacción del Rayo I"
+    },
+    "description": {
+        "literal": "Amplificación Acuática: Si el rayo atraviesa agua gana +1 de daño."
+    },
+    "weight": 60,
+    "actions": {
+        "damage_bonus": 1.0,
+        "cooldown_ticks": 0
+    },
+    "entity_types": [
+        "minecraft:guardian"
+    ],
+    "incompatible_with": []
+}

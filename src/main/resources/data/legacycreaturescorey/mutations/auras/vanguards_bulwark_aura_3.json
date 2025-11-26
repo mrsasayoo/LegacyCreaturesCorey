@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:auras/vanguards_bulwark_aura_3",
+  "type": "auras",
+  "display_name": "Vanguard's Bulwark Aura III",
+  "cost": 25,
+  "description": "El bastión final alterna entre curación intensa y apoyo ofensivo para aliados no muertos.",
+  "weight": 7,
+  "actions": {
+    "radius": 8.0,
+    "potion_interval": 140,
+    "heal_amount": 10.0,
+    "effects": [
+      {
+        "id": "minecraft:regeneration",
+        "duration": 40,
+        "amplifier": 1,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ]
+  },
+  "entity_types": [],
+  "incompatible_with": []
+}

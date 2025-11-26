@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bamboo_eater_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 4,
+    "display_name": {
+        "literal": "Comedor de Bambú I"
+    },
+    "description": {
+        "literal": "Hora del Snack: Si hay bambú cerca, se detiene a comerlo (1s) y regenera 4 puntos de vida (Cooldown 6s)."
+    },
+    "weight": 70,
+    "actions": {
+        "heal_amount": 4.0,
+        "stop_ticks": 20,
+        "cooldown_ticks": 300
+    },
+    "entity_types": [
+        "minecraft:panda"
+    ]
+}

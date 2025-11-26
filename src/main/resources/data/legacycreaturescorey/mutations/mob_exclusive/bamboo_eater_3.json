@@ -1,0 +1,22 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/bamboo_eater_3",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 15,
+    "display_name": {
+        "literal": "Comedor de Bambú III"
+    },
+    "description": {
+        "literal": "Golpe de Bambú: Rompe un tallo de bambú para usarlo como arma (+25% alcance, empuje). Se rompe tras 5 golpes."
+    },
+    "weight": 18,
+    "actions": {
+        "weapon_hits": 5,
+        "reach_bonus": 1.5,
+        "knockback_bonus": 1.0,
+        "cooldown_ticks": 0
+    },
+    "entity_types": [
+        "minecraft:panda"
+    ]
+}

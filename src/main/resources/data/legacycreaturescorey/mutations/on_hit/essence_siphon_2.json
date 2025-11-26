@@ -1,7 +1,7 @@
 {
 	"enabled": true,
 	"id": "legacycreaturescorey:on_hit/essence_siphon_2",
-	"type": "PASSIVE_ON_HIT",
+	"type": "on_hit",
 	"cost": 11,
 	"display_name": {
 		"literal": "Sifón de Esencia II"
@@ -10,13 +10,12 @@
 		"literal": "20% de probabilidad de obtener un efecto positivo aleatorio del objetivo durante 6 s."
 	},
 	"weight": 30,
-	"actions": [
-		{
-			"type": "essence_siphon",
-			"chance": 0.2,
-			"mode": "steal"
-		}
-	],
+	"actions": {
+		"chance": 0.2,
+		"mode": "steal",
+		"duration_seconds": 6
+	},
+	"entity_types": [],
 	"incompatible_with": [
 		"legacycreaturescorey:on_hit/essence_siphon_1",
 		"legacycreaturescorey:on_hit/essence_siphon_3"

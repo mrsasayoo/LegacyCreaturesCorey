@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/battering_ram_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 8,
+    "display_name": {
+        "literal": "Battering Ram II"
+    },
+    "description": {
+        "literal": "Embestida Potente: +4 de daño y 50% más de empuje al embestir."
+    },
+    "weight": 40,
+    "actions": {
+        "damage_bonus": 4.0,
+        "knockback_bonus": 0.5
+    },
+    "entity_types": [
+        "minecraft:goat"
+    ],
+    "incompatible_with": []
+}

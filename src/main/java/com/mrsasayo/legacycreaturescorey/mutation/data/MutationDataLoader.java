@@ -11,57 +11,39 @@ import com.mrsasayo.legacycreaturescorey.mutation.Mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationRestrictions;
 import com.mrsasayo.legacycreaturescorey.mutation.MutationType;
-import com.mrsasayo.legacycreaturescorey.mutation.action.AllyDeathHealAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeMutationAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.BleedingOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ChaosTouchOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.CriticalDamageOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DamageArmorOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DamageAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DeepDarknessAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DetonatingRemainsOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DisarmOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.DisableShieldOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.EntropyAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.EssenceSiphonOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ExperienceTheftOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.FakeLootPileOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.FinalBurstOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.FinalGambitOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.FrenzyOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.FreezeOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.GhostFragmentsOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.GroundHazardManager;
-import com.mrsasayo.legacycreaturescorey.mutation.action.GroundHazardOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.HealAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.HealOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.IgniteOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.InterferenceAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.KnockbackOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ConcussiveBlowOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.LootScatterOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MortalWoundOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.PhantasmalVeilAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.PainLinkOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProjectileShroudAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.PsionicThornsAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ShatterArmorOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.StasisFieldAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectOnDeathAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.StatusEffectOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.SummonMobAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.TeleportOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.TrueDamageOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.VerticalThrustOnHitAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.VirulentGrowthAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.HordeBeaconAuraAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.UndeadPotionBurstAction;
+import com.mrsasayo.legacycreaturescorey.mutation.action.*;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.*;
+import com.mrsasayo.legacycreaturescorey.mutation.action.on_hit.*;
+import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.*;
+import com.mrsasayo.legacycreaturescorey.mutation.action.passive.*;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.entity.EntityType;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.interference_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.interference_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.interference_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.oppressive_presence_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.oppressive_presence_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.oppressive_presence_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.phantasmal_veil_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.phantasmal_veil_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.phantasmal_veil_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.projectile_shroud_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.projectile_shroud_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.projectile_shroud_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.psionic_thorns_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.psionic_thorns_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.psionic_thorns_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.stasis_field_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.stasis_field_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.stasis_field_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.vanguards_bulwark_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.vanguards_bulwark_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.vanguards_bulwark_aura_3_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.virulent_growth_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.virulent_growth_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.virulent_growth_aura_3_action;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
@@ -70,25 +52,21 @@ import net.minecraft.potion.Potion;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.horde_beacon_aura_1_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.horde_beacon_aura_2_action;
+import com.mrsasayo.legacycreaturescorey.mutation.action.auras.horde_beacon_aura_3_action;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -123,6 +101,11 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 identifier -> identifier.getPath().endsWith(".json"));
         for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
             Identifier resourceId = entry.getKey();
+            if (isLegacyActiveResource(resourceId)) {
+                // Evitamos cargar los JSON antiguos "mutations/active" para que no interfieran
+                // con la arquitectura 1:1 actual.
+                continue;
+            }
             try {
                 Identifier mutationId = toMutationId(resourceId);
                 Resource resource = entry.getValue();
@@ -171,6 +154,11 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         return Identifier.of(resourceId.getNamespace(), trimmed);
     }
 
+    private boolean isLegacyActiveResource(Identifier resourceId) {
+        String path = resourceId.getPath();
+        return path.startsWith(DIRECTORY + "/active/");
+    }
+
     private Mutation parseMutation(Identifier fileId, JsonObject root, ActionParser actionParser)
             throws ActionParser.ParseException {
         boolean enabled = JsonHelper.getBoolean(root, "enabled", true);
@@ -184,7 +172,7 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         }
 
         String rawType = JsonHelper.getString(root, "type");
-        MutationType type = MutationType.valueOf(rawType.trim().toUpperCase(Locale.ROOT));
+        MutationType type = resolveMutationType(rawType);
 
         int cost = JsonHelper.getInt(root, "cost", 1);
         Text displayName = parseText(root, "display_name");
@@ -193,13 +181,279 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
         Set<Identifier> incompatibleWith = parseIdentifierSet(root, "incompatible_with");
         MutationRestrictions restrictions = parseRestrictions(root);
 
-        List<MutationAction> actions = actionParser.parseActions(id, root);
+        List<MutationAction> actions = new ArrayList<>();
+
+        JsonElement actionsElement = root.get("actions");
+        JsonObject specificConfig = extractSpecificConfig(actionsElement);
+        boolean specificConfigFromArray = specificConfig != null && actionsElement != null && actionsElement.isJsonArray();
+        boolean arrayAlreadyHandled = false;
+
+        // Try to load specific action based on ID
+        MutationAction specificAction = loadSpecificAction(id, specificConfig);
+        if (specificAction != null) {
+            actions.add(specificAction);
+            arrayAlreadyHandled = specificConfigFromArray;
+        }
+
+        // Parse generic actions if present in legacy array format
+        if (actionsElement != null && actionsElement.isJsonArray() && !arrayAlreadyHandled) {
+            actions.addAll(actionParser.parseActions(id, actionsElement.getAsJsonArray()));
+        }
+
         if (actions.isEmpty()) {
-            throw new IllegalArgumentException("No hay acciones definidas");
+            throw new IllegalArgumentException("No hay acciones definidas para " + id);
         }
 
         return new ConfiguredMutation(id, type, cost, displayName, description, weight, actions, incompatibleWith,
                 restrictions);
+    }
+
+    private MutationType resolveMutationType(String rawType) {
+        if (rawType == null || rawType.isBlank()) {
+            throw new IllegalArgumentException("El campo 'type' es obligatorio para las mutaciones.");
+        }
+        String normalized = rawType.trim().toUpperCase(Locale.ROOT);
+        return switch (normalized) {
+            case "AURA", "AURAS", "ACTIVE_AURA" -> MutationType.AURAS;
+            case "PASSIVE_ATTRIBUTE", "ATTRIBUTE" -> MutationType.PASSIVE_ATTRIBUTE;
+            case "PASSIVE" -> MutationType.PASSIVE;
+            case "ON_HIT", "ONHIT" -> MutationType.ON_HIT;
+            case "PASSIVE_ON_HIT" -> MutationType.PASSIVE_ON_HIT;
+            case "MOB_EXCLUSIVE" -> MutationType.MOB_EXCLUSIVE;
+            case "ON_BEING_HIT" -> MutationType.ON_BEING_HIT;
+            case "ON_DEATH" -> MutationType.ON_DEATH;
+            case "SYNERGY" -> MutationType.SYNERGY;
+            case "TERRAIN" -> MutationType.TERRAIN;
+            default -> MutationType.valueOf(normalized);
+        };
+    }
+
+    private JsonObject extractSpecificConfig(JsonElement actionsElement) {
+        if (actionsElement == null) {
+            return null;
+        }
+        if (actionsElement.isJsonObject()) {
+            return actionsElement.getAsJsonObject();
+        }
+        if (actionsElement.isJsonArray()) {
+            JsonArray array = actionsElement.getAsJsonArray();
+            if (array.size() == 1 && array.get(0).isJsonObject()) {
+                return array.get(0).getAsJsonObject();
+            }
+        }
+        return null;
+    }
+
+    private MutationAction loadSpecificAction(Identifier id, JsonObject configObject) {
+        String path = id.getPath();
+        // Remove category prefix if present (e.g. "auras/corruption_aura_1" ->
+        // "corruption_aura_1")
+        if (path.contains("/")) {
+            path = path.substring(path.lastIndexOf('/') + 1);
+        }
+
+        mutation_action_config config = new mutation_action_config(configObject);
+
+        return switch (path) {
+            case "corruption_aura_1" -> new corruption_aura_1_action(config);
+            case "corruption_aura_2" -> new corruption_aura_2_action(config);
+            case "corruption_aura_3" -> new corruption_aura_3_action(config);
+            case "deep_darkness_aura_1" -> new deep_darkness_aura_1_action(config);
+            case "deep_darkness_aura_2" -> new deep_darkness_aura_2_action(config);
+            case "deep_darkness_aura_3" -> new deep_darkness_aura_3_action(config);
+            case "entropy_aura_1" -> new entropy_aura_1_action(config);
+            case "entropy_aura_2" -> new entropy_aura_2_action(config);
+            case "entropy_aura_3" -> new entropy_aura_3_action(config);
+            case "horde_beacon_aura_1" -> new horde_beacon_aura_1_action(config);
+            case "horde_beacon_aura_2" -> new horde_beacon_aura_2_action(config);
+            case "horde_beacon_aura_3" -> new horde_beacon_aura_3_action(config);
+            case "interference_aura_1" -> new interference_aura_1_action(config);
+            case "interference_aura_2" -> new interference_aura_2_action(config);
+            case "interference_aura_3" -> new interference_aura_3_action(config);
+            case "oppressive_presence_aura_1" -> new oppressive_presence_aura_1_action(config);
+            case "oppressive_presence_aura_2" -> new oppressive_presence_aura_2_action(config);
+            case "oppressive_presence_aura_3" -> new oppressive_presence_aura_3_action(config);
+            case "phantasmal_veil_aura_1" -> new phantasmal_veil_aura_1_action(config);
+            case "phantasmal_veil_aura_2" -> new phantasmal_veil_aura_2_action(config);
+            case "phantasmal_veil_aura_3" -> new phantasmal_veil_aura_3_action(config);
+            case "projectile_shroud_aura_1" -> new projectile_shroud_aura_1_action(config);
+            case "projectile_shroud_aura_2" -> new projectile_shroud_aura_2_action(config);
+            case "projectile_shroud_aura_3" -> new projectile_shroud_aura_3_action(config);
+            case "psionic_thorns_aura_1" -> new psionic_thorns_aura_1_action(config);
+            case "psionic_thorns_aura_2" -> new psionic_thorns_aura_2_action(config);
+            case "psionic_thorns_aura_3" -> new psionic_thorns_aura_3_action(config);
+            case "stasis_field_aura_1" -> new stasis_field_aura_1_action(config);
+            case "stasis_field_aura_2" -> new stasis_field_aura_2_action(config);
+            case "stasis_field_aura_3" -> new stasis_field_aura_3_action(config);
+            case "vanguards_bulwark_aura_1" -> new vanguards_bulwark_aura_1_action(config);
+            case "vanguards_bulwark_aura_2" -> new vanguards_bulwark_aura_2_action(config);
+            case "vanguards_bulwark_aura_3" -> new vanguards_bulwark_aura_3_action(config);
+            case "virulent_growth_aura_1" -> new virulent_growth_aura_1_action(config);
+            case "virulent_growth_aura_2" -> new virulent_growth_aura_2_action(config);
+            case "virulent_growth_aura_3" -> new virulent_growth_aura_3_action(config);
+            case "anti_armor_1" -> new anti_armor_1_action(config);
+            case "anti_armor_2" -> new anti_armor_2_action(config);
+            case "anti_armor_3" -> new anti_armor_3_action(config);
+            case "anti_shield_1" -> new anti_shield_1_action(config);
+            case "anti_shield_2" -> new anti_shield_2_action(config);
+            case "bleeding_1" -> new bleeding_1_action(config);
+            case "bleeding_2" -> new bleeding_2_action(config);
+            case "bleeding_3" -> new bleeding_3_action(config);
+            case "blindness_1" -> new blindness_1_action(config);
+            case "chaos_touch_1" -> new chaos_touch_1_action(config);
+            case "chaos_touch_2" -> new chaos_touch_2_action(config);
+            case "chaos_touch_3" -> new chaos_touch_3_action(config);
+            case "concussive_blow_1" -> new concussive_blow_1_action(config);
+            case "concussive_blow_2" -> new concussive_blow_2_action(config);
+            case "concussive_blow_3" -> new concussive_blow_3_action(config);
+            case "critical_1" -> new critical_1_action(config);
+            case "critical_2" -> new critical_2_action(config);
+            case "critical_3" -> new critical_3_action(config);
+            case "deafening_strike_1" -> new deafening_strike_1_action(config);
+            case "deafening_strike_2" -> new deafening_strike_2_action(config);
+            case "deafening_strike_3" -> new deafening_strike_3_action(config);
+            case "disarm_1" -> new disarm_1_action(config);
+            case "essence_siphon_1" -> new essence_siphon_1_action(config);
+            case "essence_siphon_2" -> new essence_siphon_2_action(config);
+            case "essence_siphon_3" -> new essence_siphon_3_action(config);
+            case "experience_theft_1" -> new experience_theft_1_action(config);
+            case "experience_theft_2" -> new experience_theft_2_action(config);
+            case "experience_theft_3" -> new experience_theft_3_action(config);
+            case "fire_1" -> new fire_1_action(config);
+            case "fire_2" -> new fire_2_action(config);
+            case "fire_3" -> new fire_3_action(config);
+            case "freezing_1" -> new freezing_1_action(config);
+            case "freezing_2" -> new freezing_2_action(config);
+            case "freezing_3" -> new freezing_3_action(config);
+            case "frenzy_1" -> new frenzy_1_action(config);
+            case "frenzy_2" -> new frenzy_2_action(config);
+            case "frenzy_3" -> new frenzy_3_action(config);
+            case "glowing_1" -> new glowing_1_action(config);
+            case "glowing_2" -> new glowing_2_action(config);
+            case "glowing_3" -> new glowing_3_action(config);
+            case "hunger_1" -> new hunger_1_action(config);
+            case "hunger_2" -> new hunger_2_action(config);
+            case "hunger_3" -> new hunger_3_action(config);
+            case "levitation_1" -> new levitation_1_action(config);
+            case "levitation_2" -> new levitation_2_action(config);
+            case "mining_fatigue_1" -> new mining_fatigue_1_action(config);
+            case "mining_fatigue_2" -> new mining_fatigue_2_action(config);
+            case "mining_fatigue_3" -> new mining_fatigue_3_action(config);
+            case "mortal_wound_1" -> new mortal_wound_1_action(config);
+            case "mortal_wound_2" -> new mortal_wound_2_action(config);
+            case "mortal_wound_3" -> new mortal_wound_3_action(config);
+            case "nausea_1" -> new nausea_1_action(config);
+            case "pain_link_1" -> new pain_link_1_action(config);
+            case "pain_link_2" -> new pain_link_2_action(config);
+            case "pain_link_3" -> new pain_link_3_action(config);
+            case "poison_1" -> new poison_1_action(config);
+            case "poison_2" -> new poison_2_action(config);
+            case "poison_3" -> new poison_3_action(config);
+            case "push_1" -> new push_1_action(config);
+            case "push_2" -> new push_2_action(config);
+            case "push_3" -> new push_3_action(config);
+            case "shatter_armor_1" -> new shatter_armor_1_action(config);
+            case "shatter_armor_2" -> new shatter_armor_2_action(config);
+            case "shatter_armor_3" -> new shatter_armor_3_action(config);
+            case "slow_falling_1" -> new slow_falling_1_action(config);
+            case "slow_falling_2" -> new slow_falling_2_action(config);
+            case "slow_falling_3" -> new slow_falling_3_action(config);
+            case "slowness_1" -> new slowness_1_action(config);
+            case "slowness_2" -> new slowness_2_action(config);
+            case "slowness_3" -> new slowness_3_action(config);
+            case "teleportation_1" -> new teleportation_1_action(config);
+            case "teleportation_2" -> new teleportation_2_action(config);
+            case "teleportation_3" -> new teleportation_3_action(config);
+            case "theft_of_life_1" -> new theft_of_life_1_action(config);
+            case "theft_of_life_2" -> new theft_of_life_2_action(config);
+            case "theft_of_life_3" -> new theft_of_life_3_action(config);
+            case "true_damage_1" -> new true_damage_1_action(config);
+            case "true_damage_2" -> new true_damage_2_action(config);
+            case "unstable_hit_1" -> new unstable_hit_1_action(config);
+            case "unstable_hit_2" -> new unstable_hit_2_action(config);
+            case "unstable_hit_3" -> new unstable_hit_3_action(config);
+            case "vertical_thrust_1" -> new vertical_thrust_1_action(config);
+            case "vertical_thrust_2" -> new vertical_thrust_2_action(config);
+            case "vertical_thrust_3" -> new vertical_thrust_3_action(config);
+            case "weakness_1" -> new weakness_1_action(config);
+            case "wither_1" -> new wither_1_action(config);
+            case "wither_2" -> new wither_2_action(config);
+            case "wither_3" -> new wither_3_action(config);
+            case "armor_1" -> new armor_1_action(config);
+            case "armor_2" -> new armor_2_action(config);
+            case "armor_3" -> new armor_3_action(config);
+            case "attack_damage_1" -> new attack_damage_1_action(config);
+            case "attack_damage_2" -> new attack_damage_2_action(config);
+            case "attack_speed_1" -> new attack_speed_1_action(config);
+            case "attack_speed_2" -> new attack_speed_2_action(config);
+            case "follow_range_1" -> new follow_range_1_action(config);
+            case "follow_range_2" -> new follow_range_2_action(config);
+            case "knockback_resistance_1" -> new knockback_resistance_1_action(config);
+            case "knockback_resistance_2" -> new knockback_resistance_2_action(config);
+            case "knockback_resistance_3" -> new knockback_resistance_3_action(config);
+            case "max_health_1" -> new max_health_1_action(config);
+            case "max_health_2" -> new max_health_2_action(config);
+            case "max_health_3" -> new max_health_3_action(config);
+            case "movement_speed_1" -> new movement_speed_1_action(config);
+            case "abyssal_armor_1" -> new abyssal_armor_1_action(config);
+            case "abyssal_armor_2" -> new abyssal_armor_2_action(config);
+            case "abyssal_armor_3" -> new abyssal_armor_3_action(config);
+            case "abyssal_maneuvers_1" -> new abyssal_maneuvers_1_action(config);
+            case "abyssal_maneuvers_2" -> new abyssal_maneuvers_2_action(config);
+            case "abyssal_maneuvers_3" -> new abyssal_maneuvers_3_action(config);
+            case "acidic_core_1" -> new acidic_core_1_action(config);
+            case "acidic_core_2" -> new acidic_core_2_action(config);
+            case "acidic_core_3" -> new acidic_core_3_action(config);
+            case "aerial_maneuvers_1" -> new aerial_maneuvers_1_action(config);
+            case "aerial_maneuvers_2" -> new aerial_maneuvers_2_action(config);
+            case "aerial_maneuvers_3" -> new aerial_maneuvers_3_action(config);
+            case "alphas_vengeance_1" -> new alphas_vengeance_1_action(config);
+            case "alphas_vengeance_2" -> new alphas_vengeance_2_action(config);
+            case "alphas_vengeance_3" -> new alphas_vengeance_3_action(config);
+            case "ambusher_1" -> new ambusher_1_action(config);
+            case "ambusher_2" -> new ambusher_2_action(config);
+            case "ambusher_3" -> new ambusher_3_action(config);
+            case "amphibious_assault_1" -> new amphibious_assault_1_action(config);
+            case "amphibious_assault_2" -> new amphibious_assault_2_action(config);
+            case "amphibious_assault_3" -> new amphibious_assault_3_action(config);
+            case "ancient_curse_1" -> new ancient_curse_1_action(config);
+            case "ancient_curse_2" -> new ancient_curse_2_action(config);
+            case "ancient_curse_3" -> new ancient_curse_3_action(config);
+            case "apiarian_warfare_1" -> new apiarian_warfare_1_action(config);
+            case "apiarian_warfare_2" -> new apiarian_warfare_2_action(config);
+            case "apiarian_warfare_3" -> new apiarian_warfare_3_action(config);
+            case "aquatic_stalker_1" -> new aquatic_stalker_1_action(config);
+            case "aquatic_stalker_2" -> new aquatic_stalker_2_action(config);
+            case "aquatic_stalker_3" -> new aquatic_stalker_3_action(config);
+            case "arctic_fortitude_1" -> new arctic_fortitude_1_action(config);
+            case "arctic_fortitude_2" -> new arctic_fortitude_2_action(config);
+            case "arctic_fortitude_3" -> new arctic_fortitude_3_action(config);
+            case "axe_mastery_1" -> new axe_mastery_1_action(config);
+            case "axe_mastery_2" -> new axe_mastery_2_action(config);
+            case "axe_mastery_3" -> new axe_mastery_3_action(config);
+            case "bamboo_eater_1" -> new bamboo_eater_1_action(config);
+            case "bamboo_eater_2" -> new bamboo_eater_2_action(config);
+            case "bamboo_eater_3" -> new bamboo_eater_3_action(config);
+            case "bastion_guard_1" -> new bastion_guard_1_action(config);
+            case "bastion_guard_2" -> new bastion_guard_2_action(config);
+            case "bastion_guard_3" -> new bastion_guard_3_action(config);
+            case "battering_ram_1" -> new battering_ram_1_action(config);
+            case "battering_ram_2" -> new battering_ram_2_action(config);
+            case "battering_ram_3" -> new battering_ram_3_action(config);
+            case "beam_refraction_1" -> new beam_refraction_1_action(config);
+            case "beam_refraction_2" -> new beam_refraction_2_action(config);
+            case "beam_refraction_3" -> new beam_refraction_3_action(config);
+            case "blizzard_orb_1" -> new blizzard_orb_1_action(config);
+            case "blizzard_orb_2" -> new blizzard_orb_2_action(config);
+            case "blizzard_orb_3" -> new blizzard_orb_3_action(config);
+            case "bloodlust_1" -> new bloodlust_1_action(config);
+            case "bloodlust_2" -> new bloodlust_2_action(config);
+            case "bloodlust_3" -> new bloodlust_3_action(config);
+            case "boar_frenzy_1" -> new boar_frenzy_1_action(config);
+            case "boar_frenzy_2" -> new boar_frenzy_2_action(config);
+            case "boar_frenzy_3" -> new boar_frenzy_3_action(config);
+            default -> null;
+        };
     }
 
     private Set<Identifier> parseIdentifierSet(JsonObject root, String key) {
@@ -207,7 +461,7 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
             return Set.of();
         }
         JsonArray array = JsonHelper.getArray(root, key);
-        Set<Identifier> identifiers = new HashSet<>(array.size());
+        Set<Identifier> identifiers = new HashSet<>();
         for (JsonElement element : array) {
             identifiers.add(Identifier.of(JsonHelper.asString(element, key)));
         }
@@ -240,13 +494,12 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
                 if (obj.has("with")) {
                     JsonArray with = JsonHelper.getArray(obj, "with");
                     for (int i = 0; i < with.size(); i++) {
-                        withArgs.add(Objects.requireNonNullElse(parseTextElement(with.get(i), context + "[" + i + "]"),
-                                Text.literal("")));
+                        withArgs.add(parseTextElement(with.get(i), context + ".with[" + i + "]"));
                     }
                 }
                 return withArgs.isEmpty()
                         ? Text.translatable(key)
-                        : Text.translatable(key, withArgs.toArray());
+                        : Text.translatable(key, withArgs.toArray(new Object[0]));
             }
         }
         throw new IllegalArgumentException("Formato de texto inválido en " + context);
@@ -254,13 +507,13 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
 
     private MutationRestrictions parseRestrictions(JsonObject root) {
         if (!root.has("restrictions")) {
-            return MutationRestrictions.empty();
+            return new MutationRestrictions(Set.of(), Set.of(), Set.of(), Set.of(), false);
         }
-
         JsonObject object = JsonHelper.getObject(root, "restrictions");
-        EntitySelector allowed = parseEntitySelector(object, "entity_types");
-        EntitySelector excluded = parseEntitySelector(object, "excluded_entity_types");
+        EntitySelector allowed = parseEntitySelector(object, "allowed_entities");
+        EntitySelector excluded = parseEntitySelector(object, "excluded_entities");
         boolean requiresWater = JsonHelper.getBoolean(object, "requires_water", false);
+
         return new MutationRestrictions(
                 allowed.ids(),
                 excluded.ids(),
@@ -271,17 +524,15 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
 
     private EntitySelector parseEntitySelector(JsonObject object, String key) {
         if (!object.has(key)) {
-            return EntitySelector.empty();
+            return new EntitySelector(Set.of(), Set.of());
         }
-
         JsonArray array = JsonHelper.getArray(object, key);
         Set<Identifier> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
         for (JsonElement element : array) {
-            String raw = JsonHelper.asString(element, key).trim();
+            String raw = JsonHelper.asString(element, key);
             if (raw.startsWith("#")) {
-                Identifier tagId = Identifier.of(raw.substring(1));
-                tags.add(TagKey.of(RegistryKeys.ENTITY_TYPE, tagId));
+                tags.add(TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(raw.substring(1))));
             } else {
                 ids.add(Identifier.of(raw));
             }
@@ -290,686 +541,80 @@ public final class MutationDataLoader implements SimpleSynchronousResourceReload
     }
 
     private record EntitySelector(Set<Identifier> ids, Set<TagKey<EntityType<?>>> tags) {
-        private static EntitySelector empty() {
-            return new EntitySelector(Set.of(), Set.of());
-        }
     }
 
-    private static final class ActionParser {
-        private ActionParser() {
+    static final class ActionParser {
+        ActionParser() {
         }
 
-        private List<MutationAction> parseActions(Identifier mutationId, JsonObject root) throws ParseException {
-            if (!root.has("actions")) {
+        List<MutationAction> parseActions(Identifier mutationId, JsonArray array) throws ParseException {
+            if (array == null || array.isEmpty()) {
                 return List.of();
             }
-
-            JsonArray array = JsonHelper.getArray(root, "actions");
             List<MutationAction> actions = new ArrayList<>(array.size());
             for (int i = 0; i < array.size(); i++) {
                 JsonObject actionObject = JsonHelper.asObject(array.get(i), "action");
                 String rawType = JsonHelper.getString(actionObject, "type");
                 String normalized = rawType.trim().toLowerCase(Locale.ROOT);
-                try {
-                    MutationAction action = switch (normalized) {
-                        case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
-                        case "status_effect_on_hit", "status_effect" -> parseStatusEffectAction(actionObject);
-                        case "status_effect_on_death", "on_death_status_effect", "status_effect_death" ->
-                            parseStatusEffectOnDeathAction(actionObject);
-                        case "ground_hazard_on_death", "ground_hazard" -> parseGroundHazardOnDeathAction(actionObject);
-                        case "loot_scatter", "scatter_loot" -> parseLootScatterAction(actionObject);
-                        case "ghost_fragments", "ghost_fragment" -> parseGhostFragmentsAction(actionObject);
-                        case "fake_loot_pile", "fake_loot" -> parseFakeLootPileAction(actionObject);
-                        case "detonating_remains", "corpse_mine" -> parseDetonatingRemainsAction(actionObject);
-                        case "final_burst", "final_explosion" -> parseFinalBurstAction(actionObject);
-                        case "final_gambit" -> parseFinalGambitAction(actionObject);
-                        case "chaos_touch" -> parseChaosTouchAction(actionObject);
-                        case "frenzy" -> parseFrenzyAction(actionObject);
-                        case "pain_link" -> parsePainLinkAction(actionObject);
-                        case "essence_siphon" -> parseEssenceSiphonAction(actionObject);
-                        case "concussive_blow" -> parseConcussiveBlowAction(actionObject);
-                        case "mortal_wound" -> parseMortalWoundAction(actionObject);
-                        case "damage_aura", "aura_damage" -> parseDamageAuraAction(actionObject);
-                        case "heal", "heal_self" -> parseHealAction(actionObject);
-                        case "summon_mob", "summon" -> parseSummonAction(actionObject);
-                        case "status_effect_aura", "aura_status_effect" -> parseStatusEffectAuraAction(actionObject);
-                        case "true_damage", "true_damage_on_hit" -> parseTrueDamageAction(actionObject);
-                        case "critical_hit", "critical_damage" -> parseCriticalAction(actionObject);
-                        case "heal_on_hit", "lifesteal" -> parseHealOnHitAction(actionObject);
-                        case "disable_shield", "anti_shield" -> parseDisableShieldAction(actionObject);
-                        case "damage_armor", "anti_armor" -> parseDamageArmorAction(actionObject);
-                        case "ignite", "ignite_on_hit", "set_on_fire" -> parseIgniteAction(actionObject);
-                        case "freeze", "freeze_on_hit" -> parseFreezeAction(actionObject);
-                        case "bleed", "bleeding" -> parseBleedingAction(actionObject);
-                        case "knockback", "push" -> parseKnockbackAction(actionObject);
-                        case "teleport", "teleport_on_hit", "teleportation" -> parseTeleportAction(actionObject);
-                        case "disarm", "disarm_on_hit" -> parseDisarmAction(actionObject);
-                        case "experience_theft", "xp_theft" -> parseExperienceTheftAction(actionObject);
-                        case "vertical_thrust", "launch" -> parseVerticalThrustAction(actionObject);
-                        case "shatter_armor", "armor_shatter" -> parseShatterArmorAction(actionObject);
-                        case "projectile_shroud" -> parseProjectileShroudAction(actionObject);
-                        case "interference_aura", "aura_interference" -> parseInterferenceAuraAction(actionObject);
-                        case "stasis_field_aura", "aura_stasis", "stasis_field" ->
-                            parseStasisFieldAuraAction(actionObject);
-                        case "entropy_aura", "aura_entropy", "entropy" -> parseEntropyAuraAction(actionObject);
-                        case "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal" ->
-                            parsePhantasmalVeilAuraAction(actionObject);
-                        case "psionic_thorns", "psionic_thorns_aura", "thorns_aura" ->
-                            parsePsionicThornsAuraAction(actionObject);
-                        case "deep_darkness_aura", "darkness_aura", "deep_darkness" ->
-                            parseDeepDarknessAuraAction(actionObject);
-                        case "virulent_growth_aura", "growth_aura", "virulent_growth" ->
-                            parseVirulentGrowthAuraAction(actionObject);
-                        case "horde_beacon_aura", "horde_beacon" -> parseHordeBeaconAuraAction(actionObject);
-                        case "undead_potion_burst", "potion_burst" -> parseUndeadPotionBurstAction(actionObject);
-                        case "attribute_aura" -> parseAttributeAuraAction(actionObject);
-                        case "ally_death_heal", "ally_death_aura" -> parseAllyDeathHealAuraAction(actionObject);
-                        default -> throw new IllegalArgumentException("Tipo de acción desconocido: " + rawType);
-                    };
-                    actions.add(action);
-                } catch (Exception exception) {
-                    throw new ParseException("Acción inválida en la mutación " + mutationId + " (índice " + i + "): "
-                            + exception.getMessage(), exception);
-                }
+
+                MutationAction action = switch (normalized) {
+                    case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
+                    case "ally_death_heal_aura" -> parseAllyDeathHealAuraAction(actionObject);
+                    case "heal" -> parseHealAction(actionObject);
+                    default -> throw new ParseException("Tipo de acción desconocido: " + normalized);
+                };
+                actions.add(action);
             }
             return actions;
         }
 
-        private MutationAction parseAttributeAction(JsonObject object) {
-            Identifier attributeId = Identifier.of(JsonHelper.getString(object, "attribute"));
-            String modeRaw = JsonHelper.getString(object, "mode", "add");
-            AttributeMutationAction.Mode mode = AttributeMutationAction.Mode.fromString(modeRaw);
-            double amount = JsonHelper.getDouble(object, "amount");
-            return new AttributeMutationAction(attributeId, mode, amount);
+        // --- Parser Methods ---
+
+        private MutationAction parseAttributeAction(JsonObject root) {
+            String attributeId = JsonHelper.getString(root, "attribute");
+            double amount = JsonHelper.getDouble(root, "amount");
+            String modeStr = JsonHelper.getString(root, "operation", "ADDITION");
+            AttributeMutationAction.Mode mode = AttributeMutationAction.Mode.valueOf(modeStr.toUpperCase(Locale.ROOT));
+            return new AttributeMutationAction(Identifier.of(attributeId), mode, amount);
         }
 
-        private MutationAction parseStatusEffectAction(JsonObject object) {
-            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect"));
-            int duration = JsonHelper.getInt(object, "duration");
-            int amplifier = JsonHelper.getInt(object, "amplifier", 0);
-            String targetRaw = JsonHelper.getString(object, "target", "other");
-            StatusEffectOnHitAction.Target target = parseHitTarget(targetRaw);
-            double chance = parseChance(object, "chance");
-            RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
-            List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "extra_effects");
-            return new StatusEffectOnHitAction(effect, duration, amplifier, target, chance, extras);
-        }
-
-        private MutationAction parseStatusEffectOnDeathAction(JsonObject object) {
-            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect"));
-            RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
-            int duration = JsonHelper.getInt(object, "duration");
-            int amplifier = JsonHelper.getInt(object, "amplifier", 0);
-            String targetRaw = JsonHelper.getString(object, "target", "players_in_radius");
-            StatusEffectOnDeathAction.Target target = StatusEffectOnDeathAction.Target.fromString(targetRaw);
-            double radius = JsonHelper.getDouble(object, "radius", 6.0D);
-            double chance = parseChance(object, "chance");
-            int delayTicks = parseTicks(object, "delay", 0);
-            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
-            double pullStrength = JsonHelper.getDouble(object, "pull_strength", 0.0D);
-            return new StatusEffectOnDeathAction(effect, duration, amplifier, target, radius, chance, delayTicks,
-                    damage, pullStrength);
-        }
-
-        private MutationAction parseGroundHazardOnDeathAction(JsonObject object) {
-            double radius = JsonHelper.getDouble(object, "radius");
-            int duration = parseTicks(object, "duration", 140);
-            int interval = parseTicks(object, "interval", 20);
-            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
-            RegistryEntry<StatusEffect> statusEffect = null;
-            if (object.has("status_effect")) {
-                Identifier effectId = Identifier.of(JsonHelper.getString(object, "status_effect"));
-                statusEffect = resolveStatusEffect(effectId);
-            }
-            int statusDuration = parseTicks(object, "status_duration", statusEffect == null ? 0 : 100);
-            int statusAmplifier = JsonHelper.getInt(object, "status_amplifier", 0);
-            String targetRaw = JsonHelper.getString(object, "target", "players");
-            GroundHazardManager.Target target = GroundHazardManager.Target.fromString(targetRaw);
-            ParticleEffect particle = parseParticle(object, "particle");
-            int particleCount = JsonHelper.getInt(object, "particle_count", particle == null ? 0 : 8);
-            double chance = parseChance(object, "chance");
-            int delay = parseTicks(object, "delay", 0);
-            GroundHazardManager.HazardConfig config = new GroundHazardManager.HazardConfig(
-                    radius,
-                    duration,
-                    interval,
-                    damage,
-                    statusEffect,
-                    statusDuration,
-                    statusAmplifier,
-                    target,
-                    particle,
-                    particleCount);
-            return new GroundHazardOnDeathAction(config, chance, delay);
-        }
-
-        private MutationAction parseLootScatterAction(JsonObject object) {
-            double radius = JsonHelper.getDouble(object, "radius", 2.5D);
-            double horizontal = JsonHelper.getDouble(object, "horizontal_velocity", 0.8D);
-            double vertical = JsonHelper.getDouble(object, "vertical_velocity", 0.4D);
-            return new LootScatterOnDeathAction(radius, horizontal, vertical);
-        }
-
-        private MutationAction parseGhostFragmentsAction(JsonObject object) {
-            int min = JsonHelper.getInt(object, "min_count", 2);
-            int max = JsonHelper.getInt(object, "max_count", min);
-            return new GhostFragmentsOnDeathAction(min, max);
-        }
-
-        private MutationAction parseFakeLootPileAction(JsonObject object) {
-            double searchRadius = JsonHelper.getDouble(object, "search_radius", 2.5D);
-            int lifetime = parseTicks(object, "lifetime", 160);
-            double scatterHorizontal = JsonHelper.getDouble(object, "scatter_horizontal", 0.7D);
-            double scatterVertical = JsonHelper.getDouble(object, "scatter_vertical", 0.4D);
-            double explosionRadius = JsonHelper.getDouble(object, "explosion_radius", 4.0D);
-            float explosionDamage = JsonHelper.getFloat(object, "explosion_damage", 5.0F);
-            return new FakeLootPileOnDeathAction(searchRadius, lifetime, scatterHorizontal, scatterVertical,
-                    explosionRadius, explosionDamage);
-        }
-
-        private MutationAction parseDetonatingRemainsAction(JsonObject object) {
-            int linger = parseTicks(object, "linger", 80);
-            double triggerRadius = JsonHelper.getDouble(object, "trigger_radius", 1.5D);
-            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
-            RegistryEntry<StatusEffect> statusEffect = null;
-            if (object.has("status_effect")) {
-                Identifier effectId = Identifier.of(JsonHelper.getString(object, "status_effect"));
-                statusEffect = resolveStatusEffect(effectId);
-            }
-            int statusDuration = parseTicks(object, "status_duration", statusEffect == null ? 0 : 100);
-            int statusAmplifier = JsonHelper.getInt(object, "status_amplifier", 0);
-            boolean harmless = JsonHelper.getBoolean(object, "harmless", damage <= 0.0F && statusEffect == null);
-            double chance = parseChance(object, "chance");
-            double chainRadius = JsonHelper.getDouble(object, "chain_radius", 0.0D);
-            int chainDuration = parseTicks(object, "chain_duration", 0);
-            return new DetonatingRemainsOnDeathAction(linger,
-                    triggerRadius,
-                    damage,
-                    statusEffect,
-                    statusDuration,
-                    statusAmplifier,
-                    harmless,
-                    chance,
-                    chainRadius,
-                    chainDuration);
-        }
-
-        private MutationAction parseFinalBurstAction(JsonObject object) {
-            double radius = JsonHelper.getDouble(object, "radius", 4.0D);
-            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
-            double pushStrength = JsonHelper.getDouble(object, "push_strength", 0.0D);
-            double verticalBoost = JsonHelper.getDouble(object, "vertical_boost", pushStrength > 0.0D ? 0.35D : 0.0D);
-            int fireRadius = JsonHelper.getInt(object, "fire_radius", 0);
-            int fireDuration = parseTicks(object, "fire_duration", 0);
-            return new FinalBurstOnDeathAction(radius, damage, pushStrength, verticalBoost, fireRadius, fireDuration);
-        }
-
-        private MutationAction parseFinalGambitAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode", "projectile_purge");
-            FinalGambitOnDeathAction.Mode mode = FinalGambitOnDeathAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius", 6.0D);
-            int cooldown = parseTicks(object, "cooldown", 100);
-            int collapseDuration = parseTicks(object, "duration", 0);
-            return new FinalGambitOnDeathAction(mode, radius, cooldown, collapseDuration);
-        }
-
-        private ParticleEffect parseParticle(JsonObject object, String key) {
-            if (!object.has(key)) {
-                return null;
-            }
-            Identifier id = Identifier.of(JsonHelper.getString(object, key));
-            ParticleType<?> particleType = Registries.PARTICLE_TYPE.get(id);
-            if (particleType == null) {
-                throw new IllegalArgumentException("Partícula desconocida '" + id + "'");
-            }
-            if (particleType instanceof SimpleParticleType simple) {
-                return simple;
-            }
-            throw new IllegalArgumentException("La partícula '" + id
-                    + "' requiere datos adicionales y no es compatible con ground_hazard_on_death");
-        }
-
-        private MutationAction parseChaosTouchAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "swap_right");
-            ChaosTouchOnHitAction.Mode mode = ChaosTouchOnHitAction.Mode.fromString(modeRaw);
-            int slownessTicks = parseTicks(object, "self_slowness", 0);
-            return new ChaosTouchOnHitAction(chance, mode, slownessTicks);
-        }
-
-        private MutationAction parseFrenzyAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "surge");
-            FrenzyOnHitAction.Mode mode = FrenzyOnHitAction.Mode.fromString(modeRaw);
-            return new FrenzyOnHitAction(chance, mode);
-        }
-
-        private MutationAction parsePainLinkAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "retribution");
-            PainLinkOnHitAction.Mode mode = PainLinkOnHitAction.Mode.fromString(modeRaw);
-            return new PainLinkOnHitAction(chance, mode);
-        }
-
-        private MutationAction parseEssenceSiphonAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "weaken");
-            EssenceSiphonOnHitAction.Mode mode = EssenceSiphonOnHitAction.Mode.fromString(modeRaw);
-            return new EssenceSiphonOnHitAction(chance, mode);
-        }
-
-        private MutationAction parseConcussiveBlowAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "shake");
-            ConcussiveBlowOnHitAction.Mode mode = ConcussiveBlowOnHitAction.Mode.fromString(modeRaw);
-            return new ConcussiveBlowOnHitAction(chance, mode);
-        }
-
-        private MutationAction parseMortalWoundAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            String effectDefault = Legacycreaturescorey.MOD_ID + ":mortal_wound_minor";
-            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect", effectDefault));
-            RegistryEntry<StatusEffect> entry = resolveStatusEffect(effectId);
-            int duration = parseTicks(object, "duration", 100);
-            return new MortalWoundOnHitAction(chance, entry, duration);
-        }
-
-        private MutationAction parseDamageAuraAction(JsonObject object) {
-            float amount = JsonHelper.getFloat(object, "amount");
-            double range = JsonHelper.getDouble(object, "range");
-            int interval = JsonHelper.getInt(object, "interval", 20);
-            return new DamageAuraAction(amount, range, interval);
-        }
-
-        private MutationAction parseStatusEffectAuraAction(JsonObject object) {
-            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect"));
-            RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
-            int duration = JsonHelper.getInt(object, "duration");
-            int amplifier = JsonHelper.getInt(object, "amplifier", 0);
-            double radius = JsonHelper.getDouble(object, "radius");
-            int interval = parseTicks(object, "interval", 20);
-            String targetRaw = JsonHelper.getString(object, "target", "PLAYERS");
-            StatusEffectAuraAction.Target target = StatusEffectAuraAction.Target.fromString(targetRaw);
-            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self",
-                    target != StatusEffectAuraAction.Target.SELF);
-            boolean requiresUndead = JsonHelper.getBoolean(object, "requires_undead", false);
-            boolean requiresNonUndead = JsonHelper.getBoolean(object, "requires_non_undead", false);
-            return new StatusEffectAuraAction(effect, duration, amplifier, radius, interval, target, excludeSelf,
-                    requiresUndead, requiresNonUndead);
-        }
-
-        private MutationAction parseHealAction(JsonObject object) {
-            float amount = JsonHelper.getFloat(object, "amount");
-            int interval = JsonHelper.getInt(object, "interval", 40);
+        private MutationAction parseHealAction(JsonObject root) {
+            float amount = JsonHelper.getFloat(root, "amount");
+            int interval = JsonHelper.getInt(root, "interval");
             return new HealAction(amount, interval);
         }
 
-        private MutationAction parseSummonAction(JsonObject object) {
-            Identifier entityId = Identifier.of(JsonHelper.getString(object, "entity"));
-            int interval = JsonHelper.getInt(object, "interval", 200);
-            int maxCount = JsonHelper.getInt(object, "max_count", 3);
-            double radius = JsonHelper.getDouble(object, "radius", 4.0D);
-            return new SummonMobAction(entityId, interval, maxCount, radius);
-        }
-
-        private MutationAction parseTrueDamageAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            List<StatusEffectOnHitAction.AdditionalEffect> sideEffects = parseAdditionalEffects(object, "side_effects");
-            return new TrueDamageOnHitAction(chance, sideEffects);
-        }
-
-        private MutationAction parseCriticalAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            float bonusDamage = JsonHelper.getFloat(object, "bonus_damage");
-            List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "extra_effects");
-            return new CriticalDamageOnHitAction(chance, bonusDamage, extras);
-        }
-
-        private MutationAction parseHealOnHitAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            float amount = JsonHelper.getFloat(object, "amount");
-            return new HealOnHitAction(amount, chance);
-        }
-
-        private MutationAction parseDisableShieldAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int cooldownTicks = JsonHelper.getInt(object, "cooldown_ticks", 100);
-            return new DisableShieldOnHitAction(chance, cooldownTicks);
-        }
-
-        private MutationAction parseDamageArmorAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int damage = JsonHelper.getInt(object, "damage");
-            return new DamageArmorOnHitAction(chance, damage);
-        }
-
-        private MutationAction parseIgniteAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int fireSeconds;
-            if (object.has("duration_seconds")) {
-                fireSeconds = JsonHelper.getInt(object, "duration_seconds");
-            } else {
-                int ticks = JsonHelper.getInt(object, "duration_ticks", 0);
-                fireSeconds = (int) Math.ceil(ticks / 20.0D);
-            }
-            return new IgniteOnHitAction(chance, fireSeconds);
-        }
-
-        private MutationAction parseFreezeAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int freezeTicks = parseTicks(object, "freeze", 0);
-            int selfSlownessTicks = parseTicks(object, "self_slowness", 0);
-            return new FreezeOnHitAction(chance, freezeTicks, selfSlownessTicks);
-        }
-
-        private MutationAction parseBleedingAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            float[] pulses = parseDamagePulses(object);
-            int interval = parseTicks(object, "interval", 20);
-            return new BleedingOnHitAction(chance, pulses, interval);
-        }
-
-        private MutationAction parseKnockbackAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            double distance = JsonHelper.getDouble(object, "distance");
-            return new KnockbackOnHitAction(chance, distance);
-        }
-
-        private MutationAction parseTeleportAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            double radius = JsonHelper.getDouble(object, "radius");
-            TeleportOnHitAction.Target target = TeleportOnHitAction.Target
-                    .fromString(JsonHelper.getString(object, "target", "OTHER"));
-            List<StatusEffectOnHitAction.AdditionalEffect> extras = parseAdditionalEffects(object, "side_effects");
-            return new TeleportOnHitAction(chance, radius, target, extras);
-        }
-
-        private MutationAction parseDisarmAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int selfSlowness = parseTicks(object, "self_slowness", 0);
-            return new DisarmOnHitAction(chance, selfSlowness);
-        }
-
-        private MutationAction parseExperienceTheftAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            int amount = JsonHelper.getInt(object, "amount");
-            return new ExperienceTheftOnHitAction(chance, amount);
-        }
-
-        private MutationAction parseVerticalThrustAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            double velocity = JsonHelper.getDouble(object, "upward_velocity");
-            int downtime = parseTicks(object, "self_downtime", 0);
-            return new VerticalThrustOnHitAction(chance, velocity, downtime);
-        }
-
-        private MutationAction parseShatterArmorAction(JsonObject object) {
-            double chance = parseChance(object, "chance");
-            double percent = JsonHelper.getDouble(object, "percent");
-            int duration = parseTicks(object, "duration", 0);
-            return new ShatterArmorOnHitAction(chance, percent, duration);
-        }
-
-        private MutationAction parseProjectileShroudAction(JsonObject object) {
-            double radius = JsonHelper.getDouble(object, "radius");
-            double chance = parseChance(object, "chance");
-            String modeRaw = JsonHelper.getString(object, "mode", "destroy");
-            ProjectileShroudAuraAction.Mode mode = ProjectileShroudAuraAction.Mode.fromString(modeRaw);
-            double pushStrength = JsonHelper.getDouble(object, "push_strength", 0.4D);
-            double reflectFactor = JsonHelper.getDouble(object, "reflect_factor", 1.0D);
-            return new ProjectileShroudAuraAction(radius, chance, mode, pushStrength, reflectFactor);
-        }
-
-        private MutationAction parseInterferenceAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode");
-            InterferenceAuraAction.Mode mode = InterferenceAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            double chance = JsonHelper.getDouble(object, "chance", 1.0D);
-            float damage = JsonHelper.getFloat(object, "damage", 0.0F);
-            return new InterferenceAuraAction(mode, radius, chance, damage);
-        }
-
-        private MutationAction parseStasisFieldAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode");
-            StasisFieldAuraAction.Mode mode = StasisFieldAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            double slowFactor = JsonHelper.getDouble(object, "projectile_slow_factor", 0.5D);
-            double attackSpeedMultiplier = JsonHelper.getDouble(object, "attack_speed_multiplier", 1.0D);
-            int shieldCooldown = parseTicks(object, "shield_cooldown", 0);
-            return new StasisFieldAuraAction(mode, radius, slowFactor, attackSpeedMultiplier, shieldCooldown);
-        }
-
-        private MutationAction parseEntropyAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode");
-            EntropyAuraAction.Mode mode = EntropyAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            double chance = JsonHelper.getDouble(object, "chance", 1.0D);
-            int interval = parseTicks(object, "interval", 20);
-            int cooldown = parseTicks(object, "cooldown", 20);
-            int lockTicks = parseTicks(object, "lock", 80);
-            int durabilityDamage = JsonHelper.getInt(object, "durability_damage", 1);
-            return new EntropyAuraAction(mode, radius, chance, interval, cooldown, lockTicks, durabilityDamage);
-        }
-
-        private MutationAction parsePhantasmalVeilAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode", "health_mirage");
-            PhantasmalVeilAuraAction.Mode mode = PhantasmalVeilAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius", 6.0D);
-            int interval = parseTicks(object, "interval", 40);
-            int particles = JsonHelper.getInt(object, "particle_count", 6);
-            int cloneMin = JsonHelper.getInt(object, "clone_min", 0);
-            int cloneMax = JsonHelper.getInt(object, "clone_max", cloneMin);
-            int cloneLifetime = parseTicks(object, "clone_lifetime", 100);
-            boolean cloneGlow = JsonHelper.getBoolean(object, "clone_glow", false);
-            int shroudVisible = parseTicks(object, "shroud_visible", 20);
-            int shroudInvisible = parseTicks(object, "shroud_invisible", 20);
-            return new PhantasmalVeilAuraAction(mode, radius, interval, particles, cloneMin, cloneMax, cloneLifetime,
-                    cloneGlow, shroudVisible, shroudInvisible);
-        }
-
-        private MutationAction parsePsionicThornsAuraAction(JsonObject object) {
-            double reflectPercent = parseChance(object, "reflect_percent");
-            double maxDistance = JsonHelper.getDouble(object, "max_distance", 6.0D);
-            double criticalBonus = JsonHelper.getDouble(object, "critical_bonus_factor", 0.0D);
-            boolean enableCritBonus = criticalBonus > 0;
-
-            List<PsionicThornsAuraAction.ThornsEffect> effects = new ArrayList<>();
-
-            if (object.has("mining_fatigue_duration")) {
-                int duration = parseTicks(object, "mining_fatigue_duration", 0);
-                int amplifier = JsonHelper.getInt(object, "mining_fatigue_amplifier", 0);
-                if (duration > 0) {
-                    RegistryEntry<StatusEffect> miningFatigue = resolveStatusEffect(
-                            Identifier.of("minecraft:mining_fatigue"));
-                    effects.add(new PsionicThornsAuraAction.ThornsEffect(miningFatigue, duration, amplifier));
-                }
-            }
-
-            effects.addAll(parseThornsEffects(object, "effects"));
-
-            return new PsionicThornsAuraAction(reflectPercent, maxDistance, enableCritBonus, (float) criticalBonus,
-                    effects);
-        }
-
-        private MutationAction parseDeepDarknessAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode", "darkness");
-            DeepDarknessAuraAction.Mode mode = DeepDarknessAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            int interval = parseTicks(object, "interval", 20);
-            int darknessDuration = parseTicks(object, "darkness_duration", 80);
-            Identifier effectId = Identifier.of(JsonHelper.getString(object, "effect", "minecraft:darkness"));
-            RegistryEntry<StatusEffect> statusEffectEntry = resolveStatusEffect(effectId);
-            boolean removeNightVision = JsonHelper.getBoolean(object, "remove_night_vision", true);
-            int lightDelay = parseTicks(object, "light_break_delay", 300);
-            int lightThreshold = JsonHelper.getInt(object, "light_threshold", 7);
-            return new DeepDarknessAuraAction(mode, radius, interval, darknessDuration, statusEffectEntry,
-                    removeNightVision, lightDelay, lightThreshold);
-        }
-
-        private MutationAction parseVirulentGrowthAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode", "foliage_spread");
-            VirulentGrowthAuraAction.Mode mode = VirulentGrowthAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            int interval = parseTicks(object, "interval", 40);
-            int attempts = JsonHelper.getInt(object, "attempts", 4);
-            double chance = object.has("chance") ? parseChance(object, "chance") : 0.35D;
-            int stationaryThreshold = parseTicks(object, "stationary_threshold", 100);
-            int poisonDuration = parseTicks(object, "poison_duration", 100);
-            int poisonAmplifier = JsonHelper.getInt(object, "poison_amplifier", 0);
-            int fangCount = JsonHelper.getInt(object, "fang_count", 6);
-            int fangWarmup = parseTicks(object, "fang_warmup", 20);
-            return new VirulentGrowthAuraAction(mode, radius, interval, attempts, chance, stationaryThreshold,
-                    poisonDuration, poisonAmplifier, fangCount, fangWarmup);
-        }
-
-        private MutationAction parseHordeBeaconAuraAction(JsonObject object) {
-            String modeRaw = JsonHelper.getString(object, "mode", "fear_override");
-            HordeBeaconAuraAction.Mode mode = HordeBeaconAuraAction.Mode.fromString(modeRaw);
-            double radius = JsonHelper.getDouble(object, "radius");
-            int interval = parseTicks(object, "interval", mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 160 : 20);
-            int markDuration = parseTicks(object, "mark_duration",
-                    mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 0);
-            int speedDuration = parseTicks(object, "speed_duration",
-                    mode == HordeBeaconAuraAction.Mode.TARGET_MARK ? 120 : 20);
-            int speedAmplifier = JsonHelper.getInt(object, "speed_amplifier", 0);
-            int retargetCooldown = parseTicks(object, "retarget_cooldown", 40);
-            return new HordeBeaconAuraAction(mode, radius, interval, markDuration, speedDuration, speedAmplifier,
-                    retargetCooldown);
-        }
-
-        private MutationAction parseUndeadPotionBurstAction(JsonObject object) {
-            int interval = parseTicks(object, "interval", 140);
-            Identifier potionId = Identifier.of(JsonHelper.getString(object, "potion", "minecraft:strong_harming"));
-            RegistryEntry<Potion> potionEntry = resolvePotion(potionId);
-            double verticalVelocity = JsonHelper.getDouble(object, "vertical_velocity", 0.7D);
-            double spread = JsonHelper.getDouble(object, "spread", 0.2D);
-            return new UndeadPotionBurstAction(interval, potionEntry, verticalVelocity, spread);
-        }
-
-        private MutationAction parseAttributeAuraAction(JsonObject object) {
-            Identifier attributeId = Identifier.of(JsonHelper.getString(object, "attribute"));
-            String operationRaw = JsonHelper.getString(object, "mode", "add");
-            AttributeAuraAction.Operation operation = AttributeAuraAction.Operation.fromString(operationRaw);
-            double amount = JsonHelper.getDouble(object, "amount");
-            double radius = JsonHelper.getDouble(object, "radius");
-            String targetRaw = JsonHelper.getString(object, "target", "ALLY_MOBS");
-            AttributeAuraAction.Target target = AttributeAuraAction.Target.fromString(targetRaw);
-            boolean excludeSelf = JsonHelper.getBoolean(object, "exclude_self",
-                    target != AttributeAuraAction.Target.SELF);
-            return new AttributeAuraAction(attributeId, operation, amount, radius, target, excludeSelf);
-        }
-
-        private MutationAction parseAllyDeathHealAuraAction(JsonObject object) {
-            double radius = JsonHelper.getDouble(object, "radius");
-            float healAmount = JsonHelper.getFloat(object, "heal_amount");
+        private MutationAction parseAllyDeathHealAuraAction(JsonObject root) {
+            double radius = JsonHelper.getDouble(root, "radius");
+            float healAmount = JsonHelper.getFloat(root, "heal_amount");
             return new AllyDeathHealAuraAction(radius, healAmount);
         }
 
-        private RegistryEntry<StatusEffect> resolveStatusEffect(Identifier id) {
-            StatusEffect effect = Registries.STATUS_EFFECT.get(id);
-            if (effect == null) {
-                throw new IllegalArgumentException("No se encontró el efecto de estado '" + id + "'");
-            }
-            return Registries.STATUS_EFFECT
-                    .getEntry(Registries.STATUS_EFFECT.getRawId(effect))
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "No se pudo obtener la entrada del estado '" + id + "'"));
+        @SuppressWarnings("unused")
+        private StatusEffect parseStatusEffect(JsonObject root, String key) {
+            String id = JsonHelper.getString(root, key);
+            return Registries.STATUS_EFFECT.get(Identifier.of(id));
         }
 
-        private RegistryEntry<Potion> resolvePotion(Identifier id) {
-            Potion potion = Registries.POTION.get(id);
-            if (potion == null) {
-                throw new IllegalArgumentException("Poción desconocida '" + id + "'");
-            }
-            return Registries.POTION
-                    .getEntry(Registries.POTION.getRawId(potion))
-                    .orElseThrow(() -> new IllegalArgumentException("No se pudo obtener la poción '" + id + "'"));
+        @SuppressWarnings("unused")
+        private Potion parsePotion(JsonObject root, String key) {
+            String id = JsonHelper.getString(root, key);
+            return Registries.POTION.get(Identifier.of(id));
         }
 
-        private StatusEffectOnHitAction.Target parseHitTarget(String raw) {
-            try {
-                return StatusEffectOnHitAction.Target.valueOf(raw.trim().toUpperCase(Locale.ROOT));
-            } catch (IllegalArgumentException exception) {
-                throw new IllegalArgumentException("Objetivo desconocido '" + raw + "'");
+        @SuppressWarnings("unused")
+        private ParticleEffect parseParticle(JsonObject root, String key) {
+            String id = JsonHelper.getString(root, key);
+            ParticleType<?> type = Registries.PARTICLE_TYPE.get(Identifier.of(id));
+            if (type instanceof SimpleParticleType simple) {
+                return simple;
             }
+            throw new IllegalArgumentException("Solo se soportan partículas simples por ahora: " + id);
         }
 
-        private double parseChance(JsonObject object, String key) {
-            double chance = JsonHelper.getDouble(object, key, 1.0D);
-            if (chance < 0.0D || chance > 1.0D) {
-                throw new IllegalArgumentException("La probabilidad debe estar entre 0.0 y 1.0");
-            }
-            return chance;
-        }
-
-        private List<StatusEffectOnHitAction.AdditionalEffect> parseAdditionalEffects(JsonObject object, String key) {
-            if (!object.has(key)) {
-                return List.of();
-            }
-            JsonArray array = JsonHelper.getArray(object, key);
-            List<StatusEffectOnHitAction.AdditionalEffect> effects = new ArrayList<>(array.size());
-            for (int i = 0; i < array.size(); i++) {
-                JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
-                Identifier effectId = Identifier.of(JsonHelper.getString(entry, "effect"));
-                RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
-                int duration = JsonHelper.getInt(entry, "duration");
-                int amplifier = JsonHelper.getInt(entry, "amplifier", 0);
-                String targetRaw = JsonHelper.getString(entry, "target", "other");
-                StatusEffectOnHitAction.Target target = parseHitTarget(targetRaw);
-                effects.add(new StatusEffectOnHitAction.AdditionalEffect(effect, duration, amplifier, target));
-            }
-            return effects;
-        }
-
-        private List<PsionicThornsAuraAction.ThornsEffect> parseThornsEffects(JsonObject object, String key) {
-            if (!object.has(key)) {
-                return List.of();
-            }
-            JsonArray array = JsonHelper.getArray(object, key);
-            List<PsionicThornsAuraAction.ThornsEffect> effects = new ArrayList<>(array.size());
-            for (int i = 0; i < array.size(); i++) {
-                JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
-                Identifier effectId = Identifier.of(JsonHelper.getString(entry, "effect"));
-                RegistryEntry<StatusEffect> effect = resolveStatusEffect(effectId);
-                int duration = JsonHelper.getInt(entry, "duration");
-                int amplifier = JsonHelper.getInt(entry, "amplifier", 0);
-                effects.add(new PsionicThornsAuraAction.ThornsEffect(effect, duration, amplifier));
-            }
-            return effects;
-        }
-
-        private float[] parseDamagePulses(JsonObject object) {
-            if (!object.has("damage_pulses")) {
-                throw new IllegalArgumentException("Se requiere 'damage_pulses'");
-            }
-            JsonArray array = JsonHelper.getArray(object, "damage_pulses");
-            if (array.isEmpty()) {
-                throw new IllegalArgumentException("Los 'damage_pulses' no pueden estar vacíos");
-            }
-            float[] pulses = new float[array.size()];
-            for (int i = 0; i < array.size(); i++) {
-                double value = JsonHelper.asDouble(array.get(i), "damage_pulses[" + i + "]");
-                pulses[i] = (float) value;
-            }
-            return pulses;
-        }
-
-        private int parseTicks(JsonObject object, String baseKey, int defaultTicks) {
-            String ticksKey = baseKey + "_ticks";
-            if (object.has(ticksKey)) {
-                return Math.max(0, JsonHelper.getInt(object, ticksKey));
-            }
-            String secondsKey = baseKey + "_seconds";
-            if (object.has(secondsKey)) {
-                double seconds = JsonHelper.getDouble(object, secondsKey);
-                return Math.max(0, (int) Math.round(seconds * 20.0D));
-            }
-            return defaultTicks;
-        }
-
-        private static final class ParseException extends Exception {
-            private ParseException(String message, Throwable cause) {
-                super(message, cause);
+        static class ParseException extends Exception {
+            ParseException(String message) {
+                super(message);
             }
         }
     }

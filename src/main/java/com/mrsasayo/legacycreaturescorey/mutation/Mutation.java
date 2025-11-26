@@ -19,7 +19,8 @@ public interface Mutation {
     Identifier getId();
 
     /**
-     * Tipo funcional de la mutación (pasiva de atributos, pasiva por golpe o activa por tick).
+     * Tipo funcional de la mutación (pasiva de atributos, pasiva por golpe o activa
+     * por tick).
      */
     MutationType getType();
 
@@ -48,27 +49,44 @@ public interface Mutation {
     /**
      * Se invoca cuando la mutación se añade a un mob.
      */
-    default void onApply(LivingEntity entity) {}
+    default void onApply(LivingEntity entity) {
+    }
 
     /**
      * Se invoca cuando la mutación se retira de un mob.
      */
-    default void onRemove(LivingEntity entity) {}
+    default void onRemove(LivingEntity entity) {
+    }
 
     /**
      * Se invoca cada tick para mutaciones activas.
      */
-    default void onTick(LivingEntity entity) {}
+    default void onTick(LivingEntity entity) {
+    }
 
     /**
      * Se invoca cuando la entidad con esta mutación inflige daño a otra.
      */
-    default void onHit(LivingEntity attacker, LivingEntity target) {}
+    default void onHit(LivingEntity attacker, LivingEntity target) {
+    }
+
+    /**
+     * Called when the owning entity takes damage.
+     */
+    default void onDamage(LivingEntity entity, DamageSource source, float amount) {
+    }
+
+    /**
+     * Called when the owning entity kills another entity.
+     */
+    default void onKill(LivingEntity entity, LivingEntity target) {
+    }
 
     /**
      * Called when the owning entity dies.
      */
-    default void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {}
+    default void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
+    }
 
     /**
      * Devuelve true si la mutación puede asignarse a la entidad dada.
@@ -85,11 +103,13 @@ public interface Mutation {
     }
 
     /**
-     * Returns null when the mutation can be applied, otherwise a short human-readable
+     * Returns null when the mutation can be applied, otherwise a short
+     * human-readable
      * failure reason explaining why it cannot be applied to the given entity with
      * the provided existing mutations.
      */
-    default String getApplyFailureReason(net.minecraft.entity.mob.MobEntity entity, List<Identifier> existingMutations) {
+    default String getApplyFailureReason(net.minecraft.entity.mob.MobEntity entity,
+            List<Identifier> existingMutations) {
         if (!canApplyTo(entity)) {
             return "Entity does not meet mutation restrictions";
         }

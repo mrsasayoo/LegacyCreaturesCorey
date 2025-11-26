@@ -1,0 +1,21 @@
+{
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/aerial_maneuvers_2",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 12,
+    "display_name": {
+        "literal": "Maniobras Aéreas II"
+    },
+    "description": {
+        "literal": "Dispara un cono de 4 bolas de fuego cada 6 segundos."
+    },
+    "weight": 30,
+    "actions": {
+        "cooldown_ticks": 120,
+        "fireball_power": 1
+    },
+    "entity_types": [
+        "minecraft:ghast"
+    ],
+    "incompatible_with": []
+}

@@ -1,7 +1,7 @@
 {
     "enabled": true,
     "id": "legacycreaturescorey:on_hit/glowing_2",
-    "type": "PASSIVE_ON_HIT",
+    "type": "on_hit",
     "cost": 3,
     "display_name": {
         "literal": "Resplandor II"
@@ -10,16 +10,23 @@
         "literal": "20% de probabilidad de mantener al objetivo resaltado durante más tiempo."
     },
     "weight": 75,
-    "actions": [
-        {
-            "type": "status_effect_on_hit",
-            "chance": 0.20,
-            "effect": "minecraft:glowing",
-            "duration": 40,
-            "amplifier": 0,
-            "target": "OTHER"
-        }
-    ],
+    "actions": {
+        "chance": 0.2,
+        "pulses": 2,
+        "duration_ticks": 20,
+        "interval_ticks": 20,
+        "effects": [
+            {
+                "id": "minecraft:glowing",
+                "duration": 20,
+                "amplifier": 0,
+                "ambient": true,
+                "show_particles": true,
+                "show_icon": true
+            }
+        ]
+    },
+    "entity_types": [],
     "incompatible_with": [
         "legacycreaturescorey:on_hit/glowing_1",
         "legacycreaturescorey:on_hit/glowing_3"
