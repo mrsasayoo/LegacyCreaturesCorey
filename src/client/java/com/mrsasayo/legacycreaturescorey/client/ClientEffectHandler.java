@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.client;
 
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectPayload;
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectType;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;

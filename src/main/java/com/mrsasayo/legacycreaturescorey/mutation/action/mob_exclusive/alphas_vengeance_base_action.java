@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-abstract class alphas_vengeance_base_action implements MutationAction {
+abstract class alphas_vengeance_base_action implements mutation_action {
     private static final Set<alphas_vengeance_base_action> ALLY_WATCHERS = Collections.newSetFromMap(new WeakHashMap<>());
     private static boolean deathHookRegistered;
 

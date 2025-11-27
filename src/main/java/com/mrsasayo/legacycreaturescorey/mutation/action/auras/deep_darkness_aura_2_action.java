@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
@@ -11,7 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 
 import java.util.List;
 
-public class deep_darkness_aura_2_action implements MutationAction {
+public class deep_darkness_aura_2_action implements mutation_action {
     private final double radius;
     private final int intervalTicks;
     private final int darknessDurationTicks;
@@ -30,7 +30,7 @@ public class deep_darkness_aura_2_action implements MutationAction {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity))
+        if (!action_context.isServer(entity))
             return;
         if (intervalTicks > 0 && entity.age % intervalTicks != 0)
             return;

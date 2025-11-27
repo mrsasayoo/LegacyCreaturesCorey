@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.LivingEntity;
@@ -17,7 +17,7 @@ import net.minecraft.server.world.ServerWorld;
  * Al morir, el slime crea un área de efecto con veneno y partículas densas.
  * Mejorado: Usa múltiples tipos de partículas para mayor visibilidad.
  */
-public final class acidic_core_2_action implements MutationAction {
+public final class acidic_core_2_action implements mutation_action {
     private final float radius;
     private final int durationTicks;
     private final int effectDuration;

@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -26,7 +26,7 @@ import java.util.WeakHashMap;
  * El vórtice atrae a los jugadores cercanos con una fuerza débil (simula corriente de agua).
  * Partículas moradas/negras convergen hacia el centro.
  */
-public final class abyssal_maneuvers_3_action implements MutationAction {
+public final class abyssal_maneuvers_3_action implements mutation_action {
     private final Map<WitherEntity, vortex_state> states = new WeakHashMap<>();
     
     private final int cooldownTicks;

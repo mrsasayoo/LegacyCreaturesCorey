@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Configuración de Log4j2 para Legacy Creatures - Corey
+    Sistema de logging multi-nivel para mutaciones
+    
+    Este archivo configura appenders separados para cada categoría de mutación.
+    Los logs se escriben tanto al archivo principal como a archivos específicos por categoría.
+    
+    Archivos generados:
+    - run/logs/latest.log (principal, todos los logs)
+    - run/logs/mutations_aura.log
+    - run/logs/mutations_on_hit.log
+    - run/logs/mutations_mob_exclusive.log
+    - run/logs/mutations_passive.log
+    - run/logs/mutations_on_being_hit.log
+    - run/logs/mutations_on_death.log
+    - run/logs/mutations_synergy.log
+    - run/logs/mutations_terrain.log
+    - run/logs/mutations_debug.log
+-->
+<Configuration status="WARN">
+    <Properties>
+        <Property name="logDir">logs</Property>
+        <Property name="patternLayout">[%d{HH:mm:ss}] [%t/%level] (%logger) %msg%n</Property>
+        <Property name="mutationPatternLayout">[%d{HH:mm:ss}] [%level] %msg%n</Property>
+    </Properties>
+    
+    <Appenders>
+        <!-- Appender principal de consola (hereda de Minecraft) -->
+        <Console name="SysOut" target="SYSTEM_OUT">
+            <PatternLayout pattern="${patternLayout}"/>
+        </Console>
+        
+        <!-- ============ APPENDERS POR CATEGORÍA DE MUTACIÓN ============ -->
+        
+        <!-- Auras -->
+        <RollingFile name="MutationAuraFile"
+                     fileName="${logDir}/mutations_aura.log"
+                     filePattern="${logDir}/mutations_aura-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_AURA" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- On-Hit -->
+        <RollingFile name="MutationOnHitFile"
+                     fileName="${logDir}/mutations_on_hit.log"
+                     filePattern="${logDir}/mutations_on_hit-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_ON_HIT" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Mob Exclusive -->
+        <RollingFile name="MutationMobExclusiveFile"
+                     fileName="${logDir}/mutations_mob_exclusive.log"
+                     filePattern="${logDir}/mutations_mob_exclusive-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_MOB_EXCLUSIVE" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Passive -->
+        <RollingFile name="MutationPassiveFile"
+                     fileName="${logDir}/mutations_passive.log"
+                     filePattern="${logDir}/mutations_passive-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_PASSIVE" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- On-Being-Hit -->
+        <RollingFile name="MutationOnBeingHitFile"
+                     fileName="${logDir}/mutations_on_being_hit.log"
+                     filePattern="${logDir}/mutations_on_being_hit-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_ON_BEING_HIT" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- On-Death -->
+        <RollingFile name="MutationOnDeathFile"
+                     fileName="${logDir}/mutations_on_death.log"
+                     filePattern="${logDir}/mutations_on_death-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_ON_DEATH" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Synergy -->
+        <RollingFile name="MutationSynergyFile"
+                     fileName="${logDir}/mutations_synergy.log"
+                     filePattern="${logDir}/mutations_synergy-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_SYNERGY" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Terrain -->
+        <RollingFile name="MutationTerrainFile"
+                     fileName="${logDir}/mutations_terrain.log"
+                     filePattern="${logDir}/mutations_terrain-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_TERRAIN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Debug General -->
+        <RollingFile name="MutationDebugFile"
+                     fileName="${logDir}/mutations_debug.log"
+                     filePattern="${logDir}/mutations_debug-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <MarkerFilter marker="MUTATION_DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Archivo combinado de todas las mutaciones -->
+        <RollingFile name="MutationAllFile"
+                     fileName="${logDir}/mutations_all.log"
+                     filePattern="${logDir}/mutations_all-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${mutationPatternLayout}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="7"/>
+        </RollingFile>
+    </Appenders>
+    
+    <Loggers>
+        <!-- Logger específico para MutationLogger -->
+        <Logger name="MutationLogger" level="DEBUG" additivity="true">
+            <AppenderRef ref="MutationAuraFile"/>
+            <AppenderRef ref="MutationOnHitFile"/>
+            <AppenderRef ref="MutationMobExclusiveFile"/>
+            <AppenderRef ref="MutationPassiveFile"/>
+            <AppenderRef ref="MutationOnBeingHitFile"/>
+            <AppenderRef ref="MutationOnDeathFile"/>
+            <AppenderRef ref="MutationSynergyFile"/>
+            <AppenderRef ref="MutationTerrainFile"/>
+            <AppenderRef ref="MutationDebugFile"/>
+            <AppenderRef ref="MutationAllFile"/>
+        </Logger>
+        
+        <!-- Root logger (hereda configuración de Minecraft) -->
+        <Root level="INFO">
+            <AppenderRef ref="SysOut"/>
+        </Root>
+    </Loggers>
+</Configuration>

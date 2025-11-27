@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.MathHelper;
 
-abstract class anti_shield_base_action extends ProcOnHitAction {
+abstract class anti_shield_base_action extends proc_on_hit_action {
     private final int cooldownTicks;
 
     protected anti_shield_base_action(mutation_action_config config,

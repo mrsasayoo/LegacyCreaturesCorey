@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-abstract class bastion_guard_base_action implements MutationAction {
+abstract class bastion_guard_base_action implements mutation_action {
     private static final Identifier STANCE_SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID,
             "bastion_guard_speed_lock");
     private static final Identifier STANCE_KNOCKBACK_ID = Identifier.of(Legacycreaturescorey.MOD_ID,

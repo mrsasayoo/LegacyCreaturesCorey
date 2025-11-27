@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -19,7 +19,7 @@ public final class poison_3_action extends status_effect_single_target_base_acti
 
     @Override
     protected void applyAdditionalEffects(LivingEntity attacker, LivingEntity victim) {
-        if (saturationDurationTicks <= 0 || !ActionContext.isServer(victim)) {
+        if (saturationDurationTicks <= 0 || !action_context.isServer(victim)) {
             return;
         }
         victim.addStatusEffect(new StatusEffectInstance(StatusEffects.SATURATION, saturationDurationTicks, saturationAmplifier));

@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.entry.RegistryEntry;
 

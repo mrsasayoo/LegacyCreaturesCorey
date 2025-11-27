@@ -2,10 +2,10 @@ package com.mrsasayo.legacycreaturescorey;
 
 import com.mrsasayo.legacycreaturescorey.client.ClientDifficultyHud;
 import com.mrsasayo.legacycreaturescorey.client.ClientEffectHandler;
-import com.mrsasayo.legacycreaturescorey.network.ClientCapabilitiesPayload;
-import com.mrsasayo.legacycreaturescorey.network.ClientFeature;
-import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
-import com.mrsasayo.legacycreaturescorey.network.ServerHelloPayload;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientCapabilitiesPayload;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientFeature;
+import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.core.network.ServerHelloPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

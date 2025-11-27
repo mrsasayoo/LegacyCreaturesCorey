@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-abstract class chaos_touch_base_action extends ProcOnHitAction {
+abstract class chaos_touch_base_action extends proc_on_hit_action {
     private final Mode mode;
     private final int selfSlownessTicks;
 

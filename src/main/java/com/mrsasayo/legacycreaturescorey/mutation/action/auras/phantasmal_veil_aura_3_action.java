@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
@@ -9,7 +9,7 @@ import net.minecraft.entity.effect.StatusEffects;
 
 import java.util.List;
 
-public class phantasmal_veil_aura_3_action implements MutationAction, PhantasmalSource {
+public class phantasmal_veil_aura_3_action implements mutation_action, PhantasmalSource {
     private final double radius;
     private final int intervalTicks;
     private final int shroudVisibleTicks;
@@ -27,7 +27,7 @@ public class phantasmal_veil_aura_3_action implements MutationAction, Phantasmal
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         PhantasmalHandler.INSTANCE.register(entity, this);
@@ -35,7 +35,7 @@ public class phantasmal_veil_aura_3_action implements MutationAction, Phantasmal
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         PhantasmalHandler.INSTANCE.unregister(entity, this);

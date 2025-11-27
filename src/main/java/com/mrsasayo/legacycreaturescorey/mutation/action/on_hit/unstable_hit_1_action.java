@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -20,7 +20,7 @@ public final class unstable_hit_1_action extends status_effect_single_target_bas
         if (attacker == null || victim == null) {
             return;
         }
-        if (!ActionContext.isServer(victim)) {
+        if (!action_context.isServer(victim)) {
             return;
         }
 

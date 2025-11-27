@@ -1,14 +1,14 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.MathHelper;
 
-abstract class levitation_base_action extends ProcOnHitAction {
+abstract class levitation_base_action extends proc_on_hit_action {
     private final int targetDurationTicks;
     private final int targetAmplifier;
     private final int selfDurationTicks;
@@ -40,10 +40,10 @@ abstract class levitation_base_action extends ProcOnHitAction {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (targetDurationTicks > 0 && ActionContext.isServer(victim)) {
+        if (targetDurationTicks > 0 && action_context.isServer(victim)) {
             victim.addStatusEffect(new StatusEffectInstance(StatusEffects.LEVITATION, targetDurationTicks, targetAmplifier));
         }
-        if (selfDurationTicks > 0 && ActionContext.isServer(attacker)) {
+        if (selfDurationTicks > 0 && action_context.isServer(attacker)) {
             attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.LEVITATION, selfDurationTicks, selfAmplifier));
         }
     }

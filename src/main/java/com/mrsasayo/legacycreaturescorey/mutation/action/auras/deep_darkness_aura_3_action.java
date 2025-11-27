@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.block.Block;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.List;
 
-public class deep_darkness_aura_3_action implements MutationAction {
+public class deep_darkness_aura_3_action implements mutation_action {
     private static final Set<Block> TARGET_LIGHT_BLOCKS = Set.of(
             Blocks.TORCH,
             Blocks.WALL_TORCH,
@@ -59,7 +59,7 @@ public class deep_darkness_aura_3_action implements MutationAction {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         ServerWorld world = (ServerWorld) entity.getEntityWorld();

@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-abstract class abyssal_armor_base_action implements MutationAction {
+abstract class abyssal_armor_base_action implements mutation_action {
     private final Map<ElderGuardianEntity, armor_state> active = new WeakHashMap<>();
     private boolean hooksRegistered;
 

@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -8,7 +8,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 
-abstract class ambusher_base_action implements MutationAction {
+abstract class ambusher_base_action implements mutation_action {
     protected CreeperEntity asServerCreeper(LivingEntity entity) {
         if (entity instanceof CreeperEntity creeper && !entity.getEntityWorld().isClient()) {
             return creeper;

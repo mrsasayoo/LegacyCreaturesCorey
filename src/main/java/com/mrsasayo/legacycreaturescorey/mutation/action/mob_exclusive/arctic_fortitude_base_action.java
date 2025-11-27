@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
@@ -12,7 +12,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PolarBearEntity;
 import net.minecraft.util.Identifier;
 
-abstract class arctic_fortitude_base_action implements MutationAction {
+abstract class arctic_fortitude_base_action implements mutation_action {
     protected PolarBearEntity asServerPolarBear(LivingEntity entity) {
         if (entity instanceof PolarBearEntity bear && !entity.getEntityWorld().isClient()) {
             return bear;

@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
-import com.mrsasayo.legacycreaturescorey.difficulty.MobTier;
+import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
+import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;

@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mixin.client;
 
 import com.mrsasayo.legacycreaturescorey.client.ClientEffectHandler;
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectType;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
 import net.minecraft.client.input.KeyboardInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

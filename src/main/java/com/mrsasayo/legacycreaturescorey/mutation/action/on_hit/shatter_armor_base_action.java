@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationTaskScheduler;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -19,7 +19,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.UUID;
 
-abstract class shatter_armor_base_action extends ProcOnHitAction {
+abstract class shatter_armor_base_action extends proc_on_hit_action {
     private static final RegistryEntry<EntityAttribute> ARMOR = EntityAttributes.ARMOR;
 
     private final double percentModifier;
@@ -60,7 +60,7 @@ abstract class shatter_armor_base_action extends ProcOnHitAction {
         EntityAttributeModifier modifier = new EntityAttributeModifier(id, percentModifier, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         instance.addTemporaryModifier(modifier);
         playFeedback(world, victim);
-        MutationTaskScheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, durationTicks));
+        mutation_task_scheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, durationTicks));
     }
 
     private void playFeedback(ServerWorld world, LivingEntity victim) {
@@ -71,7 +71,7 @@ abstract class shatter_armor_base_action extends ProcOnHitAction {
         world.spawnParticles(ParticleTypes.SMOKE, victim.getX(), centerY, victim.getZ(), 6, 0.25D, 0.2D, 0.25D, 0.01D);
     }
 
-    private static final class RemoveModifierTask implements MutationTaskScheduler.TimedTask {
+    private static final class RemoveModifierTask implements mutation_task_scheduler.TimedTask {
         private final LivingEntity entity;
         private final RegistryEntry<EntityAttribute> attribute;
         private final Identifier modifierId;

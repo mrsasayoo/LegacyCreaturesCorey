@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -13,7 +13,7 @@ import net.minecraft.server.world.ServerWorld;
  * Lógica compartida para las mutaciones Blizzard Orb.
  * Fix: Garantiza que siempre se haga 1 de daño a cualquier entidad.
  */
-public abstract class blizzard_orb_base_action implements MutationAction {
+public abstract class blizzard_orb_base_action implements mutation_action {
     private final float projectileDamage;
     private final double knockbackStrength;
     private final double verticalBoost;

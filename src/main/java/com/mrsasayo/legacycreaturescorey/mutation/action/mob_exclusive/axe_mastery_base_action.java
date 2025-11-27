@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-abstract class axe_mastery_base_action implements MutationAction {
+abstract class axe_mastery_base_action implements mutation_action {
     protected VindicatorEntity asServerVindicator(LivingEntity entity) {
         if (entity instanceof VindicatorEntity vindicator && !entity.getEntityWorld().isClient()) {
             return vindicator;

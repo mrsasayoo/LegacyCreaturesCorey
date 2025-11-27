@@ -1,0 +1,78 @@
+{
+  "maxGlobalDifficulty": 1000,
+  "playerDifficultyIncreaseChance": 0.5,
+  "enableDifficultyHud": true,
+  "biomeDifficultyMultiplier": 1.5,
+  "epicHealthMultiplier": 3.0,
+  "epicDamageMultiplier": 1.2,
+  "legendaryHealthMultiplier": 6.0,
+  "legendaryDamageMultiplier": 1.4,
+  "mythicHealthMultiplier": 9.0,
+  "mythicDamageMultiplier": 1.6,
+  "definitiveHealthMultiplier": 12.0,
+  "definitiveDamageMultiplier": 1.8,
+  "epicChanceMultiplier": 1.0,
+  "legendaryChanceMultiplier": 1.0,
+  "mythicChanceMultiplier": 1.0,
+  "definitiveChanceMultiplier": 1.0,
+  "effectiveDifficultyRadius": 64.0,
+  "debugForceHighestAllowedTier": false,
+  "debugForceExactTier": null,
+  "debugLogProbabilityDetails": false,
+  "debugTraceBlockBreakDenials": false,
+  "tieredLootEnabled": true,
+  "tieredLootStrictEntityTables": true,
+  "tieredLootEpicEnabled": true,
+  "tieredLootLegendaryEnabled": true,
+  "tieredLootMythicEnabled": true,
+  "tieredLootDefinitiveEnabled": true,
+  "tieredLootTelemetryEnabled": false,
+  "antiFarmDetectionEnabled": true,
+  "antiFarmKillThreshold": 64,
+  "antiFarmWindowTicks": 6000,
+  "antiFarmBlockRadiusChunks": 4,
+  "antiFarmRestrictTieredSpawns": true,
+  "antiFarmLogDetections": true,
+  "antiFarmDailyDecayAmount": 64,
+  "antiFarmHeatPenaltyEnabled": true,
+  "antiFarmHeatPenaltyMinMultiplier": 0.25,
+  "antiFarmHeatPenaltyExponent": 1.0,
+  "deathPenaltyAmount": 4,
+  "deathPenaltyCooldownTicks": 1200,
+  
+  "mutation_system": {
+    "max_mutations_per_mob": 3,
+    "mutation_point_budget": 100,
+    "allow_incompatible_mutations": false,
+    "enable_debug_logging": false
+  },
+  
+  "category_toggle": {
+    "passive": true,
+    "on_hit": true,
+    "mob_exclusive": true,
+    "auras": true,
+    "on_being_hit": true,
+    "on_death": true,
+    "synergy": true,
+    "terrain": true
+  },
+  
+  "weighting_system": {
+    "weighting_weight": 0.0
+  },
+  
+  "cost_system": {
+    "general_cost_reduction": 0.0,
+    "standardized_cost_difficulty": {
+      "weak": null,
+      "intermediate": null,
+      "strong": null
+    }
+  },
+  
+  "performance": {
+    "passive_tick_interval": 20,
+    "aura_check_interval": 20
+  }
+}

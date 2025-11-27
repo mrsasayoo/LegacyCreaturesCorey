@@ -1,12 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-abstract class push_base_action extends ProcOnHitAction {
+abstract class push_base_action extends proc_on_hit_action {
     private final double horizontalDistance;
 
     protected push_base_action(mutation_action_config config,

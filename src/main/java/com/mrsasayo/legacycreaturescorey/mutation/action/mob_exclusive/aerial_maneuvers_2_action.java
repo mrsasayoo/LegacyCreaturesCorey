@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.GhastEntity;
@@ -20,7 +20,7 @@ import java.util.WeakHashMap;
  * El Ghast dispara 4 bolas de fuego en un patrón de cono cuando tiene
  * un objetivo válido. Cooldown configurable entre disparos.
  */
-public final class aerial_maneuvers_2_action implements MutationAction {
+public final class aerial_maneuvers_2_action implements mutation_action {
     private final Map<GhastEntity, Integer> timers = new WeakHashMap<>();
     private final int cooldownTicks;
     private final int fireballPower;

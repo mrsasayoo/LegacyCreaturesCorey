@@ -1,14 +1,14 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.MathHelper;
 
-public final class blindness_1_action extends ProcOnHitAction {
+public final class blindness_1_action extends proc_on_hit_action {
     private final int blindnessDuration;
     private final int blindnessAmplifier;
     private final int nightVisionDuration;
@@ -36,7 +36,7 @@ public final class blindness_1_action extends ProcOnHitAction {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!ActionContext.isServer(victim)) {
+        if (!action_context.isServer(victim)) {
             return;
         }
         if (blindnessDuration > 0) {

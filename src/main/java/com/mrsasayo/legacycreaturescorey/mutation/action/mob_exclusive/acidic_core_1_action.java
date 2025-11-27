@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -14,7 +14,7 @@ import net.minecraft.server.world.ServerWorld;
  * Al morir, el slime genera un charco ácido visible con partículas densas.
  * Mejorado: Mayor densidad y visibilidad de partículas.
  */
-public final class acidic_core_1_action implements MutationAction {
+public final class acidic_core_1_action implements mutation_action {
     private final int particleCount;
     private final double horizontalSpread;
     private final double verticalSpread;

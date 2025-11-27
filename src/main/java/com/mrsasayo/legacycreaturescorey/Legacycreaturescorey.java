@@ -1,29 +1,30 @@
 package com.mrsasayo.legacycreaturescorey;
 
-import com.mrsasayo.legacycreaturescorey.antifarm.AntiFarmManager;
-import com.mrsasayo.legacycreaturescorey.antifarm.data.AntiFarmExclusionDataLoader;
-import com.mrsasayo.legacycreaturescorey.command.CoreyHudCommand;
-import com.mrsasayo.legacycreaturescorey.component.ModDataAttachments;
-import com.mrsasayo.legacycreaturescorey.config.CoreyConfig;
-import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyManager;
-import com.mrsasayo.legacycreaturescorey.difficulty.DifficultyTickHandler;
-import com.mrsasayo.legacycreaturescorey.command.corey.CoreyCommand;
-import com.mrsasayo.legacycreaturescorey.mob.MobSpawnHandler;
-import com.mrsasayo.legacycreaturescorey.mob.TierParticleTicker;
-import com.mrsasayo.legacycreaturescorey.mob.data.MobAttributeDataLoader;
-import com.mrsasayo.legacycreaturescorey.mob.data.MobTierRuleDataLoader;
-import com.mrsasayo.legacycreaturescorey.mob.data.BiomeTierWeightDataLoader;
-import com.mrsasayo.legacycreaturescorey.mutation.MutationRegistry;
-import com.mrsasayo.legacycreaturescorey.mutation.MutationRuntime;
-import com.mrsasayo.legacycreaturescorey.mutation.data.MutationDataLoader;
-import com.mrsasayo.legacycreaturescorey.item.ModItems;
-import com.mrsasayo.legacycreaturescorey.health.CoreyHealthMonitor;
-import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
-import com.mrsasayo.legacycreaturescorey.loot.CoreyLootModifiers;
-import com.mrsasayo.legacycreaturescorey.loot.data.TieredLootDataLoader;
-import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
-import com.mrsasayo.legacycreaturescorey.status.StatusEffectTicker;
-import com.mrsasayo.legacycreaturescorey.synergy.SynergyManager;
+import com.mrsasayo.legacycreaturescorey.feature.antifarm.AntiFarmManager;
+import com.mrsasayo.legacycreaturescorey.feature.antifarm.data.AntiFarmExclusionDataLoader;
+import com.mrsasayo.legacycreaturescorey.core.command.CoreyHudCommand;
+import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
+import com.mrsasayo.legacycreaturescorey.core.config.config_manager;
+import com.mrsasayo.legacycreaturescorey.feature.difficulty.DifficultyManager;
+import com.mrsasayo.legacycreaturescorey.feature.difficulty.DifficultyTickHandler;
+import com.mrsasayo.legacycreaturescorey.core.command.corey.CoreyCommand;
+import com.mrsasayo.legacycreaturescorey.feature.mob.MobSpawnHandler;
+import com.mrsasayo.legacycreaturescorey.feature.mob.TierParticleTicker;
+import com.mrsasayo.legacycreaturescorey.feature.mob.data.MobAttributeDataLoader;
+import com.mrsasayo.legacycreaturescorey.feature.mob.data.MobTierRuleDataLoader;
+import com.mrsasayo.legacycreaturescorey.feature.mob.data.BiomeTierWeightDataLoader;
+import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
+import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_runtime;
+import com.mrsasayo.legacycreaturescorey.mutation.data.mutation_data_loader;
+import com.mrsasayo.legacycreaturescorey.content.item.ModItems;
+import com.mrsasayo.legacycreaturescorey.content.health.CoreyHealthMonitor;
+import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.feature.loot.CoreyLootModifiers;
+import com.mrsasayo.legacycreaturescorey.feature.loot.data.TieredLootDataLoader;
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
+import com.mrsasayo.legacycreaturescorey.content.status.StatusEffectTicker;
+import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyManager;
+import com.mrsasayo.legacycreaturescorey.util.mutation_logger_initializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -48,9 +49,12 @@ public class Legacycreaturescorey implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("🚀 Inicializando Legacy Creatures - Corey");
-        CoreyConfig.INSTANCE.loadOrCreate();
-        CoreyConfig.INSTANCE.validate();
-        CoreyConfig.INSTANCE.save();
+        
+        // Inicializar sistema de configuración modular (DDD)
+        config_manager.initialize();
+        
+        // Inicializar sistema de logging multi-nivel para mutaciones
+        mutation_logger_initializer.initialize();
 
         registerData();
         registerEvents();
@@ -60,14 +64,14 @@ public class Legacycreaturescorey implements ModInitializer {
 
     private void registerData() {
         ModDataAttachments.initialize();
-        MutationRegistry.initialize();
-        MutationDataLoader.register();
+        mutation_registry.initialize();
+        mutation_data_loader.register();
         TieredLootDataLoader.register();
         MobAttributeDataLoader.register();
         MobTierRuleDataLoader.register();
         BiomeTierWeightDataLoader.register();
     AntiFarmExclusionDataLoader.register();
-        MutationRuntime.register();
+        mutation_runtime.register();
         ModStatusEffects.init();
         CoreyLootModifiers.register();
         ModItems.init();
@@ -90,7 +94,7 @@ public class Legacycreaturescorey implements ModInitializer {
                 notifyAdmins(server, Text.literal("⚠️ /reload falló; la configuración no se tocó."));
                 return;
             }
-            CoreyConfig.ReloadResult result = CoreyConfig.INSTANCE.reloadFromDisk();
+            config_manager.reload_result result = config_manager.reload();
             if (result.success()) {
                 LOGGER.info("[Config] {}", result.message());
                 notifyAdmins(server, Text.literal("⚙️ Configuración recargada tras /reload: " + result.message()));

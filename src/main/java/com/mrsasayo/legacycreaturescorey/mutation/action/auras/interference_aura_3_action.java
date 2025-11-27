@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 
-public class interference_aura_3_action implements MutationAction, InterferenceSource {
+public class interference_aura_3_action implements mutation_action, InterferenceSource {
     private final double radius;
     private final double chance;
     private final float pearlDamage;
@@ -19,7 +19,7 @@ public class interference_aura_3_action implements MutationAction, InterferenceS
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         InterferenceHandler.INSTANCE.register(entity, this);
@@ -27,7 +27,7 @@ public class interference_aura_3_action implements MutationAction, InterferenceS
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         InterferenceHandler.INSTANCE.unregister(entity, this);

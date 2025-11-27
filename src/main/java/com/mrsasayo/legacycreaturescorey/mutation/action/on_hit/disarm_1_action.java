@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
-public final class disarm_1_action extends ProcOnHitAction {
+public final class disarm_1_action extends proc_on_hit_action {
     private final int selfSlownessDuration;
 
     public disarm_1_action(mutation_action_config config) {
@@ -46,7 +46,7 @@ public final class disarm_1_action extends ProcOnHitAction {
         player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
         player.dropItem(dropped, true);
 
-        if (selfSlownessDuration > 0 && ActionContext.isServer(attacker)) {
+        if (selfSlownessDuration > 0 && action_context.isServer(attacker)) {
             attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, selfSlownessDuration, 1));
         }
     }

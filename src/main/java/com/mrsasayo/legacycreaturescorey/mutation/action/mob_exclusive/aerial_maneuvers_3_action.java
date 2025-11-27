@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.GhastEntity;
@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
  * Cada disparo tiene una pequeña variación de dirección para crear
  * un patrón impredecible.
  */
-public final class aerial_maneuvers_3_action implements MutationAction {
+public final class aerial_maneuvers_3_action implements mutation_action {
     private final Map<GhastEntity, burst_state> states = new WeakHashMap<>();
     private final int cooldownTicks;
     private final int shotsPerBurst;

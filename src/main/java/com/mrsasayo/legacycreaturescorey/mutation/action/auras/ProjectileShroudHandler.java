@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mixin.persistent_projectile_entity_accessor;
+import com.mrsasayo.legacycreaturescorey.mixin.accessor.persistent_projectile_entity_accessor;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;

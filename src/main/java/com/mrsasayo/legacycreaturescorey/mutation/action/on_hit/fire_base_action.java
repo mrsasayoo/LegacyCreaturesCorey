@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 
-abstract class fire_base_action extends ProcOnHitAction {
+abstract class fire_base_action extends proc_on_hit_action {
     private final int fireSeconds;
 
     protected fire_base_action(mutation_action_config config,

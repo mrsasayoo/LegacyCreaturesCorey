@@ -3,10 +3,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mrsasayo.legacycreaturescorey.mixin.entity_damage_cooldown_accessor;
-import com.mrsasayo.legacycreaturescorey.mixin.living_entity_hurt_time_accessor;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mixin.accessor.entity_damage_cooldown_accessor;
+import com.mrsasayo.legacycreaturescorey.mixin.accessor.living_entity_hurt_time_accessor;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -25,7 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class critical_base_action extends ProcOnHitAction {
+abstract class critical_base_action extends proc_on_hit_action {
     private final float bonusDamage;
     private final List<extra_effect> additionalEffects;
 
@@ -59,7 +59,7 @@ abstract class critical_base_action extends ProcOnHitAction {
         if (!additionalEffects.isEmpty()) {
             for (extra_effect effect : additionalEffects) {
                 LivingEntity target = effect.applyToSelf ? attacker : victim;
-                if (!ActionContext.isServer(target)) {
+                if (!action_context.isServer(target)) {
                     continue;
                 }
                 target.addStatusEffect(new StatusEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));

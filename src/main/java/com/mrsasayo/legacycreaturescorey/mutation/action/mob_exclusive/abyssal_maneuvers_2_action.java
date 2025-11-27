@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -23,7 +23,7 @@ import java.util.WeakHashMap;
  * por cada ráfaga normal. Los proyectiles adicionales se disparan ligeramente
  * desviados del objetivo principal para crear un patrón de cono.
  */
-public final class abyssal_maneuvers_2_action implements MutationAction {
+public final class abyssal_maneuvers_2_action implements mutation_action {
     private final Map<WitherEntity, extra_shot_state> states = new WeakHashMap<>();
     
     private final double healthThreshold;

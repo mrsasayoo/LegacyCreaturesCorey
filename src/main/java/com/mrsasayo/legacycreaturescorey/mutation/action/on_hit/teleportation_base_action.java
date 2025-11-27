@@ -3,8 +3,8 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-abstract class teleportation_base_action extends ProcOnHitAction {
+abstract class teleportation_base_action extends proc_on_hit_action {
     private final double radius;
     private final Target teleportTarget;
     private final List<SideEffect> sideEffects;
@@ -154,7 +154,7 @@ abstract class teleportation_base_action extends ProcOnHitAction {
         }
         for (SideEffect effect : sideEffects) {
             LivingEntity receiver = effect.target() == Target.SELF ? attacker : victim;
-            if (effect.effect() == null || effect.duration() <= 0 || !ActionContext.isServer(receiver)) {
+            if (effect.effect() == null || effect.duration() <= 0 || !action_context.isServer(receiver)) {
                 continue;
             }
             receiver.addStatusEffect(new StatusEffectInstance(

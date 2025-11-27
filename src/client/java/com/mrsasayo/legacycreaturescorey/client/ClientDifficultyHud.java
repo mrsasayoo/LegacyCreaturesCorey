@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.client;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.network.DifficultySyncPayload;
+import com.mrsasayo.legacycreaturescorey.core.network.DifficultySyncPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;

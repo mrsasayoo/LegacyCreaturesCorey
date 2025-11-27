@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mixin.mob_entity_goal_accessor;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mixin.accessor.mob_entity_goal_accessor;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-abstract class bamboo_eater_base_action implements MutationAction {
+abstract class bamboo_eater_base_action implements mutation_action {
     private static final Identifier STOP_MOVE_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "bamboo_stop");
     private static final Identifier REACH_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "bamboo_reach");
     private static final Identifier KNOCKBACK_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "bamboo_knockback");

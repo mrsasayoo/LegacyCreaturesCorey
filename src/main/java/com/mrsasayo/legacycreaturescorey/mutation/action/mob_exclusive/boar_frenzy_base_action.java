@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -10,7 +10,7 @@ import net.minecraft.entity.mob.HoglinEntity;
 import net.minecraft.entity.mob.ZoglinEntity;
 import net.minecraft.util.Identifier;
 
-abstract class boar_frenzy_base_action implements MutationAction {
+abstract class boar_frenzy_base_action implements mutation_action {
     protected static final Identifier SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_speed");
     protected static final Identifier ATTACK_SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_attack_speed");
 

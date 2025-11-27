@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.passive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.AttributeMutationAction;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.attribute_mutation_action;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
@@ -12,35 +12,35 @@ import java.util.Objects;
 /**
  * Contiene la lógica común para mutaciones pasivas que aplican bonificaciones a atributos base.
  */
-abstract class attribute_bonus_passive_action implements MutationAction {
-    private final AttributeMutationAction delegate;
+abstract class attribute_bonus_passive_action implements mutation_action {
+    private final attribute_mutation_action delegate;
 
     protected attribute_bonus_passive_action(mutation_action_config config,
             Identifier defaultAttribute,
-            AttributeMutationAction.Mode defaultMode,
+            attribute_mutation_action.Mode defaultMode,
             double defaultAmount) {
         this(config, defaultAttribute, defaultMode, defaultAmount, null);
     }
 
     protected attribute_bonus_passive_action(mutation_action_config config,
             Identifier defaultAttribute,
-            AttributeMutationAction.Mode defaultMode,
+            attribute_mutation_action.Mode defaultMode,
             double defaultAmount,
             Identifier defaultModifierId) {
         Identifier attributeId = Objects.requireNonNullElse(config.getIdentifier("attribute", defaultAttribute),
                 defaultAttribute);
-        AttributeMutationAction.Mode mode = parseMode(config.getString("mode", defaultMode.name()), defaultMode);
+        attribute_mutation_action.Mode mode = parseMode(config.getString("mode", defaultMode.name()), defaultMode);
         double amount = config.getDouble("amount", defaultAmount);
         Identifier modifierId = config.getIdentifier("modifier_id", defaultModifierId);
-        this.delegate = new AttributeMutationAction(attributeId, mode, amount, modifierId);
+        this.delegate = new attribute_mutation_action(attributeId, mode, amount, modifierId);
     }
 
-    private AttributeMutationAction.Mode parseMode(String raw, AttributeMutationAction.Mode fallback) {
+    private attribute_mutation_action.Mode parseMode(String raw, attribute_mutation_action.Mode fallback) {
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
         try {
-            return AttributeMutationAction.Mode.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+            return attribute_mutation_action.Mode.valueOf(raw.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
             return fallback;
         }

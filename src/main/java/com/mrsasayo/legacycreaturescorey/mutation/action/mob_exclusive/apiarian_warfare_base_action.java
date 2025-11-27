@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-abstract class apiarian_warfare_base_action implements MutationAction {
+abstract class apiarian_warfare_base_action implements mutation_action {
     protected BeeEntity asServerBee(LivingEntity entity) {
         if (entity instanceof BeeEntity bee && !entity.getEntityWorld().isClient()) {
             return bee;

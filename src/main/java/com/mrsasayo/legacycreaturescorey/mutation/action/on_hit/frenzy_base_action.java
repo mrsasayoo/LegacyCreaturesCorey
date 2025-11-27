@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -10,7 +10,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.MathHelper;
 
-abstract class frenzy_base_action extends ProcOnHitAction {
+abstract class frenzy_base_action extends proc_on_hit_action {
     private final FrenzyProfile profile;
 
     protected frenzy_base_action(mutation_action_config config,
@@ -47,7 +47,7 @@ abstract class frenzy_base_action extends ProcOnHitAction {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!ActionContext.isServer(attacker)) {
+        if (!action_context.isServer(attacker)) {
             return;
         }
 

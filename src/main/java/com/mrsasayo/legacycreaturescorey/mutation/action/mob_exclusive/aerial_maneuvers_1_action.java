@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
@@ -10,7 +10,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.util.Identifier;
 
-public final class aerial_maneuvers_1_action implements MutationAction {
+public final class aerial_maneuvers_1_action implements mutation_action {
     private static final Identifier SPEED_MODIFIER_ID = Identifier.of(
             Legacycreaturescorey.MOD_ID,
             "aerial_maneuvers_speed");

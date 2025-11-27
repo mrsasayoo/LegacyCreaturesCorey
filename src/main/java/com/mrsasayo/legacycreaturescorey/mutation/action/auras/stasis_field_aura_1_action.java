@@ -1,13 +1,13 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.util.Identifier;
 
-public class stasis_field_aura_1_action implements MutationAction, StasisSource {
+public class stasis_field_aura_1_action implements mutation_action, StasisSource {
     private final double radius;
     private final double projectileSlowFactor;
 
@@ -19,7 +19,7 @@ public class stasis_field_aura_1_action implements MutationAction, StasisSource 
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         StasisHandler.INSTANCE.register(entity, this);
@@ -27,7 +27,7 @@ public class stasis_field_aura_1_action implements MutationAction, StasisSource 
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         StasisHandler.INSTANCE.unregister(entity, this);

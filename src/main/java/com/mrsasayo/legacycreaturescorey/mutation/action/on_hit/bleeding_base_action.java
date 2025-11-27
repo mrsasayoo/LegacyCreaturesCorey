@@ -2,7 +2,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-abstract class bleeding_base_action extends ProcOnHitAction {
+abstract class bleeding_base_action extends proc_on_hit_action {
     private final float[] damagePulses;
     private final int intervalTicks;
     private final int effectAmplifier;

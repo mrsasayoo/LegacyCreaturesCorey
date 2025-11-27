@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
@@ -10,7 +10,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import java.util.ArrayList;
 import java.util.List;
 
-public class psionic_thorns_aura_1_action implements MutationAction, PsionicThornsSource {
+public class psionic_thorns_aura_1_action implements mutation_action, PsionicThornsSource {
     private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_SELF_EFFECTS = List.of(
             new status_effect_config_parser.status_effect_config_entry(
                     StatusEffects.SPEED,
@@ -34,7 +34,7 @@ public class psionic_thorns_aura_1_action implements MutationAction, PsionicThor
 
     @Override
     public void onApply(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         PsionicThornsHandler.INSTANCE.register(entity, this);
@@ -42,7 +42,7 @@ public class psionic_thorns_aura_1_action implements MutationAction, PsionicThor
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         PsionicThornsHandler.INSTANCE.unregister(entity, this);

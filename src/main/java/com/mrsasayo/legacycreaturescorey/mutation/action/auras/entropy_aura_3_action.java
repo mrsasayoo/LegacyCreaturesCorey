@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class entropy_aura_3_action implements MutationAction {
+public class entropy_aura_3_action implements mutation_action {
     private final double radius;
     private final int intervalTicks;
     private final double lockChance;
@@ -38,14 +38,14 @@ public class entropy_aura_3_action implements MutationAction {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity))
+        if (!action_context.isServer(entity))
             return;
         Handler.INSTANCE.register(entity, this);
     }
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         Handler.INSTANCE.unregister(entity, this);

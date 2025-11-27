@@ -1,14 +1,14 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.List;
 
-public class virulent_growth_aura_3_action implements MutationAction, VirulentSource {
+public class virulent_growth_aura_3_action implements mutation_action, VirulentSource {
     private final double radius;
     private final int intervalTicks;
     private final int fangCount;
@@ -24,7 +24,7 @@ public class virulent_growth_aura_3_action implements MutationAction, VirulentSo
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         VirulentHandler.INSTANCE.register(entity, this);
@@ -32,7 +32,7 @@ public class virulent_growth_aura_3_action implements MutationAction, VirulentSo
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!ActionContext.isServer(entity)) {
+        if (!action_context.isServer(entity)) {
             return;
         }
         VirulentHandler.INSTANCE.unregister(entity, this);

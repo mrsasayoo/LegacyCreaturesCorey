@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.DrownedEntity;
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-abstract class aquatic_stalker_base_action implements MutationAction {
+abstract class aquatic_stalker_base_action implements mutation_action {
     protected DrownedEntity asServerDrowned(LivingEntity entity) {
         if (entity instanceof DrownedEntity drowned && !entity.getEntityWorld().isClient()) {
             return drowned;

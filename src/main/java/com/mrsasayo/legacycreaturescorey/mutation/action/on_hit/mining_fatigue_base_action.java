@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.ActionContext;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
@@ -11,7 +11,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-abstract class mining_fatigue_base_action extends ProcOnHitAction {
+abstract class mining_fatigue_base_action extends proc_on_hit_action {
     private final List<status_effect_config_parser.status_effect_config_entry> effects;
 
     protected mining_fatigue_base_action(mutation_action_config config,
@@ -54,7 +54,7 @@ abstract class mining_fatigue_base_action extends ProcOnHitAction {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!ActionContext.isServer(victim)) {
+        if (!action_context.isServer(victim)) {
             return;
         }
         status_effect_config_parser.applyEffects(victim, effects);

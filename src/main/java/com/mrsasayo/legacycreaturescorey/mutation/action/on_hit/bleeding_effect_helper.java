@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationTaskScheduler;
-import com.mrsasayo.legacycreaturescorey.status.ModStatusEffects;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
@@ -53,7 +53,7 @@ final class bleeding_effect_helper {
                 bleeding_tick_task task = new bleeding_tick_task(attacker, victim, pulses, clampedInterval,
                         clampedAmplifier);
                 ACTIVE_TASKS.put(victim, task);
-                MutationTaskScheduler.schedule(world, task);
+                mutation_task_scheduler.schedule(world, task);
             }
         }
 
@@ -77,7 +77,7 @@ final class bleeding_effect_helper {
             "Missing registry entry for bleeding effect");
     }
 
-    private static final class bleeding_tick_task implements MutationTaskScheduler.TimedTask {
+    private static final class bleeding_tick_task implements mutation_task_scheduler.TimedTask {
         private LivingEntity attacker;
         private final LivingEntity victim;
         private float[] pulses;

@@ -1,13 +1,13 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationTaskScheduler;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectPayload;
-import com.mrsasayo.legacycreaturescorey.network.ClientEffectType;
-import com.mrsasayo.legacycreaturescorey.network.ClientFeature;
-import com.mrsasayo.legacycreaturescorey.network.ModNetworking;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
+import com.mrsasayo.legacycreaturescorey.core.network.ClientFeature;
+import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -19,7 +19,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-abstract class concussive_blow_base_action extends ProcOnHitAction {
+abstract class concussive_blow_base_action extends proc_on_hit_action {
     private final Mode mode;
     private final int rotationStepTicks;
     private final int shakeDurationTicks;
@@ -87,7 +87,7 @@ abstract class concussive_blow_base_action extends ProcOnHitAction {
         if (!(player.getEntityWorld() instanceof ServerWorld world)) {
             return;
         }
-        MutationTaskScheduler.schedule(world, new MutationTaskScheduler.TimedTask() {
+        mutation_task_scheduler.schedule(world, new mutation_task_scheduler.TimedTask() {
             private int ticksRemaining = Math.min(shakeDurationTicks, 40);
 
             @Override
@@ -164,7 +164,7 @@ abstract class concussive_blow_base_action extends ProcOnHitAction {
     }
 
     private void queueRotationStep(ServerWorld world, ServerPlayerEntity player, float targetYaw, float targetPitch, int delayTicks) {
-        MutationTaskScheduler.schedule(world, new MutationTaskScheduler.TimedTask() {
+        mutation_task_scheduler.schedule(world, new mutation_task_scheduler.TimedTask() {
             private int ticksRemaining = delayTicks;
 
             @Override

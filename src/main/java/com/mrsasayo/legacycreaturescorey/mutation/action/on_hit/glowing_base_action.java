@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
-import com.mrsasayo.legacycreaturescorey.mutation.action.MutationTaskScheduler;
-import com.mrsasayo.legacycreaturescorey.mutation.action.ProcOnHitAction;
+import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
+import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.minecraft.entity.LivingEntity;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-abstract class glowing_base_action extends ProcOnHitAction {
+abstract class glowing_base_action extends proc_on_hit_action {
     private final int pulses;
     private final int pulseDurationTicks;
     private final int intervalTicks;
@@ -77,7 +77,7 @@ abstract class glowing_base_action extends ProcOnHitAction {
         }
 
         for (int i = 1; i < pulses; i++) {
-            MutationTaskScheduler.schedule(world,
+            mutation_task_scheduler.schedule(world,
                     new PulseTask(victim, intervalTicks * i, effects));
         }
     }
@@ -86,7 +86,7 @@ abstract class glowing_base_action extends ProcOnHitAction {
         status_effect_config_parser.applyEffects(entity, effects);
     }
 
-    private static final class PulseTask implements MutationTaskScheduler.TimedTask {
+    private static final class PulseTask implements mutation_task_scheduler.TimedTask {
         private final WeakReference<LivingEntity> target;
         private final List<status_effect_config_parser.status_effect_config_entry> effects;
         private int ticksUntilPulse;
