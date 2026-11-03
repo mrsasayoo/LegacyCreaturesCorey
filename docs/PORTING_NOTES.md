@@ -43,7 +43,10 @@ java { toolchain ... } ; tasks.withType(JavaCompile) { options.release = 25 }
 ```
 
 `gradle.properties`: `minecraft_version=26.3`, `loader_version=0.20.1`,
-`fabric_version=0.165.0+26.3`, **sin** `yarn_mappings`.
+`fabric_version=0.165.0+26.3`, **sin** `yarn_mappings`, MÁS
+`org.gradle.java.home=/home/nicolas/jdks/jdk-25.0.5+8` — sin esa línea el build arranca con
+el Java 21 del sistema y Loom 1.19 falla con "Dependency requires at least JVM runtime
+version 25". Con ella, `./gradlew runClient` funciona a secas (sin JAVA_HOME).
 `fabric.mod.json`: depends `minecraft ~26.3`, `fabricloader >=0.20.1`, `java >=25`.
 
 > ⚠️ Dev sin cuenta de Minecraft: `./gradlew runClient` **no pide login**. Loom baja el jar
