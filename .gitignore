@@ -1,49 +1,7 @@
-# gradle
-
-.gradle/
+run/
 build/
-out/
-classes/
-
-# eclipse
-
-*.launch
-
-# idea
-
+bin/
+.gradle/
 .idea/
 *.iml
-*.ipr
-*.iws
-
-# vscode
-
-.settings/
-.vscode/
-bin/
-.classpath
-.project
-
-# macos
-
-*.DS_Store
-
-# fabric
-
-run/
-
-# java
-
-hs_err_*.log
-replay_*.log
-*.hprof
-*.jfr
-
-Legacy Creatures - Corey.md
-Modpack "Legacy Creatures".md
-
-# docs
-*.pdf
-*.py
-*.md
-# .cursorrules
+net/
