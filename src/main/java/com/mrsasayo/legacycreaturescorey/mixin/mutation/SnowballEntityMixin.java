@@ -6,11 +6,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.blizzard_orb_base_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,29 +21,30 @@ import java.util.List;
 /**
  * Makes snow golem snowballs able to damage players and apply effects based on
  * Blizzard Orb mutation.
+ * 26.3: yarn onEntityHit -> mojmap onHitEntity; getEntityWorld().isClient() -> level().isClientSide
  */
-@Mixin(SnowballEntity.class)
+@Mixin(Snowball.class)
 public class SnowballEntityMixin {
 
-    @Inject(method = "onEntityHit", at = @At("HEAD"))
+    @Inject(method = "onHitEntity", at = @At("HEAD"))
     private void legacy$blizzardOrbDamage(EntityHitResult entityHitResult, CallbackInfo ci) {
-        SnowballEntity snowball = (SnowballEntity) (Object) this;
-        if (!(snowball.getOwner() instanceof SnowGolemEntity snowGolem)) {
+        Snowball snowball = (Snowball) (Object) this;
+        if (!(snowball.getOwner() instanceof SnowGolem snowGolem)) {
             return;
         }
-        if (snowball.getEntityWorld().isClient()) {
+        if (snowball.level().isClientSide) {
             return;
         }
         if (!(entityHitResult.getEntity() instanceof LivingEntity target)) {
             return;
         }
 
-        List<Identifier> mutations = CoreyAPI.getMutations(snowGolem);
+        List<ResourceLocation> mutations = CoreyAPI.getMutations(snowGolem);
         if (mutations.isEmpty()) {
             return;
         }
 
-        for (Identifier id : mutations) {
+        for (ResourceLocation id : mutations) {
             mutation m = mutation_registry.get(id);
             if (!(m instanceof configured_mutation configured)) {
                 continue;

@@ -1,32 +1,36 @@
 package com.mrsasayo.legacycreaturescorey.mixin.general;
 
 import com.mrsasayo.legacycreaturescorey.mutation.action.auras.HordeBeaconHandler;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.FleeEntityGoal;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(FleeEntityGoal.class)
+/**
+ * 26.3: yarn FleeEntityGoal -> mojmap AvoidEntityGoal; canStart/shouldContinue -> canUse/canContinueToUse;
+ * PathAwareEntity -> PathfinderMob; targetEntity -> toAvoid
+ */
+@Mixin(AvoidEntityGoal.class)
 public abstract class flee_entity_goal_mixin<T extends LivingEntity> {
     @Shadow
-    protected PathAwareEntity mob;
+    protected PathfinderMob mob;
 
     @Shadow
-    protected LivingEntity targetEntity;
+    protected LivingEntity toAvoid;
 
-    @Inject(method = "canStart", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "canUse", at = @At("RETURN"), cancellable = true)
     private void legacycreaturescorey$ignoreFearOnStart(CallbackInfoReturnable<Boolean> cir) {
         if (shouldSkipFear(cir.getReturnValue())) {
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "shouldContinue", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "canContinueToUse", at = @At("RETURN"), cancellable = true)
     private void legacycreaturescorey$ignoreFearOnContinue(CallbackInfoReturnable<Boolean> cir) {
         if (shouldSkipFear(cir.getReturnValue())) {
             cir.setReturnValue(false);
@@ -37,10 +41,10 @@ public abstract class flee_entity_goal_mixin<T extends LivingEntity> {
         if (!originalResult) {
             return false;
         }
-        if (mob == null || targetEntity == null) {
+        if (mob == null || toAvoid == null) {
             return false;
         }
-        MobEntity mobEntity = mob;
-        return HordeBeaconHandler.INSTANCE.shouldIgnoreFear(mobEntity, targetEntity);
+        Mob mobEntity = mob;
+        return HordeBeaconHandler.INSTANCE.shouldIgnoreFear(mobEntity, toAvoid);
     }
 }

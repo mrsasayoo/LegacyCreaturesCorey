@@ -6,11 +6,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.bloodlust_2_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.VindicatorEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.illager.Vindicator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -20,26 +20,27 @@ import java.util.List;
 /**
  * Modifies Vindicator damage based on target missing HP for Bloodlust
  * EXECUTIONER mode.
+ * 26.3: yarn damage -> mojmap hurtServer
  */
 @Mixin(LivingEntity.class)
 public class VindicatorDamageMixin {
 
-    @ModifyVariable(method = "damage", at = @At("HEAD"), argsOnly = true)
-    private float legacy$modifyExecutionerDamage(float amount, ServerWorld serverWorld, DamageSource source, float originalAmount) {
+    @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true)
+    private float legacy$modifyExecutionerDamage(float amount, ServerLevel serverLevel, DamageSource source, float originalAmount) {
         LivingEntity self = (LivingEntity) (Object) this;
 
-        if (!(source.getAttacker() instanceof VindicatorEntity vindicator)) {
+        if (!(source.getEntity() instanceof Vindicator vindicator)) {
             return amount;
         }
 
-        List<Identifier> mutations = CoreyAPI.getMutations(vindicator);
+        List<ResourceLocation> mutations = CoreyAPI.getMutations(vindicator);
         if (mutations.isEmpty()) {
             return amount;
         }
 
         double damageMultiplier = 1.0;
 
-        for (Identifier id : mutations) {
+        for (ResourceLocation id : mutations) {
             mutation m = mutation_registry.get(id);
             if (!(m instanceof configured_mutation configured)) {
                 continue;
