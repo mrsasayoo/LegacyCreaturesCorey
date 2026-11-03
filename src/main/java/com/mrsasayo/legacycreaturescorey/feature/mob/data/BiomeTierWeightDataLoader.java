@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.feature.mob.data;
 
+import net.minecraft.core.registries.Registries;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,11 +56,11 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
         if (mob == null || tier == null || tier == MobTier.NORMAL) {
             return 1.0D;
         }
-    Level world = mob.getEntityWorld();
+    Level world = mob.level();
         if (world == null) {
             return 1.0D;
         }
-        BlockPos pos = mob.getBlockPos();
+        BlockPos pos = mob.blockPosition();
         Optional<ResourceKey<Biome>> biomeKey = world.getBiome(pos).getKey();
         return biomeKey.map(key -> getMultiplier(key, tier)).orElseGet(() -> getDefaultMultiplier(tier));
     }
@@ -76,13 +77,12 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
         return globalDefaults.getOrDefault(tier, 1.0D);
     }
 
-    @Override
     public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
             biomeOverrides = Map.of();
@@ -93,7 +93,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
 
         Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> parsed = new HashMap<>();
         EnumMap<MobTier, Double> defaults = defaultMultipliers();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
 
             if (root.has("defaults")) {
@@ -102,14 +102,14 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
 
             JsonArray entries = root.has("entries") ? GsonHelper.getAsJsonArray(root, "entries") : new JsonArray();
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entry = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
-                String biomeIdRaw = GsonHelper.getString(entry, "biome");
+                JsonObject entry = GsonHelper.convertToJsonObject(entries.get(i), "entries[" + i + "]");
+                String biomeIdRaw = GsonHelper.getAsString(entry, "biome");
                 Identifier biomeId = Identifier.tryParse(biomeIdRaw);
                 if (biomeId == null) {
                     Legacycreaturescorey.LOGGER.warn("Bioma inválido '{}' en biome_tier_weights", biomeIdRaw);
                     continue;
                 }
-                ResourceKey<Biome> biomeKey = ResourceKey.of(net.minecraft.core.registries.Registries.BIOME, biomeId);
+                ResourceKey<Biome> biomeKey = ResourceKey.create(net.minecraft.core.registries.Registries.BIOME, biomeId);
                 JsonObject tiersObject = GsonHelper.getAsJsonObject(entry, "tiers");
                 EnumMap<MobTier, Double> tierMap = parseTierMap(tiersObject, "entries[" + i + "]");
                 parsed.put(biomeKey, tierMap);

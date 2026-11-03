@@ -21,13 +21,13 @@ public final class amphibious_assault_1_action extends amphibious_assault_base_a
         if (guardian == null) {
             return;
         }
-        if (guardian.isSubmergedInWater()) {
+        if (guardian.isUnderWater()) {
             exposureTicks.remove(guardian);
             return;
         }
         int elapsed = exposureTicks.merge(guardian, 1, Integer::sum);
         if (elapsed <= extendedBreathTicks) {
-            guardian.setAir(guardian.getMaxAir());
+            guardian.setAirSupply(guardian.getMaxAirSupply());
         }
     }
 

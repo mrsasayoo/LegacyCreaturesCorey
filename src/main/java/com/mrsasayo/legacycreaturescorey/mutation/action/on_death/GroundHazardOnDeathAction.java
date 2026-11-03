@@ -25,7 +25,7 @@ public final class GroundHazardOnDeathAction implements mutation_action {
 
 	@Override
 	public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-		if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+		if (!(entity.level() instanceof ServerLevel world)) {
 			return;
 		}
 		if (chance < 1.0D && entity.getRandom().nextDouble() > chance) {

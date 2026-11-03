@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.terrain;
 
+import net.minecraft.resources.Identifier;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -104,13 +106,13 @@ public final class UndeadPotionBurstAction implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         }
 
         void register(LivingEntity entity, UndeadPotionBurstAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (int i = 0; i < list.size(); i++) {
                 ActiveAura aura = list.get(i);
                 if (aura.source == entity && aura.action == action) {
@@ -122,7 +124,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, UndeadPotionBurstAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -138,7 +140,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();
@@ -148,7 +150,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
                     continue;
                 }
                 aura.lastSeenTick = time;
-                if (!source.kind().isIn(EntityTypeTags.UNDEAD)) {
+                if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(source.getType()).is(EntityTypeTags.UNDEAD)) {
                     continue;
                 }
                 if (time - aura.lastTriggerTick >= aura.action.intervalTicks) {
@@ -162,15 +164,15 @@ public final class UndeadPotionBurstAction implements mutation_action {
         }
 
         private void throwPotion(ServerLevel world, LivingEntity source, UndeadPotionBurstAction action) {
-            ItemStack stack = PotionContents.createStack(Items.SPLASH_POTION, action.potion);
+            ItemStack stack = PotionContents.createItemStack(Items.SPLASH_POTION, action.potion);
             AbstractThrownPotion potionEntity = new ThrownSplashPotion(world, source, stack);
-            potionEntity.setPosition(source.getX(), source.getEyeY(), source.getZ());
+            potionEntity.setPos(source.getX(), source.getEyeY(), source.getZ());
             double horizontalSpread = action.getSpread();
-            double offsetX = (world.random.nextDouble() - 0.5D) * horizontalSpread;
-            double offsetZ = (world.random.nextDouble() - 0.5D) * horizontalSpread;
-            potionEntity.setVelocity(offsetX, action.getVerticalVelocity(), offsetZ);
-            world.spawnEntity(potionEntity);
-            world.spawnParticles(ParticleTypes.SPLASH,
+            double offsetX = (world.getRandom().nextDouble() - 0.5D) * horizontalSpread;
+            double offsetZ = (world.getRandom().nextDouble() - 0.5D) * horizontalSpread;
+            potionEntity.setDeltaMovement(offsetX, action.getVerticalVelocity(), offsetZ);
+            world.addFreshEntity(potionEntity);
+            world.sendParticles(ParticleTypes.SPLASH,
                 source.getX(),
                 source.getEyeY(),
                 source.getZ(),
@@ -186,7 +188,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
                 SoundEvents.SPLASH_POTION_THROW,
                 SoundSource.HOSTILE,
                 0.6F,
-                0.9F + world.random.nextFloat() * 0.1F);
+                0.9F + world.getRandom().nextFloat() * 0.1F);
         }
     }
 }

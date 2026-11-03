@@ -43,7 +43,7 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
 
@@ -54,7 +54,7 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
         List<ItemStack> captured = new ArrayList<>(drops.size());
         for (ItemEntity drop : drops) {
-            ItemStack stack = drop.getStack();
+            ItemStack stack = drop.getItem();
             if (stack.isEmpty()) {
                 continue;
             }
@@ -68,7 +68,7 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
         ItemEntity placeholder = createPlaceholder(world, entity);
         if (placeholder == null) {
-            scatterImmediately(world, new Vec3(entity.getX(), entity.getBodyY(0.5D), entity.getZ()), captured);
+            scatterImmediately(world, new Vec3(entity.getX(), entity.getY(0.5D), entity.getZ()), captured);
             return;
         }
 
@@ -78,16 +78,16 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
     @Nullable
     private ItemEntity createPlaceholder(ServerLevel world, LivingEntity source) {
         ItemStack display = new ItemStack(Items.CHEST);
-        ItemEntity entity = new ItemEntity(world, source.getX(), source.getBodyY(0.1D), source.getZ(), display);
-        entity.setVelocity(0.0D, 0.01D, 0.0D);
-        if (world.spawnEntity(entity)) {
+        ItemEntity entity = new ItemEntity(world, source.getX(), source.getY(0.1D), source.getZ(), display);
+        entity.setDeltaMovement(new Vec3(0.0D, 0.01D, 0.0D));
+        if (world.addFreshEntity(entity)) {
             return entity;
         }
         return null;
     }
 
     private void scatterImmediately(ServerLevel world, Vec3 origin, List<ItemStack> loot) {
-        var random = world.random;
+        var random = world.getRandom();
         for (ItemStack stack : loot) {
             if (stack.isEmpty()) {
                 continue;
@@ -96,10 +96,10 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = scatterHorizontal * (0.4D + random.nextDouble() * 0.6D);
             double vy = scatterVertical * (0.4D + random.nextDouble() * 0.6D);
-            drop.setVelocity(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
-            drop.setToDefaultPickupDelay();
-            drop.velocityDirty = true;
-            world.spawnEntity(drop);
+            drop.setDeltaMovement(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
+            drop.setDefaultPickUpDelay();
+            drop.syncVelocity = true;
+            world.addFreshEntity(drop);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -33,11 +35,11 @@ import java.util.WeakHashMap;
 public final class VanguardsBulwarkHandler {
     public static final VanguardsBulwarkHandler INSTANCE = new VanguardsBulwarkHandler();
 
-    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.of(Registries.ENTITY_TYPE,
+    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.create(Registries.ENTITY_TYPE,
             Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_basic"));
-    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.of(Registries.ENTITY_TYPE,
+    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.create(Registries.ENTITY_TYPE,
             Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_intermediate"));
-    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.of(Registries.ENTITY_TYPE,
+    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.create(Registries.ENTITY_TYPE,
             Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_hard"));
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
@@ -52,14 +54,14 @@ public final class VanguardsBulwarkHandler {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         ServerLivingEntityEvents.AFTER_DEATH.register(this::handleEntityDeath);
     }
 
     public void register(LivingEntity entity, VanguardsBulwarkSource source) {
         ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (ActiveAura aura : list) {
             if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
@@ -87,7 +89,7 @@ public final class VanguardsBulwarkHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
 
         for (ActiveAura aura : list) {
             if (!aura.source.isAlive()) {
@@ -111,7 +113,7 @@ public final class VanguardsBulwarkHandler {
             if (ally == aura.source) {
                 continue;
             }
-            applyConfiguredEffects(ally, aura.sourceDef.getActiveEffects());
+            applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
         }
     }
 
@@ -124,14 +126,14 @@ public final class VanguardsBulwarkHandler {
 
         List<Mob> allies = getAllies(world, aura.source, aura.sourceDef.getRadius());
         for (Mob ally : allies) {
-            applyConfiguredEffects(ally, aura.sourceDef.getActiveEffects());
+            applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
         }
         lastActionTick.put(aura.source, time);
     }
 
     private void applyConditionalMode(ServerLevel world, ActiveAura aura, long time) {
         LivingEntity source = aura.source;
-        boolean isUndead = source.type().isIn(EntityTypeTags.UNDEAD);
+        boolean isUndead = BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(source.getType()).is(EntityTypeTags.UNDEAD);
 
         if (isUndead) {
             // Throw Instant Damage II potion every 7 seconds (140 ticks)
@@ -143,7 +145,7 @@ public final class VanguardsBulwarkHandler {
             // Find nearest player
             ServerLevel serverWorld = (ServerLevel) source.level();
             List<net.minecraft.server.level.ServerPlayer> players = serverWorld.getPlayers(
-                    player -> player.isAlive() && source.squaredDistanceTo(player) <= aura.sourceDef.getRadius()
+                    player -> player.isAlive() && source.distanceToSqr(player) <= aura.sourceDef.getRadius()
                             * aura.sourceDef.getRadius());
 
             if (!players.isEmpty()) {
@@ -158,7 +160,7 @@ public final class VanguardsBulwarkHandler {
             }
             List<Mob> allies = getAllies(world, source, aura.sourceDef.getRadius());
             for (Mob ally : allies) {
-                applyConfiguredEffects(ally, aura.sourceDef.getActiveEffects());
+                applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
             }
         }
     }
@@ -184,13 +186,13 @@ public final class VanguardsBulwarkHandler {
                 continue;
             }
 
-            if (aura.source.type().isIn(EntityTypeTags.UNDEAD)) {
+            if (BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(aura.source.getType()).is(EntityTypeTags.UNDEAD)) {
                 continue;
             }
 
             // Check if the dead entity is an ally and within range
             double radius = aura.sourceDef.getRadius();
-            if (aura.source.squaredDistanceTo(entity) > radius * radius) {
+            if (aura.source.distanceToSqr(entity) > radius * radius) {
                 continue;
             }
 
@@ -202,10 +204,10 @@ public final class VanguardsBulwarkHandler {
     }
 
     private void throwHarmPotion(ServerLevel world, LivingEntity source, LivingEntity target) {
-        AbstractThrownPotion potionEntity = (AbstractThrownPotion) EntityType.SPLASH_POTION.create(
+        AbstractThrownPotion potionEntity = (AbstractThrownPotion) BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("splash_potion")).create(
             world,
             null,
-            source.getBlockPos(),
+            source.blockPosition(),
             net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED,
             false,
             false);
@@ -218,20 +220,20 @@ public final class VanguardsBulwarkHandler {
         potionEntity.setItem(potionStack);
 
         // Calculate trajectory
-        Vec3 targetPos = new Vec3(target.getX(), target.getY() + target.getHeight() / 2, target.getZ());
-        Vec3 sourcePos = new Vec3(source.getX(), source.getY() + source.getHeight() * 0.9, source.getZ());
+        Vec3 targetPos = new Vec3(target.getX(), target.getY() + target.getBbHeight() / 2, target.getZ());
+        Vec3 sourcePos = new Vec3(source.getX(), source.getY() + source.getBbHeight() * 0.9, source.getZ());
         Vec3 direction = targetPos.subtract(sourcePos).normalize();
         double velocity = 0.5;
 
-        potionEntity.setVelocity(direction.multiply(velocity));
-        potionEntity.setPosition(sourcePos);
+        potionEntity.setDeltaMovement(direction.scale(velocity));
+        potionEntity.setPos(sourcePos);
 
-        world.spawnEntity(potionEntity);
+        world.addFreshEntity(potionEntity);
     }
 
     private List<Mob> getAllies(ServerLevel world, LivingEntity source, double radius) {
-        AABB box = source.getBoundingBox().expand(radius);
-        List<Mob> mobs = world.getEntitiesByType(EntityTypeTest.instanceOf(Mob.class), box,
+        AABB box = source.getBoundingBox().inflate(radius);
+        List<Mob> mobs = world.getEntities(EntityTypeTest.forClass(Mob.class), box,
                 entity -> entity.isAlive() && entity != source);
         if (mobs.isEmpty()) {
             return List.of();
@@ -250,18 +252,18 @@ public final class VanguardsBulwarkHandler {
     }
 
     private boolean isAlly(LivingEntity source, Mob candidate) {
-        if (source.isTeammate(candidate)) {
+        if (source.isAlliedTo(candidate)) {
             return true;
         }
         if (source instanceof Mob mobSource) {
-            MobCategory sourceGroup = mobSource.type().getSpawnGroup();
-            MobCategory candidateGroup = candidate.type().getSpawnGroup();
+            MobCategory sourceGroup = mobSource.getType().getCategory();
+            MobCategory candidateGroup = candidate.getType().getCategory();
             if (candidateGroup == sourceGroup && candidateGroup != MobCategory.MISC) {
                 return true;
             }
         }
-        EntityType<?> type = candidate.type();
-        return type.isIn(TIER_BASIC) || type.isIn(TIER_INTERMEDIATE) || type.isIn(TIER_HARD);
+        EntityType<?> type = candidate.getType();
+        return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(TIER_BASIC) || BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(TIER_INTERMEDIATE) || BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(TIER_HARD);
     }
 
     private void cleanup(ServerLevel world) {
@@ -269,7 +271,7 @@ public final class VanguardsBulwarkHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         Iterator<ActiveAura> iterator = list.iterator();
         while (iterator.hasNext()) {
             ActiveAura aura = iterator.next();
@@ -315,7 +317,7 @@ public final class VanguardsBulwarkHandler {
         for (status_effect_config_parser.status_effect_config_entry entry : configs) {
             var instance = status_effect_config_parser.buildInstance(entry);
             if (instance != null) {
-                target.addStatusEffect(instance);
+                target.addEffect(instance);
             }
         }
     }

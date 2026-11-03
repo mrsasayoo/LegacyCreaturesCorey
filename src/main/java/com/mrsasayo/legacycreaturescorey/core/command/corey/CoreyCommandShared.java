@@ -21,7 +21,7 @@ public final class CoreyCommandShared {
 
     public static final SuggestionProvider<CommandSourceStack> TIER_SUGGESTIONS = (context, builder) -> {
         for (MobTier tier : MobTier.values()) {
-            builder.suggest(tier.name().toLowerCase(Locale.WRITABLE_REGISTRY));
+            builder.suggest(tier.name().toLowerCase(Locale.ROOT));
         }
         return builder.buildFuture();
     };
@@ -38,10 +38,10 @@ public final class CoreyCommandShared {
         int lastDelimiter = Math.max(remaining.lastIndexOf(','), remaining.lastIndexOf(';'));
         String prefix = lastDelimiter >= 0 ? remaining.substring(0, lastDelimiter + 1) : "";
         String query = lastDelimiter >= 0 ? remaining.substring(lastDelimiter + 1).trim() : remaining.trim();
-        String lowerQuery = query.toLowerCase(Locale.WRITABLE_REGISTRY);
+        String lowerQuery = query.toLowerCase(Locale.ROOT);
         for (mutation m : mutation_registry.all()) {
             String id = m.getId().toString();
-            if (lowerQuery.isEmpty() || id.toLowerCase(Locale.WRITABLE_REGISTRY).startsWith(lowerQuery)) {
+            if (lowerQuery.isEmpty() || id.toLowerCase(Locale.ROOT).startsWith(lowerQuery)) {
                 String suggestion = prefix + id;
                 builder.suggest(suggestion, m.getDisplayName());
             }
@@ -57,7 +57,7 @@ public final class CoreyCommandShared {
             return null;
         }
         try {
-            return MobTier.valueOf(tierName.trim().toUpperCase(Locale.WRITABLE_REGISTRY));
+            return MobTier.valueOf(tierName.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             return null;
         }

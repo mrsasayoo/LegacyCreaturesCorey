@@ -26,7 +26,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
     private static final Map<Guardian, ProjectileState> GUARDIAN_STATES = new WeakHashMap<>();
 
     static {
-        ServerTickEvents.END_WORLD_TICK.register(world -> {
+        ServerTickEvents.END_LEVEL_TICK.register(world -> {
             Iterator<Map.Entry<Guardian, ProjectileState>> iterator = GUARDIAN_STATES.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Guardian, ProjectileState> entry = iterator.next();
@@ -35,7 +35,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
                     iterator.remove();
                     continue;
                 }
-                if (guardian.getEntityWorld() != world) {
+                if (guardian.level() != world) {
                     continue;
                 }
                 ProjectileState state = entry.getValue();
@@ -55,7 +55,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
         if (!(entity instanceof Guardian guardian)) {
             return;
         }
-        if (!(guardian.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(guardian.level() instanceof ServerLevel world)) {
             return;
         }
 
@@ -72,7 +72,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
         }
 
         // Verificar distancia - disparar solo si está en rango de ataque
-        double distance = guardian.squaredDistanceTo(target);
+        double distance = guardian.distanceToSqr(target);
         if (distance > 256.0D) { // 16 bloques máximo
             return;
         }
@@ -83,23 +83,23 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
     }
 
     private void fireProjectile(Guardian guardian, LivingEntity target, ServerLevel world) {
-        Vec3 eyePos = guardian.getEyePos();
+        Vec3 eyePos = guardian.getEyePosition();
 
         // Crear ShulkerBullet que persigue al objetivo (similar al rayo del Guardian)
         ShulkerBullet bullet = new ShulkerBullet(
                 world,
                 guardian,
                 target,
-                guardian.getMovementDirection().getAxis()
+                guardian.getMotionDirection().getAxis()
         );
         bullet.setPos(eyePos.x, eyePos.y, eyePos.z);
 
         // Partículas de disparo
         for (int i = 0; i < 8; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
-            double offsetY = (world.random.nextDouble() - 0.5) * 0.5;
-            double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
-            world.spawnParticles(
+            double offsetX = (world.getRandom().nextDouble() - 0.5) * 0.5;
+            double offsetY = (world.getRandom().nextDouble() - 0.5) * 0.5;
+            double offsetZ = (world.getRandom().nextDouble() - 0.5) * 0.5;
+            world.sendParticles(
                     ParticleTypes.BUBBLE_POP,
                     eyePos.x + offsetX,
                     eyePos.y + offsetY,
@@ -107,7 +107,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
                     1, 0, 0, 0, 0.05
             );
         }
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.GLOW,
                 eyePos.x, eyePos.y, eyePos.z,
                 5, 0.2, 0.2, 0.2, 0.1
@@ -122,7 +122,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
                 1.0f, 1.5f
         );
 
-        world.spawnEntity(bullet);
+        world.addFreshEntity(bullet);
     }
 
     public double getProjectileDamageRatio() {

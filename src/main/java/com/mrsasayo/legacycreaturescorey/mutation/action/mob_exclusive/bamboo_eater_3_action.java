@@ -39,7 +39,7 @@ public final class bamboo_eater_3_action extends bamboo_eater_base_action {
 
     @Override
     public void onHit(LivingEntity attacker, LivingEntity target) {
-        if (!(attacker instanceof Panda panda) || attacker.getEntityWorld().isClient()) {
+        if (!(attacker instanceof Panda panda) || attacker.level().isClientSide()) {
             return;
         }
         handleWeaponHit(panda);

@@ -24,7 +24,7 @@ public final class HealAction implements mutation_action {
             return;
         }
 
-        if (entity.age % interval == 0 && entity.getHealth() < entity.getMaxHealth()) {
+        if (entity.tickCount % interval == 0 && entity.getHealth() < entity.getMaxHealth()) {
             entity.heal(amount);
         }
     }

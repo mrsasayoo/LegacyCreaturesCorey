@@ -61,27 +61,27 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             case ROTATE -> rotateHotbar(inventory, attacker.getRandom().nextBoolean());
             case SHUFFLE -> shuffleHotbar(inventory, attacker.getRandom().nextLong());
         }
-        inventory.markDirty();
-        player.setStackInHand(InteractionHand.MAIN_HAND, inventory.getStack(selected));
-        player.playerScreenHandler.sendContentUpdates();
+        inventory.setChanged();
+        player.setItemInHand(InteractionHand.MAIN_HAND, inventory.getItem(selected));
+        player.inventoryMenu.broadcastChanges();
 
         if (selfSlownessTicks > 0) {
-            player.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, 1));
         }
     }
 
     private void swapWithRight(Inventory inventory, int selected) {
         int target = (selected + 1) % 9;
-        ItemStack current = inventory.getStack(selected);
-        ItemStack next = inventory.getStack(target);
-        inventory.setStack(selected, next);
-        inventory.setStack(target, current);
+        ItemStack current = inventory.getItem(selected);
+        ItemStack next = inventory.getItem(target);
+        inventory.setItem(selected, next);
+        inventory.setItem(target, current);
     }
 
     private void rotateHotbar(Inventory inventory, boolean toRight) {
         ItemStack[] snapshot = new ItemStack[9];
         for (int i = 0; i < 9; i++) {
-            snapshot[i] = inventory.getStack(i);
+            snapshot[i] = inventory.getItem(i);
         }
         if (toRight) {
             ItemStack last = snapshot[8];
@@ -97,7 +97,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             snapshot[8] = first;
         }
         for (int i = 0; i < 9; i++) {
-            inventory.setStack(i, snapshot[i]);
+            inventory.setItem(i, snapshot[i]);
         }
     }
 
@@ -109,10 +109,10 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
         Collections.shuffle(indices, new Random(seed));
         ItemStack[] snapshot = new ItemStack[9];
         for (int i = 0; i < 9; i++) {
-            snapshot[i] = inventory.getStack(i);
+            snapshot[i] = inventory.getItem(i);
         }
         for (int i = 0; i < 9; i++) {
-            inventory.setStack(indices.get(i), snapshot[i]);
+            inventory.setItem(indices.get(i), snapshot[i]);
         }
     }
 
@@ -121,7 +121,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
         Inventory inventory = player.getInventory();
         if (!mainHand.isEmpty()) {
             for (int slot = 0; slot < 9; slot++) {
-                if (inventory.getStack(slot) == mainHand) {
+                if (inventory.getItem(slot) == mainHand) {
                     return slot;
                 }
             }

@@ -144,7 +144,7 @@ public final class EntropyAuraAction implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
             UseItemCallback.EVENT.register(this::handleItemUse);
         }
 
@@ -216,7 +216,7 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
@@ -230,7 +230,7 @@ public final class EntropyAuraAction implements mutation_action {
                                 currentSlot,
                                 time,
                                 aura.action.cooldownTicks,
-                                player.getInventory().getStack(currentSlot));
+                                player.getInventory().getItem(currentSlot));
                         }
                     } else {
                         lastSelectedSlot.put(player, currentSlot);
@@ -252,17 +252,17 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
                 for (ServerPlayer player : players) {
                     for (EquipmentSlot slot : ARMOR_SLOTS) {
-                        ItemStack armor = player.getEquippedStack(slot);
+                        ItemStack armor = player.getItemBySlot(slot);
                         if (armor.isEmpty()) {
                             continue;
                         }
-                        armor.damage(aura.action.durabilityDamage, player, slot);
+                        armor.hurtAndBreak(aura.action.durabilityDamage, ((ServerLevel) player.level()), (ServerPlayer) player, (brokenStack) -> {});
                     }
                 }
                 aura.lastEffectTick = time;
@@ -282,7 +282,7 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
@@ -295,7 +295,7 @@ public final class EntropyAuraAction implements mutation_action {
                         slot,
                         time,
                         aura.action.lockTicks,
-                        player.getInventory().getStack(slot));
+                        player.getInventory().getItem(slot));
                 }
                 aura.lastEffectTick = time;
             }
@@ -304,7 +304,7 @@ public final class EntropyAuraAction implements mutation_action {
             if (stack.isEmpty()) {
                 return;
             }
-            player.getCooldowns().set(new ItemStack(stack.getItem()), ticks);
+            player.getCooldowns().addCooldown(new ItemStack(stack.getItem()), ticks);
         }
 
         private boolean isSlotLocked(Map<Integer, Long> locks, int slot, long time) {
@@ -335,7 +335,7 @@ public final class EntropyAuraAction implements mutation_action {
             ItemStack mainHand = player.getMainHandItem();
             if (!mainHand.isEmpty()) {
                 for (int slot = 0; slot < 9; slot++) {
-                    if (player.getInventory().getStack(slot) == mainHand) {
+                    if (player.getInventory().getItem(slot) == mainHand) {
                         return slot;
                     }
                 }
@@ -384,7 +384,7 @@ public final class EntropyAuraAction implements mutation_action {
                 return;
             }
             player.getInventory().setSelectedSlot(slot);
-            player.networkHandler.sendPacket(new ClientboundSetHeldSlotPacket(slot));
+            player.connection.send(new ClientboundSetHeldSlotPacket(slot));
             lastSelectedSlot.put(player, slot);
         }
 

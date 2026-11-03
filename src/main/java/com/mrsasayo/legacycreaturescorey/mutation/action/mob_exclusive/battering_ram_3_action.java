@@ -21,13 +21,13 @@ public final class battering_ram_3_action extends battering_ram_base_action {
 
     @Override
     protected void applyRamEffects(LivingEntity attacker, LivingEntity target) {
-        if (attacker.getEntityWorld().isClient()) {
+        if (attacker.level().isClientSide()) {
             return;
         }
-        target.addStatusEffect(new MobEffectInstance(MobEffects.WEAKNESS,
+        target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,
                 weaknessDurationTicks,
                 weaknessAmplifier));
-        target.addStatusEffect(new MobEffectInstance(MobEffects.NAUSEA,
+        target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,
                 nauseaDurationTicks,
                 nauseaAmplifier));
     }

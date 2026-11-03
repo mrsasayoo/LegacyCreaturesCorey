@@ -43,8 +43,8 @@ public abstract class blizzard_orb_base_action implements mutation_action {
         // FIX: Siempre aplicar daño mínimo garantizado (1 punto)
         float damageToApply = Math.max(minimumDamage, projectileDamage);
         if (damageToApply > 0.0f) {
-            DamageSource source = snowball.getDamageSources().thrown(snowball, owner);
-            target.damage(world, source, damageToApply);
+            DamageSource source = snowball.damageSources().thrown(snowball, owner);
+            target.hurtServer(world, source, damageToApply);
         }
         applyKnockback(target, snowball);
     }
@@ -54,7 +54,7 @@ public abstract class blizzard_orb_base_action implements mutation_action {
     }
 
     protected ServerLevel asServerWorld(SnowGolem owner) {
-        return owner.getEntityWorld() instanceof ServerLevel serverWorld ? serverWorld : null;
+        return owner.level() instanceof ServerLevel serverWorld ? serverWorld : null;
     }
 
     protected void applyKnockback(LivingEntity target, Snowball snowball) {
@@ -68,11 +68,11 @@ public abstract class blizzard_orb_base_action implements mutation_action {
             return;
         }
         double strength = knockbackStrength;
-        target.setVelocity(target.getVelocity().add(
+        target.setDeltaMovement(target.getDeltaMovement().add(
                 (dx / distance) * strength,
                 verticalBoost,
                 (dz / distance) * strength));
-        target.velocityModified = true;
+        target.syncVelocity = true;
     }
 
     public float getMinimumDamage() {

@@ -24,15 +24,15 @@ public final class DamageAuraAction implements mutation_action {
         if (!action_context.isServer(entity)) {
             return;
         }
-        if (entity.age % interval != 0) {
+        if (entity.tickCount % interval != 0) {
             return;
         }
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
-        DamageSource source = world.getDamageSources().magic();
+        ServerLevel world = (ServerLevel) entity.level();
+        DamageSource source = world.damageSources().magic();
         for (Player player : world.getPlayers(player -> player.isAlive() && !player.isCreative() && !player.isSpectator())) {
-            if (player.squaredDistanceTo(entity) <= range * range) {
-                player.damage(world, source, amount);
+            if (player.distanceToSqr(entity) <= range * range) {
+                player.hurtServer(world, source, amount);
             }
         }
     }

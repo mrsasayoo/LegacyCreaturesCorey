@@ -86,33 +86,33 @@ abstract class essence_siphon_base_action extends proc_on_hit_action {
 
     private void applyReduction(LivingEntity victim, MobEffectInstance effect, int reductionTicks) {
         int remaining = Math.max(0, effect.getDuration() - reductionTicks);
-        Holder<MobEffect> entry = effect.getEffectType();
-        victim.removeStatusEffect(entry);
+        Holder<MobEffect> entry = effect.getEffect();
+        victim.removeEffect(entry);
         if (remaining > 0) {
             MobEffectInstance updated = new MobEffectInstance(entry, remaining, effect.getAmplifier(),
-                    effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon());
-            victim.addStatusEffect(updated);
+                    effect.isAmbient(), effect.isVisible(), effect.showIcon());
+            victim.addEffect(updated);
         }
     }
 
     private void applySteal(LivingEntity attacker, MobEffectInstance effect, int duration) {
-        MobEffectInstance copy = new MobEffectInstance(effect.getEffectType(), duration, effect.getAmplifier(),
+        MobEffectInstance copy = new MobEffectInstance(effect.getEffect(), duration, effect.getAmplifier(),
                 false, true, true);
-        attacker.addStatusEffect(copy);
+        attacker.addEffect(copy);
     }
 
     private void applyCorruption(LivingEntity victim, MobEffectInstance effect, int duration) {
-        Holder<MobEffect> entry = effect.getEffectType();
+        Holder<MobEffect> entry = effect.getEffect();
         Holder<MobEffect> replacement = CORRUPTION_MAP.getOrDefault(entry, MobEffects.POISON);
         MobEffectInstance corrupted = new MobEffectInstance(replacement, duration, Math.max(0, effect.getAmplifier()),
                 false, true, true);
-        victim.addStatusEffect(corrupted);
+        victim.addEffect(corrupted);
     }
 
     private List<MobEffectInstance> getPositiveEffects(LivingEntity victim) {
         List<MobEffectInstance> result = new ArrayList<>();
         for (MobEffectInstance instance : victim.getActiveEffects()) {
-            if (instance.getEffectType().value().getCategory() == MobEffectCategory.BENEFICIAL
+            if (instance.getEffect().value().getCategory() == MobEffectCategory.BENEFICIAL
                     && instance.getDuration() > 0) {
                 result.add(instance);
             }

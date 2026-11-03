@@ -6,7 +6,7 @@ import net.minecraft.world.item.Item;
  * Simple marker item used for deceptive demise fragments.
  */
 public final class GhostFragmentItem extends Item {
-    public GhostFragmentItem(Settings settings) {
+    public GhostFragmentItem(Item.Properties settings) {
         super(settings);
     }
 }

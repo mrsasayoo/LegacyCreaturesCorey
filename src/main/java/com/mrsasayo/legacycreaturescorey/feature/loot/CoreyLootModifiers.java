@@ -51,10 +51,10 @@ public final class CoreyLootModifiers {
             return;
         }
 
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         Identifier expectedTable = entityId == null ? null : Identifier.fromNamespaceAndPath(entityId.getNamespace(), ENTITY_TABLE_PREFIX + entityId.getPath());
 
-        Optional<ResourceKey<LootTable>> key = lootTableEntry.unwrapKey();
+        Optional<ResourceKey<LootTable>> key = lootTableEntry.getKey();
         Identifier tableId = key.map(ResourceKey::getValue).orElse(null);
         if (difficulty_config.isTieredLootStrictEntityTables()) {
             if (tableId == null || expectedTable == null || !tableId.equals(expectedTable)) {
@@ -79,7 +79,7 @@ public final class CoreyLootModifiers {
 
         if (Legacycreaturescorey.LOGGER.isDebugEnabled()) {
             Legacycreaturescorey.LOGGER.debug("Loot intercept: {} ({}) dropped tier {} loot hook", mob.getHoverName().getString(),
-                mob.kind().getTranslationKey(), tier.getDisplayName());
+                mob.getType().getDescriptionId(), tier.getDisplayName());
         }
 
         int baselineSize = drops.size();
@@ -108,7 +108,7 @@ public final class CoreyLootModifiers {
     }
 
     private static boolean generateTieredLoot(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops) {
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         if (entityId == null) {
             return false;
         }

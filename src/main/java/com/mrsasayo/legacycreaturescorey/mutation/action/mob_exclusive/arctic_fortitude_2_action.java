@@ -21,14 +21,14 @@ public final class arctic_fortitude_2_action extends arctic_fortitude_base_actio
         if (bear == null) {
             return;
         }
-        if (bear.hasStatusEffect(MobEffects.SLOWNESS)) {
-            bear.removeStatusEffect(MobEffects.SLOWNESS);
+        if (bear.hasEffect(MobEffects.SLOWNESS)) {
+            bear.removeEffect(MobEffects.SLOWNESS);
         }
-        if (bear.isFrozen()) {
-            bear.setFrozenTicks(0);
+        if (bear.isFullyFrozen()) {
+            bear.setTicksFrozen(0);
         }
-        BlockPos below = bear.getBlockPos().down();
-        if (isIceOrSnow(bear.getEntityWorld().getBlockState(below))) {
+        BlockPos below = bear.blockPosition().below();
+        if (isIceOrSnow(bear.level().getBlockState(below))) {
             applySpeedBuff(bear, speedDurationTicks, speedAmplifier);
         }
     }

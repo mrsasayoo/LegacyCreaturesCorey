@@ -21,7 +21,7 @@ import java.util.WeakHashMap;
 
 abstract class axe_mastery_base_action implements mutation_action {
     protected Vindicator asServerVindicator(LivingEntity entity) {
-        if (entity instanceof Vindicator vindicator && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Vindicator vindicator && !entity.level().isClientSide()) {
             return vindicator;
         }
         return null;
@@ -39,7 +39,7 @@ abstract class axe_mastery_base_action implements mutation_action {
         private final Map<Vindicator, AxeState> axeStates = new WeakHashMap<>();
 
         private Handler() {
-            ServerTickEvents.END_WORLD_TICK.register(world -> {
+            ServerTickEvents.END_LEVEL_TICK.register(world -> {
                 Iterator<Map.Entry<Vindicator, Map<String, Integer>>> iterator = cooldowns.entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry<Vindicator, Map<String, Integer>> entry = iterator.next();
@@ -49,7 +49,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                         axeStates.remove(vindicator);
                         continue;
                     }
-                    if (vindicator.getEntityWorld() != world) {
+                    if (vindicator.level() != world) {
                         continue;
                     }
                     Map<String, Integer> map = entry.getValue();
@@ -81,12 +81,12 @@ abstract class axe_mastery_base_action implements mutation_action {
                 if (target == null) {
                     return;
                 }
-                double distanceSq = vindicator.squaredDistanceTo(target);
+                double distanceSq = vindicator.distanceToSqr(target);
                 if (distanceSq < 16.0D || distanceSq > 256.0D) {
                     return;
                 }
-                Vec3 start = vindicator.getEyePos();
-                Vec3 direction = target.getEyePos().subtract(start).normalize();
+                Vec3 start = vindicator.getEyePosition();
+                Vec3 direction = target.getEyePosition().subtract(start).normalize();
                 axeStates.put(vindicator, new AxeState(start, direction, maxDistance, travelSpeed));
                 setCooldown(vindicator, "returning_axe", cooldownTicks);
                 applyStopMovement(vindicator);
@@ -103,20 +103,20 @@ abstract class axe_mastery_base_action implements mutation_action {
         }
 
         private void dealDamageAlongPath(Vindicator vindicator, Vec3 position, double radius) {
-            if (!(vindicator.getEntityWorld() instanceof ServerLevel world)) {
+            if (!(vindicator.level() instanceof ServerLevel world)) {
                 return;
             }
             AABB hitBox = new AABB(position.add(-radius, -radius, -radius), position.add(radius, radius, radius));
-            List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, hitBox,
+            List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, hitBox,
                     entity -> entity != vindicator && entity.isAlive());
             for (LivingEntity target : targets) {
-                vindicator.tryAttack(world, target);
+                vindicator.doHurtTarget(world, target);
             }
         }
 
         private void spawnTrailParticles(Vindicator vindicator, Vec3 position) {
-            if (vindicator.getEntityWorld() instanceof ServerLevel world) {
-                world.spawnParticles(ParticleTypes.CRIT,
+            if (vindicator.level() instanceof ServerLevel world) {
+                world.sendParticles(ParticleTypes.CRIT,
                         position.x,
                         position.y,
                         position.z,
@@ -129,16 +129,16 @@ abstract class axe_mastery_base_action implements mutation_action {
         }
 
         private void applyStopMovement(Vindicator vindicator) {
-            AttributeInstance speed = vindicator.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && !speed.hasModifier(STOP_MOVEMENT_ID)) {
-                speed.addPersistentModifier(new AttributeModifier(STOP_MOVEMENT_ID,
+                speed.addPermanentModifier(new AttributeModifier(STOP_MOVEMENT_ID,
                         -1.0D,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
         }
 
         private void clearStopMovement(Vindicator vindicator) {
-            AttributeInstance speed = vindicator.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && speed.hasModifier(STOP_MOVEMENT_ID)) {
                 speed.removeModifier(STOP_MOVEMENT_ID);
             }
@@ -170,7 +170,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                 } else {
                     distance = Math.max(0.0D, distance - speed);
                 }
-                return start.add(direction.multiply(distance));
+                return start.add(direction.scale(distance));
             }
 
             private boolean isFinished() {

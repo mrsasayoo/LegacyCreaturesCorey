@@ -52,11 +52,11 @@ public final class status_effect_config_parser {
             if (identifier == null) {
                 continue;
             }
-            MobEffect effect = BuiltInRegistries.STATUS_EFFECT.get(identifier);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(identifier);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> entryRef = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -91,7 +91,7 @@ public final class status_effect_config_parser {
         for (status_effect_config_entry entry : configs) {
             MobEffectInstance instance = buildInstance(entry);
             if (instance != null) {
-                target.addStatusEffect(instance);
+                target.addEffect(instance);
             }
         }
     }

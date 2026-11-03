@@ -28,18 +28,18 @@ public final class MobSpawnHandler {
             return;
         }
 
-        BlockPos pos = mob.getBlockPos();
+        BlockPos pos = mob.blockPosition();
         int effectiveDifficulty = EffectiveDifficultyCalculator.calculate(world, pos);
         MobTier resultingTier = TierManager.tryCategorize(mob, effectiveDifficulty);
 
         if (difficulty_config.isDebugLogProbabilityDetails()) {
             Legacycreaturescorey.LOGGER.info(
                 "📍 Hostil recién spawneado: {} en {},{},{} ({}) | dificultad efectiva={} | tier={}",
-                entity.getType().getTranslationKey(),
+                entity.getType().getDescriptionId(),
                 pos.getX(),
                 pos.getY(),
                 pos.getZ(),
-                world.getRegistryKey().getValue(),
+                world.dimension().identifier(),
                 EffectiveDifficultyCalculator.format(effectiveDifficulty),
                 resultingTier.getDisplayName()
             );

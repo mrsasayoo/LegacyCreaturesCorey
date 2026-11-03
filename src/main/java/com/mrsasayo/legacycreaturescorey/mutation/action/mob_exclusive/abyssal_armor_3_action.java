@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.entity.monster.ElderGuardian;
@@ -44,35 +45,35 @@ public final class abyssal_armor_3_action extends abyssal_armor_base_action {
 
     @Override
     protected void performActiveAbility(ElderGuardian guardian, ServerLevel world) {
-        Vec3 center = guardian.getEyePos();
-        Vec3 forward = guardian.getRotationVector();
-        if (forward.lengthSquared() == 0.0D) {
+        Vec3 center = guardian.getEyePosition();
+        Vec3 forward = guardian.getViewVector(1.0F);
+        if (forward.lengthSqr() == 0.0D) {
             forward = new Vec3(0, 0, 1);
         }
         Vec3 up = new Vec3(0, 1, 0);
-        Vec3 right = forward.crossProduct(up);
-        if (right.lengthSquared() == 0.0D) {
+        Vec3 right = forward.cross(up);
+        if (right.lengthSqr() == 0.0D) {
             right = new Vec3(1, 0, 0);
         }
         right = right.normalize();
-        up = right.crossProduct(forward).normalize();
+        up = right.cross(forward).normalize();
 
         List<Vec3> directions = new ArrayList<>();
         // Cardinals relative to current facing
         directions.add(forward.normalize());
-        directions.add(forward.multiply(-1).normalize());
+        directions.add(forward.scale(-1).normalize());
         directions.add(up);
-        directions.add(up.multiply(-1));
+        directions.add(up.scale(-1));
         directions.add(right);
-        directions.add(right.multiply(-1));
+        directions.add(right.scale(-1));
 
         // Diagonals (front-up-right, etc.)
         directions.add(forward.add(up).add(right).normalize());
-        directions.add(forward.add(up).add(right.multiply(-1)).normalize());
-        directions.add(forward.add(up.multiply(-1)).add(right).normalize());
-        directions.add(forward.add(up.multiply(-1)).add(right.multiply(-1)).normalize());
-        directions.add(forward.multiply(-1).add(up).normalize());
-        directions.add(forward.multiply(-1).add(up.multiply(-1)).normalize());
+        directions.add(forward.add(up).add(right.scale(-1)).normalize());
+        directions.add(forward.add(up.scale(-1)).add(right).normalize());
+        directions.add(forward.add(up.scale(-1)).add(right.scale(-1)).normalize());
+        directions.add(forward.scale(-1).add(up).normalize());
+        directions.add(forward.scale(-1).add(up.scale(-1)).normalize());
         directions.add(right.add(up).normalize());
 
         // Sonido de lanzamiento de tridentes
@@ -80,7 +81,7 @@ public final class abyssal_armor_3_action extends abyssal_armor_base_action {
                 SoundEvents.TRIDENT_THROW, SoundSource.HOSTILE, 1.5F, 0.8F);
         
         // Partículas de agua al disparar
-        world.spawnParticles(ParticleTypes.BUBBLE_COLUMN_UP,
+        world.sendParticles(ParticleTypes.BUBBLE_COLUMN_UP,
                 center.x, center.y, center.z,
                 30, 1.5D, 1.5D, 1.5D, 0.1D);
         
@@ -89,13 +90,13 @@ public final class abyssal_armor_3_action extends abyssal_armor_base_action {
             // Crear tridente simulado como proyectil
             ThrownTrident trident = new ThrownTrident(world, guardian, tridentStack);
             trident.setPos(center.x, center.y, center.z);
-            trident.setVelocity(dir.x, dir.y, dir.z, projectileSpeed, 0.0F);
+            trident.shoot(dir.x, dir.y, dir.z, projectileSpeed, 0.0F);
             // El daño del tridente se establece basándose en el encantamiento, 
             // pero podemos usar reflexión o NBT para modificar el daño base
-            trident.setDamage(projectileDamage);
+            trident.setBaseDamage(projectileDamage);
             // Evitar que el tridente sea recogido
-            trident.pickupType = ThrownTrident.PickupPermission.DISALLOWED;
-            world.spawnEntity(trident);
+            trident.pickup = AbstractArrow.Pickup.DISALLOWED;
+            world.addFreshEntity(trident);
         }
     }
 }

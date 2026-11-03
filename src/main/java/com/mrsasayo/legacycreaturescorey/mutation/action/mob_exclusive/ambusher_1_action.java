@@ -44,7 +44,7 @@ public final class ambusher_1_action extends ambusher_base_action {
         if (!(target instanceof Player player)) {
             return;
         }
-        if (creeper.squaredDistanceTo(player) > detectionRangeSq) {
+        if (creeper.distanceToSqr(player) > detectionRangeSq) {
             return;
         }
         if (!canPlayerSee(creeper, player, fovThreshold)) {

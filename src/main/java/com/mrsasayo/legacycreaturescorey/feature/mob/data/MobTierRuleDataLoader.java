@@ -47,7 +47,7 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
     }
 
     public static EnumSet<MobTier> getAllowedTiers(EntityType<?> type) {
-        Identifier id = EntityType.getId(type);
+        Identifier id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
@@ -55,13 +55,12 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
         return tiers == null ? null : EnumSet.copyOf(tiers);
     }
 
-    @Override
     public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
             overrides = Map.of();
@@ -70,12 +69,12 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
         }
 
         Map<Identifier, EnumSet<MobTier>> parsed = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entry = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getString(entry, "id"));
+                JsonObject entry = GsonHelper.convertToJsonObject(entries.get(i), "entries[" + i + "]");
+                Identifier entityId = Identifier.parse(GsonHelper.getAsString(entry, "id"));
                 JsonArray tiersArray = GsonHelper.getAsJsonArray(entry, "tiers");
                 EnumSet<MobTier> tiers = EnumSet.noneOf(MobTier.class);
                 for (int j = 0; j < tiersArray.size(); j++) {

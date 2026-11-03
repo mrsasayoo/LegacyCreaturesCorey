@@ -90,7 +90,7 @@ public class CoreyServerState extends SavedData {
     }
 
     public static CoreyServerState get(MinecraftServer server) {
-        DimensionDataStorage stateManager = server.getWorld(Level.OVERWORLD).getPersistentStateManager();
+        SavedDataStorage stateManager = server.getLevel(Level.OVERWORLD).getDataStorage();
         CoreyServerState state = stateManager.getOrCreate(TYPE);
         state.setDirty();
         return state;

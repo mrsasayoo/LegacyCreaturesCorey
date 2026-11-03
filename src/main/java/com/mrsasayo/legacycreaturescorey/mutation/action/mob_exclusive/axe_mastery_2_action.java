@@ -56,15 +56,15 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
      * Ejecuta el golpe circular dañando a todas las entidades en rango
      */
     private void performCircularSlash(Vindicator vindicator, LivingEntity primaryTarget) {
-        if (!(vindicator.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(vindicator.level() instanceof ServerLevel world)) {
             return;
         }
         
         // Crear caja de colisión expandida para el AoE
-        AABB aoeBox = vindicator.getBoundingBox().expand(slashRange);
+        AABB aoeBox = vindicator.getBoundingBox().inflate(slashRange);
         
         // Obtener todas las entidades vivas en el área (excepto el Vindicator)
-        List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, aoeBox,
+        List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, aoeBox,
                 living -> living != vindicator && 
                           living.isAlive() && 
                           !(living instanceof Vindicator) && // No dañar otros Vindicators
@@ -83,17 +83,17 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.5F, 0.8F);
         
         // Aplicar daño a todos los objetivos en el área
-        DamageSource damageSource = world.getDamageSources().mobAttack(vindicator);
+        DamageSource damageSource = world.damageSources().mobAttack(vindicator);
         
         for (LivingEntity target : targets) {
             // Verificar distancia real (el box puede incluir entidades fuera del rango circular)
-            double distSq = vindicator.squaredDistanceTo(target);
+            double distSq = vindicator.distanceToSqr(target);
             if (distSq > slashRange * slashRange) {
                 continue;
             }
             
             // Aplicar daño
-            target.damage(world, damageSource, aoeDamage);
+            target.hurtServer(world, damageSource, aoeDamage);
             
             // Pequeño knockback
             Vec3 knockbackDir = new Vec3(
@@ -101,8 +101,8 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
                     0,
                     target.getZ() - vindicator.getZ()
             ).normalize();
-            target.addVelocity(knockbackDir.x * 0.3D, 0.1D, knockbackDir.z * 0.3D);
-            target.velocityModified = true;
+            target.push(knockbackDir.x * 0.3D, 0.1D, knockbackDir.z * 0.3D);
+            target.syncVelocity = true;
         }
     }
     
@@ -120,13 +120,13 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
             double offsetX = Math.cos(angle) * slashRange * 0.8D;
             double offsetZ = Math.sin(angle) * slashRange * 0.8D;
             
-            world.spawnParticles(ParticleTypes.SWEEP_ATTACK,
+            world.sendParticles(ParticleTypes.SWEEP_ATTACK,
                     x + offsetX, y, z + offsetZ,
                     1, 0, 0, 0, 0);
         }
         
         // Partículas de daño en el centro
-        world.spawnParticles(ParticleTypes.CRIT,
+        world.sendParticles(ParticleTypes.CRIT,
                 x, y, z,
                 10, slashRange * 0.5D, 0.3D, slashRange * 0.5D, 0.1D);
     }

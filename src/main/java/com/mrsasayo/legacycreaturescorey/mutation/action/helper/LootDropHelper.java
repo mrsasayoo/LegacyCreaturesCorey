@@ -12,14 +12,14 @@ public final class LootDropHelper {
     private LootDropHelper() {}
 
     public static List<ItemEntity> findDrops(ServerLevel world, LivingEntity owner, double radius) {
-        UUID ownerId = owner.getUuid();
-        AABB searchBox = owner.getBoundingBox().expand(radius);
-        return world.getEntitiesByClass(ItemEntity.class, searchBox,
+        UUID ownerId = owner.getUUID();
+        AABB searchBox = owner.getBoundingBox().inflate(radius);
+        return world.getEntitiesOfClass(ItemEntity.class, searchBox,
             item -> item.isAlive() && matchesOwner(item, ownerId));
     }
 
     private static boolean matchesOwner(ItemEntity item, UUID ownerId) {
         var entityOwner = item.getOwner();
-        return entityOwner != null && entityOwner.getUuid().equals(ownerId);
+        return entityOwner != null && entityOwner.getUUID().equals(ownerId);
     }
 }

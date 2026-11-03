@@ -49,26 +49,26 @@ abstract class shatter_armor_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(victim.level() instanceof ServerLevel world)) {
             return;
         }
-        AttributeInstance instance = victim.getAttributeInstance(ARMOR);
+        AttributeInstance instance = victim.getAttribute(ARMOR);
         if (instance == null || percentModifier == 0.0D) {
             return;
         }
         Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "shatter_armor_" + UUID.randomUUID().toString().replace("-", ""));
         AttributeModifier modifier = new AttributeModifier(id, percentModifier, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
-        instance.addTemporaryModifier(modifier);
+        instance.addTransientModifier(modifier);
         playFeedback(world, victim);
         mutation_task_scheduler.schedule(world, new RemoveModifierTask(victim, ARMOR, id, durationTicks));
     }
 
     private void playFeedback(ServerLevel world, LivingEntity victim) {
         float pitch = 0.8F + world.getRandom().nextFloat() * 0.2F;
-        double centerY = victim.getY() + victim.getStandingEyeHeight() * 0.5D;
+        double centerY = victim.getY() + victim.getEyeHeight() * 0.5D;
         world.playSound(null, victim.getX(), centerY, victim.getZ(), SoundEvents.SHIELD_BREAK, SoundSource.HOSTILE, 0.9F, pitch);
-        world.spawnParticles(ParticleTypes.CRIT, victim.getX(), centerY, victim.getZ(), 8, 0.35D, 0.25D, 0.35D, 0.05D);
-        world.spawnParticles(ParticleTypes.SMOKE, victim.getX(), centerY, victim.getZ(), 6, 0.25D, 0.2D, 0.25D, 0.01D);
+        world.sendParticles(ParticleTypes.CRIT, victim.getX(), centerY, victim.getZ(), 8, 0.35D, 0.25D, 0.35D, 0.05D);
+        world.sendParticles(ParticleTypes.SMOKE, victim.getX(), centerY, victim.getZ(), 6, 0.25D, 0.2D, 0.25D, 0.01D);
     }
 
     private static final class RemoveModifierTask implements mutation_task_scheduler.TimedTask {
@@ -92,7 +92,7 @@ abstract class shatter_armor_base_action extends proc_on_hit_action {
             if (--ticksLeft > 0) {
                 return false;
             }
-            AttributeInstance instance = entity.getAttributeInstance(attribute);
+            AttributeInstance instance = entity.getAttribute(attribute);
             if (instance != null) {
                 instance.removeModifier(modifierId);
             }

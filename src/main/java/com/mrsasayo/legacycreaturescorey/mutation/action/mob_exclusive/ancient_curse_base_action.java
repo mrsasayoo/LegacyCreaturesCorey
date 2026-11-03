@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 
 abstract class ancient_curse_base_action implements mutation_action {
     protected Husk asServerHusk(LivingEntity entity) {
-        if (entity instanceof Husk husk && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Husk husk && !entity.level().isClientSide()) {
             return husk;
         }
         return null;
@@ -23,13 +23,13 @@ abstract class ancient_curse_base_action implements mutation_action {
             int cloudDurationTicks,
             int effectDurationTicks,
             int effectAmplifier) {
-        ServerLevel world = (ServerLevel) husk.getEntityWorld();
+        ServerLevel world = (ServerLevel) husk.level();
         AreaEffectCloud cloud = new AreaEffectCloud(world, husk.getX(), husk.getY(), husk.getZ());
         cloud.setRadius((float) radius);
         cloud.setDuration(cloudDurationTicks);
-        cloud.setParticleType(ParticleTypes.CAMPFIRE_COSY_SMOKE);
+        cloud.setCustomParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE);
         cloud.addEffect(new MobEffectInstance(MobEffects.HUNGER, effectDurationTicks, effectAmplifier));
-        world.spawnEntity(cloud);
+        world.addFreshEntity(cloud);
     }
 
     protected void applyMummysCurse(Player player, int durationTicks) {

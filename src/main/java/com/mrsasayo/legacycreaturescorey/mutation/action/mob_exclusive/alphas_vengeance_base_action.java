@@ -18,7 +18,7 @@ abstract class alphas_vengeance_base_action implements mutation_action {
 
     @Override
     public void onApply(LivingEntity entity) {
-        if (!(entity instanceof Wolf wolf) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof Wolf wolf) || entity.level().isClientSide()) {
             return;
         }
         owner = wolf;
@@ -69,7 +69,7 @@ abstract class alphas_vengeance_base_action implements mutation_action {
         }
         deathHookRegistered = true;
         ServerLivingEntityEvents.AFTER_DEATH.register((victim, source) -> {
-            if (!(victim instanceof Wolf wolf) || victim.getEntityWorld().isClient()) {
+            if (!(victim instanceof Wolf wolf) || victim.level().isClientSide()) {
                 return;
             }
             synchronized (ALLY_WATCHERS) {
@@ -84,7 +84,7 @@ abstract class alphas_vengeance_base_action implements mutation_action {
         if (!handlesAllyDeathEvents()) {
             return;
         }
-        if (owner == null || owner == deceased || owner.getEntityWorld() != deceased.getEntityWorld()) {
+        if (owner == null || owner == deceased || owner.level() != deceased.level()) {
             return;
         }
         onAllyWolfDeath(deceased);

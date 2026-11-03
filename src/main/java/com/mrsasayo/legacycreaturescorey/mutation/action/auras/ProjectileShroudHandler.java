@@ -31,13 +31,13 @@ public final class ProjectileShroudHandler {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
     }
 
     public void register(LivingEntity entity, ProjectileShroudSource source) {
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (ActiveAura aura : list) {
             if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
@@ -48,7 +48,7 @@ public final class ProjectileShroudHandler {
     }
 
     public void unregister(LivingEntity entity, ProjectileShroudSource source) {
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
@@ -84,13 +84,13 @@ public final class ProjectileShroudHandler {
         double radius = aura.sourceDef.getRadius();
         double chance = aura.sourceDef.getChance();
 
-        List<AbstractArrow> projectiles = world.getEntitiesByClass(
+        List<AbstractArrow> projectiles = world.getEntitiesOfClass(
                 AbstractArrow.class,
-                entity.getBoundingBox().expand(radius),
-                projectile -> projectile.isAlive() && !projectile.isOnGround());
+                entity.getBoundingBox().inflate(radius),
+                projectile -> projectile.isAlive() && !projectile.onGround());
 
         for (AbstractArrow projectile : projectiles) {
-            if (entity.squaredDistanceTo(projectile) > radius * radius) {
+            if (entity.distanceToSqr(projectile) > radius * radius) {
                 continue;
             }
             if (chance < 1.0D && entity.getRandom().nextDouble() >= chance) {
@@ -106,10 +106,10 @@ public final class ProjectileShroudHandler {
                     double reflectFactor = Math.max(0.0D, aura.sourceDef.getReflectDamageFactor());
                     projectile.setOwner(entity);
                     double baseDamage = getProjectileDamage(projectile);
-                    projectile.setDamage(Math.max(0.0D, baseDamage * reflectFactor));
-                    projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectFactor)));
-                    projectile.velocityDirty = true;
-                    projectile.velocityModified = true;
+                    projectile.setBaseDamage(Math.max(0.0D, baseDamage * reflectFactor));
+                    projectile.setDeltaMovement(projectile.getDeltaMovement().scale(-Math.max(0.2D, reflectFactor)));
+                    projectile.syncVelocity = true;
+                    projectile.syncVelocity = true;
                     processed.add(projectile);
                 }
                 case SHOVE_SHOOTER -> {
@@ -118,8 +118,8 @@ public final class ProjectileShroudHandler {
                         double dz = shooter.getZ() - entity.getZ();
                         double length = Math.max(0.0001D, Math.hypot(dx, dz));
                         double pushStrength = aura.sourceDef.getPushStrength();
-                        shooter.addVelocity(dx / length * pushStrength, 0.25D, dz / length * pushStrength);
-                        shooter.velocityModified = true;
+                        shooter.push(dx / length * pushStrength, 0.25D, dz / length * pushStrength);
+                        shooter.syncVelocity = true;
                     }
                     discardProjectile(world, projectile, aura.sourceDef);
                 }
@@ -140,8 +140,8 @@ public final class ProjectileShroudHandler {
             return;
         }
         ItemEntity drop = new ItemEntity(world, projectile.getX(), projectile.getY(), projectile.getZ(), stack);
-        drop.setPickupDelay(5);
-        world.spawnEntity(drop);
+        drop.setDefaultPickUpDelay();
+        world.addFreshEntity(drop);
     }
 
     private ItemStack getProjectileStack(AbstractArrow projectile) {
@@ -166,7 +166,7 @@ public final class ProjectileShroudHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         Iterator<ActiveAura> iterator = list.iterator();
         while (iterator.hasNext()) {
             ActiveAura aura = iterator.next();

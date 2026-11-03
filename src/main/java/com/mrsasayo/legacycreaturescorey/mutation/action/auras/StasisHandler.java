@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +50,7 @@ public final class StasisHandler {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         UseItemCallback.EVENT.register(this::handleItemUse);
     }
 
@@ -116,7 +117,7 @@ public final class StasisHandler {
                     continue;
                 }
                 double radius = aura.sourceDef.getRadius();
-                if (source.squaredDistanceTo(pos) <= radius * radius) {
+                if (source.distanceToSqr(pos) <= radius * radius) {
                     teleportCancelled = true;
                     break;
                 }
@@ -127,7 +128,7 @@ public final class StasisHandler {
         }
 
         boolean handledShield = false;
-        if (player.getStackInHand(hand).isOf(Items.SHIELD)) {
+        if (player.getItemInHand(hand).is(Items.SHIELD)) {
             for (ActiveAura aura : list) {
                 if (aura.sourceDef.getShieldCooldownTicks() <= 0
                         || aura.sourceDef.getMode() != StasisSource.Mode.SPRINT_SUPPRESSION) {
@@ -138,9 +139,9 @@ public final class StasisHandler {
                     continue;
                 }
                 double radius = aura.sourceDef.getRadius();
-                if (source.squaredDistanceTo(pos) <= radius * radius) {
-                    ItemStack shieldStack = new ItemStack(player.getStackInHand(hand).getItem());
-                    player.getCooldowns().set(shieldStack, aura.sourceDef.getShieldCooldownTicks());
+                if (source.distanceToSqr(pos) <= radius * radius) {
+                    ItemStack shieldStack = new ItemStack(player.getItemInHand(hand).getItem());
+                    player.getCooldowns().addCooldown(shieldStack, aura.sourceDef.getShieldCooldownTicks());
                     handledShield = true;
                     break;
                 }
@@ -157,11 +158,11 @@ public final class StasisHandler {
             return false;
         }
         var stack = player.getMainHandItem();
-        if (stack.isOf(Items.ENDER_PEARL) || stack.isOf(Items.CHORUS_FRUIT)) {
+        if (stack.is(Items.ENDER_PEARL) || stack.is(Items.CHORUS_FRUIT)) {
             return true;
         }
         stack = player.getOffhandItem();
-        return stack.isOf(Items.ENDER_PEARL) || stack.isOf(Items.CHORUS_FRUIT);
+        return stack.is(Items.ENDER_PEARL) || stack.is(Items.CHORUS_FRUIT);
     }
 
     private void processProjectileDampen(ServerLevel world, List<ActiveAura> list) {
@@ -176,8 +177,8 @@ public final class StasisHandler {
                 continue;
             }
             double radius = aura.sourceDef.getRadius();
-            AABB search = source.getBoundingBox().expand(radius);
-            List<Projectile> projectiles = world.getEntitiesByClass(Projectile.class, search,
+            AABB search = source.getBoundingBox().inflate(radius);
+            List<Projectile> projectiles = world.getEntitiesOfClass(Projectile.class, search,
                     projectile -> shouldSlow(projectile, source, radius));
             if (projectiles.isEmpty()) {
                 continue;
@@ -187,10 +188,10 @@ public final class StasisHandler {
                     continue;
                 }
                 Vec3 velocity = projectile.getDeltaMovement();
-                Vec3 slowed = velocity.multiply(aura.sourceDef.getProjectileSlowFactor());
-                projectile.setVelocity(slowed);
-                projectile.velocityDirty = true;
-                projectile.hurtMarked = true;
+                Vec3 slowed = velocity.scale(aura.sourceDef.getProjectileSlowFactor());
+                projectile.setDeltaMovement(slowed);
+                projectile.syncVelocity = true;
+                projectile.syncVelocity = true;
                 dampened.add(projectile);
             }
         }
@@ -203,14 +204,14 @@ public final class StasisHandler {
         if (projectile instanceof ThrownEnderpearl) {
             return false;
         }
-        if (!(projectile instanceof AbstractArrow) && projectile.getType() != EntityType.SNOWBALL) {
+        if (!(projectile instanceof AbstractArrow) && projectile.getType() != BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("snowball"))) {
             return false;
         }
         Entity owner = projectile.getOwner();
         if (!(owner instanceof Player)) {
             return false;
         }
-        return source.squaredDistanceTo(projectile) <= radius * radius;
+        return source.distanceToSqr(projectile) <= radius * radius;
     }
 
     private void processSprintSuppression(ServerLevel world, List<ActiveAura> list) {
@@ -224,7 +225,7 @@ public final class StasisHandler {
             }
             double radius = aura.sourceDef.getRadius();
             List<Player> players = new ArrayList<>(world
-                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius));
+                    .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radius * radius));
             long time = world.getGameTime();
             for (Player player : players) {
                 if (player.isSprinting()) {
@@ -251,7 +252,7 @@ public final class StasisHandler {
             double radiusSq = radius * radius;
             long time = world.getGameTime();
             for (ServerPlayer player : world
-                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq)) {
+                    .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq)) {
                 applyAttackSpeed(player, aura.sourceDef, time);
             }
         }
@@ -262,7 +263,7 @@ public final class StasisHandler {
         if (modifier == null) {
             return;
         }
-        AttributeInstance instance = player.getAttributeInstance(Attributes.ATTACK_SPEED);
+        AttributeInstance instance = player.getAttribute(Attributes.ATTACK_SPEED);
         if (instance == null) {
             return;
         }
@@ -271,7 +272,7 @@ public final class StasisHandler {
             return;
         }
         if (!instance.hasModifier(modifierId)) {
-            instance.addPersistentModifier(modifier);
+            instance.addPermanentModifier(modifier);
         }
         attackSpeedTracker.computeIfAbsent(player, ignored -> new HashMap<>()).put(source, time);
     }
@@ -316,7 +317,7 @@ public final class StasisHandler {
         if (modifierId == null) {
             return;
         }
-        AttributeInstance instance = player.getAttributeInstance(Attributes.ATTACK_SPEED);
+        AttributeInstance instance = player.getAttribute(Attributes.ATTACK_SPEED);
         if (instance == null) {
             return;
         }

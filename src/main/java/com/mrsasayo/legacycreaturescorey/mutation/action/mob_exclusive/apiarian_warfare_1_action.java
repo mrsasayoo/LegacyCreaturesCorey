@@ -38,7 +38,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
             return;
         }
         
-        long currentTime = bee.getEntityWorld().getTime();
+        long currentTime = bee.level().getGameTime();
         Long lastAttack = lastAttackTimes.get(bee);
         
         // Verificar cooldown
@@ -47,7 +47,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         }
         
         // Aplicar veneno
-        target.addStatusEffect(new MobEffectInstance(
+        target.addEffect(new MobEffectInstance(
             MobEffects.POISON, 
             poisonDurationTicks, 
             poisonAmplifier,
@@ -60,10 +60,10 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         lastAttackTimes.put(bee, currentTime);
         
         // Efectos visuales
-        if (bee.getEntityWorld() instanceof ServerLevel world) {
-            world.spawnParticles(ParticleTypes.ITEM_SLIME,
+        if (bee.level() instanceof ServerLevel world) {
+            world.sendParticles(ParticleTypes.ITEM_SLIME,
                     target.getX(),
-                    target.getY() + target.getHeight() / 2,
+                    target.getY() + target.getBbHeight() / 2,
                     target.getZ(),
                     8, 0.3D, 0.3D, 0.3D, 0.02D);
         }

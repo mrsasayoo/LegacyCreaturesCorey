@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * 26.3: yarn onPlayerCollision -> mojmap playerTouch(Player); getStack -> getItem;
- * getEntityWorld().isClient() -> level().isClientSide; addStatusEffect -> addEffect;
+ * getEntityWorld().isClientSide -> level().isClientSide; addStatusEffect -> addEffect;
  * SoundEvents.ENTITY_PHANTOM_HURT -> PHANTOM_HURT; SoundCategory -> SoundSource;
  * spawnParticles -> sendParticles; getBodyY -> getY
  */
@@ -40,7 +40,7 @@ public abstract class ItemEntityMixin extends Entity {
     private void legacy$handleGhostFragment(Player player, CallbackInfo ci) {
         ItemEntity self = (ItemEntity) (Object) this;
         if (FakeLootPileManager.isPlaceholder(self)) {
-            if (!player.level().isClientSide) {
+            if (!player.level().isClientSide()) {
                 FakeLootPileManager.trigger(self, player);
             }
             ci.cancel();
@@ -62,7 +62,7 @@ public abstract class ItemEntityMixin extends Entity {
                 SoundEvents.PHANTOM_HURT,
                 SoundSource.HOSTILE,
                 0.7F,
-                1.5F + world.random.nextFloat() * 0.3F);
+                1.5F + world.getRandom().nextFloat() * 0.3F);
             if (world instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                     player.getX(),

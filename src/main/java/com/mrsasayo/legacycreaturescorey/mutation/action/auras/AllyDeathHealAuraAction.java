@@ -72,7 +72,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
             }
             initialized = true;
             ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
-                if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+                if (!(entity.level() instanceof ServerLevel world)) {
                     return;
                 }
                 List<ActiveAura> auras = active.get(world);
@@ -90,7 +90,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
                         continue;
                     }
                     double radius = aura.action().getRadius();
-                    if (bearer.squaredDistanceTo(deathPos) > radius * radius) {
+                    if (bearer.distanceToSqr(deathPos) > radius * radius) {
                         continue;
                     }
                     bearer.heal(aura.action().getHealAmount());
@@ -99,9 +99,9 @@ public final class AllyDeathHealAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, AllyDeathHealAuraAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (int i = 0; i < list.size(); i++) {
                 ActiveAura aura = list.get(i);
                 if (aura.source() == entity && aura.action() == action) {
@@ -113,7 +113,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, AllyDeathHealAuraAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -129,7 +129,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();

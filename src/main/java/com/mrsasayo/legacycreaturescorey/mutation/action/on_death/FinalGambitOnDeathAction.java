@@ -32,7 +32,7 @@ public final class FinalGambitOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
     Vec3 origin = new Vec3(entity.getX(), entity.getY(), entity.getZ());
@@ -45,8 +45,8 @@ public final class FinalGambitOnDeathAction implements mutation_action {
 
     private void purgeProjectiles(ServerLevel world, Vec3 origin) {
         AABB box = AABB.of(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
-        List<Projectile> projectiles = world.getEntitiesByClass(Projectile.class, box,
-            projectile -> projectile.isAlive() && projectile.squaredDistanceTo(origin) <= radius * radius);
+        List<Projectile> projectiles = world.getEntitiesOfClass(Projectile.class, box,
+            projectile -> projectile.isAlive() && projectile.distanceToSqr(origin) <= radius * radius);
         for (Projectile projectile : projectiles) {
             projectile.discard();
         }
@@ -67,7 +67,7 @@ public final class FinalGambitOnDeathAction implements mutation_action {
         if (stack.isEmpty()) {
             return;
         }
-    cooldownManager.set(stack, cooldownTicks);
+    cooldownManager.addCooldown(stack, cooldownTicks);
     }
 
     private void spawnCollapse(ServerLevel world, Vec3 origin) {

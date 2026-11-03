@@ -58,7 +58,7 @@ final class bleeding_effect_helper {
         }
 
         if (shouldApplyEffect) {
-            victim.addStatusEffect(instance);
+            victim.addEffect(instance);
         }
     }
 
@@ -73,7 +73,7 @@ final class bleeding_effect_helper {
     }
 
     private static Holder<MobEffect> bleedingEntry() {
-        return Objects.requireNonNull(BuiltInRegistries.STATUS_EFFECT.getEntry(ModStatusEffects.BLEEDING),
+        return Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModStatusEffects.BLEEDING),
             "Missing registry entry for bleeding effect");
     }
 
@@ -119,11 +119,11 @@ final class bleeding_effect_helper {
         @Override
         public boolean tick(ServerLevel currentWorld) {
             if (victim.isRemoved() || !victim.isAlive()) {
-                victim.removeStatusEffect(bleedingEntry());
+                victim.removeEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }
-            if (!victim.hasStatusEffect(bleedingEntry())) {
+            if (!victim.hasEffect(bleedingEntry())) {
                 removeTask(victim, this);
                 return true;
             }
@@ -135,11 +135,11 @@ final class bleeding_effect_helper {
             float amount = pulses[index++];
             if (amount > 0.0F) {
                 DamageSource source = resolveSource(currentWorld, attacker);
-                victim.damage(currentWorld, source, amount);
+                victim.hurtServer(currentWorld, source, amount);
             }
 
             if (index >= pulses.length) {
-                victim.removeStatusEffect(bleedingEntry());
+                victim.removeEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }
@@ -149,11 +149,11 @@ final class bleeding_effect_helper {
 
     private static DamageSource resolveSource(ServerLevel world, LivingEntity attacker) {
         if (attacker instanceof Player player) {
-            return world.getDamageSources().playerAttack(player);
+            return world.damageSources().playerAttack(player);
         }
         if (attacker != null) {
-            return world.getDamageSources().mobAttack(attacker);
+            return world.damageSources().mobAttack(attacker);
         }
-        return world.getDamageSources().magic();
+        return world.damageSources().magic();
     }
 }

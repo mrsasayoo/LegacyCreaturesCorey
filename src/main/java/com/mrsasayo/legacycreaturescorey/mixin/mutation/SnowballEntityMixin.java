@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Makes snow golem snowballs able to damage players and apply effects based on
  * Blizzard Orb mutation.
- * 26.3: yarn onEntityHit -> mojmap onHitEntity; getEntityWorld().isClient() -> level().isClientSide
+ * 26.3: yarn onEntityHit -> mojmap onHitEntity; getEntityWorld().isClientSide -> level().isClientSide
  */
 @Mixin(Snowball.class)
 public class SnowballEntityMixin {
@@ -32,7 +32,7 @@ public class SnowballEntityMixin {
         if (!(snowball.getOwner() instanceof SnowGolem snowGolem)) {
             return;
         }
-        if (snowball.level().isClientSide) {
+        if (snowball.level().isClientSide()) {
             return;
         }
         if (!(entityHitResult.getEntity() instanceof LivingEntity target)) {

@@ -40,10 +40,10 @@ public final class blindness_1_action extends proc_on_hit_action {
             return;
         }
         if (blindnessDuration > 0) {
-            victim.addStatusEffect(new MobEffectInstance(MobEffects.BLINDNESS, blindnessDuration, blindnessAmplifier));
+            victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, blindnessDuration, blindnessAmplifier));
         }
         if (nightVisionDuration > 0) {
-            victim.addStatusEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, nightVisionDuration, nightVisionAmplifier));
+            victim.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, nightVisionDuration, nightVisionAmplifier));
         }
     }
 }

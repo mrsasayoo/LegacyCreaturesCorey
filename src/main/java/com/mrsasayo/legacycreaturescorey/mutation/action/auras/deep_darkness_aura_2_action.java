@@ -32,18 +32,18 @@ public class deep_darkness_aura_2_action implements mutation_action {
     public void onTick(LivingEntity entity) {
         if (!action_context.isServer(entity))
             return;
-        if (intervalTicks > 0 && entity.age % intervalTicks != 0)
+        if (intervalTicks > 0 && entity.tickCount % intervalTicks != 0)
             return;
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
-            if (player.squaredDistanceTo(entity) <= radius * radius) {
-                int lightLevel = world.getLightLevel(player.getBlockPos());
+            if (player.distanceToSqr(entity) <= radius * radius) {
+                int lightLevel = world.getLightEngine().getRawBrightness(player.blockPosition(), 0);
                 if (lightLevel >= lightThreshold) {
                     continue;
                 }
                 if (removeNightVision) {
-                    player.removeStatusEffect(MobEffects.NIGHT_VISION);
+                    player.removeEffect(MobEffects.NIGHT_VISION);
                 }
                 status_effect_config_parser.applyEffects(player, effects);
             }

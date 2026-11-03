@@ -71,7 +71,7 @@ abstract class bleeding_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(attacker.level() instanceof ServerLevel world)) {
             return;
         }
         bleeding_effect_helper.apply(world, attacker, victim, damagePulses, intervalTicks, effectAmplifier);

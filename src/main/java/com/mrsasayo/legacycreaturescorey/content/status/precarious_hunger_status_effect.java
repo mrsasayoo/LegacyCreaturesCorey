@@ -20,7 +20,7 @@ public class precarious_hunger_status_effect extends MobEffect {
     }
     
     @Override
-    public boolean canApplyUpdateEffect(int duration, int amplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         // Este efecto es pasivo, no necesita aplicar efectos por tick
         return false;
     }

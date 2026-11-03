@@ -11,7 +11,7 @@ import java.util.WeakHashMap;
 
 abstract class aquatic_stalker_base_action implements mutation_action {
     protected Drowned asServerDrowned(LivingEntity entity) {
-        if (entity instanceof Drowned drowned && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Drowned drowned && !entity.level().isClientSide()) {
             return drowned;
         }
         return null;
@@ -26,7 +26,7 @@ abstract class aquatic_stalker_base_action implements mutation_action {
         private final Map<Drowned, Integer> cooldowns = new WeakHashMap<>();
 
         private DashHandler() {
-            ServerTickEvents.END_WORLD_TICK.register(world -> {
+            ServerTickEvents.END_LEVEL_TICK.register(world -> {
                 if (cooldowns.isEmpty()) {
                     return;
                 }
@@ -38,7 +38,7 @@ abstract class aquatic_stalker_base_action implements mutation_action {
                         iterator.remove();
                         continue;
                     }
-                    if (drowned.getEntityWorld() != world) {
+                    if (drowned.level() != world) {
                         continue;
                     }
                     int value = entry.getValue() - 1;

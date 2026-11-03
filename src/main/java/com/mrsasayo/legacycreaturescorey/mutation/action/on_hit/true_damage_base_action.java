@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
+import net.minecraft.core.registries.Registries;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,8 +29,8 @@ import java.util.Locale;
  */
 abstract class true_damage_base_action extends proc_on_hit_action {
     private final List<SideEffect> sideEffects;
-    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.of(
-            RegistryKeys.DAMAGE_TYPE,
+    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
             Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "true_damage"));
 
     protected true_damage_base_action(mutation_action_config config,
@@ -42,7 +43,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         action_context.HitContext context = action_context.getHitContext();
-        if (context == null || !(attacker.getEntityWorld() instanceof ServerLevel world)) {
+        if (context == null || !(attacker.level() instanceof ServerLevel world)) {
             return;
         }
 
@@ -54,15 +55,15 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             return;
         }
 
-        victim.damage(world, resolveTrueDamageSource(world, attacker), prevented);
+        victim.hurtServer(world, resolveTrueDamageSource(world, attacker), prevented);
         applySideEffects(attacker, victim);
     }
 
     private DamageSource resolveTrueDamageSource(ServerLevel world, LivingEntity attacker) {
         try {
-            return world.getDamageSources().create(TRUE_DAMAGE_KEY, attacker);
+            return new DamageSource(world.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(TRUE_DAMAGE_KEY), attacker);
         } catch (RuntimeException ignored) {
-            return world.getDamageSources().magic();
+            return world.damageSources().magic();
         }
     }
 
@@ -78,7 +79,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             if (effect.effect() == null || effect.duration() <= 0) {
                 continue;
             }
-            receiver.addStatusEffect(new MobEffectInstance(
+            receiver.addEffect(new MobEffectInstance(
                     effect.effect(),
                     effect.duration(),
                     Math.max(0, effect.amplifier()),
@@ -114,11 +115,11 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             if (id == null) {
                 continue;
             }
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+            Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
             if (entry == null) {
                 continue;
             }
@@ -155,7 +156,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        return switch (raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY)) {
+        return switch (raw.trim().toUpperCase(Locale.ROOT)) {
             case "SELF", "ATTACKER" -> Target.SELF;
             case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
             default -> fallback;

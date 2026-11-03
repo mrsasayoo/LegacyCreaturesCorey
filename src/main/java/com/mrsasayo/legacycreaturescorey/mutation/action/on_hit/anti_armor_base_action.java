@@ -31,8 +31,8 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         List<EquipmentSlot> candidates = new ArrayList<>(ARMOR_SLOTS.length);
         for (EquipmentSlot slot : ARMOR_SLOTS) {
-            ItemStack stack = victim.getEquippedStack(slot);
-            if (stack.isEmpty() || !stack.isDamageable()) {
+            ItemStack stack = victim.getItemBySlot(slot);
+            if (stack.isEmpty() || !stack.isDamageableItem()) {
                 continue;
             }
             candidates.add(slot);
@@ -43,8 +43,8 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
         }
 
         EquipmentSlot selected = candidates.get(attacker.getRandom().nextInt(candidates.size()));
-        ItemStack stack = victim.getEquippedStack(selected);
-        if (stack.isEmpty() || !stack.isDamageable()) {
+        ItemStack stack = victim.getItemBySlot(selected);
+        if (stack.isEmpty() || !stack.isDamageableItem()) {
             return;
         }
 
@@ -53,11 +53,11 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
             return;
         }
 
-        int newDamage = stack.getDamage() + damageAmount;
+        int newDamage = stack.getDamageValue() + damageAmount;
         if (newDamage >= maxDamage) {
-            victim.equipStack(selected, ItemStack.EMPTY);
+            victim.setItemSlot(selected, ItemStack.EMPTY);
         } else {
-            stack.setDamage(newDamage);
+            stack.setDamageValue(newDamage);
         }
     }
 }

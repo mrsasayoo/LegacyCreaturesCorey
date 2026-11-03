@@ -44,6 +44,6 @@ public final class ModStatusEffects {
     }
 
     private static MobEffect register(String name, MobEffect effect) {
-        return Registry.register(BuiltInRegistries.STATUS_EFFECT, Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, name), effect);
+        return Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, name), effect);
     }
 }

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.monster.Guardian;
 
 abstract class amphibious_assault_base_action implements mutation_action {
     protected Guardian asServerGuardian(LivingEntity entity) {
-        if (entity instanceof Guardian guardian && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Guardian guardian && !entity.level().isClientSide()) {
             return guardian;
         }
         return null;

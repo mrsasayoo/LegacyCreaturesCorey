@@ -46,7 +46,7 @@ public final class EffectiveDifficultyCalculator {
         if (radius > 0.0D) {
             double radiusSq = radius * radius;
             relevantPlayers = dimensionPlayers.stream()
-                .filter(player -> player.squaredDistanceTo(centerX, centerY, centerZ) <= radiusSq)
+                .filter(player -> player.distanceToSqr(centerX, centerY, centerZ) <= radiusSq)
                 .toList();
         } else {
             relevantPlayers = dimensionPlayers;
@@ -68,7 +68,7 @@ public final class EffectiveDifficultyCalculator {
             contextualDifficulty *= biomeMultiplier;
             contextualDifficulty *= antiFarmMultiplier;
 
-            double distanceSq = player.squaredDistanceTo(centerX, centerY, centerZ);
+            double distanceSq = player.distanceToSqr(centerX, centerY, centerZ);
             double weight;
 
             if (radius <= 0.0D) {
@@ -93,7 +93,7 @@ public final class EffectiveDifficultyCalculator {
 
     private static boolean isBoostedBiome(ServerLevel world, BlockPos origin) {
         Holder<Biome> biome = world.getBiome(origin);
-        Identifier biomeId = biome.unwrapKey().map(key -> key.getValue()).orElse(null);
+        Identifier biomeId = biome.getKey().map(key -> key.getValue()).orElse(null);
         if (biomeId == null) {
             return false;
         }

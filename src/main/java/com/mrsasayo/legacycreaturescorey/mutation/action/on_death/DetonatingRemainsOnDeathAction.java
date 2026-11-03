@@ -42,13 +42,13 @@ public final class DetonatingRemainsOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
         if (chance < 1.0D && entity.getRandom().nextDouble() > chance) {
             return;
         }
-        Vec3 origin = new Vec3(entity.getX(), entity.getBodyY(0.1D), entity.getZ());
+        Vec3 origin = new Vec3(entity.getX(), entity.getY(0.1D), entity.getZ());
         DetonatingRemainsManager.registerRemnant(world, origin, remnantConfig);
         if (chainRadius > 0.0D && chainDurationTicks > 0) {
             DetonatingRemainsManager.markChainTargets(world, entity, chainRadius, chainDurationTicks, remnantConfig);

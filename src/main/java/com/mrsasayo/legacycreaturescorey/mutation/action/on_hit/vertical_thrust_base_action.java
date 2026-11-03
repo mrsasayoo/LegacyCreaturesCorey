@@ -41,11 +41,11 @@ abstract class vertical_thrust_base_action extends proc_on_hit_action {
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         if (victim != null && upwardVelocity > 0.0D) {
-            victim.addVelocity(0.0D, upwardVelocity, 0.0D);
-            victim.velocityModified = true;
+            victim.push(0.0D, upwardVelocity, 0.0D);
+            victim.syncVelocity = true;
         }
         if (attacker != null && selfDowntimeTicks > 0) {
-            attacker.addStatusEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,
+            attacker.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,
                     selfDowntimeTicks,
                     Math.max(0, downtimeAmplifier)));
         }

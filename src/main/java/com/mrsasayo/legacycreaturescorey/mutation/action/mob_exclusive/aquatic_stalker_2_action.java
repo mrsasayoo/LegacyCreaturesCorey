@@ -21,7 +21,7 @@ public final class aquatic_stalker_2_action extends aquatic_stalker_base_action 
     @Override
     public void onTick(LivingEntity entity) {
         Drowned drowned = asServerDrowned(entity);
-        if (drowned == null || !drowned.isSubmergedInWater()) {
+        if (drowned == null || !drowned.isUnderWater()) {
             return;
         }
         DashHandler handler = dashHandler();
@@ -32,15 +32,15 @@ public final class aquatic_stalker_2_action extends aquatic_stalker_base_action 
         if (target == null) {
             return;
         }
-        double distanceSq = drowned.squaredDistanceTo(target);
+        double distanceSq = drowned.distanceToSqr(target);
         if (distanceSq < minDistanceSq || distanceSq > maxDistanceSq) {
             return;
         }
         Vec3 direction = new Vec3(target.getX() - drowned.getX(),
                 target.getY() - drowned.getY(),
                 target.getZ() - drowned.getZ()).normalize();
-        drowned.setVelocity(drowned.getVelocity().add(direction.multiply(dashSpeed)));
-        drowned.velocityModified = true;
+        drowned.setDeltaMovement(drowned.getDeltaMovement().add(direction.scale(dashSpeed)));
+        drowned.syncVelocity = true;
         handler.setCooldown(drowned, cooldownTicks);
     }
 }

@@ -18,10 +18,10 @@ public final class aquatic_stalker_3_action extends aquatic_stalker_base_action 
     @Override
     public void onTick(LivingEntity entity) {
         Drowned drowned = asServerDrowned(entity);
-        if (drowned == null || !drowned.isSubmergedInWater()) {
+        if (drowned == null || !drowned.isUnderWater()) {
             return;
         }
-        drowned.addStatusEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
+        drowned.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                 effectDurationTicks,
                 effectAmplifier,
                 false,

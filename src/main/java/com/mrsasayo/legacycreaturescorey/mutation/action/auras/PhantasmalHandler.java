@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.world.entity.EntityType;
 import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
@@ -43,14 +44,14 @@ public final class PhantasmalHandler {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::handleAllowDamage);
     }
 
     public void register(LivingEntity entity, PhantasmalSource source) {
         ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (ActiveAura aura : list) {
             if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
@@ -76,10 +77,10 @@ public final class PhantasmalHandler {
         cleanup(world);
         List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
-            cleanupClones(world, world.getTime());
+            cleanupClones(world, world.getGameTime());
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (ActiveAura aura : list) {
             if (!aura.source.isAlive()) {
                 continue;
@@ -102,23 +103,23 @@ public final class PhantasmalHandler {
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
         List<ServerPlayer> players = world
-                .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+                .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq);
         if (players.isEmpty()) {
             aura.lastTriggerTick = time;
             return;
         }
 
-        RandomSource random = world.random;
+        RandomSource random = world.getRandom();
         double baseX = source.getX();
-        double baseY = source.getBodyY(0.5D);
+        double baseY = source.getY(0.5D);
         double baseZ = source.getZ();
 
         for (int i = 0; i < aura.sourceDef.getParticleCount(); i++) {
             double offsetX = (random.nextDouble() - 0.5D) * 0.6D;
-            double offsetY = random.nextDouble() * Math.max(0.5D, source.getHeight());
+            double offsetY = random.nextDouble() * Math.max(0.5D, source.getBbHeight());
             double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
             ParticleOptions effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-            world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
+            world.sendParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
                     0.0D);
         }
 
@@ -147,8 +148,8 @@ public final class PhantasmalHandler {
             return;
         }
         int min = Math.min(aura.sourceDef.getCloneMinCount(), max);
-        RandomSource random = world.random;
-        int count = Mth.nextBetween(random, min, max);
+        RandomSource random = world.getRandom();
+        int count = Mth.nextInt(random, min, max);
         if (count <= 0) {
             aura.lastTriggerTick = time;
             return;
@@ -169,11 +170,11 @@ public final class PhantasmalHandler {
         }
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
-        List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class,
-                source.getBoundingBox().expand(radius),
+        List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class,
+                source.getBoundingBox().inflate(radius),
                 entity -> entity.isAlive()
                         && entity != source
-                        && source.squaredDistanceTo(entity) <= radiusSq
+                        && source.distanceToSqr(entity) <= radiusSq
                         && !(entity instanceof ServerPlayer player && player.isSpectator()));
         int duration = Math.max(2, aura.sourceDef.getShroudInvisibleTicks());
         List<status_effect_config_parser.status_effect_config_entry> shroudEffects = aura.sourceDef.getShroudEffects();
@@ -194,8 +195,8 @@ public final class PhantasmalHandler {
         if (!(aura.source instanceof Mob sourceMob)) {
             return;
         }
-        BlockPos spawnPos = sourceMob.getBlockPos();
-        var created = sourceMob.type().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
+        BlockPos spawnPos = sourceMob.blockPosition();
+        var created = sourceMob.getType().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
         if (!(created instanceof Mob clone)) {
             return;
         }
@@ -209,7 +210,7 @@ public final class PhantasmalHandler {
         double z = baseZ + Math.sin(angle) * distance;
         double y = baseY + random.nextDouble() * 0.5D;
 
-        clone.refreshPositionAndAngles(x, y, z, sourceMob.getYaw(), sourceMob.getPitch());
+        clone.snapTo(x, y, z, sourceMob.getYRot(), sourceMob.getXRot());
         clone.setNoAi(true);
         clone.setNoGravity(true);
         clone.setSilent(true);
@@ -222,11 +223,11 @@ public final class PhantasmalHandler {
         }
         clone.setHealth(Math.max(1.0F, clone.getMaxHealth() * 0.25F));
         if (aura.sourceDef.shouldCloneGlow()) {
-            clone.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING,
+            clone.addEffect(new MobEffectInstance(MobEffects.GLOWING,
                     aura.sourceDef.getCloneLifetimeTicks(), 0, true, true, true));
         }
 
-        sourceMob.getCommandTags().forEach(clone::addCommandTag);
+        sourceMob.entityTags().forEach(clone::addTag);
 
         var legacyData = clone.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         legacyData.clearMutations();
@@ -238,7 +239,7 @@ public final class PhantasmalHandler {
         worldRecords.add(record);
         cloneLookup.put(clone, record);
 
-        if (!world.spawnEntity(clone)) {
+        if (!world.addFreshEntity(clone)) {
             cloneLookup.remove(clone);
             worldRecords.remove(record);
             if (worldRecords.isEmpty()) {
@@ -267,7 +268,7 @@ public final class PhantasmalHandler {
     }
 
     private void applyShroudEffect(LivingEntity entity, int duration) {
-        entity.addStatusEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
+        entity.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                 duration,
                 0,
                 true,
@@ -310,7 +311,7 @@ public final class PhantasmalHandler {
         }
         Mob clone = record.illusion();
         if (playEffects) {
-            world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
+            world.sendParticles(ParticleTypes.CLOUD, clone.getX(), clone.getY(0.5D), clone.getZ(), 8, 0.4D,
                     0.2D, 0.4D, 0.01D);
             world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.EVOKER_CAST_SPELL,
                     SoundSource.HOSTILE, 0.7F, 1.4F);
@@ -329,7 +330,7 @@ public final class PhantasmalHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         Iterator<ActiveAura> iterator = list.iterator();
         while (iterator.hasNext()) {
             ActiveAura aura = iterator.next();

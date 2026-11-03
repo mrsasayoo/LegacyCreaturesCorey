@@ -23,6 +23,6 @@ public final class abyssal_armor_2_action extends abyssal_armor_base_action {
 
     @Override
     protected void onThornsRetaliation(ElderGuardian owner, LivingEntity victim, ServerLevel world) {
-        victim.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, durationTicks, amplifier));
+        victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, durationTicks, amplifier));
     }
 }

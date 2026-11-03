@@ -35,7 +35,7 @@ public final class acidic_core_2_action implements mutation_action {
         if (!(entity instanceof Slime slime)) {
             return;
         }
-        if (!(slime.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(slime.level() instanceof ServerLevel world)) {
             return;
         }
         
@@ -45,17 +45,17 @@ public final class acidic_core_2_action implements mutation_action {
         
         // Crear nube de área con partículas de slime (visible y compatible)
         AreaEffectCloud cloud = new AreaEffectCloud(world, x, y, z);
-        cloud.setParticleType(ParticleTypes.ITEM_SLIME);
+        cloud.setCustomParticle(ParticleTypes.ITEM_SLIME);
         cloud.setRadius(radius);
         cloud.setDuration(durationTicks);
         cloud.setWaitTime(0);
         cloud.setRadiusOnUse(-0.1F);
-        cloud.setRadiusGrowth(-radius / (float) (durationTicks * 1.5));
+        cloud.setRadiusPerTick(-radius / (float) (durationTicks * 1.5));
         cloud.addEffect(new MobEffectInstance(MobEffects.POISON, effectDuration, effectAmplifier));
-        world.spawnEntity(cloud);
+        world.addFreshEntity(cloud);
         
         // Partículas adicionales de explosión inicial
-        world.spawnParticles(ParticleTypes.ITEM_SLIME,
+        world.sendParticles(ParticleTypes.ITEM_SLIME,
                 x, y + 0.5D, z,
                 60,
                 radius * 0.8D,
@@ -64,7 +64,7 @@ public final class acidic_core_2_action implements mutation_action {
                 0.1D);
         
         // Partículas de vapor ácido ascendente
-        world.spawnParticles(ParticleTypes.SNEEZE,
+        world.sendParticles(ParticleTypes.SNEEZE,
                 x, y + 0.2D, z,
                 30,
                 radius * 0.5D,
@@ -73,7 +73,7 @@ public final class acidic_core_2_action implements mutation_action {
                 0.05D);
         
         // Partículas verdes brillantes
-        world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
+        world.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                 x, y + 0.1D, z,
                 40,
                 radius * 0.7D,
@@ -83,11 +83,11 @@ public final class acidic_core_2_action implements mutation_action {
         
         // Crear segunda nube visual con partículas de slime
         AreaEffectCloud visualCloud = new AreaEffectCloud(world, x, y + 0.1D, z);
-        visualCloud.setParticleType(ParticleTypes.ITEM_SLIME);
+        visualCloud.setCustomParticle(ParticleTypes.ITEM_SLIME);
         visualCloud.setRadius(radius * 0.8f);
         visualCloud.setDuration(durationTicks / 2);
         visualCloud.setWaitTime(0);
-        visualCloud.setRadiusGrowth(-0.01F);
-        world.spawnEntity(visualCloud);
+        visualCloud.setRadiusPerTick(-0.01F);
+        world.addFreshEntity(visualCloud);
     }
 }

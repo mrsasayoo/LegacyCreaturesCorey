@@ -30,7 +30,7 @@ public final class LootScatterOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
 
@@ -47,8 +47,8 @@ public final class LootScatterOnDeathAction implements mutation_action {
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
             double vy = verticalVelocity * (0.6D + random.nextDouble() * 0.4D);
-            drop.setVelocity(new Vec3(vx, vy, vz));
-            drop.velocityDirty = true;
+            drop.setDeltaMovement(new Vec3(vx, vy, vz));
+            drop.syncVelocity = true;
         }
     }
 }

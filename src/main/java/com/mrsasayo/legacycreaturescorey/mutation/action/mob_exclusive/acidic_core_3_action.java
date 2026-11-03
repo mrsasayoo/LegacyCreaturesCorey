@@ -1,5 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.core.component.DataComponents;
@@ -37,12 +40,12 @@ public final class acidic_core_3_action implements mutation_action {
         if (!(entity instanceof Slime slime)) {
             return;
         }
-        if (!(slime.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(slime.level() instanceof ServerLevel world)) {
             return;
         }
         int count = minGlobules + slime.getRandom().nextInt(maxGlobules - minGlobules + 1);
         for (int i = 0; i < count; i++) {
-            AbstractThrownPotion potion = (AbstractThrownPotion) EntityType.SPLASH_POTION.create(
+            AbstractThrownPotion potion = (AbstractThrownPotion) BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("splash_potion")).create(
                     world,
                     null,
                     null,
@@ -64,8 +67,8 @@ public final class acidic_core_3_action implements mutation_action {
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
             double vy = minVerticalSpeed + slime.getRandom().nextDouble() * (maxVerticalSpeed - minVerticalSpeed);
-            potion.setVelocity(vx, vy, vz);
-            world.spawnEntity(potion);
+            potion.setDeltaMovement(new Vec3(vx, vy, vz));
+            world.addFreshEntity(potion);
         }
     }
 }

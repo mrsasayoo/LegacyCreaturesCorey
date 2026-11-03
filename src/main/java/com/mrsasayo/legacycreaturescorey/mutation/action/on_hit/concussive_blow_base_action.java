@@ -74,12 +74,12 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         if (player.getRandom().nextFloat() <= 0.4F) {
             float yawOffset = (player.getRandom().nextFloat() - 0.5F) * 70.0F;
             float pitchOffset = (player.getRandom().nextFloat() - 0.5F) * 24.0F;
-            float newYaw = Mth.wrapDegrees(player.getYaw() + yawOffset);
-            float newPitch = Mth.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
-            player.setYaw(newYaw);
-            player.setHeadYaw(newYaw);
-            player.setBodyYaw(newYaw);
-            player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+            float newYaw = Mth.wrapDegrees(player.getYRot() + yawOffset);
+            float newPitch = Mth.clamp(player.getXRot() + pitchOffset, -90.0F, 90.0F);
+            player.setYRot(newYaw);
+            player.setYHeadRot(newYaw);
+            player.setYBodyRot(newYaw);
+            player.connection.teleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
         }
     }
 
@@ -97,12 +97,12 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
                 }
                 float yawOffset = (player.getRandom().nextFloat() - 0.5F) * shakeIntensity;
                 float pitchOffset = (player.getRandom().nextFloat() - 0.5F) * shakeIntensity * 0.6F;
-                float newYaw = Mth.wrapDegrees(player.getYaw() + yawOffset);
-                float newPitch = Mth.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
-                player.setYaw(newYaw);
-                player.setHeadYaw(newYaw);
-                player.setBodyYaw(newYaw);
-                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+                float newYaw = Mth.wrapDegrees(player.getYRot() + yawOffset);
+                float newPitch = Mth.clamp(player.getXRot() + pitchOffset, -90.0F, 90.0F);
+                player.setYRot(newYaw);
+                player.setYHeadRot(newYaw);
+                player.setYBodyRot(newYaw);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
                 return --ticksRemaining <= 0;
             }
         });
@@ -113,8 +113,8 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
     }
 
     private void applyDisorientation(LivingEntity attacker, ServerPlayer player) {
-        float baseYaw = Mth.wrapDegrees(player.getYaw());
-        float pitch = player.getPitch();
+        float baseYaw = Mth.wrapDegrees(player.getYRot());
+        float pitch = player.getXRot();
         ServerLevel world = (ServerLevel) player.level();
         if (world == null) {
             return;
@@ -140,7 +140,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         for (status_effect_config_parser.status_effect_config_entry entry : configs) {
             MobEffectInstance instance = status_effect_config_parser.buildInstance(entry);
             if (instance != null) {
-                target.addStatusEffect(instance);
+                target.addEffect(instance);
             }
         }
     }
@@ -180,10 +180,10 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
 
                 float wrappedYaw = Mth.wrapDegrees(targetYaw);
                 float clampedPitch = Mth.clamp(targetPitch, -90.0F, 90.0F);
-                player.setYaw(wrappedYaw);
-                player.setHeadYaw(wrappedYaw);
-                player.setBodyYaw(wrappedYaw);
-                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
+                player.setYRot(wrappedYaw);
+                player.setYHeadRot(wrappedYaw);
+                player.setYBodyRot(wrappedYaw);
+                player.connection.teleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
                 return true;
             }
         });

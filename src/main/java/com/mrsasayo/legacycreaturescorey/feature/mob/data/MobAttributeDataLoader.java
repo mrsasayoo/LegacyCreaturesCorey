@@ -65,20 +65,19 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
     }
 
     private static Entry getEntry(EntityType<?> type) {
-        Identifier id = EntityType.getId(type);
+        Identifier id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
         return overrides.get(id);
     }
 
-    @Override
     public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         Map<Identifier, Entry> parsed = new HashMap<>();
         Optional<Resource> resourceOptional = manager.getResource(DATA_PATH);
         if (resourceOptional.isEmpty()) {
@@ -87,12 +86,12 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.get().getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.get().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entryObject = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getString(entryObject, "id"));
+                JsonObject entryObject = GsonHelper.convertToJsonObject(entries.get(i), "entries[" + i + "]");
+                Identifier entityId = Identifier.parse(GsonHelper.getAsString(entryObject, "id"));
 
                 EnumMap<MobTier, AttributeValues> valuesByTier = new EnumMap<>(MobTier.class);
                 if (entryObject.has("tiers")) {
@@ -103,7 +102,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
                             Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en el override de {}", tierEntry.getKey(), entityId);
                             continue;
                         }
-                        JsonObject tierValues = GsonHelper.asObject(tierEntry.getValue(), "tier_values");
+                        JsonObject tierValues = GsonHelper.getAsJsonObject(tierEntry.getValue(), "tier_values");
                         Double maxHealth = tierValues.has("max_health") ? tierValues.get("max_health").getAsDouble() : null;
                         Double attackDamage = tierValues.has("attack_damage") ? tierValues.get("attack_damage").getAsDouble() : null;
                         if (maxHealth == null && attackDamage == null) {

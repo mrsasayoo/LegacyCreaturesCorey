@@ -128,13 +128,13 @@ public final class AlchemicalSeepAction implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         }
 
         void register(LivingEntity entity, AlchemicalSeepAction action) {
             ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
@@ -162,7 +162,7 @@ public final class AlchemicalSeepAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (!aura.source.isAlive()) {
                     continue;
@@ -183,7 +183,7 @@ public final class AlchemicalSeepAction implements mutation_action {
 
                 // Random chance to trigger per interval?
                 // Let's say 25% chance per interval to make it "can leave".
-                if (world.random.nextFloat() < 0.25f) {
+                if (world.getRandom().nextFloat() < 0.25f) {
                     boolean triggered = switch (aura.action.getMode()) {
                         case CLEANSING_PUDDLE -> applyCleansingPuddle(world, aura);
                         case STICKY_GOO -> applyStickyGoo(world, aura);
@@ -213,12 +213,12 @@ public final class AlchemicalSeepAction implements mutation_action {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             List<ServerPlayer> players = world
-                    .getPlayers(p -> p.isAlive() && p.squaredDistanceTo(source) <= radius * radius);
+                    .getPlayers(p -> p.isAlive() && p.distanceToSqr(source) <= radius * radius);
 
             if (players.isEmpty())
                 return false;
 
-            world.spawnParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
+            world.sendParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
                     radius / 2, 0.1);
 
             for (ServerPlayer player : players) {
@@ -235,21 +235,21 @@ public final class AlchemicalSeepAction implements mutation_action {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             List<ServerPlayer> players = world
-                    .getPlayers(p -> p.isAlive() && p.squaredDistanceTo(source) <= radius * radius);
+                    .getPlayers(p -> p.isAlive() && p.distanceToSqr(source) <= radius * radius);
 
             if (players.isEmpty())
                 return false;
 
-            world.spawnParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
+            world.sendParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
                     radius / 2, 0.1, radius / 2, 0.1);
 
             for (ServerPlayer player : players) {
-                player.addStatusEffect(
+                player.addEffect(
                         new MobEffectInstance(MobEffects.SLOWNESS, aura.action.getDurationTicks(), 0)); // -15% is
                                                                                                               // roughly
                                                                                                               // Slowness
                                                                                                               // I
-                player.addStatusEffect(
+                player.addEffect(
                         new MobEffectInstance(MobEffects.JUMP_BOOST, aura.action.getDurationTicks(), 128)); // Negative
                                                                                                                   // jump
                                                                                                                   // boost
@@ -262,29 +262,29 @@ public final class AlchemicalSeepAction implements mutation_action {
         private boolean applyTransmutationZone(ServerLevel world, ActiveAura aura) {
             // "Zona de 5x5... piedra->grava, tierra->arena, agua->hielo"
             LivingEntity source = aura.source;
-            BlockPos center = source.getBlockPos().down();
+            BlockPos center = source.blockPosition().below();
             int r = Mth.ceil(aura.action.getRadius());
 
             boolean changed = false;
-            for (BlockPos pos : BlockPos.iterate(center.add(-r, -1, -r), center.add(r, 1, r))) {
-                if (world.random.nextFloat() > 0.3f)
+            for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
+                if (world.getRandom().nextFloat() > 0.3f)
                     continue; // Don't change everything instantly
 
                 BlockState state = world.getBlockState(pos);
-                if (state.isOf(Blocks.STONE) || state.isOf(Blocks.COBBLESTONE)) {
-                    world.setBlockState(pos, Blocks.GRAVEL.getDefaultState());
+                if (state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE)) {
+                    world.setBlock(pos, Blocks.GRAVEL.defaultBlockState(), 3);
                     changed = true;
-                } else if (state.isIn(BlockTags.DIRT) || state.isOf(Blocks.GRASS_BLOCK)) {
-                    world.setBlockState(pos, Blocks.SAND.getDefaultState());
+                } else if (state.is(BlockTags.DIRT) || state.is(Blocks.GRASS_BLOCK)) {
+                    world.setBlock(pos, Blocks.SAND.defaultBlockState(), 3);
                     changed = true;
-                } else if (state.isOf(Blocks.WATER)) {
-                    world.setBlockState(pos, Blocks.FROSTED_ICE.getDefaultState());
+                } else if (state.is(Blocks.WATER)) {
+                    world.setBlock(pos, Blocks.FROSTED_ICE.defaultBlockState(), 3);
                     changed = true;
                 }
             }
 
             if (changed) {
-                world.spawnParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
+                world.sendParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
                         0.1);
                 world.playSound(null, source.getX(), source.getY(), source.getZ(),
                         SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.HOSTILE, 1.0f, 0.5f);
@@ -297,7 +297,7 @@ public final class AlchemicalSeepAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();

@@ -71,11 +71,11 @@ abstract class freezing_base_action extends proc_on_hit_action {
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         if (freezeTicks > 0) {
-            victim.setFrozenTicks(Math.max(victim.getFrozenTicks(), freezeTicks));
+            victim.setTicksFrozen(Math.max(victim.getTicksFrozen(), freezeTicks));
         }
         status_effect_config_parser.applyEffects(victim, victimEffects);
         if (selfSlownessTicks > 0 && action_context.isServer(attacker)) {
-            attacker.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
+            attacker.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
         }
     }
 }

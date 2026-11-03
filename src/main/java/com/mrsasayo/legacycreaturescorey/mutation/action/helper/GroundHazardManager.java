@@ -112,8 +112,8 @@ public final class GroundHazardManager {
 			this.config = config;
 			this.remainingTicks = config.durationTicks();
 			this.pulseCooldown = 0;
-			BlockPos pos = BlockPos.ofFloored(origin);
-			int groundY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, pos.getX(), pos.getZ());
+			BlockPos pos = BlockPos.containing(origin);
+			int groundY = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
 			double y = Math.max(origin.y, groundY + 0.05D);
 			this.origin = new Vec3(origin.x, y, origin.z);
 			this.radiusSq = config.radius() * config.radius();
@@ -137,8 +137,8 @@ public final class GroundHazardManager {
 
 		private void pulse(ServerLevel world) {
 			AABB box = AABB.of(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
-			List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, box,
-				entity -> entity.isAlive() && config.target().matches(entity) && entity.squaredDistanceTo(origin) <= radiusSq);
+			List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, box,
+				entity -> entity.isAlive() && config.target().matches(entity) && entity.distanceToSqr(origin) <= radiusSq);
 
 			if (targets.isEmpty()) {
 				return;
@@ -146,10 +146,10 @@ public final class GroundHazardManager {
 
 			for (LivingEntity entity : targets) {
 				if (config.damagePerPulse() > 0.0F) {
-					entity.damage(world, world.getDamageSources().magic(), config.damagePerPulse());
+					entity.hurtServer(world, world.damageSources().magic(), config.damagePerPulse());
 				}
 				if (config.statusEffect() != null && config.statusDuration() > 0) {
-					entity.addStatusEffect(new MobEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
+					entity.addEffect(new MobEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
 				}
 			}
 		}
@@ -165,7 +165,7 @@ public final class GroundHazardManager {
 				double px = origin.x + Math.cos(angle) * distance;
 				double pz = origin.z + Math.sin(angle) * distance;
 				double py = origin.y + 0.02D;
-				world.spawnParticles(config.particle(), px, py, pz, 1, 0.02D, 0.0D, 0.02D, 0.0D);
+				world.sendParticles(config.particle(), px, py, pz, 1, 0.02D, 0.0D, 0.02D, 0.0D);
 			}
 		}
 	}

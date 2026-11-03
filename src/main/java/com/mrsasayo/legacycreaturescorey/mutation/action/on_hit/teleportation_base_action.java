@@ -45,7 +45,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        return switch (raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY)) {
+        return switch (raw.trim().toUpperCase(Locale.ROOT)) {
             case "SELF", "ATTACKER" -> Target.SELF;
             case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
             default -> fallback;
@@ -75,11 +75,11 @@ abstract class teleportation_base_action extends proc_on_hit_action {
             if (id == null) {
                 continue;
             }
-            var effect = BuiltInRegistries.STATUS_EFFECT.get(id);
+            var effect = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> effectEntry = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> effectEntry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
             if (effectEntry == null) {
                 continue;
             }
@@ -110,7 +110,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         LivingEntity teleportee = teleportTarget == Target.SELF ? attacker : victim;
-        if (!(teleportee.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(teleportee.level() instanceof ServerLevel world)) {
             return;
         }
         Vec3 origin = new Vec3(teleportee.getX(), teleportee.getY(), teleportee.getZ());
@@ -126,14 +126,14 @@ abstract class teleportation_base_action extends proc_on_hit_action {
         for (int attempt = 0; attempt < 8; attempt++) {
             double dx = (random.nextDouble() * 2.0D - 1.0D) * range;
             double dz = (random.nextDouble() * 2.0D - 1.0D) * range;
-            BlockPos targetPos = BlockPos.ofFloored(entity.getX() + dx, entity.getY(), entity.getZ() + dz);
-            if (!world.isSpaceEmpty(entity, entity.getBoundingBox().offset(dx, 0.0D, dz))) {
+            BlockPos targetPos = BlockPos.containing(entity.getX() + dx, entity.getY(), entity.getZ() + dz);
+            if (!world.noCollision(entity, entity.getBoundingBox().move(dx, 0.0D, dz))) {
                 continue;
             }
             Vec3 destination = new Vec3(targetPos.getX() + 0.5D, targetPos.getY(), targetPos.getZ() + 0.5D);
-            entity.refreshPositionAfterTeleport(destination);
-            entity.setHeadYaw(entity.getYaw());
-            entity.velocityModified = true;
+            entity.setPos(destination);
+            entity.setYHeadRot(entity.getYRot());
+            entity.syncVelocity = true;
             return destination;
         }
         return null;
@@ -143,9 +143,9 @@ abstract class teleportation_base_action extends proc_on_hit_action {
         float pitch = 0.85F + world.getRandom().nextFloat() * 0.2F;
         world.playSound(null, origin.x, origin.y, origin.z, SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 0.7F, pitch);
         world.playSound(null, destination.x, destination.y, destination.z, SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 0.7F, pitch + 0.15F);
-        double eyeHeight = entity.getStandingEyeHeight() * 0.5D;
-        world.spawnParticles(ParticleTypes.PORTAL, origin.x, origin.y + eyeHeight, origin.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
-        world.spawnParticles(ParticleTypes.PORTAL, destination.x, destination.y + eyeHeight, destination.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
+        double eyeHeight = entity.getEyeHeight() * 0.5D;
+        world.sendParticles(ParticleTypes.PORTAL, origin.x, origin.y + eyeHeight, origin.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
+        world.sendParticles(ParticleTypes.PORTAL, destination.x, destination.y + eyeHeight, destination.z, 16, 0.5D, 0.5D, 0.5D, 0.3D);
     }
 
     private void applySideEffects(LivingEntity attacker, LivingEntity victim) {
@@ -157,7 +157,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
             if (effect.effect() == null || effect.duration() <= 0 || !action_context.isServer(receiver)) {
                 continue;
             }
-            receiver.addStatusEffect(new MobEffectInstance(
+            receiver.addEffect(new MobEffectInstance(
                     effect.effect(),
                     effect.duration(),
                     effect.amplifier(),

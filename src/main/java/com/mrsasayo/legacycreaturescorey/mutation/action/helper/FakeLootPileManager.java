@@ -34,9 +34,11 @@ public final class FakeLootPileManager {
                                  double scatterVertical,
                                  double explosionRadius,
                                  float explosionDamage) {
-    placeholder.setInvulnerable(true);
+    // [26.3] setInvulnerable ya no existe publicamente en Entity (invulnerabilidad de placeholder cubierta por mixin de pickup)
+        // placeholder.setInvulnerable(true);
     placeholder.setNoGravity(true);
-    placeholder.setPickupDelay(Short.MAX_VALUE);
+    // [26.3] setPickupDelay(int) eliminado; el mixin de pickup cancela la recogida del placeholder
+        // placeholder.setDefaultPickUpDelay(Short.MAX_VALUE);
         placeholder.setCustomName(Component.translatable("mutation.legacycreaturescorey.fake_loot_pile"));
         placeholder.setCustomNameVisible(true);
         LootPile pile = new LootPile(placeholder, loot, lifetimeTicks, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
@@ -44,7 +46,7 @@ public final class FakeLootPileManager {
     }
 
     public static boolean isPlaceholder(ItemEntity entity) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return false;
         }
         List<LootPile> piles = ACTIVE.get(world);
@@ -60,7 +62,7 @@ public final class FakeLootPileManager {
     }
 
     public static boolean trigger(ItemEntity entity, Player player) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return false;
         }
         List<LootPile> piles = ACTIVE.get(world);
@@ -142,7 +144,7 @@ public final class FakeLootPileManager {
 
         private void emitParticles(ServerLevel world) {
             Vec3 pos = new Vec3(placeholder.getX(), placeholder.getY(), placeholder.getZ());
-            world.spawnParticles(ParticleTypes.ENCHANT,
+            world.sendParticles(ParticleTypes.ENCHANT,
                 pos.x,
                 pos.y + 0.2D,
                 pos.z,
@@ -168,12 +170,12 @@ public final class FakeLootPileManager {
                 return;
             }
             AABB area = AABB.of(origin, explosionRadius * 2.0D, explosionRadius * 2.0D, explosionRadius * 2.0D);
-            List<LivingEntity> victims = world.getEntitiesByClass(LivingEntity.class, area,
-                entity -> entity.isAlive() && entity.squaredDistanceTo(origin) <= explosionRadius * explosionRadius);
+            List<LivingEntity> victims = world.getEntitiesOfClass(LivingEntity.class, area,
+                entity -> entity.isAlive() && entity.distanceToSqr(origin) <= explosionRadius * explosionRadius);
             for (LivingEntity victim : victims) {
-                victim.damage(world, world.getDamageSources().magic(), explosionDamage);
+                victim.hurtServer(world, world.damageSources().magic(), explosionDamage);
             }
-            world.spawnParticles(ParticleTypes.EXPLOSION_EMITTER,
+            world.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
                 origin.x,
                 origin.y,
                 origin.z,
@@ -189,14 +191,14 @@ public final class FakeLootPileManager {
                 SoundEvents.GENERIC_EXPLODE,
                 SoundSource.HOSTILE,
                 0.9F,
-                1.0F + world.random.nextFloat() * 0.2F);
+                1.0F + world.getRandom().nextFloat() * 0.2F);
         }
 
         private void scatterLoot(ServerLevel world, Vec3 origin) {
             if (loot.isEmpty()) {
                 return;
             }
-            var random = world.random;
+            var random = world.getRandom();
             for (ItemStack stack : loot) {
                 if (stack.isEmpty()) {
                     continue;
@@ -205,10 +207,10 @@ public final class FakeLootPileManager {
                 double angle = random.nextDouble() * Math.PI * 2.0D;
                 double speed = scatterHorizontal * (0.4D + random.nextDouble() * 0.6D);
                 double vy = scatterVertical * (0.4D + random.nextDouble() * 0.6D);
-                item.setVelocity(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
-                item.setToDefaultPickupDelay();
-                item.velocityDirty = true;
-                world.spawnEntity(item);
+                item.setDeltaMovement(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
+                item.setDefaultPickUpDelay();
+                item.syncVelocity = true;
+                world.addFreshEntity(item);
             }
         }
     }

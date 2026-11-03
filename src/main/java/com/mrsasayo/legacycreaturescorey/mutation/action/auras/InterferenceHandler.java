@@ -48,7 +48,7 @@ public final class InterferenceHandler {
 
         UseBlockCallback.EVENT.register(this::handleBlockUse);
         UseItemCallback.EVENT.register(this::handleItemUse);
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
     }
 
     private InteractionResult handleBlockUse(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
@@ -64,9 +64,9 @@ public final class InterferenceHandler {
         }
 
         BlockPos targetPos = hitResult.getBlockPos();
-        Direction side = hitResult.getSide();
+        Direction side = hitResult.getDirection();
         // The block that would be placed resides on the hit side.
-        targetPos = targetPos.offset(side);
+        targetPos = targetPos.relative(side);
 
         if (shouldSabotagePlacement(serverWorld, player, targetPos, auras)) {
             queueBlockBreak(serverWorld, targetPos);
@@ -81,7 +81,7 @@ public final class InterferenceHandler {
         if (!(world instanceof ServerLevel serverWorld)) {
             return InteractionResult.PASS;
         }
-        ItemStack stack = player.getStackInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) {
             return InteractionResult.PASS;
         }
@@ -105,13 +105,13 @@ public final class InterferenceHandler {
         if (stack.isEmpty()) {
             return false;
         }
-        if (stack.contains(DataComponents.FOOD) || stack.contains(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
+        if (stack.has(DataComponents.FOOD) || stack.has(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
             return true;
         }
-        if (stack.contains(DataComponents.POTION_CONTENTS)) {
+        if (stack.has(DataComponents.POTION_CONTENTS)) {
             return true;
         }
-        return stack.isOf(Items.MILK_BUCKET) || stack.isOf(Items.HONEY_BOTTLE);
+        return stack.is(Items.MILK_BUCKET) || stack.is(Items.HONEY_BOTTLE);
     }
 
     private void handleWorldTick(ServerLevel world) {
@@ -121,7 +121,7 @@ public final class InterferenceHandler {
     }
 
     public void register(LivingEntity entity, InterferenceSource source) {
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = activeAuras.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getGameTime();
         for (int i = 0; i < list.size(); i++) {
@@ -135,7 +135,7 @@ public final class InterferenceHandler {
     }
 
     public void unregister(LivingEntity entity, InterferenceSource source) {
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = activeAuras.get(world);
         if (list == null) {
             return;
@@ -162,13 +162,13 @@ public final class InterferenceHandler {
 
     private boolean shouldSabotagePlacement(ServerLevel world, Player player, BlockPos pos,
             List<ActiveAura> auras) {
-        Vec3 targetCenter = Vec3.ofCenter(pos);
+        Vec3 targetCenter = Vec3.atCenterOf(pos);
         for (ActiveAura aura : auras) {
             LivingEntity sourceEntity = aura.entity();
             if (!sourceEntity.isAlive()) {
                 continue;
             }
-            if (sourceEntity.squaredDistanceTo(targetCenter) > aura.source().getRadius() * aura.source().getRadius()) {
+            if (sourceEntity.distanceToSqr(targetCenter) > aura.source().getRadius() * aura.source().getRadius()) {
                 continue;
             }
             if (aura.source().getChance() < 1.0D
@@ -181,7 +181,7 @@ public final class InterferenceHandler {
     }
 
     private void queueBlockBreak(ServerLevel world, BlockPos pos) {
-        pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.toImmutable());
+        pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.immutable());
     }
 
     private boolean shouldInterruptConsumption(ServerLevel world, Player player, List<ActiveAura> auras) {
@@ -191,7 +191,7 @@ public final class InterferenceHandler {
             if (!sourceEntity.isAlive()) {
                 continue;
             }
-            if (sourceEntity.squaredDistanceTo(position) > aura.source().getRadius() * aura.source().getRadius()) {
+            if (sourceEntity.distanceToSqr(position) > aura.source().getRadius() * aura.source().getRadius()) {
                 continue;
             }
             if (aura.source().getChance() < 1.0D
@@ -213,7 +213,7 @@ public final class InterferenceHandler {
             BlockPos pos = iterator.next();
             BlockState state = world.getBlockState(pos);
             if (!state.isAir()) {
-                world.breakBlock(pos, true);
+                world.destroyBlock(pos, true);
             }
             iterator.remove();
         }
@@ -235,8 +235,8 @@ public final class InterferenceHandler {
                 continue;
             }
             double radius = aura.source().getRadius();
-            AABB box = sourceEntity.getBoundingBox().expand(radius);
-            List<ThrownEnderpearl> pearls = world.getEntitiesByClass(ThrownEnderpearl.class, box,
+            AABB box = sourceEntity.getBoundingBox().inflate(radius);
+            List<ThrownEnderpearl> pearls = world.getEntitiesOfClass(ThrownEnderpearl.class, box,
                     pearl -> pearl.isAlive() && pearl.getOwner() instanceof Player);
             if (pearls.isEmpty()) {
                 continue;
@@ -246,7 +246,7 @@ public final class InterferenceHandler {
                     continue;
                 }
                 Vec3 pos = new Vec3(pearl.getX(), pearl.getY(), pearl.getZ());
-                if (sourceEntity.squaredDistanceTo(pos) > radius * radius) {
+                if (sourceEntity.distanceToSqr(pos) > radius * radius) {
                     continue;
                 }
                 if (aura.source().getChance() < 1.0D
@@ -256,7 +256,7 @@ public final class InterferenceHandler {
                 Player owner = (Player) pearl.getOwner();
                 if (!pearl.isRemoved()) {
                     pearl.remove(Entity.RemovalReason.KILLED);
-                    world.spawnParticles(ParticleTypes.SMOKE,
+                    world.sendParticles(ParticleTypes.SMOKE,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
@@ -272,10 +272,10 @@ public final class InterferenceHandler {
                             SoundEvents.ENDERMAN_TELEPORT,
                             SoundSource.HOSTILE,
                             0.4F,
-                            1.1F + world.random.nextFloat() * 0.2F);
+                            1.1F + world.getRandom().nextFloat() * 0.2F);
                 }
                 if (owner != null) {
-                    owner.damage(world, world.damageSources().magic(), aura.source().getPearlDamage());
+                    owner.hurtServer(world, world.damageSources().magic(), aura.source().getPearlDamage());
                 }
                 handled.add(pearl);
             }

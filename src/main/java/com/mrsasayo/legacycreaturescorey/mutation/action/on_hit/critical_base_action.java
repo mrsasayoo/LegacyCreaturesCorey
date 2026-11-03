@@ -42,18 +42,18 @@ abstract class critical_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(attacker.level() instanceof ServerLevel world)) {
             return;
         }
         DamageSource source = resolveSource(world, attacker);
         resetDamageCooldown(victim);
-        victim.damage(world, source, bonusDamage);
+        victim.hurtServer(world, source, bonusDamage);
         float pitch = 0.9F + world.getRandom().nextFloat() * 0.2F;
-        world.playSound(null, victim.getX(), victim.getBodyY(0.5D), victim.getZ(),
+        world.playSound(null, victim.getX(), victim.getY(0.5D), victim.getZ(),
                 SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.HOSTILE, 0.9F, pitch);
-        world.spawnParticles(ParticleTypes.CRIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 10,
+        world.sendParticles(ParticleTypes.CRIT, victim.getX(), victim.getY(0.5D), victim.getZ(), 10,
                 0.35D, 0.2D, 0.35D, 0.15D);
-        world.spawnParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 4,
+        world.sendParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getY(0.5D), victim.getZ(), 4,
                 0.2D, 0.1D, 0.2D, 0.02D);
 
         if (!additionalEffects.isEmpty()) {
@@ -62,7 +62,7 @@ abstract class critical_base_action extends proc_on_hit_action {
                 if (!action_context.isServer(target)) {
                     continue;
                 }
-                target.addStatusEffect(new MobEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
+                target.addEffect(new MobEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
             }
         }
     }
@@ -86,11 +86,11 @@ abstract class critical_base_action extends proc_on_hit_action {
             if (id == null) {
                 continue;
             }
-            MobEffect effect = BuiltInRegistries.STATUS_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> entryRef = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -126,11 +126,11 @@ abstract class critical_base_action extends proc_on_hit_action {
 
     private DamageSource resolveSource(ServerLevel world, LivingEntity attacker) {
         if (attacker instanceof Player player) {
-            return world.getDamageSources().playerAttack(player);
+            return world.damageSources().playerAttack(player);
         }
         if (attacker != null) {
-            return world.getDamageSources().mobAttack(attacker);
+            return world.damageSources().mobAttack(attacker);
         }
-        return world.getDamageSources().magic();
+        return world.damageSources().magic();
     }
 }

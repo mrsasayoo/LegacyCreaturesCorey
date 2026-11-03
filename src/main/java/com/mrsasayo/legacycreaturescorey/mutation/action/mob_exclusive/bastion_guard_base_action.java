@@ -26,7 +26,7 @@ abstract class bastion_guard_base_action implements mutation_action {
             "bastion_guard_knockback");
 
     protected PiglinBrute asServerBrute(LivingEntity entity) {
-        if (entity instanceof PiglinBrute piglin && !piglin.getEntityWorld().isClient()) {
+        if (entity instanceof PiglinBrute piglin && !piglin.level().isClientSide()) {
             return piglin;
         }
         return null;
@@ -49,7 +49,7 @@ abstract class bastion_guard_base_action implements mutation_action {
         private final Map<PiglinBrute, StanceState> stanceStates = new WeakHashMap<>();
 
         private Handler() {
-            ServerTickEvents.END_WORLD_TICK.register(world -> {
+            ServerTickEvents.END_LEVEL_TICK.register(world -> {
                 tickPommelCooldowns(world);
                 tickStanceStates(world);
             });
@@ -64,7 +64,7 @@ abstract class bastion_guard_base_action implements mutation_action {
                     iterator.remove();
                     continue;
                 }
-                if (piglin.getEntityWorld() != world) {
+                if (piglin.level() != world) {
                     continue;
                 }
                 int remaining = entry.getValue() - 1;
@@ -87,7 +87,7 @@ abstract class bastion_guard_base_action implements mutation_action {
                     iterator.remove();
                     continue;
                 }
-                if (piglin.getEntityWorld() != world) {
+                if (piglin.level() != world) {
                     continue;
                 }
                 if (state.remainingTicks > 0) {
@@ -132,18 +132,18 @@ abstract class bastion_guard_base_action implements mutation_action {
             if (state == null || state.remainingTicks <= 0) {
                 return;
             }
-            if (!(source.getLastHurtByMob() instanceof LivingEntity attacker)) {
+            if (!(source.getEntity() instanceof LivingEntity attacker)) {
                 return;
             }
-            Vec3 forward = piglin.getRotationVector();
+            Vec3 forward = piglin.getViewVector(1.0F);
             Vec3 direction = new Vec3(attacker.getX() - piglin.getX(),
                     attacker.getEyeY() - piglin.getEyeY(),
                     attacker.getZ() - piglin.getZ());
-            if (direction.lengthSquared() < 1.0E-4D) {
+            if (direction.lengthSqr() < 1.0E-4D) {
                 return;
             }
             direction = direction.normalize();
-            if (forward.dotProduct(direction) >= state.forwardDotThreshold) {
+            if (forward.dot(direction) >= state.forwardDotThreshold) {
                 piglin.heal(amount * (float) state.damageReduction);
             }
         }
@@ -169,8 +169,8 @@ abstract class bastion_guard_base_action implements mutation_action {
                 return false;
             }
             direction = direction.normalize();
-            attacker.addVelocity(direction.x * knockbackStrength, verticalBoost, direction.z * knockbackStrength);
-            attacker.velocityModified = true;
+            attacker.push(direction.x * knockbackStrength, verticalBoost, direction.z * knockbackStrength);
+            attacker.syncVelocity = true;
             if (cooldownTicks > 0) {
                 pommelCooldowns.put(piglin, cooldownTicks);
             }
@@ -186,22 +186,22 @@ abstract class bastion_guard_base_action implements mutation_action {
         }
 
         private void applyStanceEffects(PiglinBrute piglin) {
-            piglin.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE, 10, 1, false, false, true));
-            piglin.setAttacking(false);
+            piglin.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 10, 1, false, false, true));
+            piglin.setTarget(null);
             piglin.getNavigation().stop();
             applyStanceModifiers(piglin);
         }
 
         private static void applyStanceModifiers(PiglinBrute piglin) {
-            AttributeInstance speed = piglin.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && !speed.hasModifier(STANCE_SPEED_ID)) {
-                speed.addPersistentModifier(new AttributeModifier(STANCE_SPEED_ID,
+                speed.addPermanentModifier(new AttributeModifier(STANCE_SPEED_ID,
                         -1.0D,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
-            AttributeInstance knockback = piglin.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && !knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
-                knockback.addPersistentModifier(new AttributeModifier(STANCE_KNOCKBACK_ID,
+                knockback.addPermanentModifier(new AttributeModifier(STANCE_KNOCKBACK_ID,
                         1.0D,
                         AttributeModifier.Operation.ADD_VALUE));
             }
@@ -211,11 +211,11 @@ abstract class bastion_guard_base_action implements mutation_action {
             if (piglin == null) {
                 return;
             }
-            AttributeInstance speed = piglin.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && speed.hasModifier(STANCE_SPEED_ID)) {
                 speed.removeModifier(STANCE_SPEED_ID);
             }
-            AttributeInstance knockback = piglin.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
                 knockback.removeModifier(STANCE_KNOCKBACK_ID);
             }

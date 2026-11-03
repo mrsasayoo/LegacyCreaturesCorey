@@ -112,7 +112,7 @@ public final class RealityCollapseManager {
         Field field = findContainingField(serverWorld, hitResult.getBlockPos(), true);
         if (field != null) {
             logDebug("Uso de bloque cancelado en (%.1f, %.1f, %.1f) por campo #%d (radio %.1f, restan %d ticks)",
-                hitResult.getBlockPos().x, hitResult.getBlockPos().y, hitResult.getBlockPos().z, field.id, field.radius, field.remainingTicks);
+                hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY(), hitResult.getBlockPos().getZ(), field.id, field.radius, field.remainingTicks);
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
@@ -182,7 +182,7 @@ public final class RealityCollapseManager {
             if (--remainingTicks <= 0) {
                 return true;
             }
-            List<ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(center) <= radiusSq);
+            List<ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(center) <= radiusSq);
             for (ServerPlayer player : players) {
                 purgeStatusEffects(player);
             }
@@ -190,14 +190,14 @@ public final class RealityCollapseManager {
         }
 
         private void purgeStatusEffects(ServerPlayer player) {
-            Set<MobEffectInstance> effects = Set.copyOf(player.getStatusEffects());
+            Set<MobEffectInstance> effects = Set.copyOf(player.getActiveEffects());
             for (MobEffectInstance instance : effects) {
-                player.removeStatusEffect(instance.getEffectType());
+                player.removeEffect(instance.getEffect());
             }
         }
 
         private boolean contains(Vec3 pos) {
-            return pos.squaredDistanceTo(center) <= radiusSq;
+            return pos.distanceToSqr(center) <= radiusSq;
         }
     }
 }

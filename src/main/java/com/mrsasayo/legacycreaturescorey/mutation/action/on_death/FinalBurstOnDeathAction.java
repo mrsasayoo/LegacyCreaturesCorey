@@ -50,11 +50,11 @@ public final class FinalBurstOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
 
-        Vec3 origin = new Vec3(entity.getX(), entity.getBodyY(0.1D), entity.getZ());
+        Vec3 origin = new Vec3(entity.getX(), entity.getY(0.1D), entity.getZ());
         applyBurst(world, entity, origin);
         igniteGround(world, origin);
         spawnEffects(world, origin);
@@ -63,15 +63,15 @@ public final class FinalBurstOnDeathAction implements mutation_action {
     private void applyBurst(ServerLevel world, LivingEntity owner, Vec3 origin) {
         double radiusSq = radius * radius;
         AABB area = AABB.of(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
-        List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, area,
+        List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, area,
             living -> living.isAlive() && living != owner && !living.isSpectator());
         if (targets.isEmpty()) {
             return;
         }
 
-        DamageSource damageSource = world.getDamageSources().magic();
+        DamageSource damageSource = world.damageSources().magic();
         for (LivingEntity target : targets) {
-            double distanceSq = target.squaredDistanceTo(origin);
+            double distanceSq = target.distanceToSqr(origin);
             if (distanceSq > radiusSq) {
                 continue;
             }
@@ -80,7 +80,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             falloff = Math.max(0.1D, falloff);
 
             if (damage > 0.0F) {
-                target.damage(world, damageSource, damage);
+                target.hurtServer(world, damageSource, damage);
             }
 
             if (pushStrength > 0.0D) {
@@ -89,11 +89,11 @@ public final class FinalBurstOnDeathAction implements mutation_action {
                 if (horizontal > 0.001D) {
                     Vec3 horizontalDir = new Vec3(push.x / horizontal, 0.0D, push.z / horizontal);
                     double applied = pushStrength * falloff;
-                    target.addVelocity(horizontalDir.x * applied, verticalBoost * falloff, horizontalDir.z * applied);
+                    target.push(horizontalDir.x * applied, verticalBoost * falloff, horizontalDir.z * applied);
                 } else {
-                    target.addVelocity(0.0D, verticalBoost * falloff, 0.0D);
+                    target.push(0.0D, verticalBoost * falloff, 0.0D);
                 }
-                target.velocityDirty = true;
+                target.syncVelocity = true;
             }
         }
     }
@@ -103,13 +103,13 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             return;
         }
 
-        BlockPos center = BlockPos.ofFloored(origin);
+        BlockPos center = BlockPos.containing(origin);
         List<BlockPos> ignited = new ArrayList<>();
         for (int dx = -fireRadius; dx <= fireRadius; dx++) {
             for (int dz = -fireRadius; dz <= fireRadius; dz++) {
                 int x = center.getX() + dx;
                 int z = center.getZ() + dz;
-                BlockPos topPos = world.getTopPosition(Heightmap.Type.MOTION_BLOCKING, new BlockPos(x, 0, z));
+                BlockPos topPos = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(x, 0, z));
                 BlockPos firePos = topPos;
                 BlockState aboveState = world.getBlockState(firePos);
                 if (!aboveState.isAir()) {
@@ -118,13 +118,13 @@ public final class FinalBurstOnDeathAction implements mutation_action {
                 if (!world.getFluidState(firePos).isEmpty()) {
                     continue;
                 }
-                BlockPos supportPos = firePos.down();
+                BlockPos supportPos = firePos.below();
                 BlockState supportState = world.getBlockState(supportPos);
-                if (!supportState.isSideSolidFullSquare(world, supportPos, Direction.UP)) {
+                if (!supportState.isFaceSturdy(world, supportPos, Direction.UP)) {
                     continue;
                 }
-                if (world.setBlockState(firePos, Blocks.FIRE.getDefaultState(), Block.UPDATE_ALL)) {
-                    ignited.add(firePos.toImmutable());
+                if (world.setBlock(firePos, Blocks.FIRE.defaultBlockState(), Block.UPDATE_ALL)) {
+                    ignited.add(firePos.immutable());
                 }
             }
         }
@@ -135,7 +135,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
     }
 
     private void spawnEffects(ServerLevel world, Vec3 origin) {
-        world.spawnParticles(ParticleTypes.EXPLOSION_EMITTER,
+        world.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
             origin.x,
             origin.y,
             origin.z,
@@ -144,7 +144,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             0.0D,
             0.0D,
             0.0D);
-        world.spawnParticles(ParticleTypes.SMOKE,
+        world.sendParticles(ParticleTypes.SMOKE,
             origin.x,
             origin.y + 0.2D,
             origin.z,
@@ -160,7 +160,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             SoundEvents.GENERIC_EXPLODE,
             SoundSource.HOSTILE,
             0.9F,
-            0.8F + world.random.nextFloat() * 0.4F);
+            0.8F + world.getRandom().nextFloat() * 0.4F);
     }
 
     private static final class FireCleanupTask implements mutation_task_scheduler.TimedTask {
@@ -179,7 +179,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             }
             for (BlockPos pos : positions) {
                 BlockState state = world.getBlockState(pos);
-                if (state.isOf(Blocks.FIRE)) {
+                if (state.is(Blocks.FIRE)) {
                     world.removeBlock(pos, false);
                 }
             }

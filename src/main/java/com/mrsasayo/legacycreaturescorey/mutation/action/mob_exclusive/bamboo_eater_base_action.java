@@ -34,7 +34,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
     private static final Map<Panda, Boolean> aggressivePandas = new WeakHashMap<>();
 
     protected Panda asServerPanda(LivingEntity entity) {
-        if (entity instanceof Panda panda && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Panda panda && !entity.level().isClientSide()) {
             return panda;
         }
         return null;
@@ -59,10 +59,10 @@ abstract class bamboo_eater_base_action implements mutation_action {
         mob_entity_goal_accessor accessor = (mob_entity_goal_accessor) panda;
         
         // Añadir goal de ataque melee con alta prioridad
-        accessor.getGoalSelector().add(1, new MeleeAttackGoal(panda, 1.5D, true));
+        accessor.getGoalSelector().addGoal(1, new MeleeAttackGoal(panda, 1.5D, true));
         
         // Añadir goal para targetear jugadores
-        accessor.getTargetSelector().add(1, new NearestAttackableTargetGoal<>(panda, Player.class, true));
+        accessor.getTargetSelector().addGoal(1, new NearestAttackableTargetGoal<>(panda, Player.class, true));
         
         // Marcar como configurado
         aggressivePandas.put(panda, true);
@@ -77,7 +77,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
     protected void forceTargetPlayer(Panda panda) {
         if (panda.getTarget() == null || !panda.getTarget().isAlive()) {
             // Buscar jugador más cercano
-            Player nearestPlayer = panda.getEntityWorld().getClosestPlayer(
+            Player nearestPlayer = panda.level().getNearestPlayer(
                     panda.getX(), panda.getY(), panda.getZ(),
                     16.0D, // Radio de detección
                     true   // Solo jugadores vivos
@@ -103,11 +103,11 @@ abstract class bamboo_eater_base_action implements mutation_action {
         if (bambooPos == null) {
             return false;
         }
-        ServerLevel world = (ServerLevel) panda.getEntityWorld();
-        world.breakBlock(bambooPos, false);
+        ServerLevel world = (ServerLevel) panda.level();
+        world.destroyBlock(bambooPos, false);
         panda.heal(healAmount);
         if (resistanceTicks > 0) {
-            panda.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE,
+            panda.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,
                     resistanceTicks,
                     Math.max(0, resistanceAmplifier)));
         }
@@ -132,8 +132,8 @@ abstract class bamboo_eater_base_action implements mutation_action {
         if (bambooPos == null) {
             return false;
         }
-        ServerLevel world = (ServerLevel) panda.getEntityWorld();
-        world.breakBlock(bambooPos, false);
+        ServerLevel world = (ServerLevel) panda.level();
+        world.destroyBlock(bambooPos, false);
         handler.equipBamboo(panda, weaponHits);
         applyWeaponModifiers(panda, reachBonus, knockbackBonus);
         if (cooldownTicks > 0) {
@@ -154,13 +154,13 @@ abstract class bamboo_eater_base_action implements mutation_action {
     }
 
     private BlockPos findBamboo(Panda panda) {
-        BlockPos center = panda.getBlockPos();
-        ServerLevel world = (ServerLevel) panda.getEntityWorld();
+        BlockPos center = panda.blockPosition();
+        ServerLevel world = (ServerLevel) panda.level();
         for (int x = -2; x <= 2; x++) {
             for (int y = 0; y <= 2; y++) {
                 for (int z = -2; z <= 2; z++) {
-                    BlockPos candidate = center.add(x, y, z);
-                    if (world.getBlockState(candidate).isOf(Blocks.BAMBOO)) {
+                    BlockPos candidate = center.offset(x, y, z);
+                    if (world.getBlockState(candidate).is(Blocks.BAMBOO)) {
                         return candidate;
                     }
                 }
@@ -170,16 +170,16 @@ abstract class bamboo_eater_base_action implements mutation_action {
     }
 
     private static void applyStopMovement(Panda panda) {
-        AttributeInstance speed = panda.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = panda.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed != null && !speed.hasModifier(STOP_MOVE_ID)) {
-            speed.addPersistentModifier(new AttributeModifier(STOP_MOVE_ID,
+            speed.addPermanentModifier(new AttributeModifier(STOP_MOVE_ID,
                     -1.0D,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
     }
 
     private static void removeStopMovement(Panda panda) {
-        AttributeInstance speed = panda.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = panda.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.hasModifier(STOP_MOVE_ID)) {
             speed.removeModifier(STOP_MOVE_ID);
         }
@@ -193,7 +193,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
     }
 
     protected void applyWeaponModifiers(Panda panda, double reachBonus, double knockbackBonus) {
-        addModifier(panda, Attributes.DEFAULT_ENTITY_INTERACTION_RANGE, REACH_ID, reachBonus,
+        addModifier(panda, Attributes.ENTITY_INTERACTION_RANGE, REACH_ID, reachBonus,
                 AttributeModifier.Operation.ADD_VALUE);
         addModifier(panda, Attributes.ATTACK_KNOCKBACK, KNOCKBACK_ID, knockbackBonus,
                 AttributeModifier.Operation.ADD_VALUE);
@@ -204,14 +204,14 @@ abstract class bamboo_eater_base_action implements mutation_action {
             Identifier id,
             double value,
             AttributeModifier.Operation operation) {
-        AttributeInstance instance = panda.getAttributeInstance(attribute);
+        AttributeInstance instance = panda.getAttribute(attribute);
         if (instance != null && !instance.hasModifier(id)) {
-            instance.addPersistentModifier(new AttributeModifier(id, value, operation));
+            instance.addPermanentModifier(new AttributeModifier(id, value, operation));
         }
     }
 
     private static void removeWeaponModifiers(Panda panda) {
-        removeModifier(panda, Attributes.DEFAULT_ENTITY_INTERACTION_RANGE, REACH_ID);
+        removeModifier(panda, Attributes.ENTITY_INTERACTION_RANGE, REACH_ID);
         removeModifier(panda, Attributes.ATTACK_KNOCKBACK, KNOCKBACK_ID);
     }
 
@@ -224,7 +224,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
     private static void removeModifier(Panda panda,
             Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
             Identifier id) {
-        AttributeInstance instance = panda.getAttributeInstance(attribute);
+        AttributeInstance instance = panda.getAttribute(attribute);
         if (instance != null && instance.hasModifier(id)) {
             instance.removeModifier(id);
         }
@@ -250,7 +250,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
         private final Map<Panda, Integer> weaponDurability = new WeakHashMap<>();
 
         private Handler() {
-            ServerTickEvents.END_WORLD_TICK.register(world -> {
+            ServerTickEvents.END_LEVEL_TICK.register(world -> {
                 tickCooldowns(world);
                 tickEating(world);
             });
@@ -260,14 +260,14 @@ abstract class bamboo_eater_base_action implements mutation_action {
             Iterator<Map.Entry<Panda, Map<String, Integer>>> iterator = cooldowns.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Panda, Map<String, Integer>> entry = iterator.next();
-                Panda panda = entry.unwrapKey();
+                Panda panda = entry.getKey();
                 if (panda == null || panda.isRemoved()) {
                     iterator.remove();
                     weaponDurability.remove(panda);
                     eatingTicks.remove(panda);
                     continue;
                 }
-                if (panda.getEntityWorld() != world) {
+                if (panda.level() != world) {
                     continue;
                 }
                 Map<String, Integer> map = entry.getValue();
@@ -279,12 +279,12 @@ abstract class bamboo_eater_base_action implements mutation_action {
             Iterator<Map.Entry<Panda, Integer>> iterator = eatingTicks.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Panda, Integer> entry = iterator.next();
-                Panda panda = entry.unwrapKey();
+                Panda panda = entry.getKey();
                 if (panda == null || panda.isRemoved()) {
                     iterator.remove();
                     continue;
                 }
-                if (panda.getEntityWorld() != world) {
+                if (panda.level() != world) {
                     continue;
                 }
                 int remaining = entry.getValue() - 1;

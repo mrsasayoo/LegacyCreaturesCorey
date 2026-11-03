@@ -22,7 +22,7 @@ public final class poison_3_action extends status_effect_single_target_base_acti
         if (saturationDurationTicks <= 0 || !action_context.isServer(victim)) {
             return;
         }
-        victim.addStatusEffect(new MobEffectInstance(MobEffects.SATURATION, saturationDurationTicks, saturationAmplifier));
+        victim.addEffect(new MobEffectInstance(MobEffects.SATURATION, saturationDurationTicks, saturationAmplifier));
     }
 
     private static int resolveDuration(mutation_action_config config, int fallbackTicks) {

@@ -43,16 +43,16 @@ public final class ProjectileShroudAuraAction implements mutation_action {
         if (!action_context.isServer(entity)) {
             return;
         }
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         Set<AbstractArrow> processed = PROCESSED_PROJECTILES.computeIfAbsent(world, ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
-        List<AbstractArrow> projectiles = world.getEntitiesByClass(
+        List<AbstractArrow> projectiles = world.getEntitiesOfClass(
             AbstractArrow.class,
-            entity.getBoundingBox().expand(radius),
-            projectile -> projectile.isAlive() && projectile.isOnGround() == false
+            entity.getBoundingBox().inflate(radius),
+            projectile -> projectile.isAlive() && projectile.onGround() == false
         );
 
         for (AbstractArrow projectile : projectiles) {
-            if (entity.squaredDistanceTo(projectile) > radius * radius) {
+            if (entity.distanceToSqr(projectile) > radius * radius) {
                 continue;
             }
             if (chance < 1.0D && entity.getRandom().nextDouble() >= chance) {
@@ -66,9 +66,9 @@ public final class ProjectileShroudAuraAction implements mutation_action {
                 case DESTROY -> projectile.discard();
                 case DEFLECT -> {
                     projectile.setOwner(entity);
-                    projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectDamageFactor)));
-                    projectile.velocityDirty = true;
-                    projectile.velocityModified = true;
+                    projectile.setDeltaMovement(projectile.getDeltaMovement().scale(-Math.max(0.2D, reflectDamageFactor)));
+                    projectile.syncVelocity = true;
+                    projectile.syncVelocity = true;
                     processed.add(projectile);
                 }
                 case SHOVE_SHOOTER -> {
@@ -76,8 +76,8 @@ public final class ProjectileShroudAuraAction implements mutation_action {
                         double dx = shooter.getX() - entity.getX();
                         double dz = shooter.getZ() - entity.getZ();
                         double length = Math.max(0.0001D, Math.hypot(dx, dz));
-                        shooter.addVelocity(dx / length * pushStrength, 0.25D, dz / length * pushStrength);
-                        shooter.velocityModified = true;
+                        shooter.push(dx / length * pushStrength, 0.25D, dz / length * pushStrength);
+                        shooter.syncVelocity = true;
                     }
                     projectile.discard();
                 }

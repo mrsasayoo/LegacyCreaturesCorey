@@ -24,7 +24,7 @@ public final class ancient_curse_1_action extends ancient_curse_base_action {
             return;
         }
         if (husk.getRandom().nextDouble() <= chance) {
-            target.addStatusEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, durationTicks, amplifier));
+            target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, durationTicks, amplifier));
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.resources.Identifier;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
@@ -83,7 +84,7 @@ public class entropy_aura_3_action implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
             UseItemCallback.EVENT.register(this::handleItemUse);
         }
 
@@ -138,7 +139,7 @@ public class entropy_aura_3_action implements mutation_action {
             List<ServerPlayer> targets = world.getPlayers(player -> player.isAlive()
                     && !player.isCreative()
                     && !player.isSpectator()
-                    && aura.source.squaredDistanceTo(player) <= radiusSquared);
+                    && aura.source.distanceToSqr(player) <= radiusSquared);
             if (targets.isEmpty()) {
                 return;
             }
@@ -175,9 +176,9 @@ public class entropy_aura_3_action implements mutation_action {
             Map<Integer, Long> locks = lockedSlots.computeIfAbsent(player, ignored -> new HashMap<>());
             long expiry = currentTime + Math.max(1, durationTicks);
             locks.put(slot, expiry);
-            ItemStack stack = player.getInventory().getStack(slot);
+            ItemStack stack = player.getInventory().getItem(slot);
             if (!stack.isEmpty()) {
-                player.getCooldowns().set(stack, durationTicks);
+                player.getCooldowns().addCooldown(stack, durationTicks);
             }
             forceSwitchFromLockedSlot(player, locks, currentTime);
         }
@@ -206,7 +207,7 @@ public class entropy_aura_3_action implements mutation_action {
                 return;
             }
             player.getInventory().setSelectedSlot(slot);
-            player.networkHandler.sendPacket(new ClientboundSetHeldSlotPacket(slot));
+            player.connection.send(new ClientboundSetHeldSlotPacket(slot));
             lastSelectedSlot.put(player, slot);
         }
 
@@ -214,7 +215,7 @@ public class entropy_aura_3_action implements mutation_action {
             ItemStack mainHand = player.getMainHandItem();
             if (!mainHand.isEmpty()) {
                 for (int slot = 0; slot < 9; slot++) {
-                    if (player.getInventory().getStack(slot) == mainHand) {
+                    if (player.getInventory().getItem(slot) == mainHand) {
                         return slot;
                     }
                 }

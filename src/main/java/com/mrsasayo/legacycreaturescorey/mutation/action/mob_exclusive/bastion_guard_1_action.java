@@ -21,8 +21,8 @@ public final class bastion_guard_1_action extends bastion_guard_base_action {
         if (piglin == null) {
             return;
         }
-        piglin.extinguish();
-        piglin.addStatusEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,
+        piglin.extinguishFire();
+        piglin.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,
                 effectDurationTicks,
                 effectAmplifier,
                 false,

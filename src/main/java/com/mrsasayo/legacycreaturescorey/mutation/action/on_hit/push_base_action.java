@@ -22,13 +22,13 @@ abstract class push_base_action extends proc_on_hit_action {
             return;
         }
         Vec3 horizontal = new Vec3(victim.getX() - attacker.getX(), 0.0D, victim.getZ() - attacker.getZ());
-        if (horizontal.lengthSquared() < 1.0E-6D) {
+        if (horizontal.lengthSqr() < 1.0E-6D) {
             horizontal = new Vec3(attacker.getRandom().nextDouble() - 0.5D, 0.0D, attacker.getRandom().nextDouble() - 0.5D);
         }
         Vec3 direction = horizontal.normalize();
         double velocity = horizontalDistance * 0.4D;
-        Vec3 push = direction.multiply(velocity).add(0.0D, 0.1D, 0.0D);
-        victim.addVelocity(push.x, push.y, push.z);
-        victim.velocityModified = true;
+        Vec3 push = direction.scale(velocity).add(0.0D, 0.1D, 0.0D);
+        victim.push(push.x, push.y, push.z);
+        victim.syncVelocity = true;
     }
 }

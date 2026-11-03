@@ -34,7 +34,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
     private static final Map<SnowGolem, Integer> COOLDOWNS = new WeakHashMap<>();
 
     static {
-        ServerTickEvents.END_WORLD_TICK.register(world -> {
+        ServerTickEvents.END_LEVEL_TICK.register(world -> {
             // Manejar cooldowns
             Iterator<Map.Entry<SnowGolem, Integer>> cooldownIterator = COOLDOWNS.entrySet().iterator();
             while (cooldownIterator.hasNext()) {
@@ -44,7 +44,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                     cooldownIterator.remove();
                     continue;
                 }
-                if (golem.getEntityWorld() != world) {
+                if (golem.level() != world) {
                     continue;
                 }
                 int remaining = entry.getValue() - 1;
@@ -75,7 +75,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                     if (distance > 0.1) {
                         // Velocidad de seguimiento
                         double speed = Math.min(0.3, distance * 0.1);
-                        Vec3 movement = diff.normalize().multiply(speed);
+                        Vec3 movement = diff.normalize().scale(speed);
                         blizzard.currentPosition = blizzard.currentPosition.add(movement);
                     }
                 }
@@ -83,16 +83,16 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                 // Partículas de ventisca 3x3 siguiendo la posición actual
                 if (blizzard.ticksRemaining % 2 == 0) {
                     for (int i = 0; i < 15; i++) {
-                        double offsetX = (world.random.nextDouble() - 0.5) * blizzard.radius * 2;
-                        double offsetY = world.random.nextDouble() * 3;
-                        double offsetZ = (world.random.nextDouble() - 0.5) * blizzard.radius * 2;
+                        double offsetX = (world.getRandom().nextDouble() - 0.5) * blizzard.radius * 2;
+                        double offsetY = world.getRandom().nextDouble() * 3;
+                        double offsetZ = (world.getRandom().nextDouble() - 0.5) * blizzard.radius * 2;
 
                         // Movimiento rotatorio
                         double angle = (blizzard.ticksRemaining * 0.1) + (i * 0.4);
                         double rotX = Math.cos(angle) * 0.1;
                         double rotZ = Math.sin(angle) * 0.1;
 
-                        world.spawnParticles(
+                        world.sendParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 blizzard.currentPosition.x + offsetX,
                                 blizzard.currentPosition.y + offsetY,
@@ -101,14 +101,14 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube/hielo en la base
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.CLOUD,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 0.5,
                             blizzard.currentPosition.z,
                             5, blizzard.radius * 0.4, 0.2, blizzard.radius * 0.4, 0.01
                     );
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.WHITE_ASH,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 1.5,
@@ -119,11 +119,11 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
 
                 // Aplicar efectos a jugadores en el área 3x3 (continuo)
                 if (blizzard.ticksRemaining % 5 == 0) {
-                    AABB area = new AABB(blizzard.currentPosition, blizzard.currentPosition).expand(blizzard.radius, 3, blizzard.radius);
-                    List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
+                    AABB area = new AABB(blizzard.currentPosition, blizzard.currentPosition).inflate(blizzard.radius, 3, blizzard.radius);
+                    List<Player> players = world.getEntitiesOfClass(Player.class, area, p -> true);
                     for (Player player : players) {
                         // Aplicar Ceguera CONTINUA mientras estén en la zona
-                        player.addStatusEffect(new MobEffectInstance(
+                        player.addEffect(new MobEffectInstance(
                                 MobEffects.BLINDNESS,
                                 blizzard.blindnessDuration,
                                 0,
@@ -131,7 +131,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                                 false
                         ));
                         // Aplicar lentitud también
-                        player.addStatusEffect(new MobEffectInstance(
+                        player.addEffect(new MobEffectInstance(
                                 MobEffects.SLOWNESS,
                                 blizzard.blindnessDuration,
                                 blizzard.slownessLevel,
@@ -176,7 +176,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
         // Daño mínimo garantizado
         float damageToApply = Math.max(getMinimumDamage(), getProjectileDamage());
         if (damageToApply > 0.0f) {
-            target.damage(world, snowball.getDamageSources().thrown(snowball, owner), damageToApply);
+            target.hurtServer(world, snowball.damageSources().thrown(snowball, owner), damageToApply);
         }
         applyKnockback(target, snowball);
 
@@ -199,15 +199,15 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
         Vec3 impactPos = new Vec3(snowball.getX(), snowball.getY(), snowball.getZ());
 
         // Encontrar jugador más cercano para perseguir
-        Player closestPlayer = world.getClosestPlayer(impactPos.x, impactPos.y, impactPos.z, 20.0, false);
+        Player closestPlayer = world.getNearestPlayer(impactPos.x, impactPos.y, impactPos.z, 20.0, false);
 
         // Efecto de invocación
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.SNOWFLAKE,
                 impactPos.x, impactPos.y, impactPos.z,
                 50, orbRadius, 2, orbRadius, 0.15
         );
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.CLOUD,
                 impactPos.x, impactPos.y + 1, impactPos.z,
                 25, orbRadius * 0.5, 1, orbRadius * 0.5, 0.1

@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.content.item;
 
+import net.minecraft.core.registries.Registries;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.minecraft.world.item.Item;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,11 +22,11 @@ public final class ModItems {
     public static void init() {
         // Minecraft 1.21+ requiere ResourceKey en Settings antes de la construcción
         Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "ghost_fragment");
-        ResourceKey<Item> key = ResourceKey.of(RegistryKeys.ITEM, id);
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
         GHOST_FRAGMENT = Registry.register(
                 BuiltInRegistries.ITEM,
                 id,
-                new GhostFragmentItem(new Item.Settings().registryKey(key).maxCount(16)));
+                new GhostFragmentItem(new Item.Properties().registryKey(key).maxCount(16)));
 
         Legacycreaturescorey.LOGGER.debug("Items inicializados para Último Aliento");
     }

@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.data;
 
+import net.minecraft.core.registries.Registries;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,16 +64,15 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         }
     }
 
-    @Override
     public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         List<mutation> parsed = new ArrayList<>();
         ActionParser actionParser = new ActionParser();
-        Map<Identifier, Resource> resources = manager.findResources(DIRECTORY,
+        Map<Identifier, Resource> resources = manager.listResources(DIRECTORY,
                 identifier -> identifier.getPath().endsWith(".json"));
         for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
             Identifier resourceId = entry.getKey();
@@ -82,11 +82,11 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             try {
                 Identifier mutationId = toMutationId(resourceId);
                 Resource resource = entry.getValue();
-                try (InputStream stream = resource.getInputStream();
+                try (InputStream stream = resource.open();
                         BufferedReader reader = new BufferedReader(
                                 new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                     JsonElement element = JsonParser.parseReader(reader);
-                    JsonObject root = GsonHelper.asObject(element, "mutation");
+                    JsonObject root = GsonHelper.convertToJsonObject(element, "mutation");
                     List<String> schemaErrors = SCHEMA_VALIDATOR.validate(mutationId, root);
                     if (!schemaErrors.isEmpty()) {
                         for (String error : schemaErrors) {
@@ -134,17 +134,17 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
 
     private mutation parseMutation(Identifier fileId, JsonObject root, ActionParser actionParser)
             throws ActionParser.ParseException {
-        boolean enabled = GsonHelper.getBoolean(root, "enabled", true);
+        boolean enabled = GsonHelper.getAsBoolean(root, "enabled", true);
         if (!enabled) {
             return null;
         }
 
         Identifier id = fileId;
         if (root.has("id")) {
-            id = Identifier.fromNamespaceAndPath(GsonHelper.getString(root, "id"));
+            id = Identifier.parse(GsonHelper.getAsString(root, "id"));
         }
 
-        String rawType = GsonHelper.getString(root, "type");
+        String rawType = GsonHelper.getAsString(root, "type");
         mutation_type type = resolveMutationType(rawType);
 
         int cost = GsonHelper.getAsInt(root, "cost", 1);
@@ -183,7 +183,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         if (rawType == null || rawType.isBlank()) {
             throw new IllegalArgumentException("El campo 'type' es obligatorio para las mutaciones.");
         }
-        String normalized = rawType.trim().toUpperCase(Locale.WRITABLE_REGISTRY);
+        String normalized = rawType.trim().toUpperCase(Locale.ROOT);
         return switch (normalized) {
             case "AURA", "AURAS", "ACTIVE_AURA" -> mutation_type.AURAS;
             case "PASSIVE_ATTRIBUTE", "ATTRIBUTE" -> mutation_type.PASSIVE_ATTRIBUTE;
@@ -432,7 +432,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         JsonArray array = GsonHelper.getAsJsonArray(root, key);
         Set<Identifier> identifiers = new HashSet<>();
         for (JsonElement element : array) {
-            identifiers.add(Identifier.fromNamespaceAndPath(GsonHelper.asString(element, key)));
+            identifiers.add(Identifier.parse(GsonHelper.convertToString(element, key)));
         }
         return identifiers;
     }
@@ -455,10 +455,10 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         if (element.isJsonObject()) {
             JsonObject obj = element.getAsJsonObject();
             if (obj.has("literal")) {
-                return Component.literal(GsonHelper.getString(obj, "literal"));
+                return Component.literal(GsonHelper.getAsString(obj, "literal"));
             }
             if (obj.has("translate")) {
-                String key = GsonHelper.getString(obj, "translate");
+                String key = GsonHelper.getAsString(obj, "translate");
                 List<Component> withArgs = new ArrayList<>();
                 if (obj.has("with")) {
                     JsonArray with = GsonHelper.getAsJsonArray(obj, "with");
@@ -481,7 +481,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         JsonObject object = GsonHelper.getAsJsonObject(root, "restrictions");
         EntitySelector allowed = parseEntitySelector(object, "allowed_entities");
         EntitySelector excluded = parseEntitySelector(object, "excluded_entities");
-        boolean requiresWater = GsonHelper.getBoolean(object, "requires_water", false);
+        boolean requiresWater = GsonHelper.getAsBoolean(object, "requires_water", false);
 
         return new incompatibility_manager(
                 allowed.ids(),
@@ -499,11 +499,11 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         Set<Identifier> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
         for (JsonElement element : array) {
-            String raw = GsonHelper.asString(element, key);
+            String raw = GsonHelper.convertToString(element, key);
             if (raw.startsWith("#")) {
-                tags.add(TagKey.of(RegistryKeys.ENTITY_TYPE, Identifier.fromNamespaceAndPath(raw.substring(1))));
+                tags.add(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(raw.substring(1))));
             } else {
-                ids.add(Identifier.fromNamespaceAndPath(raw));
+                ids.add(Identifier.parse(raw));
             }
         }
         return new EntitySelector(ids, tags);
@@ -522,9 +522,9 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             }
             List<mutation_action> actions = new ArrayList<>(array.size());
             for (int i = 0; i < array.size(); i++) {
-                JsonObject actionObject = GsonHelper.asObject(array.get(i), "action");
-                String rawType = GsonHelper.getString(actionObject, "type");
-                String normalized = rawType.trim().toLowerCase(Locale.WRITABLE_REGISTRY);
+                JsonObject actionObject = GsonHelper.convertToJsonObject(array.get(i), "action");
+                String rawType = GsonHelper.getAsString(actionObject, "type");
+                String normalized = rawType.trim().toLowerCase(Locale.ROOT);
 
                 mutation_action action = switch (normalized) {
                     case "attribute", "attribute_modifier" -> parseAttributeAction(actionObject);
@@ -538,41 +538,41 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         }
 
         private mutation_action parseAttributeAction(JsonObject root) {
-            String attributeId = GsonHelper.getString(root, "attribute");
-            double amount = GsonHelper.getDouble(root, "amount");
-            String modeStr = GsonHelper.getString(root, "operation", "ADDITION");
-            attribute_mutation_action.Mode mode = attribute_mutation_action.Mode.valueOf(modeStr.toUpperCase(Locale.WRITABLE_REGISTRY));
-            return new attribute_mutation_action(Identifier.fromNamespaceAndPath(attributeId), mode, amount);
+            String attributeId = GsonHelper.getAsString(root, "attribute");
+            double amount = GsonHelper.getAsDouble(root, "amount");
+            String modeStr = GsonHelper.getAsString(root, "operation", "ADDITION");
+            attribute_mutation_action.Mode mode = attribute_mutation_action.Mode.valueOf(modeStr.toUpperCase(Locale.ROOT));
+            return new attribute_mutation_action(Identifier.parse(attributeId), mode, amount);
         }
 
         private mutation_action parseHealAction(JsonObject root) {
-            float amount = GsonHelper.getFloat(root, "amount");
+            float amount = GsonHelper.getAsFloat(root, "amount");
             int interval = GsonHelper.getAsInt(root, "interval");
             return new HealAction(amount, interval);
         }
 
         private mutation_action parseAllyDeathHealAuraAction(JsonObject root) {
-            double radius = GsonHelper.getDouble(root, "radius");
-            float healAmount = GsonHelper.getFloat(root, "heal_amount");
+            double radius = GsonHelper.getAsDouble(root, "radius");
+            float healAmount = GsonHelper.getAsFloat(root, "heal_amount");
             return new AllyDeathHealAuraAction(radius, healAmount);
         }
 
         @SuppressWarnings("unused")
         private MobEffect parseStatusEffect(JsonObject root, String key) {
-            String id = GsonHelper.getString(root, key);
-            return BuiltInRegistries.MOB_EFFECT.get(Identifier.fromNamespaceAndPath(id));
+            String id = GsonHelper.getAsString(root, key);
+            return BuiltInRegistries.MOB_EFFECT.getValue(Identifier.parse(id));
         }
 
         @SuppressWarnings("unused")
         private Potion parsePotion(JsonObject root, String key) {
-            String id = GsonHelper.getString(root, key);
-            return BuiltInRegistries.POTION.get(Identifier.fromNamespaceAndPath(id));
+            String id = GsonHelper.getAsString(root, key);
+            return BuiltInRegistries.POTION.getValue(Identifier.parse(id));
         }
 
         @SuppressWarnings("unused")
         private ParticleOptions parseParticle(JsonObject root, String key) {
-            String id = GsonHelper.getString(root, key);
-            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(Identifier.fromNamespaceAndPath(id));
+            String id = GsonHelper.getAsString(root, key);
+            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.getValue(Identifier.parse(id));
             if (type instanceof SimpleParticleType simple) {
                 return simple;
             }

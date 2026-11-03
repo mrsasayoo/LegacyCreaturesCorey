@@ -27,6 +27,6 @@ abstract class anti_shield_base_action extends proc_on_hit_action {
             player.stopUsingItem();
         }
         ItemStack shieldStack = new ItemStack(Items.SHIELD);
-        player.getCooldowns().set(shieldStack, cooldownTicks);
+        player.getCooldowns().addCooldown(shieldStack, cooldownTicks);
     }
 }

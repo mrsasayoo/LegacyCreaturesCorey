@@ -39,11 +39,11 @@ final class CoreyMutationCommand {
 
         mutations.then(Commands.literal("force")
             .then(Commands.literal("add")
-                .then(Commands.argument("mutacion", IdentifierArgument.identifier())
+                .then(Commands.argument("mutacion", IdentifierArgument.id())
                     .suggests(CoreyCommandShared.MUTATION_SUGGESTIONS)
                     .then(Commands.argument("objetivo", EntityArgument.entity())
                         .executes(ctx -> forceMutations(ctx,
-                            List.of(IdentifierArgument.getIdentifier(ctx, "mutacion")),
+                            List.of(IdentifierArgument.getId(ctx, "mutacion")),
                             false,
                             true)))))
             .then(Commands.literal("replace")
@@ -60,7 +60,7 @@ final class CoreyMutationCommand {
 
     private static int listMutations(CommandContext<CommandSourceStack> ctx, Entity entity) {
         if (!(entity instanceof Mob mob)) {
-            ctx.getSource().sendError(Component.literal("El objetivo no es un mob válido."));
+            ctx.getSource().sendFailure(Component.literal("El objetivo no es un mob válido."));
             return 0;
         }
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
@@ -79,22 +79,22 @@ final class CoreyMutationCommand {
                 builder.append('\n');
             }
         }
-        ctx.getSource().sendFeedback(() -> Component.literal(builder.toString()), false);
+        ctx.getSource().sendSuccess(() -> Component.literal(builder.toString()), false);
         return data.getMutations().size();
     }
 
     private static int clearMutations(CommandContext<CommandSourceStack> ctx, Entity entity) {
         if (!(entity instanceof Mob mob)) {
-            ctx.getSource().sendError(Component.literal("El objetivo no es un mob válido."));
+            ctx.getSource().sendFailure(Component.literal("El objetivo no es un mob válido."));
             return 0;
         }
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         if (data.getMutations().isEmpty()) {
-            ctx.getSource().sendFeedback(() -> Component.literal("El mob no tiene mutaciones activas."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("El mob no tiene mutaciones activas."), false);
             return 0;
         }
         removeAllMutations(mob, data);
-        ctx.getSource().sendFeedback(() -> Component.literal("Mutaciones eliminadas de " + mob.getDisplayName().getString()), true);
+        ctx.getSource().sendSuccess(() -> Component.literal("Mutaciones eliminadas de " + mob.getDisplayName().getString()), true);
         return 1;
     }
 
@@ -103,12 +103,12 @@ final class CoreyMutationCommand {
                                       boolean replaceExisting,
                                       boolean ignoreRestrictions) throws CommandSyntaxException {
         if (requested == null || requested.isEmpty()) {
-            ctx.getSource().sendError(Component.literal("Debes especificar al menos una mutación."));
+            ctx.getSource().sendFailure(Component.literal("Debes especificar al menos una mutación."));
             return 0;
         }
         Entity entity = EntityArgument.getEntity(ctx, "objetivo");
         if (!(entity instanceof Mob mob)) {
-            ctx.getSource().sendError(Component.literal("El objetivo no es un mob válido."));
+            ctx.getSource().sendFailure(Component.literal("El objetivo no es un mob válido."));
             return 0;
         }
         return applyMutations(ctx.getSource(), mob, requested, replaceExisting, ignoreRestrictions);
@@ -129,13 +129,13 @@ final class CoreyMutationCommand {
         for (Identifier id : requested) {
             mutation m = mutation_registry.get(id);
             if (m == null) {
-                source.sendError(Component.literal("Mutación desconocida: " + id));
+                source.sendFailure(Component.literal("Mutación desconocida: " + id));
                 continue;
             }
             if (!ignoreRestrictions) {
                 String failure = m.getApplyFailureReason(mob, working);
                 if (failure != null) {
-                    source.sendError(Component.literal("No se pudo aplicar " + id + ": " + failure));
+                    source.sendFailure(Component.literal("No se pudo aplicar " + id + ": " + failure));
                     continue;
                 }
             }
@@ -151,7 +151,7 @@ final class CoreyMutationCommand {
 
         int totalApplied = applied;
         if (totalApplied > 0) {
-            source.sendFeedback(() -> Component.literal("Mutaciones aplicadas a " + mob.getDisplayName().getString() + ": " + totalApplied), true);
+            source.sendSuccess(() -> Component.literal("Mutaciones aplicadas a " + mob.getDisplayName().getString() + ": " + totalApplied), true);
         }
         return totalApplied;
     }

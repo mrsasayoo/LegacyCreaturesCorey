@@ -30,7 +30,7 @@ public final class amphibious_assault_3_action extends amphibious_assault_base_a
     @Override
     public void onTick(LivingEntity entity) {
         Guardian guardian = asServerGuardian(entity);
-        if (guardian == null || guardian.isSubmergedInWater()) {
+        if (guardian == null || guardian.isUnderWater()) {
             return;
         }
         LivingEntity target = guardian.getActiveAttackTarget();
@@ -41,25 +41,25 @@ public final class amphibious_assault_3_action extends amphibious_assault_base_a
         if (progress < igniteProgressThreshold) {
             return;
         }
-        target.setOnFireFor(fireDurationSeconds);
-        if (igniteGround && guardian.getEntityWorld() instanceof ServerLevel serverWorld) {
+        target.setRemainingFireTicks(fireDurationSeconds * 20);
+        if (igniteGround && guardian.level() instanceof ServerLevel serverWorld) {
             if (shouldIgnite(guardian)) {
-                igniteBlock(serverWorld, target.getBlockPos());
-                lastIgnitions.put(guardian, guardian.age);
+                igniteBlock(serverWorld, target.blockPosition());
+                lastIgnitions.put(guardian, guardian.tickCount);
             }
         }
     }
 
     @Override
     public void onHit(LivingEntity attacker, LivingEntity target) {
-        if (!(attacker instanceof Guardian guardian) || attacker.getEntityWorld().isClient()) {
+        if (!(attacker instanceof Guardian guardian) || attacker.level().isClientSide()) {
             return;
         }
-        if (guardian.isSubmergedInWater()) {
+        if (guardian.isUnderWater()) {
             return;
         }
-        if (attacker.getEntityWorld() instanceof ServerLevel serverWorld) {
-            target.damage(serverWorld, attacker.getDamageSources().magic(), bonusDamage);
+        if (attacker.level() instanceof ServerLevel serverWorld) {
+            target.hurtServer(serverWorld, attacker.damageSources().magic(), bonusDamage);
         }
     }
 
@@ -75,17 +75,17 @@ public final class amphibious_assault_3_action extends amphibious_assault_base_a
         if (last == null) {
             return true;
         }
-        return guardian.age - last >= igniteCooldownTicks;
+        return guardian.tickCount - last >= igniteCooldownTicks;
     }
 
     private void igniteBlock(ServerLevel world, BlockPos pos) {
-        BlockPos targetPos = world.isAir(pos) ? pos : pos.up();
-        if (!world.isAir(targetPos)) {
+        BlockPos targetPos = world.isEmptyBlock(pos) ? pos : pos.above();
+        if (!world.isEmptyBlock(targetPos)) {
             return;
         }
-        BlockState fireState = Blocks.FIRE.getDefaultState();
-        if (fireState.canPlaceAt(world, targetPos)) {
-            world.setBlockState(targetPos, fireState);
+        BlockState fireState = Blocks.FIRE.defaultBlockState();
+        if (fireState.canSurvive(world, targetPos)) {
+            world.setBlock(targetPos, fireState, 3);
         }
     }
 }

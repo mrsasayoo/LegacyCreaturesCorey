@@ -24,10 +24,10 @@ public final class bloodlust_3_action extends bloodlust_base_action {
         if (effectDurationTicks <= 0 || !isPlayer(target)) {
             return;
         }
-        entity.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH,
+        entity.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                 effectDurationTicks,
                 Math.max(0, strengthAmplifier)));
-        entity.addStatusEffect(new MobEffectInstance(MobEffects.REGENERATION,
+        entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
                 effectDurationTicks,
                 Math.max(0, regenerationAmplifier)));
     }

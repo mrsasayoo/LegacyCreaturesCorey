@@ -24,10 +24,10 @@ public final class ModNetworking {
     private ModNetworking() {}
 
     public static void init() {
-        PayloadTypeRegistry.playS2C().register(ClientEffectPayload.ID, ClientEffectPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(DifficultySyncPayload.ID, DifficultySyncPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ServerHelloPayload.ID, ServerHelloPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(ClientCapabilitiesPayload.ID, ClientCapabilitiesPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ClientEffectPayload.ID, ClientEffectPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(DifficultySyncPayload.ID, DifficultySyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ServerHelloPayload.ID, ServerHelloPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ClientCapabilitiesPayload.ID, ClientCapabilitiesPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ClientCapabilitiesPayload.ID, (payload, context) ->
             context.server().execute(() -> handleCapabilities(context.player(), payload))
@@ -35,11 +35,11 @@ public final class ModNetworking {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
-            CAPABILITIES.remove(player.getUuid());
+            CAPABILITIES.remove(player.getUUID());
             sendServerHello(player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-            CAPABILITIES.remove(handler.getPlayer().getUuid())
+            CAPABILITIES.remove(handler.getPlayer().getUUID())
         );
     }
 
@@ -60,7 +60,7 @@ public final class ModNetworking {
     }
 
     public static boolean supportsFeature(ServerPlayer player, ClientFeature feature) {
-        ClientCapabilities caps = CAPABILITIES.get(player.getUuid());
+        ClientCapabilities caps = CAPABILITIES.get(player.getUUID());
         return caps != null && caps.supports(feature);
     }
 
@@ -76,7 +76,7 @@ public final class ModNetworking {
             features = EnumSet.noneOf(ClientFeature.class);
         }
 
-        CAPABILITIES.put(player.getUuid(), new ClientCapabilities(payload.protocolVersion(),
+        CAPABILITIES.put(player.getUUID(), new ClientCapabilities(payload.protocolVersion(),
             features, payload.modVersion(), compatible, System.currentTimeMillis()));
 
         // En cuanto el cliente confirma handshake, volvemos a sincronizar HUD.
@@ -88,11 +88,11 @@ public final class ModNetworking {
     }
 
     private static void maybeRemindHandshake(ServerPlayer player) {
-        ClientCapabilities caps = CAPABILITIES.get(player.getUuid());
+        ClientCapabilities caps = CAPABILITIES.get(player.getUUID());
         if (caps != null) {
             return;
         }
-        if (player.level().getTime() % (HANDSHAKE_REMINDER_INTERVAL_MS / 50L) == 0) {
+        if (player.level().getGameTime() % (HANDSHAKE_REMINDER_INTERVAL_MS / 50L) == 0) {
             Legacycreaturescorey.LOGGER.debug("Esperando handshake de red para {} antes de enviar payloads opcionales.",
                 player.getName().getString());
         }

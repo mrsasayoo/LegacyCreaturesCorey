@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.world.entity.EntityType;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
@@ -178,14 +179,14 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
             ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::handleAllowDamage);
         }
 
         void register(LivingEntity entity, PhantasmalVeilAuraAction action) {
             ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
@@ -211,11 +212,11 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             cleanup(world);
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
-                cleanupClones(world, world.getTime());
-                updateShroudStates(world, world.getTime());
+                cleanupClones(world, world.getGameTime());
+                updateShroudStates(world, world.getGameTime());
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (!aura.source.isAlive()) {
                     continue;
@@ -239,23 +240,23 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
             List<ServerPlayer> players = world
-                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+                    .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq);
             if (players.isEmpty()) {
                 aura.lastTriggerTick = time;
                 return;
             }
 
-            RandomSource random = world.random;
+            RandomSource random = world.getRandom();
             double baseX = source.getX();
-            double baseY = source.getBodyY(0.5D);
+            double baseY = source.getY(0.5D);
             double baseZ = source.getZ();
 
             for (int i = 0; i < aura.action.getParticleCount(); i++) {
                 double offsetX = (random.nextDouble() - 0.5D) * 0.6D;
-                double offsetY = random.nextDouble() * Math.max(0.5D, source.getHeight());
+                double offsetY = random.nextDouble() * Math.max(0.5D, source.getBbHeight());
                 double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
                 ParticleOptions effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-                world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
+                world.sendParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
                         0.0D);
             }
 
@@ -284,8 +285,8 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
                 return;
             }
             int min = Math.min(aura.action.getCloneMinCount(), max);
-            RandomSource random = world.random;
-            int count = Mth.nextBetween(random, min, max);
+            RandomSource random = world.getRandom();
+            int count = Mth.nextInt(random, min, max);
             if (count <= 0) {
                 aura.lastTriggerTick = time;
                 return;
@@ -304,9 +305,9 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<Mob> mobs = world.getEntitiesByClass(Mob.class, sourceMob.getBoundingBox().expand(radius),
-                    mob -> mob.isAlive() && mob != sourceMob && mob.type().getSpawnGroup() == MobCategory.MONSTER
-                            && sourceMob.squaredDistanceTo(mob) <= radiusSq);
+            List<Mob> mobs = world.getEntitiesOfClass(Mob.class, sourceMob.getBoundingBox().inflate(radius),
+                    mob -> mob.isAlive() && mob != sourceMob && mob.getType().getCategory() == MobCategory.MONSTER
+                            && sourceMob.distanceToSqr(mob) <= radiusSq);
             if (mobs.isEmpty()) {
                 return;
             }
@@ -320,8 +321,8 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (!(aura.source instanceof Mob sourceMob)) {
                 return;
             }
-            BlockPos spawnPos = sourceMob.getBlockPos();
-            var created = sourceMob.type().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
+            BlockPos spawnPos = sourceMob.blockPosition();
+            var created = sourceMob.getType().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
             if (!(created instanceof Mob clone)) {
                 return;
             }
@@ -335,7 +336,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             double z = baseZ + Math.sin(angle) * distance;
             double y = baseY + random.nextDouble() * 0.5D;
 
-            clone.refreshPositionAndAngles(x, y, z, sourceMob.getYaw(), sourceMob.getPitch());
+            clone.snapTo(x, y, z, sourceMob.getYRot(), sourceMob.getXRot());
             clone.setNoAi(true);
             clone.setNoGravity(true);
             clone.setSilent(true);
@@ -348,11 +349,11 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             clone.setHealth(Math.max(1.0F, clone.getMaxHealth() * 0.25F));
             if (aura.action.shouldCloneGlow()) {
-                clone.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING,
+                clone.addEffect(new MobEffectInstance(MobEffects.GLOWING,
                         aura.action.getCloneLifetimeTicks(), 0, true, true, true));
             }
 
-            if (!world.spawnEntity(clone)) {
+            if (!world.addFreshEntity(clone)) {
                 return;
             }
 
@@ -452,7 +453,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             Mob clone = record.illusion();
             if (playEffects) {
-                world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
+                world.sendParticles(ParticleTypes.CLOUD, clone.getX(), clone.getY(0.5D), clone.getZ(), 8, 0.4D,
                         0.2D, 0.4D, 0.01D);
                 world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.EVOKER_CAST_SPELL,
                         SoundSource.HOSTILE, 0.7F, 1.4F);
@@ -467,7 +468,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();

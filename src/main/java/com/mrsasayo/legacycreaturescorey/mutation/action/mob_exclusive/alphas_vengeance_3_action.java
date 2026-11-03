@@ -20,13 +20,13 @@ public final class alphas_vengeance_3_action extends alphas_vengeance_base_actio
 
     @Override
     protected void onOwnerDeath(Wolf owner) {
-        owner.getEntityWorld().getEntitiesByClass(Wolf.class,
-            owner.getBoundingBox().expand(radius),
+        owner.level().getEntitiesOfClass(Wolf.class,
+            owner.getBoundingBox().inflate(radius),
             candidate -> candidate != owner && candidate.isAlive()
-                && candidate.getEntityWorld() == owner.getEntityWorld())
+                && candidate.level() == owner.level())
                 .forEach(ally -> {
-                    ally.addStatusEffect(new MobEffectInstance(MobEffects.REGENERATION, durationTicks, regenerationAmplifier));
-                    ally.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH, durationTicks, strengthAmplifier));
+                    ally.addEffect(new MobEffectInstance(MobEffects.REGENERATION, durationTicks, regenerationAmplifier));
+                    ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH, durationTicks, strengthAmplifier));
                 });
     }
 }

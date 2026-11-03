@@ -39,7 +39,7 @@ public final class incompatibility_manager {
     public boolean canApply(Mob entity) {
         if (!allowedTypes.isEmpty() || !allowedTags.isEmpty()) {
             boolean matchesId = allowedTypes.contains(typeId(entity));
-            boolean matchesTag = allowedTags.stream().anyMatch(tag -> entity.getType().isIn(tag));
+            boolean matchesTag = allowedTags.stream().anyMatch(tag -> BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(tag));
             if (!matchesId && !matchesTag) {
                 return false;
             }
@@ -49,11 +49,11 @@ public final class incompatibility_manager {
             return false;
         }
 
-        if (!excludedTags.isEmpty() && excludedTags.stream().anyMatch(tag -> entity.getType().isIn(tag))) {
+        if (!excludedTags.isEmpty() && excludedTags.stream().anyMatch(tag -> BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(tag))) {
             return false;
         }
 
-        if (requiresWater && !entity.isTouchingWater()) {
+        if (requiresWater && !entity.isInWater()) {
             return false;
         }
 
@@ -62,7 +62,7 @@ public final class incompatibility_manager {
 
     private Identifier typeId(Mob entity) {
         EntityType<?> type = entity.getType();
-        return BuiltInRegistries.ENTITY_TYPE.getId(type);
+        return BuiltInRegistries.ENTITY_TYPE.getKey(type);
     }
 
     public static incompatibility_manager empty() {
@@ -76,7 +76,7 @@ public final class incompatibility_manager {
     public String whyCannotApply(Mob entity) {
         if (!allowedTypes.isEmpty() || !allowedTags.isEmpty()) {
             boolean matchesId = allowedTypes.contains(typeId(entity));
-            boolean matchesTag = allowedTags.stream().anyMatch(tag -> entity.getType().isIn(tag));
+            boolean matchesTag = allowedTags.stream().anyMatch(tag -> BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(tag));
             if (!matchesId && !matchesTag) {
                 return "Entity type is not included in the allowed filters";
             }
@@ -86,11 +86,11 @@ public final class incompatibility_manager {
             return "Entity type is explicitly excluded";
         }
 
-        if (!excludedTags.isEmpty() && excludedTags.stream().anyMatch(tag -> entity.getType().isIn(tag))) {
+        if (!excludedTags.isEmpty() && excludedTags.stream().anyMatch(tag -> BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(tag))) {
             return "Entity type is excluded by tag";
         }
 
-        if (requiresWater && !entity.isTouchingWater()) {
+        if (requiresWater && !entity.isInWater()) {
             return "Requires water to apply";
         }
 

@@ -12,11 +12,11 @@ public enum ClientEffectType {
     PHANTOM_SOUNDS;
 
     public static void write(RegistryFriendlyByteBuf buf, ClientEffectType type) {
-        buf.writeEnumConstant(type);
+        buf.writeEnum(type);
     }
 
     public static ClientEffectType read(RegistryFriendlyByteBuf buf) {
-        return buf.readEnumConstant(ClientEffectType.class);
+        return buf.readEnum(ClientEffectType.class);
     }
 
     public boolean modifiesHostileVolume() {

@@ -38,10 +38,10 @@ public final class CoreyCommandUtil {
     public static Mob raycastMob(ServerPlayer player, double distance) {
         Vec3 start = player.getCameraPosVec(1.0F);
         Vec3 direction = player.getRotationVec(1.0F);
-        Vec3 end = start.add(direction.multiply(distance));
-        AABB searchBox = player.getBoundingBox().stretch(direction.multiply(distance)).expand(1.0D);
+        Vec3 end = start.add(direction.scale(distance));
+        AABB searchBox = player.getBoundingBox().stretch(direction.scale(distance)).inflate(1.0D);
         Predicate<Entity> predicate = entity -> entity instanceof Mob mob && mob.isAlive() && !mob.isSpectator();
-        EntityHitResult hit = ProjectileUtil.raycast(
+        EntityHitResult hit = ProjectileUtil.clip(
             player,
             start,
             end,
@@ -56,10 +56,10 @@ public final class CoreyCommandUtil {
     }
 
     public static Mob findNearestMob(ServerPlayer player, double radius) {
-        AABB box = player.getBoundingBox().expand(radius);
-        return player.level().getEntitiesByClass(Mob.class, box, Entity::isAlive)
+        AABB box = player.getBoundingBox().inflate(radius);
+        return player.level().getEntitiesOfClass(Mob.class, box, Entity::isAlive)
             .stream()
-            .min((a, b) -> Double.compare(a.squaredDistanceTo(player), b.squaredDistanceTo(player)))
+            .min((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)))
             .orElse(null);
     }
 

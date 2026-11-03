@@ -24,7 +24,7 @@ public final class concussive_blow_1_action extends concussive_blow_base_action 
 
     @Override
     protected void afterProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(attacker.level() instanceof ServerLevel world)) {
             return;
         }
         bleeding_effect_helper.apply(world, attacker, victim, bleedingPulses, bleedingIntervalTicks, bleedingAmplifier);

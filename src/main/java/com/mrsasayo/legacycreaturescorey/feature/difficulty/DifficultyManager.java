@@ -15,7 +15,7 @@ public class DifficultyManager {
     private static final int PLAYER_ROLL_INCREMENT = 1;
     
     public static long getCurrentDay(MinecraftServer server) {
-        return server.getOverworld().getTime() / 24000L;
+        return server.getOverworld().getGameTime() / 24000L;
     }
     
     public static void checkDailyIncrease(MinecraftServer server) {
@@ -74,7 +74,7 @@ public class DifficultyManager {
 
     private static int increaseDifficultyForOnlinePlayers(MinecraftServer server, CoreyServerState state, int amount) {
         int affected = 0;
-        for (ServerPlayer player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             data.increasePlayerDifficulty(amount);
             affected++;
@@ -85,7 +85,7 @@ public class DifficultyManager {
     
     public static void applyDeathPenalty(ServerPlayer player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        long currentTime = player.level().getTime();
+        long currentTime = player.level().getGameTime();
         long streakWindow = Math.max(0L, difficulty_config.getDeathPenaltyCooldownTicks());
 
         data.recordDeath(currentTime);
@@ -149,7 +149,7 @@ public class DifficultyManager {
     }
 
     private static void broadcastDifficultySnapshot(MinecraftServer server, CoreyServerState state) {
-        for (ServerPlayer player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             sendDifficultySnapshot(player, state, data);
         }

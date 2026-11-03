@@ -52,7 +52,7 @@ public final class CoreyHealthMonitor {
         MutableComponent header = Component.literal(healthy
             ? "✅ Todos los checks pasaron"
             : "⚠️ " + failed + " check(s) con problemas");
-        source.sendFeedback(() -> header, false);
+        source.sendSuccess(() -> header, false);
 
         StringBuilder builder = new StringBuilder();
         results.forEach(result -> builder
@@ -60,7 +60,7 @@ public final class CoreyHealthMonitor {
             .append(result.name()).append(" — ")
             .append(result.details()).append('\n'));
 
-        source.sendFeedback(() -> Component.literal(builder.toString()), false);
+        source.sendSuccess(() -> Component.literal(builder.toString()), false);
         return healthy ? 1 : 0;
     }
 

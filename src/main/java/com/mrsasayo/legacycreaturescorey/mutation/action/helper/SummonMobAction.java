@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.helper;
 
+import net.minecraft.core.Holder;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
@@ -34,17 +35,17 @@ public final class SummonMobAction implements mutation_action {
         if (!action_context.isServer(entity)) {
             return;
         }
-        if (entity.age % interval != 0) {
+        if (entity.tickCount % interval != 0) {
             return;
         }
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
-        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
+        ServerLevel world = (ServerLevel) entity.level();
+        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId).map(Holder::value).orElse(null);
         if (entityType == null) {
             return;
         }
 
-        List<Mob> existing = world.getEntitiesByClass(Mob.class, searchBox(entity), mob -> mob.getType() == entityType && mob.isAlive());
+        List<Mob> existing = world.getEntitiesOfClass(Mob.class, searchBox(entity), mob -> mob.getType() == entityType && mob.isAlive());
         if (existing.size() >= maxCount) {
             return;
         }
@@ -58,9 +59,9 @@ public final class SummonMobAction implements mutation_action {
             return;
         }
 
-        mob.refreshPositionAndAngles(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, entity.getYRot(), 0.0F);
-        if (world.isSpaceEmpty(mob)) {
-            world.spawnEntityAndPassengers(mob);
+        mob.snapTo(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, entity.getYRot(), 0.0F);
+        if (world.noCollision(mob)) {
+            world.addFreshEntityWithPassengers(mob);
         } else {
             mob.discard();
         }
@@ -72,10 +73,10 @@ public final class SummonMobAction implements mutation_action {
         double x = entity.getX() + Math.cos(angle) * distance;
         double z = entity.getZ() + Math.sin(angle) * distance;
         double y = entity.getY();
-        return BlockPos.ofFloored(x, y, z);
+        return BlockPos.containing(x, y, z);
     }
 
     private AABB searchBox(LivingEntity entity) {
-        return entity.getBoundingBox().expand(radius);
+        return entity.getBoundingBox().inflate(radius);
     }
 }

@@ -15,12 +15,12 @@ public record ClientCapabilitiesPayload(String modVersion,
                                         int protocolVersion,
                                         EnumSet<ClientFeature> features) implements CustomPacketPayload {
 
-    public static final Id<ClientCapabilitiesPayload> ID = new Id<>(Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "client_capabilities"));
+    public static final CustomPacketPayload.Type<ClientCapabilitiesPayload> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "client_capabilities"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientCapabilitiesPayload> CODEC = new StreamCodec<>() {
         @Override
         public ClientCapabilitiesPayload decode(RegistryFriendlyByteBuf buf) {
-            String version = buf.readString(32);
+            String version = buf.readUtf(32);
             int protocol = buf.readVarInt();
             int flags = buf.readVarInt();
             EnumSet<ClientFeature> features = decodeFeatures(flags);
@@ -29,14 +29,14 @@ public record ClientCapabilitiesPayload(String modVersion,
 
         @Override
         public void encode(RegistryFriendlyByteBuf buf, ClientCapabilitiesPayload value) {
-            buf.writeString(value.modVersion(), 32);
+            buf.writeUtf(value.modVersion(), 32);
             buf.writeVarInt(value.protocolVersion());
             buf.writeVarInt(encodeFeatures(value.features()));
         }
     };
 
     @Override
-    public Id<ClientCapabilitiesPayload> getId() {
+    public CustomPacketPayload.Type<ClientCapabilitiesPayload> type() {
         return ID;
     }
 

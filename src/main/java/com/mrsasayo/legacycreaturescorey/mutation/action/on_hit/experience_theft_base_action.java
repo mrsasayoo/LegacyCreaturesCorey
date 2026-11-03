@@ -21,6 +21,6 @@ abstract class experience_theft_base_action extends proc_on_hit_action {
         if (!(victim instanceof Player player) || amount <= 0) {
             return;
         }
-        player.addExperience(-amount);
+        player.giveExperiencePoints(-amount);
     }
 }

@@ -44,7 +44,7 @@ public final class axe_mastery_1_action extends axe_mastery_base_action {
         }
         
         // Aplicar modificador de velocidad de ataque
-        AttributeInstance attackSpeed = vindicator.getAttributeInstance(Attributes.ATTACK_SPEED);
+        AttributeInstance attackSpeed = vindicator.getAttribute(Attributes.ATTACK_SPEED);
         if (attackSpeed != null) {
             // Remover modificador existente si lo hay
             if (attackSpeed.hasModifier(ATTACK_SPEED_ID)) {
@@ -52,7 +52,7 @@ public final class axe_mastery_1_action extends axe_mastery_base_action {
             }
             
             // Añadir nuevo modificador
-            attackSpeed.addPersistentModifier(new AttributeModifier(
+            attackSpeed.addPermanentModifier(new AttributeModifier(
                     ATTACK_SPEED_ID,
                     attackSpeedBonus,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
@@ -69,7 +69,7 @@ public final class axe_mastery_1_action extends axe_mastery_base_action {
     public void onRemove(LivingEntity entity) {
         if (entity instanceof Vindicator vindicator) {
             // Remover el modificador al quitar la mutación
-            AttributeInstance attackSpeed = vindicator.getAttributeInstance(Attributes.ATTACK_SPEED);
+            AttributeInstance attackSpeed = vindicator.getAttribute(Attributes.ATTACK_SPEED);
             if (attackSpeed != null && attackSpeed.hasModifier(ATTACK_SPEED_ID)) {
                 attackSpeed.removeModifier(ATTACK_SPEED_ID);
             }

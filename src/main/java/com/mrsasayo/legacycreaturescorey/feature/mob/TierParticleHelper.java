@@ -61,10 +61,10 @@ final class TierParticleHelper {
         if (count <= 0) {
             return;
         }
-        world.spawnParticles(
+        world.sendParticles(
             effect,
             mob.getX(),
-            mob.getBodyY(0.5D),
+            mob.getY(0.5D),
             mob.getZ(),
             count,
             0.25D,

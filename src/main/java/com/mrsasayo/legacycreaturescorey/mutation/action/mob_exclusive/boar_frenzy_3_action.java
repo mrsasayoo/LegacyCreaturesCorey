@@ -28,7 +28,7 @@ public final class boar_frenzy_3_action extends boar_frenzy_base_action {
             entity.heal(entity.getMaxHealth() * healPercent);
         }
         if (effectDurationTicks > 0) {
-            entity.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH,
+            entity.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                     effectDurationTicks,
                     Math.max(0, strengthAmplifier)));
         }

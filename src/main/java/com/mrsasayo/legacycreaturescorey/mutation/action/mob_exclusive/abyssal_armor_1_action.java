@@ -23,6 +23,6 @@ public final class abyssal_armor_1_action extends abyssal_armor_base_action {
         if (bonusDamage <= 0.0F) {
             return;
         }
-        victim.damage(world, owner.getDamageSources().magic(), bonusDamage);
+        victim.hurtServer(world, owner.damageSources().magic(), bonusDamage);
     }
 }

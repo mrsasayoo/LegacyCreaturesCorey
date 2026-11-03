@@ -53,14 +53,14 @@ public final class PsionicThornsHandler {
         }
 
         // Check if damage is melee
-        if (source.isIn(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
-                source.isIn(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
-                source.isIn(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
+        if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
             return;
         }
 
         // Ensure attacker is present and alive
-        if (!(source.getLastHurtByMob() instanceof LivingEntity attacker) || attacker == victim) {
+        if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
             return;
         }
 
@@ -72,7 +72,7 @@ public final class PsionicThornsHandler {
             return;
         }
 
-        if (!(victim.getEntityWorld() instanceof ServerLevel serverWorld)) {
+        if (!(victim.level() instanceof ServerLevel serverWorld)) {
             return;
         }
 
@@ -80,7 +80,7 @@ public final class PsionicThornsHandler {
         if (selfEffects != null && !selfEffects.isEmpty()) {
             for (PsionicThornsSource.ThornsEffect effect : selfEffects) {
                 if (effect.effect() != null) {
-                    victim.addStatusEffect(
+                    victim.addEffect(
                             new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }
@@ -89,16 +89,16 @@ public final class PsionicThornsHandler {
         double maxDistance = config.getMaxDistance();
         double maxDistanceSquared = maxDistance * maxDistance;
 
-        List<LivingEntity> nearbyTargets = serverWorld.getEntitiesByClass(
+        List<LivingEntity> nearbyTargets = serverWorld.getEntitiesOfClass(
                 LivingEntity.class,
-                victim.getBoundingBox().expand(maxDistance),
+                victim.getBoundingBox().inflate(maxDistance),
                 living -> living.isAlive()
                         && living != victim
                         && !(living instanceof Player));
 
         List<LivingEntity> validTargets = new ArrayList<>();
         for (LivingEntity target : nearbyTargets) {
-            if (victim.squaredDistanceTo(target) <= maxDistanceSquared) {
+            if (victim.distanceToSqr(target) <= maxDistanceSquared) {
                 validTargets.add(target);
             }
         }
@@ -115,13 +115,13 @@ public final class PsionicThornsHandler {
         List<PsionicThornsSource.ThornsEffect> effects = config.getEffects();
 
         for (LivingEntity target : validTargets) {
-            target.damage(serverWorld, victim.getDamageSources().magic(), splitDamage);
+            target.hurtServer(serverWorld, victim.damageSources().magic(), splitDamage);
             if (effects == null || effects.isEmpty()) {
                 continue;
             }
             for (PsionicThornsSource.ThornsEffect effect : effects) {
                 if (effect.effect() != null) {
-                    target.addStatusEffect(
+                    target.addEffect(
                             new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }

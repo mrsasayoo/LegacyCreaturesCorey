@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.EntityType;
@@ -46,7 +48,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof WitherBoss wither) || entity.level().isClientSide()) {
             return;
         }
         
@@ -80,26 +82,25 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
      * Crea el vórtice con un ArmorStand invisible como centro
      */
     private void createVortex(WitherBoss wither, vortex_state state) {
-        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(wither.level() instanceof ServerLevel world)) {
             return;
         }
         
         // Posición del vórtice (cerca del Wither, ligeramente adelante)
         Vec3 witherPos = new Vec3(wither.getX(), wither.getY(), wither.getZ());
-        Vec3 forward = wither.getRotationVector().normalize().multiply(3.0D);
+        Vec3 forward = wither.getViewVector(1.0F).normalize().scale(3.0D);
         Vec3 vortexPos = witherPos.add(forward);
         
         // Crear ArmorStand invisible como centro de gravedad
-        ArmorStand centerStand = new ArmorStand(EntityType.ARMOR_STAND, world);
+        ArmorStand centerStand = new ArmorStand((EntityType<? extends ArmorStand>) BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("armor_stand")), world);
         centerStand.setPos(vortexPos.x, vortexPos.y + 1.0D, vortexPos.z);
         centerStand.setInvisible(true);
         centerStand.setNoGravity(true);
-        centerStand.setInvulnerable(true);
         centerStand.setSilent(true);
         
-        world.spawnEntity(centerStand);
+        world.addFreshEntity(centerStand);
         
-        state.vortexCenterUUID = centerStand.getUuid();
+        state.vortexCenterUUID = centerStand.getUUID();
         state.vortexTimer = 0;
         state.vortexCenter = vortexPos.add(0, 1.0D, 0);
         
@@ -112,7 +113,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
      * Procesa el vórtice cada tick
      */
     private void tickVortex(WitherBoss wither, vortex_state state) {
-        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(wither.level() instanceof ServerLevel world)) {
             return;
         }
         
@@ -160,17 +161,17 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double startY = center.y + (Math.sin(timer * 0.1D + i) * 1.5D);
             
             // Velocidad hacia el centro
-            Vec3 toCenter = center.subtract(startX, startY, startZ).normalize().multiply(0.3D);
+            Vec3 toCenter = center.subtract(startX, startY, startZ).normalize().scale(0.3D);
             
             // Partículas moradas (portal/enderman)
-            world.spawnParticles(ParticleTypes.PORTAL,
+            world.sendParticles(ParticleTypes.PORTAL,
                     startX, startY, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
                     0.5D);
             
             // Partículas negras (humo del alma)
-            world.spawnParticles(ParticleTypes.SOUL,
+            world.sendParticles(ParticleTypes.SOUL,
                     startX, startY + 0.5D, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
@@ -178,7 +179,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         }
         
         // Partículas en el centro (columna de energía)
-        world.spawnParticles(ParticleTypes.REVERSE_PORTAL,
+        world.sendParticles(ParticleTypes.REVERSE_PORTAL,
                 center.x, center.y, center.z,
                 5,
                 0.2D, 0.5D, 0.2D,
@@ -189,7 +190,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double spiralAngle = angle * 2 + (i * Math.PI * 2 / 3);
             double spiralRadius = 0.5D + (timer % 20) * 0.05D;
             
-            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                     center.x + Math.cos(spiralAngle) * spiralRadius,
                     center.y + (timer % 20) * 0.1D - 1.0D,
                     center.z + Math.sin(spiralAngle) * spiralRadius,
@@ -206,18 +207,18 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
                 center.x + pullRadius, center.y + pullRadius, center.z + pullRadius
         );
         
-        List<Player> players = world.getEntitiesByClass(Player.class, box,
+        List<Player> players = world.getEntitiesOfClass(Player.class, box,
                 player -> player.isAlive() && !player.isSpectator() && !player.isCreative());
         
         double radiusSq = pullRadius * pullRadius;
         
         for (Player player : players) {
-            double distSq = player.squaredDistanceTo(center.x, center.y, center.z);
+            double distSq = player.distanceToSqr(center.x, center.y, center.z);
             if (distSq > radiusSq || distSq < 1.0D) {
                 continue;
             }
             
-            Vec3 playerPos = new Vec3(player.getX(), player.getY() + player.getHeight() / 2, player.getZ());
+            Vec3 playerPos = new Vec3(player.getX(), player.getY() + player.getBbHeight() / 2, player.getZ());
             Vec3 toCenter = center.subtract(playerPos);
             double distance = Math.sqrt(distSq);
             
@@ -225,19 +226,19 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double forceFactor = pullStrength * (1.0D - (distance / pullRadius));
             forceFactor = Math.min(forceFactor, maxPullSpeed);
             
-            Vec3 pullVelocity = toCenter.normalize().multiply(forceFactor);
+            Vec3 pullVelocity = toCenter.normalize().scale(forceFactor);
             
             // Aplicar velocidad suave (como corriente de agua)
-            Vec3 currentVel = player.getVelocity();
+            Vec3 currentVel = player.getDeltaMovement();
             Vec3 newVel = currentVel.add(pullVelocity);
             
             // Limitar velocidad máxima
             if (newVel.length() > maxPullSpeed * 2) {
-                newVel = newVel.normalize().multiply(maxPullSpeed * 2);
+                newVel = newVel.normalize().scale(maxPullSpeed * 2);
             }
             
-            player.setVelocity(newVel);
-            player.velocityModified = true;
+            player.setDeltaMovement(newVel);
+            player.syncVelocity = true;
         }
     }
 
@@ -255,14 +256,14 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         }
         
         private void destroyVortexCenter(WitherBoss wither) {
-            if (vortexCenterUUID != null && wither.getEntityWorld() instanceof ServerLevel world) {
+            if (vortexCenterUUID != null && wither.level() instanceof ServerLevel world) {
                 // Buscar y eliminar el ArmorStand
-                world.getEntitiesByClass(ArmorStand.class,
-                        wither.getBoundingBox().expand(20.0D),
-                        stand -> stand.getUuid().equals(vortexCenterUUID))
+                world.getEntitiesOfClass(ArmorStand.class,
+                        wither.getBoundingBox().inflate(20.0D),
+                        stand -> stand.getUUID().equals(vortexCenterUUID))
                         .forEach(stand -> {
                             // Partículas de dispersión al terminar
-                            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                                     stand.getX(), stand.getY(), stand.getZ(),
                                     30, 1.0D, 1.0D, 1.0D, 0.1D);
                             stand.discard();

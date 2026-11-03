@@ -49,7 +49,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         jump_state state = states.computeIfAbsent(guardian, ignored -> new jump_state());
         
         // Si está sumergido en agua, comportamiento normal
-        if (guardian.isSubmergedInWater()) {
+        if (guardian.isUnderWater()) {
             guardian.setNoGravity(false);
             state.isAirborne = false;
             state.hoverTicks = 0;
@@ -57,7 +57,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         }
         
         // Detectar salida del agua
-        if (!state.isAirborne && !guardian.isSubmergedInWater()) {
+        if (!state.isAirborne && !guardian.isUnderWater()) {
             state.isAirborne = true;
             state.hoverTicks = 0;
             // Aplicar salto controlado al salir del agua
@@ -69,7 +69,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         
         // Calcular altura objetivo
         double groundY = findGroundY(guardian);
-        Vec3 currentVel = guardian.getVelocity();
+        Vec3 currentVel = guardian.getDeltaMovement();
         
         if (!Double.isNaN(groundY)) {
             double desiredY = groundY + hoverHeight;
@@ -82,12 +82,12 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
             double newVerticalVel = currentVel.y * stabilizationFactor + adjustment;
             newVerticalVel = Mth.clamp(newVerticalVel, -maxJumpVelocity, maxJumpVelocity);
             
-            guardian.setVelocity(currentVel.x, newVerticalVel, currentVel.z);
+            guardian.setDeltaMovement(new Vec3(currentVel.x, newVerticalVel, currentVel.z));
         } else {
             // Caída controlada si no hay suelo
             double newY = currentVel.y - fallSpeed;
             newY = Math.max(newY, -0.3D); // Limitar velocidad de caída
-            guardian.setVelocity(currentVel.x, newY, currentVel.z);
+            guardian.setDeltaMovement(new Vec3(currentVel.x, newY, currentVel.z));
         }
 
         // Movimiento horizontal hacia objetivo
@@ -99,29 +99,29 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
                 target.getZ() - guardian.getZ()
             );
             
-            double distSq = offset.horizontalLengthSquared();
+            double distSq = offset.horizontalDistance();
             if (distSq > 4.0D) { // Solo moverse si está lejos del objetivo
-                Vec3 direction = offset.normalize().multiply(horizontalSpeed);
-                Vec3 newVel = guardian.getVelocity();
+                Vec3 direction = offset.normalize().scale(horizontalSpeed);
+                Vec3 newVel = guardian.getDeltaMovement();
                 
                 // Aplicar movimiento horizontal estabilizado
                 double newX = newVel.x * 0.85D + direction.x * 0.15D;
                 double newZ = newVel.z * 0.85D + direction.z * 0.15D;
                 
-                guardian.setVelocity(newX, newVel.y, newZ);
+                guardian.setDeltaMovement(new Vec3(newX, newVel.y, newZ));
             } else {
                 // Cerca del objetivo: estabilizar posición para disparar
-                Vec3 damped = guardian.getVelocity().multiply(0.7D, 1.0D, 0.7D);
-                guardian.setVelocity(damped);
+                Vec3 damped = guardian.getDeltaMovement().multiply(0.7D, 1.0D, 0.7D);
+                guardian.setDeltaMovement(damped);
             }
         } else {
             // Sin objetivo: reducir movimiento horizontal rápidamente
-            Vec3 damped = guardian.getVelocity().multiply(0.6D, 1.0D, 0.6D);
-            guardian.setVelocity(damped);
+            Vec3 damped = guardian.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D);
+            guardian.setDeltaMovement(damped);
         }
         
         // Marcar velocidad como modificada
-        guardian.velocityModified = true;
+        guardian.syncVelocity = true;
     }
 
     @Override
@@ -136,7 +136,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
      * Aplica un salto controlado al salir del agua
      */
     private void applyControlledJump(Guardian guardian, jump_state state) {
-        Vec3 currentVel = guardian.getVelocity();
+        Vec3 currentVel = guardian.getDeltaMovement();
         
         // Limitar velocidad vertical del salto
         double clampedY = Mth.clamp(currentVel.y, 0, maxJumpVelocity);
@@ -145,15 +145,15 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         double dampedX = currentVel.x * 0.5D;
         double dampedZ = currentVel.z * 0.5D;
         
-        guardian.setVelocity(dampedX, clampedY, dampedZ);
+        guardian.setDeltaMovement(new Vec3(dampedX, clampedY, dampedZ));
         state.jumpVelocity = clampedY;
     }
 
     private double findGroundY(Guardian guardian) {
-        BlockPos.Mutable mutable = guardian.getBlockPos().mutableCopy();
+        BlockPos.Mutable mutable = guardian.blockPosition().mutable();
         for (int i = 0; i < groundSearchDepth; i++) {
             mutable.move(0, -1, 0);
-            if (!guardian.getEntityWorld().getBlockState(mutable).isAir()) {
+            if (!guardian.level().getBlockState(mutable).isAir()) {
                 return mutable.getY() + 1;
             }
         }

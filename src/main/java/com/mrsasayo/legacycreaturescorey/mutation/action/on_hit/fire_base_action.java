@@ -33,9 +33,9 @@ abstract class fire_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (fireSeconds <= 0 || victim.isFireImmune()) {
+        if (fireSeconds <= 0 || victim.fireImmune()) {
             return;
         }
-        victim.setOnFireFor(fireSeconds);
+        victim.setRemainingFireTicks(fireSeconds * 20);
     }
 }

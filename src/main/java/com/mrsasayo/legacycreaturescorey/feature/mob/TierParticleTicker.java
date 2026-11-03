@@ -16,15 +16,15 @@ public final class TierParticleTicker {
     private TierParticleTicker() {}
 
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(TierParticleTicker::onWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(TierParticleTicker::onWorldTick);
     }
 
     private static void onWorldTick(ServerLevel world) {
-        if (world.getTime() % AMBIENT_INTERVAL_TICKS != 0) {
+        if (world.getGameTime() % AMBIENT_INTERVAL_TICKS != 0) {
             return;
         }
 
-        for (Entity entity : world.iterateEntities()) {
+        for (Entity entity : world.getAllEntities()) {
             if (!(entity instanceof Mob mob)) {
                 continue;
             }

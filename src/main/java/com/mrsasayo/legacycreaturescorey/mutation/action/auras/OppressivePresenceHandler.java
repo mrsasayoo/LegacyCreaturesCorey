@@ -27,13 +27,13 @@ public final class OppressivePresenceHandler {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
     }
 
     public void register(LivingEntity entity, OppressivePresenceSource source) {
         ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (ActiveAura aura : list) {
             if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
@@ -61,7 +61,7 @@ public final class OppressivePresenceHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
 
         for (ActiveAura aura : list) {
             if (!aura.source.isAlive()) {
@@ -81,7 +81,7 @@ public final class OppressivePresenceHandler {
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
         List<ServerPlayer> players = world
-                .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+                .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq);
 
         if (players.isEmpty()) {
             return;
@@ -92,7 +92,7 @@ public final class OppressivePresenceHandler {
             for (status_effect_config_parser.status_effect_config_entry effectConfig : effects) {
                 MobEffectInstance instance = status_effect_config_parser.buildInstance(effectConfig);
                 if (instance != null) {
-                    player.addStatusEffect(instance);
+                    player.addEffect(instance);
                 }
             }
         }
@@ -103,7 +103,7 @@ public final class OppressivePresenceHandler {
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         Iterator<ActiveAura> iterator = list.iterator();
         while (iterator.hasNext()) {
             ActiveAura aura = iterator.next();

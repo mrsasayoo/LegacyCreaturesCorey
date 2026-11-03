@@ -29,9 +29,9 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
             Holder<net.minecraft.world.effect.MobEffect> fallback) {
         Identifier override = config.getIdentifier("effect", null);
         if (override != null) {
-            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(override);
+            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.MOB_EFFECT.getValue(override);
             if (resolved != null) {
-                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
+                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(resolved);
                 if (entry != null) {
                     return entry;
                 }
@@ -76,6 +76,6 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
     }
 
     protected static Holder<net.minecraft.world.effect.MobEffect> asEntry(net.minecraft.world.effect.MobEffect effect) {
-        return BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+        return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
     }
 }

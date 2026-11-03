@@ -39,7 +39,7 @@ public final class aerial_maneuvers_3_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof Ghast ghast) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof Ghast ghast) || entity.level().isClientSide()) {
             return;
         }
         
@@ -71,12 +71,12 @@ public final class aerial_maneuvers_3_action implements mutation_action {
             state.beginBurst();
             
             // Sonido de inicio de ráfaga
-            if (ghast.getEntityWorld() instanceof ServerLevel world) {
+            if (ghast.level() instanceof ServerLevel world) {
                 world.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                         SoundEvents.GHAST_WARN, SoundSource.HOSTILE, 1.5F, 1.2F);
                 
                 // Partículas de carga
-                world.spawnParticles(ParticleTypes.FLAME,
+                world.sendParticles(ParticleTypes.FLAME,
                         ghast.getX(), ghast.getEyeY(), ghast.getZ(),
                         15, 0.8D, 0.8D, 0.8D, 0.05D);
             }
@@ -91,12 +91,12 @@ public final class aerial_maneuvers_3_action implements mutation_action {
     }
 
     private void fireSingleShot(Ghast ghast, LivingEntity target, int shotIndex) {
-        if (!(ghast.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(ghast.level() instanceof ServerLevel world)) {
             return;
         }
         
-        Vec3 ghastPos = ghast.getEyePos();
-        Vec3 targetPos = target.getEyePos();
+        Vec3 ghastPos = ghast.getEyePosition();
+        Vec3 targetPos = target.getEyePosition();
         
         // Dirección base hacia el objetivo
         Vec3 baseDirection = targetPos.subtract(ghastPos).normalize();
@@ -118,22 +118,22 @@ public final class aerial_maneuvers_3_action implements mutation_action {
         double z = Math.sin(yaw) * Math.cos(pitch);
         Vec3 direction = new Vec3(x, y, z).normalize();
 
-        Vec3 start = ghastPos.add(direction.multiply(2.0D));
+        Vec3 start = ghastPos.add(direction.scale(2.0D));
         
         // Crear y disparar la bola de fuego
-        LargeFireball fireball = new LargeFireball(world, ghast, direction.multiply(0.3D), fireballPower);
+        LargeFireball fireball = new LargeFireball(world, ghast, direction.scale(0.3D), fireballPower);
         fireball.setPos(start.x, start.y, start.z);
-        world.spawnEntity(fireball);
+        world.addFreshEntity(fireball);
         
         // Sonido de disparo
         world.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                 SoundEvents.GHAST_SHOOT, SoundSource.HOSTILE, 1.0F, 1.0F + shotIndex * 0.1F);
         
         // Partículas de disparo
-        world.spawnParticles(ParticleTypes.SMOKE,
+        world.sendParticles(ParticleTypes.SMOKE,
                 start.x, start.y, start.z,
                 8, 0.2D, 0.2D, 0.2D, 0.03D);
-        world.spawnParticles(ParticleTypes.FLAME,
+        world.sendParticles(ParticleTypes.FLAME,
                 start.x, start.y, start.z,
                 5, 0.1D, 0.1D, 0.1D, 0.02D);
     }

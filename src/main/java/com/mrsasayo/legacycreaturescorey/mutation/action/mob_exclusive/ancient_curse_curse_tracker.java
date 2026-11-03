@@ -17,7 +17,7 @@ public final class ancient_curse_curse_tracker {
     }
 
     public static void applyCurse(Player player, int durationTicks) {
-        if (player == null || player.getEntityWorld().isClient()) {
+        if (player == null || player.level().isClientSide()) {
             return;
         }
         ensureInitialized();
@@ -33,7 +33,7 @@ public final class ancient_curse_curse_tracker {
             return;
         }
         initialized = true;
-        ServerTickEvents.END_WORLD_TICK.register(ancient_curse_curse_tracker::tick);
+        ServerTickEvents.END_LEVEL_TICK.register(ancient_curse_curse_tracker::tick);
     }
 
     private static void tick(ServerLevel world) {
@@ -51,7 +51,7 @@ public final class ancient_curse_curse_tracker {
                 continue;
             }
 
-            if (player.getEntityWorld() != world) {
+            if (player.level() != world) {
                 continue;
             }
 
@@ -61,7 +61,7 @@ public final class ancient_curse_curse_tracker {
             } else {
                 entry.setValue(remaining);
                 if (remaining % 20 == 0) {
-                    world.spawnParticles(ParticleTypes.ASH,
+                    world.sendParticles(ParticleTypes.ASH,
                             player.getX(),
                             player.getY() + 1.0D,
                             player.getZ(),

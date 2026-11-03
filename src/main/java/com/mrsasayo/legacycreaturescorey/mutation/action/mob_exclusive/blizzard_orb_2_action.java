@@ -29,7 +29,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
     private static final List<BlizzardZone> ACTIVE_ZONES = new ArrayList<>();
 
     static {
-        ServerTickEvents.END_WORLD_TICK.register(world -> {
+        ServerTickEvents.END_LEVEL_TICK.register(world -> {
             Iterator<BlizzardZone> iterator = ACTIVE_ZONES.iterator();
             while (iterator.hasNext()) {
                 BlizzardZone zone = iterator.next();
@@ -42,10 +42,10 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                 // Partículas de ventisca
                 if (zone.ticksRemaining % 3 == 0) {
                     for (int i = 0; i < 8; i++) {
-                        double offsetX = (world.random.nextDouble() - 0.5) * zone.radius * 2;
-                        double offsetY = (world.random.nextDouble()) * 2;
-                        double offsetZ = (world.random.nextDouble() - 0.5) * zone.radius * 2;
-                        world.spawnParticles(
+                        double offsetX = (world.getRandom().nextDouble() - 0.5) * zone.radius * 2;
+                        double offsetY = (world.getRandom().nextDouble()) * 2;
+                        double offsetZ = (world.getRandom().nextDouble() - 0.5) * zone.radius * 2;
+                        world.sendParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 zone.center.x + offsetX,
                                 zone.center.y + offsetY,
@@ -54,7 +54,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.CLOUD,
                             zone.center.x, zone.center.y + 1, zone.center.z,
                             3, zone.radius * 0.5, 0.5, zone.radius * 0.5, 0.01
@@ -63,12 +63,12 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
 
                 // Aplicar ceguera a quienes ENTREN en la zona
                 if (zone.ticksRemaining % 10 == 0) {
-                    AABB area = new AABB(zone.center, zone.center).expand(zone.radius);
-                    List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
+                    AABB area = new AABB(zone.center, zone.center).inflate(zone.radius);
+                    List<Player> players = world.getEntitiesOfClass(Player.class, area, p -> true);
                     for (Player player : players) {
                         // Solo aplicar si no tienen ya el efecto (para evitar spam)
-                        if (!player.hasStatusEffect(MobEffects.BLINDNESS)) {
-                            player.addStatusEffect(new MobEffectInstance(
+                        if (!player.hasEffect(MobEffects.BLINDNESS)) {
+                            player.addEffect(new MobEffectInstance(
                                     MobEffects.BLINDNESS,
                                     zone.blindnessDuration,
                                     0,
@@ -112,7 +112,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
         // Daño mínimo garantizado
         float damageToApply = Math.max(getMinimumDamage(), getProjectileDamage());
         if (damageToApply > 0.0f) {
-            target.damage(world, snowball.getDamageSources().thrown(snowball, owner), damageToApply);
+            target.hurtServer(world, snowball.damageSources().thrown(snowball, owner), damageToApply);
         }
         applyKnockback(target, snowball);
 
@@ -128,12 +128,12 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
         Vec3 center = new Vec3(snowball.getX(), snowball.getY(), snowball.getZ());
 
         // Efecto inicial de impacto
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.SNOWFLAKE,
                 center.x, center.y, center.z,
                 30, blindnessRadius * 0.5, 1, blindnessRadius * 0.5, 0.1
         );
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.CLOUD,
                 center.x, center.y + 0.5, center.z,
                 15, blindnessRadius * 0.3, 0.5, blindnessRadius * 0.3, 0.05

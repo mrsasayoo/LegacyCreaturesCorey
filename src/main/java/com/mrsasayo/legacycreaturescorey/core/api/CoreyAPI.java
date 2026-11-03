@@ -47,7 +47,7 @@ public final class CoreyAPI {
             return Optional.empty();
         }
 
-        if (!world.spawnEntity(mob)) {
+        if (!world.addFreshEntity(mob)) {
             mob.discard();
             return Optional.empty();
         }

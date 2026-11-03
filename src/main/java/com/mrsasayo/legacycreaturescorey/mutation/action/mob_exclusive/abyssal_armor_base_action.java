@@ -19,7 +19,7 @@ abstract class abyssal_armor_base_action implements mutation_action {
 
     @Override
     public void onApply(LivingEntity entity) {
-        if (!(entity instanceof ElderGuardian guardian) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof ElderGuardian guardian) || entity.level().isClientSide()) {
             return;
         }
         active.computeIfAbsent(guardian, ignored -> new armor_state());
@@ -35,7 +35,7 @@ abstract class abyssal_armor_base_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof ElderGuardian guardian) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof ElderGuardian guardian) || entity.level().isClientSide()) {
             return;
         }
         armor_state state = active.get(guardian);
@@ -44,14 +44,14 @@ abstract class abyssal_armor_base_action implements mutation_action {
         }
 
         if (state.channeling) {
-            guardian.setVelocity(Vec3.ZERO);
-            guardian.hurtMarked = true;
+            guardian.setDeltaMovement(Vec3.ZERO);
+            guardian.syncVelocity = true;
             state.channelTimer++;
             if (state.channelTimer >= getChannelTicks()) {
                 state.channeling = false;
                 state.channelTimer = 0;
                 state.cooldownTimer = 0;
-                if (guardian.getEntityWorld() instanceof ServerLevel world) {
+                if (guardian.level() instanceof ServerLevel world) {
                     performActiveAbility(guardian, world);
                 }
             }
@@ -109,14 +109,14 @@ abstract class abyssal_armor_base_action implements mutation_action {
         if (!hasThornsRetaliation()) {
             return;
         }
-        if (!source.isOf(DamageTypes.THORNS)) {
+        if (!source.is(DamageTypes.THORNS)) {
             return;
         }
-        Entity attacker = source.getLastHurtByMob();
+        Entity attacker = source.getEntity();
         if (!(attacker instanceof ElderGuardian guardian)) {
             return;
         }
-        if (!(victim.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(victim.level() instanceof ServerLevel world)) {
             return;
         }
         if (!active.containsKey(guardian)) {

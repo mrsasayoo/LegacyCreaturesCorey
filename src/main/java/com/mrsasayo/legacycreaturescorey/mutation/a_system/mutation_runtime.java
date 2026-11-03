@@ -25,13 +25,13 @@ public final class mutation_runtime {
     private mutation_runtime() {}
 
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(mutation_runtime::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(mutation_runtime::handleWorldTick);
         ServerLivingEntityEvents.AFTER_DAMAGE.register(mutation_runtime::handleAfterDamage);
         ServerLivingEntityEvents.AFTER_DEATH.register(mutation_runtime::handleAfterDeath);
     }
 
     private static void handleWorldTick(ServerLevel world) {
-        for (Entity entity : world.iterateEntities()) {
+        for (Entity entity : world.getAllEntities()) {
             if (!(entity instanceof Mob mob)) {
                 continue;
             }
@@ -51,7 +51,7 @@ public final class mutation_runtime {
     }
 
     private static void handleAfterDamage(LivingEntity victim, DamageSource source, float originalAmount, float actualAmount, boolean blocked) {
-        Entity attackerEntity = source.getLastHurtByMob();
+        Entity attackerEntity = source.getEntity();
         if (!(attackerEntity instanceof Mob attacker)) {
             return;
         }
@@ -67,7 +67,7 @@ public final class mutation_runtime {
     private static void runActiveMutations(Mob mob, MobLegacyData data) {
         for (Identifier id : data.getMutations()) {
             mutation m = mutation_registry.get(id);
-            if (m == null || !m.type().runsEachTick()) {
+            if (m == null || !m.getType().runsEachTick()) {
                 continue;
             }
             m.onTick(mob);
@@ -85,7 +85,7 @@ public final class mutation_runtime {
         try {
             for (Identifier id : data.getMutations()) {
                 mutation m = mutation_registry.get(id);
-                if (m == null || !m.type().triggersOnHit()) {
+                if (m == null || !m.getType().triggersOnHit()) {
                     continue;
                 }
                 m.onHit(attacker, victim);
@@ -108,7 +108,7 @@ public final class mutation_runtime {
         }
 
         LivingEntity killer = null;
-        Entity attacker = source.getLastHurtByMob();
+        Entity attacker = source.getEntity();
         if (attacker instanceof LivingEntity living) {
             killer = living;
         }

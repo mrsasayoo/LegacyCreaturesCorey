@@ -22,7 +22,7 @@ import java.util.List;
  * Runtime representation of a tiered loot definition for a specific entity.
  */
 public final class TieredMobLoot {
-    private static final HolderLookup.WrapperLookup BUILTIN_LOOKUP = VanillaRegistries.createWrapperLookup();
+    private static final HolderLookup.Provider BUILTIN_LOOKUP = BuiltInRegistries.createWorldLookup();
 
     private final boolean replaceVanillaDrops;
     private final IntRange rolls;
@@ -86,8 +86,8 @@ public final class TieredMobLoot {
     }
 
     private static RegistryOps<JsonElement> resolveRegistryOps(LootContext context) {
-        ServerLevel world = context.getWorld();
-        HolderLookup.WrapperLookup lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
+        ServerLevel world = context.getLevel();
+        HolderLookup.Provider lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
         return RegistryOps.of(JsonOps.INSTANCE, lookup);
     }
 

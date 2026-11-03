@@ -12,7 +12,7 @@ public final class action_context {
     private action_context() {}
 
     public static boolean isServer(LivingEntity entity) {
-        return !entity.getEntityWorld().isClient();
+        return !entity.level().isClientSide();
     }
 
     public static void setHitContext(HitContext context) {

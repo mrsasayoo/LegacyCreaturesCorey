@@ -24,7 +24,7 @@ public final class bastion_guard_2_action extends bastion_guard_base_action {
         if (piglin == null) {
             return;
         }
-        if (!(source.getLastHurtByMob() instanceof LivingEntity attacker)) {
+        if (!(source.getEntity() instanceof LivingEntity attacker)) {
             return;
         }
         handler().tryPommelStrike(piglin, attacker, triggerChance, cooldownTicks, knockbackStrength, verticalBoost);

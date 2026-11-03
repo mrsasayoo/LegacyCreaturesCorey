@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
+import net.minecraft.world.entity.item.ItemEntity;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
@@ -43,11 +44,13 @@ public final class disarm_1_action extends proc_on_hit_action {
         }
 
         ItemStack dropped = hand.copy();
-        player.setStackInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        player.dropItem(dropped, true);
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        ItemEntity droppedEntity = new ItemEntity(player.level(), player.getX(), player.getY(0.5D), player.getZ(), dropped);
+        droppedEntity.setDefaultPickUpDelay();
+        player.level().addFreshEntity(droppedEntity);
 
         if (selfSlownessDuration > 0 && action_context.isServer(attacker)) {
-            attacker.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessDuration, 1));
+            attacker.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessDuration, 1));
         }
     }
 }

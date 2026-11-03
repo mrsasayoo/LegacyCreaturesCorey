@@ -54,23 +54,23 @@ abstract class frenzy_base_action extends proc_on_hit_action {
         int speedAmplifier = profile.stackable()
                 ? getNextAmplifier(attacker, MobEffects.SPEED, profile.maxStacks())
                 : profile.baseAmplifier();
-        attacker.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, profile.speedDurationTicks(), speedAmplifier));
+        attacker.addEffect(new MobEffectInstance(MobEffects.SPEED, profile.speedDurationTicks(), speedAmplifier));
 
         if (profile.applyHaste()) {
             int hasteAmplifier = profile.stackable()
                     ? getNextAmplifier(attacker, MobEffects.HASTE, profile.maxStacks())
                     : profile.baseAmplifier();
-            attacker.addStatusEffect(new MobEffectInstance(MobEffects.HASTE, profile.hasteDurationTicks(), hasteAmplifier));
+            attacker.addEffect(new MobEffectInstance(MobEffects.HASTE, profile.hasteDurationTicks(), hasteAmplifier));
         }
 
         if (profile.playerBuffDurationTicks() > 0) {
-            victim.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH,
+            victim.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                     profile.playerBuffDurationTicks(), profile.playerBuffAmplifier()));
         }
     }
 
     private int getNextAmplifier(LivingEntity entity, Holder<MobEffect> effect, int maxStacks) {
-        MobEffectInstance current = entity.getStatusEffect(effect);
+        MobEffectInstance current = entity.getEffect(effect);
         if (current == null) {
             return profile.baseAmplifier();
         }

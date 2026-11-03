@@ -47,8 +47,8 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
      * Aplica el efecto de hambre precaria que reduce la nutrición de la comida en 25%
      */
     private void applyPrecariousHunger(Player player) {
-        player.addStatusEffect(new MobEffectInstance(
-            Holder.of(ModStatusEffects.PRECARIOUS_HUNGER),
+        player.addEffect(new MobEffectInstance(
+            Holder.direct(ModStatusEffects.PRECARIOUS_HUNGER),
             precariousHungerDuration,
             0, // amplificador 0 = 25% reducción
             false, // ambient
@@ -57,8 +57,8 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
         ));
         
         // Partículas especiales de hambre al aplicar el efecto
-        if (player.getEntityWorld() instanceof ServerLevel world) {
-            world.spawnParticles(ParticleTypes.WITCH,
+        if (player.level() instanceof ServerLevel world) {
+            world.sendParticles(ParticleTypes.WITCH,
                     player.getX(),
                     player.getY() + 0.5D,
                     player.getZ(),
@@ -74,8 +74,8 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
      * Genera partículas de maldición alrededor del jugador
      */
     private void spawnCurseParticles(Player player) {
-        if (player.getEntityWorld() instanceof ServerLevel world) {
-            world.spawnParticles(ParticleTypes.SOUL,
+        if (player.level() instanceof ServerLevel world) {
+            world.sendParticles(ParticleTypes.SOUL,
                     player.getX(),
                     player.getY() + 1.0D,
                     player.getZ(),

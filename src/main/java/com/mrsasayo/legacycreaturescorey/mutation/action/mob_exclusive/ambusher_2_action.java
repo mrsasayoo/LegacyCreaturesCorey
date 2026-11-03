@@ -27,7 +27,7 @@ public final class ambusher_2_action extends ambusher_base_action {
         if (creeper == null) {
             return;
         }
-        int lightLevel = creeper.getEntityWorld().getLightLevel(creeper.getBlockPos());
+        int lightLevel = creeper.level().getLightEngine().getRawBrightness(creeper.blockPosition(), 0);
         if (lightLevel <= maxLightLevel) {
             MobEffectInstance invisibility = new MobEffectInstance(
                     MobEffects.INVISIBILITY,
@@ -35,7 +35,7 @@ public final class ambusher_2_action extends ambusher_base_action {
                     invisibilityAmplifier,
                     ambient,
                     showParticles);
-            creeper.addStatusEffect(invisibility);
+            creeper.addEffect(invisibility);
         }
     }
 }

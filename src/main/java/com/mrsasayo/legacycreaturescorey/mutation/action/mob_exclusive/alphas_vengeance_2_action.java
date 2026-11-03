@@ -28,9 +28,9 @@ public final class alphas_vengeance_2_action extends alphas_vengeance_base_actio
         if (owner == null) {
             return;
         }
-        if (owner.squaredDistanceTo(deceased) <= radius * radius) {
+        if (owner.distanceToSqr(deceased) <= radius * radius) {
             owner.heal(healAmount);
-            owner.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH, furyDuration, furyAmplifier));
+            owner.addEffect(new MobEffectInstance(MobEffects.STRENGTH, furyDuration, furyAmplifier));
         }
     }
 }

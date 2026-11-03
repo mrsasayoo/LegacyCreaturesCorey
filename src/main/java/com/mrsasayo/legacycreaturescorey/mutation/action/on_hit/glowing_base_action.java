@@ -60,7 +60,7 @@ abstract class glowing_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim.getEntityWorld() instanceof ServerLevel world) || pulseDurationTicks <= 0) {
+        if (!(victim.level() instanceof ServerLevel world) || pulseDurationTicks <= 0) {
             return;
         }
 

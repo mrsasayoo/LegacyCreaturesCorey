@@ -34,7 +34,7 @@ public final class aerial_maneuvers_2_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof Ghast ghast) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof Ghast ghast) || entity.level().isClientSide()) {
             return;
         }
         
@@ -61,31 +61,31 @@ public final class aerial_maneuvers_2_action implements mutation_action {
     }
 
     private void fireConeShot(Ghast ghast, LivingEntity target) {
-        if (!(ghast.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(ghast.level() instanceof ServerLevel world)) {
             return;
         }
         
-        Vec3 center = ghast.getEyePos();
+        Vec3 center = ghast.getEyePosition();
         
         // Calcular dirección hacia el objetivo en lugar de usar rotación del mob
-        Vec3 targetPos = target.getEyePos();
+        Vec3 targetPos = target.getEyePosition();
         Vec3 forward = targetPos.subtract(center).normalize();
         
         // Calcular vectores perpendiculares para el spread
         Vec3 up = new Vec3(0, 1, 0);
-        Vec3 right = forward.crossProduct(up);
-        if (right.lengthSquared() < 0.01D) {
+        Vec3 right = forward.cross(up);
+        if (right.lengthSqr() < 0.01D) {
             right = new Vec3(1, 0, 0);
         }
         right = right.normalize();
-        up = right.crossProduct(forward).normalize();
+        up = right.cross(forward).normalize();
 
         // 4 bolas de fuego en patrón de cono
         Vec3[] directions = new Vec3[] {
                 forward.normalize(), // Centro
-                forward.add(right.multiply(coneSpread)).normalize(), // Derecha
-                forward.add(right.multiply(-coneSpread)).normalize(), // Izquierda
-                forward.add(up.multiply(coneSpread)).normalize() // Arriba
+                forward.add(right.scale(coneSpread)).normalize(), // Derecha
+                forward.add(right.scale(-coneSpread)).normalize(), // Izquierda
+                forward.add(up.scale(coneSpread)).normalize() // Arriba
         };
         
         // Sonido de disparo
@@ -93,22 +93,22 @@ public final class aerial_maneuvers_2_action implements mutation_action {
                 SoundEvents.GHAST_SHOOT, SoundSource.HOSTILE, 2.0F, 0.8F);
         
         // Partículas de carga
-        world.spawnParticles(ParticleTypes.FLAME,
+        world.sendParticles(ParticleTypes.FLAME,
                 center.x, center.y, center.z,
                 20, 0.5D, 0.5D, 0.5D, 0.05D);
         
         for (Vec3 dir : directions) {
             // Posición inicial de la bola de fuego (delante del Ghast)
-            Vec3 startPos = center.add(dir.multiply(2.0D));
+            Vec3 startPos = center.add(dir.scale(2.0D));
             
             // Crear bola de fuego con velocidad hacia la dirección calculada
-            LargeFireball fireball = new LargeFireball(world, ghast, dir.multiply(0.3D), fireballPower);
+            LargeFireball fireball = new LargeFireball(world, ghast, dir.scale(0.3D), fireballPower);
             fireball.setPos(startPos.x, startPos.y, startPos.z);
             
-            world.spawnEntity(fireball);
+            world.addFreshEntity(fireball);
             
             // Partículas de disparo individual
-            world.spawnParticles(ParticleTypes.SMOKE,
+            world.sendParticles(ParticleTypes.SMOKE,
                     startPos.x, startPos.y, startPos.z,
                     5, 0.1D, 0.1D, 0.1D, 0.02D);
         }

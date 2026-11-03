@@ -33,10 +33,10 @@ public final class attribute_mutation_action implements mutation_action {
         this.amount = amount;
         Attribute resolved = null;
         Holder<Attribute> entry = null;
-        if (BuiltInRegistries.ATTRIBUTE.containsId(attributeId)) {
-            resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId);
+        if (BuiltInRegistries.ATTRIBUTE.containsKey(attributeId)) {
+            resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId).map(Holder::value).orElse(null);
             if (resolved != null) {
-                entry = BuiltInRegistries.ATTRIBUTE.getEntry(resolved);
+                entry = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(resolved);
             }
         }
         this.attributeEntry = entry;
@@ -58,7 +58,7 @@ public final class attribute_mutation_action implements mutation_action {
         removeModifier(instance);
         double before = instance.getValue();
         AttributeModifier modifier = new AttributeModifier(modifierId, amount, operation);
-        instance.addPersistentModifier(modifier);
+        instance.addPermanentModifier(modifier);
         handleMaxHealthAdjustment(entity, before, instance.getValue());
     }
 
@@ -71,13 +71,13 @@ public final class attribute_mutation_action implements mutation_action {
         double before = instance.getValue();
         removeModifier(instance);
         double after = instance.getValue();
-        if (attributeType == Attributes.MAX_HEALTH && after < before) {
+        if (attributeType == Attributes.MAX_HEALTH.value() && after < before) {
             entity.setHealth((float) Math.min(entity.getHealth(), after));
         }
     }
 
     private AttributeInstance resolveInstance(LivingEntity entity) {
-        return attributeEntry == null ? null : entity.getAttributeInstance(attributeEntry);
+        return attributeEntry == null ? null : entity.getAttribute(attributeEntry);
     }
 
     private void removeModifier(AttributeInstance instance) {
@@ -87,7 +87,7 @@ public final class attribute_mutation_action implements mutation_action {
     }
 
     private void handleMaxHealthAdjustment(LivingEntity entity, double before, double after) {
-        if (attributeType != Attributes.MAX_HEALTH) {
+        if (attributeType != Attributes.MAX_HEALTH.value()) {
             return;
         }
         if (after > before) {
@@ -101,7 +101,7 @@ public final class attribute_mutation_action implements mutation_action {
         String namespace = Legacycreaturescorey.MOD_ID;
         String attrPath = attributeId.getNamespace() + "_" + attributeId.getPath().replace('.', '_');
         String bits = Long.toHexString(Double.doubleToLongBits(amount));
-        String suffix = mode.name().toLowerCase(Locale.WRITABLE_REGISTRY) + "_" + bits;
+        String suffix = mode.name().toLowerCase(Locale.ROOT) + "_" + bits;
         return Identifier.fromNamespaceAndPath(namespace, "passive_" + attrPath + "_" + suffix);
     }
 
@@ -110,7 +110,7 @@ public final class attribute_mutation_action implements mutation_action {
         MULTIPLY;
 
         public static Mode fromString(String raw) {
-            return valueOf(raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY));
+            return valueOf(raw.trim().toUpperCase(Locale.ROOT));
         }
     }
 }

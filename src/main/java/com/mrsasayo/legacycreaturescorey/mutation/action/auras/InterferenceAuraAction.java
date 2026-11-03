@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.resources.Identifier;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
@@ -123,7 +124,7 @@ public final class InterferenceAuraAction implements mutation_action {
 
             UseBlockCallback.EVENT.register(this::handleBlockUse);
             UseItemCallback.EVENT.register(this::handleItemUse);
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         }
 
         private InteractionResult handleBlockUse(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
@@ -139,9 +140,9 @@ public final class InterferenceAuraAction implements mutation_action {
             }
 
             BlockPos targetPos = hitResult.getBlockPos();
-            Direction side = hitResult.getSide();
+            Direction side = hitResult.getDirection();
             // The block that would be placed resides on the hit side.
-            targetPos = targetPos.offset(side);
+            targetPos = targetPos.relative(side);
 
             if (shouldSabotagePlacement(serverWorld, player, targetPos, auras)) {
                 queueBlockBreak(serverWorld, targetPos);
@@ -156,7 +157,7 @@ public final class InterferenceAuraAction implements mutation_action {
             if (!(world instanceof ServerLevel serverWorld)) {
                 return InteractionResult.PASS;
             }
-            ItemStack stack = player.getStackInHand(hand);
+            ItemStack stack = player.getItemInHand(hand);
             if (stack.isEmpty()) {
                 return InteractionResult.PASS;
             }
@@ -180,13 +181,13 @@ public final class InterferenceAuraAction implements mutation_action {
             if (stack.isEmpty()) {
                 return false;
             }
-            if (stack.contains(DataComponents.FOOD) || stack.contains(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
+            if (stack.has(DataComponents.FOOD) || stack.has(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
                 return true;
             }
-            if (stack.contains(DataComponents.POTION_CONTENTS)) {
+            if (stack.has(DataComponents.POTION_CONTENTS)) {
                 return true;
             }
-            return stack.isOf(Items.MILK_BUCKET) || stack.isOf(Items.HONEY_BOTTLE);
+            return stack.is(Items.MILK_BUCKET) || stack.is(Items.HONEY_BOTTLE);
         }
 
         private void handleWorldTick(ServerLevel world) {
@@ -196,7 +197,7 @@ public final class InterferenceAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, InterferenceAuraAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = activeAuras.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getGameTime();
             for (int i = 0; i < list.size(); i++) {
@@ -210,7 +211,7 @@ public final class InterferenceAuraAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, InterferenceAuraAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = activeAuras.get(world);
             if (list == null) {
                 return;
@@ -236,13 +237,13 @@ public final class InterferenceAuraAction implements mutation_action {
         }
 
         private boolean shouldSabotagePlacement(ServerLevel world, Player player, BlockPos pos, List<ActiveAura> auras) {
-            Vec3 targetCenter = Vec3.ofCenter(pos);
+            Vec3 targetCenter = Vec3.atCenterOf(pos);
             for (ActiveAura aura : auras) {
                 LivingEntity source = aura.source();
                 if (!source.isAlive()) {
                     continue;
                 }
-                if (source.squaredDistanceTo(targetCenter) > aura.action().getRadius() * aura.action().getRadius()) {
+                if (source.distanceToSqr(targetCenter) > aura.action().getRadius() * aura.action().getRadius()) {
                     continue;
                 }
                 if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -254,7 +255,7 @@ public final class InterferenceAuraAction implements mutation_action {
         }
 
         private void queueBlockBreak(ServerLevel world, BlockPos pos) {
-            pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.toImmutable());
+            pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.immutable());
         }
 
         private boolean shouldInterruptConsumption(ServerLevel world, Player player, List<ActiveAura> auras) {
@@ -264,7 +265,7 @@ public final class InterferenceAuraAction implements mutation_action {
                 if (!source.isAlive()) {
                     continue;
                 }
-                if (source.squaredDistanceTo(position) > aura.action().getRadius() * aura.action().getRadius()) {
+                if (source.distanceToSqr(position) > aura.action().getRadius() * aura.action().getRadius()) {
                     continue;
                 }
                 if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -285,7 +286,7 @@ public final class InterferenceAuraAction implements mutation_action {
                 BlockPos pos = iterator.next();
                 BlockState state = world.getBlockState(pos);
                 if (!state.isAir()) {
-                    world.breakBlock(pos, true);
+                    world.destroyBlock(pos, true);
                 }
                 iterator.remove();
             }
@@ -307,8 +308,8 @@ public final class InterferenceAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action().getRadius();
-                AABB box = source.getBoundingBox().expand(radius);
-                List<ThrownEnderpearl> pearls = world.getEntitiesByClass(ThrownEnderpearl.class, box,
+                AABB box = source.getBoundingBox().inflate(radius);
+                List<ThrownEnderpearl> pearls = world.getEntitiesOfClass(ThrownEnderpearl.class, box,
                     pearl -> pearl.isAlive() && pearl.getOwner() instanceof Player);
                 if (pearls.isEmpty()) {
                     continue;
@@ -318,7 +319,7 @@ public final class InterferenceAuraAction implements mutation_action {
                         continue;
                     }
                     Vec3 pos = new Vec3(pearl.getX(), pearl.getY(), pearl.getZ());
-                    if (source.squaredDistanceTo(pos) > radius * radius) {
+                    if (source.distanceToSqr(pos) > radius * radius) {
                         continue;
                     }
                     if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -327,7 +328,7 @@ public final class InterferenceAuraAction implements mutation_action {
                     Player owner = (Player) pearl.getOwner();
                     if (!pearl.isRemoved()) {
                         pearl.remove(Entity.RemovalReason.KILLED);
-                        world.spawnParticles(ParticleTypes.SMOKE,
+                        world.sendParticles(ParticleTypes.SMOKE,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
@@ -343,10 +344,10 @@ public final class InterferenceAuraAction implements mutation_action {
                             SoundEvents.ENDERMAN_TELEPORT,
                             SoundSource.HOSTILE,
                             0.4F,
-                            1.1F + world.random.nextFloat() * 0.2F);
+                            1.1F + world.getRandom().nextFloat() * 0.2F);
                     }
                     if (owner != null) {
-                        owner.damage(world, world.damageSources().magic(), aura.action().getPearlDamage());
+                        owner.hurtServer(world, world.damageSources().magic(), aura.action().getPearlDamage());
                     }
                     handled.add(pearl);
                 }

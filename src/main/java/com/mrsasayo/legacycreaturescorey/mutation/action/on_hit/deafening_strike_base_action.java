@@ -48,15 +48,15 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
     private Holder<MobEffect> resolveEffect(mutation_action_config config, MobEffect fallback) {
         Identifier configured = config.getIdentifier("effect", null);
         if (configured != null) {
-            MobEffect custom = BuiltInRegistries.STATUS_EFFECT.get(configured);
+            MobEffect custom = BuiltInRegistries.MOB_EFFECT.getValue(configured);
             if (custom != null) {
-                Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(custom);
+                Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(custom);
                 if (entry != null) {
                     return entry;
                 }
             }
         }
-        Holder<MobEffect> fallbackEntry = BuiltInRegistries.STATUS_EFFECT.getEntry(fallback);
+        Holder<MobEffect> fallbackEntry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(fallback);
         if (fallbackEntry == null) {
             throw new IllegalStateException("No se pudo encontrar un efecto válido para deafening_strike");
         }

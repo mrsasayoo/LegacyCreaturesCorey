@@ -45,16 +45,16 @@ public final class DetonatingRemainsManager {
         if (radius <= 0.0D || durationTicks <= 0 || config == null) {
             return;
         }
-        AABB area = source.getBoundingBox().expand(radius);
-        List<LivingEntity> matches = world.getEntitiesByClass(LivingEntity.class, area,
-            entity -> entity.isAlive() && entity.kind() == source.kind() && entity != source);
+        AABB area = source.getBoundingBox().inflate(radius);
+        List<LivingEntity> matches = world.getEntitiesOfClass(LivingEntity.class, area,
+            entity -> entity.isAlive() && entity.getType() == source.getType() && entity != source);
         if (matches.isEmpty()) {
             return;
         }
-        long expiryTick = world.getTime() + durationTicks;
+        long expiryTick = world.getGameTime() + durationTicks;
         Map<UUID, ChainMark> marks = CHAIN_MARKS.computeIfAbsent(world, ignored -> new WeakHashMap<>());
         for (LivingEntity match : matches) {
-            marks.put(match.getUuid(), new ChainMark(expiryTick, config));
+            marks.put(match.getUUID(), new ChainMark(expiryTick, config));
         }
     }
 
@@ -66,14 +66,14 @@ public final class DetonatingRemainsManager {
         if (marks == null || marks.isEmpty()) {
             return;
         }
-        ChainMark mark = marks.remove(entity.getUuid());
+        ChainMark mark = marks.remove(entity.getUUID());
         if (mark == null) {
             return;
         }
-        if (world.getTime() > mark.expiryTick()) {
+        if (world.getGameTime() > mark.expiryTick()) {
             return;
         }
-        registerRemnant(world, new Vec3(entity.getX(), entity.getBodyY(0.2D), entity.getZ()), mark.config());
+        registerRemnant(world, new Vec3(entity.getX(), entity.getY(0.2D), entity.getZ()), mark.config());
     }
 
     private static void tickRemnants(ServerLevel world) {
@@ -98,7 +98,7 @@ public final class DetonatingRemainsManager {
         if (marks == null || marks.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         marks.entrySet().removeIf(entry -> entry.getValue().expiryTick() <= time);
         if (marks.isEmpty()) {
             CHAIN_MARKS.remove(world);
@@ -139,7 +139,7 @@ public final class DetonatingRemainsManager {
         }
 
         private boolean checkPlayers(ServerLevel world) {
-            List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(origin) <= radiusSq);
+            List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(origin) <= radiusSq);
             if (players.isEmpty()) {
                 return false;
             }
@@ -151,10 +151,10 @@ public final class DetonatingRemainsManager {
             if (!config.harmless) {
                 for (Player player : players) {
                     if (config.damage > 0.0F) {
-                        player.damage(world, world.getDamageSources().magic(), config.damage);
+                        player.hurtServer(world, world.damageSources().magic(), config.damage);
                     }
                     if (config.statusEffect != null && config.statusDuration > 0) {
-                        player.addStatusEffect(new MobEffectInstance(config.statusEffect, config.statusDuration, config.statusAmplifier));
+                        player.addEffect(new MobEffectInstance(config.statusEffect, config.statusDuration, config.statusAmplifier));
                     }
                 }
                 world.playSound(null,

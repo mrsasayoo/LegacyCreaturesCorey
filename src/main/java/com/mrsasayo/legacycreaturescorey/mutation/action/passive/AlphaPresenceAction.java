@@ -118,14 +118,14 @@ public final class AlphaPresenceAction implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
             ServerLivingEntityEvents.ALLOW_DEATH.register(this::handleDeath);
         }
 
         void register(LivingEntity entity, AlphaPresenceAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
@@ -136,7 +136,7 @@ public final class AlphaPresenceAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, AlphaPresenceAction action) {
-            ServerLevel world = (ServerLevel) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -153,7 +153,7 @@ public final class AlphaPresenceAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (!aura.source.isAlive()) {
                     continue;
@@ -173,7 +173,7 @@ public final class AlphaPresenceAction implements mutation_action {
         }
 
         private boolean handleDeath(LivingEntity entity, DamageSource source, float amount) {
-            if (!(entity.getEntityWorld() instanceof ServerLevel world))
+            if (!(entity.level() instanceof ServerLevel world))
                 return true;
 
             List<ActiveAura> list = active.get(world);
@@ -192,12 +192,12 @@ public final class AlphaPresenceAction implements mutation_action {
             // "Allies don't flee" -> Give Resistance I to simulate toughness
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
+            List<Mob> allies = world.getEntitiesOfClass(Mob.class, source.getBoundingBox().inflate(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
-                            && m.squaredDistanceTo(source) <= radius * radius);
+                            && m.distanceToSqr(source) <= radius * radius);
 
             for (Mob ally : allies) {
-                ally.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 0, true, false));
+                ally.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 0, true, false));
             }
         }
 
@@ -205,13 +205,13 @@ public final class AlphaPresenceAction implements mutation_action {
             // "Immune to fear, open doors" -> Give Strength I + Speed I
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
+            List<Mob> allies = world.getEntitiesOfClass(Mob.class, source.getBoundingBox().inflate(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
-                            && m.squaredDistanceTo(source) <= radius * radius);
+                            && m.distanceToSqr(source) <= radius * radius);
 
             for (Mob ally : allies) {
-                ally.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, true, false));
-                ally.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, true, false));
+                ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, true, false));
+                ally.addEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, true, false));
             }
         }
 
@@ -219,17 +219,17 @@ public final class AlphaPresenceAction implements mutation_action {
             // "On death, allies get Strength"
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
+            List<Mob> allies = world.getEntitiesOfClass(Mob.class, source.getBoundingBox().inflate(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
-                            && m.squaredDistanceTo(source) <= radius * radius);
+                            && m.distanceToSqr(source) <= radius * radius);
 
             if (!allies.isEmpty()) {
                 world.playSound(null, source.getX(), source.getY(), source.getZ(),
                         SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.HOSTILE, 1.0f, 0.5f);
                 for (Mob ally : allies) {
-                    ally.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH,
+                    ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                             aura.action.getDurationTicks(), aura.action.getAmplifier(), true, true));
-                    world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, ally.getX(), ally.getEyeY(), ally.getZ(), 3, 0.3,
+                    world.sendParticles(ParticleTypes.ANGRY_VILLAGER, ally.getX(), ally.getEyeY(), ally.getZ(), 3, 0.3,
                             0.3, 0.3, 0.1);
                 }
             }
@@ -240,7 +240,7 @@ public final class AlphaPresenceAction implements mutation_action {
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();

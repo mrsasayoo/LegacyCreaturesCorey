@@ -26,8 +26,8 @@ public final class alphas_vengeance_1_action extends alphas_vengeance_base_actio
         if (owner == null) {
             return;
         }
-        if (owner.squaredDistanceTo(deceased) <= radius * radius) {
-            owner.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, speedDuration, speedAmplifier));
+        if (owner.distanceToSqr(deceased) <= radius * radius) {
+            owner.addEffect(new MobEffectInstance(MobEffects.SPEED, speedDuration, speedAmplifier));
         }
     }
 }

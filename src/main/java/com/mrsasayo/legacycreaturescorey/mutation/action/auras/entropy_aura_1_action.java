@@ -49,7 +49,7 @@ public class entropy_aura_1_action implements mutation_action {
 
         ServerLevel world = (ServerLevel) entity.level();
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
-            if (player.squaredDistanceTo(entity) <= radius * radius) {
+            if (player.distanceToSqr(entity) <= radius * radius) {
                 if (player instanceof ServerPlayer serverPlayer) {
                     int currentSlot = resolveSelectedSlot(serverPlayer);
                     int lastSlot = lastSelectedSlot.getOrDefault(serverPlayer, currentSlot);
@@ -59,7 +59,7 @@ public class entropy_aura_1_action implements mutation_action {
                         if (entity.getRandom().nextDouble() <= chance) {
                             ItemStack stack = serverPlayer.getMainHandItem();
                             if (!stack.isEmpty()) {
-                                serverPlayer.getCooldowns().set(stack, cooldownTicks);
+                                serverPlayer.getCooldowns().addCooldown(stack, cooldownTicks);
                             }
                         }
                     } else {
@@ -74,7 +74,7 @@ public class entropy_aura_1_action implements mutation_action {
         ItemStack mainHand = player.getMainHandItem();
         if (!mainHand.isEmpty()) {
             for (int slot = 0; slot < 9; slot++) {
-                if (player.getInventory().getStack(slot) == mainHand) {
+                if (player.getInventory().getItem(slot) == mainHand) {
                     return slot;
                 }
             }

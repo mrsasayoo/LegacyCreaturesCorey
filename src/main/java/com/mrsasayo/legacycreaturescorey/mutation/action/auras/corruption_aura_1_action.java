@@ -22,13 +22,13 @@ public class corruption_aura_1_action implements mutation_action {
     @Override
     public void onTick(LivingEntity entity) {
         if (!action_context.isServer(entity)) return;
-        if (intervalTicks > 0 && entity.age % intervalTicks != 0) return;
+        if (intervalTicks > 0 && entity.tickCount % intervalTicks != 0) return;
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
-        DamageSource source = world.getDamageSources().magic();
+        ServerLevel world = (ServerLevel) entity.level();
+        DamageSource source = world.damageSources().magic();
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
-            if (player.squaredDistanceTo(entity) <= radius * radius) {
-                player.damage(world, source, damage);
+            if (player.distanceToSqr(entity) <= radius * radius) {
+                player.hurtServer(world, source, damage);
             }
         }
     }

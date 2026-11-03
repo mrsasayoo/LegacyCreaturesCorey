@@ -90,7 +90,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
                 if (attribute == null) {
                     return;
                 }
@@ -101,7 +101,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.35D);
                     entity.setHealth((float) Math.min(entity.getHealth(), entity.getMaxHealth()));
@@ -115,7 +115,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 1) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute == null) {
                     return;
                 }
@@ -124,7 +124,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.20D);
                 }
@@ -137,7 +137,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute == null) {
                     return;
                 }
@@ -146,7 +146,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() - 0.40D);
                 }
@@ -159,13 +159,13 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 2) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
-                if (target.getEntityWorld().isClient()) {
+                if (target.level().isClientSide()) {
                     return;
                 }
-                if (target.hasStatusEffect(MobEffects.POISON)) {
+                if (target.hasEffect(MobEffects.POISON)) {
                     return;
                 }
-                target.addStatusEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
+                target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
             }
         };
     }
@@ -175,10 +175,10 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 1) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
-                if (target.getEntityWorld().isClient()) {
+                if (target.level().isClientSide()) {
                     return;
                 }
-                target.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
+                target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
             }
         };
     }
@@ -188,7 +188,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.ACTIVE, 2) {
             @Override
             public void onTick(LivingEntity entity) {
-                if (entity.getEntityWorld().isClient() || entity.age % 40 != 0) {
+                if (entity.level().isClientSide() || entity.tickCount % 40 != 0) {
                     return;
                 }
                 if (entity.getHealth() < entity.getMaxHealth()) {
@@ -203,20 +203,20 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.ACTIVE, 3) {
             @Override
             public void onTick(LivingEntity entity) {
-                if (entity.getEntityWorld().isClient() || entity.age % 20 != 0) {
+                if (entity.level().isClientSide() || entity.tickCount % 20 != 0) {
                     return;
                 }
 
-                ServerLevel world = (ServerLevel) entity.getEntityWorld();
-                var damageSource = world.getDamageSources().magic();
+                ServerLevel world = (ServerLevel) entity.level();
+                var damageSource = world.damageSources().magic();
                 for (Player player : world.getPlayers()) {
                     if (!player.isAlive() || player.isCreative() || player.isSpectator()) {
                         continue;
                     }
-                    if (player.squaredDistanceTo(entity) > 9.0D) {
+                    if (player.distanceToSqr(entity) > 9.0D) {
                         continue;
                     }
-                    player.damage(world, damageSource, 2.0F);
+                    player.hurtServer(world, damageSource, 2.0F);
                 }
             }
         };

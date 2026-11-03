@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.server.level.ServerPlayer;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
@@ -24,17 +25,17 @@ public class entropy_aura_2_action implements mutation_action {
     public void onTick(LivingEntity entity) {
         if (!action_context.isServer(entity))
             return;
-        if (intervalTicks > 0 && entity.age % intervalTicks != 0)
+        if (intervalTicks > 0 && entity.tickCount % intervalTicks != 0)
             return;
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
-            if (player.squaredDistanceTo(entity) <= radius * radius) {
+            if (player.distanceToSqr(entity) <= radius * radius) {
                 for (EquipmentSlot slot : EquipmentSlot.values()) {
                     if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                        ItemStack stack = player.getEquippedStack(slot);
-                        if (!stack.isEmpty() && stack.isDamageable()) {
-                            stack.damage(durabilityDamage, player, slot);
+                        ItemStack stack = player.getItemBySlot(slot);
+                        if (!stack.isEmpty() && stack.isDamageableItem()) {
+                            stack.hurtAndBreak(durabilityDamage, ((ServerLevel) player.level()), (ServerPlayer) player, (brokenStack) -> {});
                         }
                     }
                 }

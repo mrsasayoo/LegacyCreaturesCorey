@@ -67,25 +67,25 @@ public class deep_darkness_aura_3_action implements mutation_action {
 
         processScheduledRemovals(world, entity, time);
 
-        if (entity.age % lightScanIntervalTicks == 0) {
+        if (entity.tickCount % lightScanIntervalTicks == 0) {
             scheduleNearbyLights(world, entity, time);
         }
 
-        if (entity.age % darknessIntervalTicks == 0) {
+        if (entity.tickCount % darknessIntervalTicks == 0) {
             applyDarknessBursts(world, entity);
         }
     }
 
     private void scheduleNearbyLights(ServerLevel world, LivingEntity entity, long currentTime) {
         int maxDistance = Mth.ceil(radius);
-        BlockPos origin = entity.getBlockPos();
-        BlockPos min = origin.add(-maxDistance, -2, -maxDistance);
-        BlockPos max = origin.add(maxDistance, 2, maxDistance);
+        BlockPos origin = entity.blockPosition();
+        BlockPos min = origin.offset(-maxDistance, -2, -maxDistance);
+        BlockPos max = origin.offset(maxDistance, 2, maxDistance);
         Map<BlockPos, Long> queue = PENDING_REMOVALS
                 .computeIfAbsent(world.dimension(), key -> new HashMap<>());
 
-        for (BlockPos pos : BlockPos.iterate(min, max)) {
-            double distanceSq = entity.squaredDistanceTo(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            double distanceSq = entity.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
             if (distanceSq > radius * radius) {
                 continue;
             }
@@ -93,7 +93,7 @@ public class deep_darkness_aura_3_action implements mutation_action {
             if (!isTargetLight(state)) {
                 continue;
             }
-            BlockPos immutable = pos.toImmutable();
+            BlockPos immutable = pos.immutable();
             queue.putIfAbsent(immutable, currentTime + torchRemovalDelayTicks);
         }
     }
@@ -111,7 +111,7 @@ public class deep_darkness_aura_3_action implements mutation_action {
             }
             BlockPos pos = entry.getKey();
             if (isTargetLight(world.getBlockState(pos))) {
-                world.breakBlock(pos, true, entity);
+                world.destroyBlock(pos, true, entity);
             }
             iterator.remove();
         }
@@ -123,18 +123,18 @@ public class deep_darkness_aura_3_action implements mutation_action {
     private void applyDarknessBursts(ServerLevel world, LivingEntity entity) {
         double radiusSq = radius * radius;
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
-            if (entity.squaredDistanceTo(player) > radiusSq) {
+            if (entity.distanceToSqr(player) > radiusSq) {
                 continue;
             }
-            BlockPos pos = player.getBlockPos();
-            int light = world.getLightLevel(pos);
+            BlockPos pos = player.blockPosition();
+            int light = world.getLightEngine().getRawBrightness(pos, 0);
             if (light >= darknessLightThreshold) {
                 continue;
             }
             if (removeNightVision && player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.removeStatusEffect(MobEffects.NIGHT_VISION);
+                serverPlayer.removeEffect(MobEffects.NIGHT_VISION);
             } else if (removeNightVision) {
-                player.removeStatusEffect(MobEffects.NIGHT_VISION);
+                player.removeEffect(MobEffects.NIGHT_VISION);
             }
             status_effect_config_parser.applyEffects(player, effects);
         }

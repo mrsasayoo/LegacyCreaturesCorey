@@ -36,7 +36,7 @@ public final class arctic_fortitude_3_action extends arctic_fortitude_base_actio
                     furyId,
                     knockbackBonus,
                     AttributeModifier.Operation.ADD_VALUE);
-            bear.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE,
+            bear.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,
                     resistanceDurationTicks,
                     resistanceAmplifier,
                     false,

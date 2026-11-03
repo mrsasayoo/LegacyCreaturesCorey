@@ -62,9 +62,9 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
             Holder<net.minecraft.world.effect.MobEffect> fallback) {
         Identifier override = config.getIdentifier("effect", null);
         if (override != null) {
-            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(override);
+            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.MOB_EFFECT.getValue(override);
             if (resolved != null) {
-                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
+                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(resolved);
                 if (entry != null) {
                     return entry;
                 }
@@ -89,7 +89,7 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
         if (raw == null || raw.isBlank()) {
             return Target.OTHER;
         }
-        return switch (raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY)) {
+        return switch (raw.trim().toUpperCase(Locale.ROOT)) {
             case "SELF", "ATTACKER" -> Target.SELF;
             case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
             default -> Target.OTHER;
@@ -113,7 +113,7 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
     }
 
     protected static Holder<net.minecraft.world.effect.MobEffect> asEntry(net.minecraft.world.effect.MobEffect effect) {
-        return BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+        return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
     }
 
     protected enum Target {

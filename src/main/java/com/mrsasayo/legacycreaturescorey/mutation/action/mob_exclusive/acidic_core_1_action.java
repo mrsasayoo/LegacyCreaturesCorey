@@ -33,7 +33,7 @@ public final class acidic_core_1_action implements mutation_action {
         if (!(entity instanceof Slime slime)) {
             return;
         }
-        if (!(slime.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(slime.level() instanceof ServerLevel world)) {
             return;
         }
         
@@ -42,7 +42,7 @@ public final class acidic_core_1_action implements mutation_action {
         double z = slime.getZ();
         
         // Oleada 1: Partículas de slime densas
-        world.spawnParticles(ParticleTypes.ITEM_SLIME,
+        world.sendParticles(ParticleTypes.ITEM_SLIME,
                 x, y, z,
                 particleCount * PARTICLE_MULTIPLIER,
                 horizontalSpread * 1.5D,
@@ -51,7 +51,7 @@ public final class acidic_core_1_action implements mutation_action {
                 0.08D);
         
         // Oleada 2: Goteo ácido
-        world.spawnParticles(ParticleTypes.FALLING_DRIPSTONE_WATER,
+        world.sendParticles(ParticleTypes.FALLING_DRIPSTONE_WATER,
                 x, y + 0.5D, z,
                 particleCount * 2,
                 horizontalSpread,
@@ -60,7 +60,7 @@ public final class acidic_core_1_action implements mutation_action {
                 0.02D);
         
         // Oleada 3: Humo de vapor ácido (verde brillante usando HAPPY_VILLAGER)
-        world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
+        world.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                 x, y + 0.1D, z,
                 particleCount * 3,
                 horizontalSpread * 1.2D,
@@ -69,7 +69,7 @@ public final class acidic_core_1_action implements mutation_action {
                 0.01D);
         
         // Partículas de humo verde para efecto de vapor ácido
-        world.spawnParticles(ParticleTypes.SNEEZE,
+        world.sendParticles(ParticleTypes.SNEEZE,
                 x, y + 0.2D, z,
                 particleCount / 2,
                 horizontalSpread,
@@ -78,7 +78,7 @@ public final class acidic_core_1_action implements mutation_action {
                 0.03D);
         
         // Efecto de burbujeo
-        world.spawnParticles(ParticleTypes.BUBBLE_POP,
+        world.sendParticles(ParticleTypes.BUBBLE_POP,
                 x, y + 0.05D, z,
                 particleCount,
                 horizontalSpread * 0.8D,

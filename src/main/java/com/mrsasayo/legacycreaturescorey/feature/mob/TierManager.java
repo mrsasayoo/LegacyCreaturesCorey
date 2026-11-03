@@ -39,7 +39,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🚧 {} spawn bloqueado por anti-granja en chunk {}|{}",
-                    mob.getType().getTranslationKey(),
+                    mob.getType().getDescriptionId(),
                     mob.getChunkPos().x,
                     mob.getChunkPos().z
                 );
@@ -50,9 +50,9 @@ public final class TierManager {
         EnumSet<MobTier> allowedTiers = determineAllowedTiers(mob.getType());
         if (allowedTiers.isEmpty()) {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
             } else {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
             }
             return currentTier;
         }
@@ -62,7 +62,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🎲 {} permaneció Normal | dificultad={} | permitidos={}",
-                    mob.getType().getTranslationKey(),
+                    mob.getType().getDescriptionId(),
                     effectiveDifficulty,
                     allowedTiers
                 );
@@ -79,7 +79,7 @@ public final class TierManager {
         TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, chosen, false);
         Legacycreaturescorey.LOGGER.info(
             "⚔️ {} promovido a tier {} en ({}, {}, {})",
-            mob.getType().getTranslationKey(),
+            mob.getType().getDescriptionId(),
             chosen.getDisplayName(),
             mob.getBlockX(),
             mob.getBlockY(),
@@ -129,7 +129,7 @@ public final class TierManager {
         if (forcedExact != null && !allowedTiers.contains(forcedExact) && logDetails) {
             Legacycreaturescorey.LOGGER.debug(
                 "🚫 {} no permite forzar tier {}. Permitidos: {}",
-                mob.getType().getTranslationKey(),
+                mob.getType().getDescriptionId(),
                 forcedExact,
                 allowedTiers
             );
@@ -143,7 +143,7 @@ public final class TierManager {
             if (logDetails) {
                 Legacycreaturescorey.LOGGER.debug(
                     "⚠️ {} no tiene tiers superiores a Normal disponibles",
-                    mob.getType().getTranslationKey()
+                    mob.getType().getDescriptionId()
                 );
             }
         }
@@ -175,7 +175,7 @@ public final class TierManager {
     }
 
     private static void applyBaseScaling(Mob mob, MobTier tier) {
-        AttributeInstance health = mob.getAttributeInstance(Attributes.MAX_HEALTH);
+        AttributeInstance health = mob.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
             Double override = MobAttributeDataLoader.getMaxHealth(mob.getType(), tier);
             double base = health.getBaseValue();
@@ -188,7 +188,7 @@ public final class TierManager {
             }
         }
 
-        AttributeInstance damage = mob.getAttributeInstance(Attributes.ATTACK_DAMAGE);
+        AttributeInstance damage = mob.getAttribute(Attributes.ATTACK_DAMAGE);
         if (damage != null) {
             Double override = MobAttributeDataLoader.getAttackDamage(mob.getType(), tier);
             double base = damage.getBaseValue();
@@ -202,7 +202,7 @@ public final class TierManager {
     }
 
     private static void applyVisuals(Mob mob, MobTier tier) {
-        MutableComponent baseName = Component.translatable(mob.getType().getTranslationKey());
+        MutableComponent baseName = Component.translatable(mob.getType().getDescriptionId());
         MutableComponent tierSuffix = Component.literal(" " + tier.getDisplayName());
         MutableComponent customName = Component.empty().append(baseName).append(tierSuffix)
             .styled(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
@@ -210,7 +210,7 @@ public final class TierManager {
         mob.setCustomName(customName);
         mob.setCustomNameVisible(true);
 
-        if (mob.getEntityWorld() instanceof ServerLevel serverWorld) {
+        if (mob.level() instanceof ServerLevel serverWorld) {
             TierParticleHelper.spawnInitialBurst(serverWorld, mob, tier);
         }
     }

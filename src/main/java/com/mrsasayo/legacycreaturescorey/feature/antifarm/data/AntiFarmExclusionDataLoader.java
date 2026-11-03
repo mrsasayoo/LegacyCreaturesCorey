@@ -50,25 +50,24 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
         if (type == null) {
             return false;
         }
-        Identifier id = EntityType.getId(type);
+        Identifier id = EntityType.getKey(type);
         if (id != null && EXCLUDED_IDS.contains(id)) {
             return true;
         }
         for (TagKey<EntityType<?>> tagKey : EXCLUDED_TAGS) {
-            if (type.isIn(tagKey)) {
+            if (type.is(tagKey)) {
                 return true;
             }
         }
         return false;
     }
 
-    @Override
     public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
-    public void reload(ResourceManager manager) {
+    public void onResourceManagerReload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
             EXCLUDED_IDS = Set.of();
@@ -79,7 +78,7 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
 
         Set<Identifier> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
@@ -123,10 +122,10 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
         }
         try {
             if (value.startsWith("#")) {
-                Identifier tagId = Identifier.fromNamespaceAndPath(value.substring(1));
-                tags.add(TagKey.of(Registries.ENTITY_TYPE, tagId));
+                Identifier tagId = Identifier.parse(value.substring(1));
+                tags.add(TagKey.create(Registries.ENTITY_TYPE, tagId));
             } else {
-                ids.add(Identifier.fromNamespaceAndPath(value));
+                ids.add(Identifier.parse(value));
             }
         } catch (Exception exception) {
             Legacycreaturescorey.LOGGER.warn("{} no es un identificador válido ('{}'): {}", path, value, exception.getMessage());

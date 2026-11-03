@@ -58,7 +58,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         Set<LivingEntity> currentTargets = findTargets(entity, world);
 
         // Apply modifiers to new targets
@@ -73,7 +73,7 @@ public final class AttributeAuraAction implements mutation_action {
         Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<LivingEntity, Identifier> entry = iterator.next();
-            LivingEntity target = entry.unwrapKey();
+            LivingEntity target = entry.getKey();
             if (!currentTargets.contains(target) || !target.isAlive()) {
                 removeModifier(target, entry.getValue());
                 iterator.remove();
@@ -87,7 +87,7 @@ public final class AttributeAuraAction implements mutation_action {
         Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<LivingEntity, Identifier> entry = iterator.next();
-            removeModifier(entry.unwrapKey(), entry.getValue());
+            removeModifier(entry.getKey(), entry.getValue());
             iterator.remove();
         }
     }
@@ -101,7 +101,7 @@ public final class AttributeAuraAction implements mutation_action {
     }
 
     private void resolveAttribute() {
-        Attribute resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId);
+        Attribute resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId).map(Holder::value).orElse(null);
         if (resolved == null) {
             if (!loggedMissingAttribute) {
                 Legacycreaturescorey.LOGGER.debug("Atributo de aura {} aún no disponible", attributeId);
@@ -109,17 +109,17 @@ public final class AttributeAuraAction implements mutation_action {
             }
             return;
         }
-        this.attribute = BuiltInRegistries.ATTRIBUTE.getEntry(resolved);
+        this.attribute = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(resolved);
         this.attributeType = resolved;
         loggedMissingAttribute = false;
     }
 
     private Set<LivingEntity> findTargets(LivingEntity source, ServerLevel world) {
         double radiusSquared = radius * radius;
-        AABB box = source.getBoundingBox().expand(radius);
+        AABB box = source.getBoundingBox().inflate(radius);
         List<? extends Entity> candidates = switch (target) {
-            case ALLY_MOBS -> world.getEntitiesByClass(Mob.class, box, Entity::isAlive);
-            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSquared);
+            case ALLY_MOBS -> world.getEntitiesOfClass(Mob.class, box, Entity::isAlive);
+            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSquared);
             case SELF -> Collections.singletonList(source);
         };
 
@@ -135,7 +135,7 @@ public final class AttributeAuraAction implements mutation_action {
             if (excludeSelf && candidate == source) {
                 continue;
             }
-            if (source.squaredDistanceTo(living) > radiusSquared) {
+            if (source.distanceToSqr(living) > radiusSquared) {
                 continue;
             }
             results.add(living);
@@ -147,7 +147,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        AttributeInstance instance = target.getAttributeInstance(attribute);
+        AttributeInstance instance = target.getAttribute(attribute);
         if (instance == null) {
             return;
         }
@@ -164,9 +164,9 @@ public final class AttributeAuraAction implements mutation_action {
             return;
         }
         AttributeModifier modifier = new AttributeModifier(modifierId, amount, op);
-        instance.addPersistentModifier(modifier);
+        instance.addPermanentModifier(modifier);
         appliedModifiers.put(target, modifierId);
-        if (attributeType == Attributes.MAX_HEALTH) {
+        if (attributeType == Attributes.MAX_HEALTH.value()) {
             // Ensure current health is not above the new cap
             float maxHealth = target.getMaxHealth();
             if (target.getHealth() > maxHealth) {
@@ -179,7 +179,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        AttributeInstance instance = target.getAttributeInstance(attribute);
+        AttributeInstance instance = target.getAttribute(attribute);
         if (instance == null) {
             return;
         }

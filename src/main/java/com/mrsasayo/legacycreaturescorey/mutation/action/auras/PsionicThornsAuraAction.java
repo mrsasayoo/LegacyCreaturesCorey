@@ -42,7 +42,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
     public record ThornsEffect(Holder<MobEffect> effect, int duration, int amplifier) {
         public void apply(LivingEntity target) {
             if (effect != null) {
-                target.addStatusEffect(new MobEffectInstance(effect, duration, amplifier));
+                target.addEffect(new MobEffectInstance(effect, duration, amplifier));
             }
         }
     }
@@ -77,19 +77,19 @@ public final class PsionicThornsAuraAction implements mutation_action {
             }
 
             // Check if damage is melee
-            if (source.isIn(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
-                    source.isIn(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
-                    source.isIn(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
+            if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                    source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                    source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
                 return;
             }
 
             // Ensure attacker is present and alive
-            if (!(source.getLastHurtByMob() instanceof LivingEntity attacker) || attacker == victim) {
+            if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
                 return;
             }
 
             // Check distance
-            if (victim.squaredDistanceTo(attacker) > maxDistance * maxDistance) {
+            if (victim.distanceToSqr(attacker) > maxDistance * maxDistance) {
                 return;
             }
 
@@ -98,8 +98,8 @@ public final class PsionicThornsAuraAction implements mutation_action {
 
             // Apply reflected damage
             if (reflectedDamage > 0
-                    && attacker.getEntityWorld() instanceof net.minecraft.server.level.ServerLevel serverWorld) {
-                attacker.damage(serverWorld, victim.getDamageSources().magic(), reflectedDamage);
+                    && attacker.level() instanceof net.minecraft.server.level.ServerLevel serverWorld) {
+                attacker.hurtServer(serverWorld, victim.damageSources().magic(), reflectedDamage);
             }
 
             // Apply effects

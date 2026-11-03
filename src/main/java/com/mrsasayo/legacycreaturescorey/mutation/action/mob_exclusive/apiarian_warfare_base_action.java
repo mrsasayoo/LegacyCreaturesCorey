@@ -19,7 +19,7 @@ import java.util.List;
 
 abstract class apiarian_warfare_base_action implements mutation_action {
     protected Bee asServerBee(LivingEntity entity) {
-        if (entity instanceof Bee bee && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof Bee bee && !entity.level().isClientSide()) {
             return bee;
         }
         return null;
@@ -43,15 +43,15 @@ abstract class apiarian_warfare_base_action implements mutation_action {
                 return;
             }
             initialized = true;
-            ServerTickEvents.END_WORLD_TICK.register(this::tick);
+            ServerTickEvents.END_LEVEL_TICK.register(this::tick);
         }
 
         void trySpawnHoneyTrap(Bee bee, double chance, int blockDurationTicks) {
             if (bee.getRandom().nextDouble() > chance) {
                 return;
             }
-            if (bee.getEntityWorld() instanceof ServerLevel world) {
-                placeTemporaryHoney(world, bee.getBlockPos(), blockDurationTicks);
+            if (bee.level() instanceof ServerLevel world) {
+                placeTemporaryHoney(world, bee.blockPosition(), blockDurationTicks);
             }
         }
 
@@ -60,25 +60,25 @@ abstract class apiarian_warfare_base_action implements mutation_action {
                 int debuffDurationTicks,
                 int debuffAmplifier,
                 double debuffRadius) {
-            if (!(bee.getEntityWorld() instanceof ServerLevel world)) {
+            if (!(bee.level() instanceof ServerLevel world)) {
                 return;
             }
-            BlockPos center = bee.getBlockPos();
+            BlockPos center = bee.blockPosition();
             for (int x = -1; x <= 1; x++) {
                 for (int z = -1; z <= 1; z++) {
-                    placeTemporaryHoney(world, center.add(x, 0, z), blockDurationTicks);
+                    placeTemporaryHoney(world, center.offset(x, 0, z), blockDurationTicks);
                 }
             }
-            List<Player> players = world.getEntitiesByClass(Player.class,
-                    bee.getBoundingBox().expand(debuffRadius), Player::isAlive);
+            List<Player> players = world.getEntitiesOfClass(Player.class,
+                    bee.getBoundingBox().inflate(debuffRadius), Player::isAlive);
             for (Player player : players) {
-                player.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS,
+                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,
                         debuffDurationTicks,
                         debuffAmplifier));
             }
-            world.spawnParticles(ParticleTypes.DRIPPING_HONEY,
+            world.sendParticles(ParticleTypes.DRIPPING_HONEY,
                     bee.getX(),
-                    bee.getBodyY(0.5),
+                    bee.getY(0.5),
                     bee.getZ(),
                     20,
                     0.5D,
@@ -93,8 +93,8 @@ abstract class apiarian_warfare_base_action implements mutation_action {
                 return;
             }
             BlockState original = current;
-            world.setBlockState(pos, Blocks.HONEY_BLOCK.getDefaultState());
-            temporaryBlocks.add(new TemporaryBlock(pos.toImmutable(), world, original, blockDurationTicks));
+            world.setBlock(pos, Blocks.HONEY_BLOCK.defaultBlockState(), 3);
+            temporaryBlocks.add(new TemporaryBlock(pos.immutable(), world, original, blockDurationTicks));
         }
 
         private void tick(ServerLevel world) {
@@ -106,8 +106,8 @@ abstract class apiarian_warfare_base_action implements mutation_action {
                 }
                 block.ticksRemaining--;
                 if (block.ticksRemaining <= 0) {
-                    if (world.getBlockState(block.pos).isOf(Blocks.HONEY_BLOCK)) {
-                        world.setBlockState(block.pos, block.originalState);
+                    if (world.getBlockState(block.pos).is(Blocks.HONEY_BLOCK)) {
+                        world.setBlock(block.pos, block.originalState, 3);
                     }
                     iterator.remove();
                 }

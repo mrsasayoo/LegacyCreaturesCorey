@@ -17,16 +17,16 @@ final class CoreyReloadCommand {
         reload.then(Commands.literal("config").executes(ctx -> {
             config_manager.reload_result result = config_manager.reload();
             if (result.success()) {
-                ctx.getSource().sendFeedback(() -> Component.literal(result.message()), true);
+                ctx.getSource().sendSuccess(() -> Component.literal(result.message()), true);
                 return 1;
             }
-            ctx.getSource().sendError(Component.literal(result.message()));
+            ctx.getSource().sendFailure(Component.literal(result.message()));
             return 0;
         }));
 
         reload.then(Commands.literal("mutations").executes(ctx -> {
             ctx.getSource().getServer().getDataPackManager().scanPacks();
-            ctx.getSource().sendFeedback(() -> Component.literal("Mutaciones marcadas para recarga."), true);
+            ctx.getSource().sendSuccess(() -> Component.literal("Mutaciones marcadas para recarga."), true);
             return 1;
         }));
 
@@ -41,7 +41,7 @@ final class CoreyReloadCommand {
         }));
 
         reload.then(Commands.literal("validate").executes(ctx -> {
-            ctx.getSource().sendFeedback(() -> Component.literal("Archivos validados."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("Archivos validados."), false);
             return 1;
         }));
 
@@ -49,6 +49,6 @@ final class CoreyReloadCommand {
     }
 
     private static void triggerReload(CommandSourceStack source, String scope) {
-        source.sendFeedback(() -> Component.literal("Recarga manual pendiente (" + scope + "). Ejecuta /reload si es necesario."), false);
+        source.sendSuccess(() -> Component.literal("Recarga manual pendiente (" + scope + "). Ejecuta /reload si es necesario."), false);
     }
 }

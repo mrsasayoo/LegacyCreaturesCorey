@@ -41,10 +41,10 @@ abstract class levitation_base_action extends proc_on_hit_action {
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         if (targetDurationTicks > 0 && action_context.isServer(victim)) {
-            victim.addStatusEffect(new MobEffectInstance(MobEffects.LEVITATION, targetDurationTicks, targetAmplifier));
+            victim.addEffect(new MobEffectInstance(MobEffects.LEVITATION, targetDurationTicks, targetAmplifier));
         }
         if (selfDurationTicks > 0 && action_context.isServer(attacker)) {
-            attacker.addStatusEffect(new MobEffectInstance(MobEffects.LEVITATION, selfDurationTicks, selfAmplifier));
+            attacker.addEffect(new MobEffectInstance(MobEffects.LEVITATION, selfDurationTicks, selfAmplifier));
         }
     }
 }

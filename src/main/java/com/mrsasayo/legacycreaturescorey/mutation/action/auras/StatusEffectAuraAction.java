@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
@@ -53,17 +54,17 @@ public final class StatusEffectAuraAction implements mutation_action {
         if (effect == null || !action_context.isServer(entity)) {
             return;
         }
-        if (requireUndead && !entity.kind().isIn(EntityTypeTags.UNDEAD)) {
+        if (requireUndead && !BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(EntityTypeTags.UNDEAD)) {
             return;
         }
-        if (requireNonUndead && entity.kind().isIn(EntityTypeTags.UNDEAD)) {
+        if (requireNonUndead && BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(EntityTypeTags.UNDEAD)) {
             return;
         }
-        if (entity.age % interval != 0) {
+        if (entity.tickCount % interval != 0) {
             return;
         }
 
-        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         switch (target) {
             case SELF -> applyEffect(entity);
             case PLAYERS -> {
@@ -78,7 +79,7 @@ public final class StatusEffectAuraAction implements mutation_action {
                 if (!(entity instanceof Mob mob)) {
                     return;
                 }
-                List<Mob> mobs = world.getEntitiesByClass(Mob.class, mob.getBoundingBox().expand(radius), other -> other.isAlive());
+                List<Mob> mobs = world.getEntitiesOfClass(Mob.class, mob.getBoundingBox().inflate(radius), other -> other.isAlive());
                 for (Mob other : mobs) {
                     if (skipCandidate(entity, other)) {
                         continue;
@@ -93,11 +94,11 @@ public final class StatusEffectAuraAction implements mutation_action {
         if (excludeSelf && candidate == source) {
             return true;
         }
-        return source.squaredDistanceTo(candidate) > radius * radius;
+        return source.distanceToSqr(candidate) > radius * radius;
     }
 
     private void applyEffect(LivingEntity targetEntity) {
-        targetEntity.addStatusEffect(new MobEffectInstance(effect, duration, amplifier, true, true, true));
+        targetEntity.addEffect(new MobEffectInstance(effect, duration, amplifier, true, true, true));
     }
 
     public enum Target {

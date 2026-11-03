@@ -24,7 +24,7 @@ final class CoreyMenuCommand {
                 text.append(link("🔄 Reload", "/corey reload all"));
                 text.append("\n");
                 text.append(link("🧬 Forzar Mutación", "/corey mutation force add legacycreaturescorey:swiftness @e[type=minecraft:zombie,limit=1]"));
-                ctx.getSource().sendFeedback(() -> text, false);
+                ctx.getSource().sendSuccess(() -> text, false);
                 return 1;
             });
     }

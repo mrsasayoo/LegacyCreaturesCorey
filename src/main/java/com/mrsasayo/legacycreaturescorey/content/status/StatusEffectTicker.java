@@ -31,14 +31,14 @@ public final class StatusEffectTicker {
             return;
         }
         registered = true;
-        ServerTickEvents.END_WORLD_TICK.register(StatusEffectTicker::handleWorldTick);
+        ServerTickEvents.END_LEVEL_TICK.register(StatusEffectTicker::handleWorldTick);
     }
 
     public static void handleStatusEffectUpdate(LivingEntity entity, MobEffectInstance effect, boolean start) {
         if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
-        Holder<MobEffect> effectEntry = effect.getEffectType();
+        Holder<MobEffect> effectEntry = effect.getEffect();
         TrackedEffect tracked = TrackedEffect.from(effectEntry);
         if (tracked == null) {
             return;
@@ -57,7 +57,7 @@ public final class StatusEffectTicker {
             if (entry == null) {
                 return;
             }
-            if (entity.hasStatusEffect(effectEntry)) {
+            if (entity.hasEffect(effectEntry)) {
                 entry.set(tracked, effectEntry, effect.getAmplifier());
                 return;
             }
@@ -86,9 +86,9 @@ public final class StatusEffectTicker {
             Iterator<Map.Entry<TrackedEffect, EffectState>> effectIterator = entry.effects.entrySet().iterator();
             while (effectIterator.hasNext()) {
                 Map.Entry<TrackedEffect, EffectState> e = effectIterator.next();
-                TrackedEffect tracked = e.unwrapKey();
+                TrackedEffect tracked = e.getKey();
                 EffectState state = e.getValue();
-                if (!entity.hasStatusEffect(state.entry)) {
+                if (!entity.hasEffect(state.entry)) {
                     effectIterator.remove();
                     continue;
                 }
@@ -122,9 +122,9 @@ public final class StatusEffectTicker {
                     return;
                 }
 
-                Vec3 velocity = entity.getVelocity();
+                Vec3 velocity = entity.getDeltaMovement();
                 Vec3 horizontal = new Vec3(velocity.x, 0.0D, velocity.z);
-                double horizontalSq = horizontal.lengthSquared();
+                double horizontalSq = horizontal.lengthSqr();
                 if (horizontalSq > 1.0E-4D) {
                     state.setSlideDirection(horizontal);
                 }
@@ -138,18 +138,18 @@ public final class StatusEffectTicker {
                 double inertiaFloor = 0.24D + state.amplifier * 0.05D;
                 double acceleration = 1.12D + state.amplifier * 0.06D;
                 double newSpeed = Math.min(Math.max(baseSpeed, inertiaFloor) * acceleration, 1.35D);
-                Vec3 newHorizontal = direction.multiply(newSpeed);
+                Vec3 newHorizontal = direction.scale(newSpeed);
 
                 double vertical = velocity.y;
-                if (entity.isOnGround()) {
+                if (entity.onGround()) {
                     vertical = Math.min(vertical + 0.02D, 0.25D);
                 } else if (vertical < 0.0D) {
                     double downwardBoost = 1.01D + state.amplifier * 0.02D;
                     vertical = Math.max(velocity.y * downwardBoost, -2.2D);
                 }
 
-                entity.setVelocity(newHorizontal.x, vertical, newHorizontal.z);
-                entity.velocityModified = true;
+                entity.setDeltaMovement(new Vec3(newHorizontal.x, vertical, newHorizontal.z));
+                entity.syncVelocity = true;
             }
         },
         HEAVY_GRAVITY {
@@ -158,24 +158,24 @@ public final class StatusEffectTicker {
                 if (shouldSkipPlayerAbilities(entity)) {
                     return;
                 }
-                Vec3 velocity = entity.getVelocity();
+                Vec3 velocity = entity.getDeltaMovement();
                 boolean modified = false;
 
                 double upwardLimit = 0.26D - state.amplifier * 0.05D;
                 upwardLimit = Mth.clamp(upwardLimit, 0.16D, 0.28D);
                 if (velocity.y > upwardLimit) {
-                    entity.setVelocity(velocity.x, upwardLimit, velocity.z);
-                    velocity = entity.getVelocity();
+                    entity.setDeltaMovement(new Vec3(velocity.x, upwardLimit, velocity.z));
+                    velocity = entity.getDeltaMovement();
                     modified = true;
                 }
 
-                if (!entity.isOnGround()) {
+                if (!entity.onGround()) {
                     if (velocity.y < -0.05D) {
                         double fallMultiplier = 1.12D + state.amplifier * 0.05D;
                         double newY = Mth.clamp(velocity.y * fallMultiplier, -4.0D, 1.0D);
                         if (newY < velocity.y - 0.001D) {
-                            entity.setVelocity(velocity.x, newY, velocity.z);
-                            velocity = entity.getVelocity();
+                            entity.setDeltaMovement(new Vec3(velocity.x, newY, velocity.z));
+                            velocity = entity.getDeltaMovement();
                             modified = true;
                         }
                     }
@@ -183,14 +183,14 @@ public final class StatusEffectTicker {
                     double newX = velocity.x * damp;
                     double newZ = velocity.z * damp;
                     if (Math.abs(newX - velocity.x) > 1.0E-4D || Math.abs(newZ - velocity.z) > 1.0E-4D) {
-                        entity.setVelocity(newX, entity.getVelocity().y, newZ);
-                        velocity = entity.getVelocity();
+                        entity.setDeltaMovement(newX, entity.getDeltaMovement().y, newZ);
+                        velocity = entity.getDeltaMovement();
                         modified = true;
                     }
                 }
 
                 if (modified) {
-                    entity.velocityModified = true;
+                    entity.syncVelocity = true;
                 }
             }
         };
@@ -262,7 +262,7 @@ public final class StatusEffectTicker {
                 return;
             }
             Vec3 horizontal = new Vec3(direction.x, 0.0D, direction.z);
-            double lenSq = horizontal.lengthSquared();
+            double lenSq = horizontal.lengthSqr();
             if (lenSq < 1.0E-4D) {
                 return;
             }

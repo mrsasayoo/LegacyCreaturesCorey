@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
+import net.minecraft.core.Holder;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,7 +15,7 @@ import net.minecraft.resources.Identifier;
 
 abstract class arctic_fortitude_base_action implements mutation_action {
     protected PolarBear asServerPolarBear(LivingEntity entity) {
-        if (entity instanceof PolarBear bear && !entity.getEntityWorld().isClient()) {
+        if (entity instanceof PolarBear bear && !entity.level().isClientSide()) {
             return bear;
         }
         return null;
@@ -29,27 +30,27 @@ abstract class arctic_fortitude_base_action implements mutation_action {
             Identifier identifier,
             double value,
             AttributeModifier.Operation operation) {
-        AttributeInstance instance = entity.getAttributeInstance(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && !instance.hasModifier(identifier)) {
-            instance.addPersistentModifier(new AttributeModifier(identifier, value, operation));
+            instance.addPermanentModifier(new AttributeModifier(identifier, value, operation));
         }
     }
 
     protected void removeModifier(LivingEntity entity,
             net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
             Identifier identifier) {
-        AttributeInstance instance = entity.getAttributeInstance(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && instance.hasModifier(identifier)) {
             instance.removeModifier(identifier);
         }
     }
 
     protected boolean isIceOrSnow(BlockState state) {
-        return state.isOf(Blocks.ICE) || state.isOf(Blocks.PACKED_ICE) || state.isOf(Blocks.BLUE_ICE)
-                || state.isOf(Blocks.SNOW_BLOCK) || state.isOf(Blocks.SNOW) || state.isOf(Blocks.POWDER_SNOW);
+        return state.is(Blocks.ICE) || state.is(Blocks.PACKED_ICE) || state.is(Blocks.BLUE_ICE)
+                || state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.SNOW) || state.is(Blocks.POWDER_SNOW);
     }
 
     protected void applySpeedBuff(PolarBear bear, int durationTicks, int amplifier) {
-        bear.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false));
+        bear.addEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false));
     }
 }

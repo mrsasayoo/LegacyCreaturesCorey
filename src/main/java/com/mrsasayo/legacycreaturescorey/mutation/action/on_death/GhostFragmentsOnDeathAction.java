@@ -25,7 +25,7 @@ public final class GhostFragmentsOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
 
@@ -37,16 +37,16 @@ public final class GhostFragmentsOnDeathAction implements mutation_action {
             ItemStack stack = new ItemStack(ModItems.GHOST_FRAGMENT);
             ItemEntity fragment = new ItemEntity(world,
                 entity.getX(),
-                entity.getBodyY(0.5D),
+                entity.getY(0.5D),
                 entity.getZ(),
                 stack);
-            fragment.setToDefaultPickupDelay();
+            fragment.setDefaultPickUpDelay();
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = 0.25D + random.nextDouble() * 0.2D;
             double vy = 0.2D + random.nextDouble() * 0.2D;
-            fragment.setVelocity(new Vec3(Math.cos(angle) * speed, vy, Math.sin(angle) * speed));
-            fragment.velocityDirty = true;
-            world.spawnEntity(fragment);
+            fragment.setDeltaMovement(new Vec3(Math.cos(angle) * speed, vy, Math.sin(angle) * speed));
+            fragment.syncVelocity = true;
+            world.addFreshEntity(fragment);
         }
     }
 }

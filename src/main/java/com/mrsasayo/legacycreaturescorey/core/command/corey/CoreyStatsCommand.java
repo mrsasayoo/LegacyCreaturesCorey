@@ -48,19 +48,19 @@ final class CoreyStatsCommand {
 
         stats.then(Commands.literal("global").executes(ctx -> {
             StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-            ctx.getSource().sendFeedback(snapshot::toGlobalText, false);
+            ctx.getSource().sendSuccess(snapshot::toGlobalText, false);
             return 1;
         }));
 
         stats.then(Commands.literal("mobs")
             .then(Commands.literal("spawned").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toMobSpawnText, false);
+                ctx.getSource().sendSuccess(snapshot::toMobSpawnText, false);
                 return snapshot.totalTieredMobs;
             }))
             .then(Commands.literal("mutations").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toMutationText, false);
+                ctx.getSource().sendSuccess(snapshot::toMutationText, false);
                 return snapshot.mutationUsage.values().stream().mapToInt(Integer::intValue).sum();
             }))
         );
@@ -68,7 +68,7 @@ final class CoreyStatsCommand {
         stats.then(Commands.literal("players")
             .then(Commands.literal("ranking").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toRankingText, false);
+                ctx.getSource().sendSuccess(snapshot::toRankingText, false);
                 return snapshot.playerEntries.size();
             }))
             .then(Commands.literal("individual")
@@ -76,7 +76,7 @@ final class CoreyStatsCommand {
                     .executes(ctx -> {
                         ServerPlayer player = EntityArgument.getPlayer(ctx, "jugador");
                         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-                        ctx.getSource().sendFeedback(() -> Component.literal(
+                        ctx.getSource().sendSuccess(() -> Component.literal(
                             "Jugador " + player.getName().getString() + " -> dificultad " + data.getPlayerDifficulty()
                         ), false);
                         return data.getPlayerDifficulty();
@@ -84,7 +84,7 @@ final class CoreyStatsCommand {
         );
 
         stats.then(Commands.literal("performance").executes(ctx -> {
-            ctx.getSource().sendFeedback(() -> Component.literal("Consulta /debug perf para métricas detalladas."), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("Consulta /debug perf para métricas detalladas."), false);
             return 0;
         }));
 
@@ -103,11 +103,11 @@ final class CoreyStatsCommand {
             Files.createDirectories(exportDir);
             String fileName = "legacy_creatures_report_" + FILE_TIMESTAMP.format(Instant.now()) + "." + format;
             Path file = exportDir.resolve(fileName);
-            Files.writeString(file, snapshot.export(format), StandardCharsets.UTF_8);
-            ctx.getSource().sendFeedback(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
+            Files.writeUtf(file, snapshot.export(format), StandardCharsets.UTF_8);
+            ctx.getSource().sendSuccess(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
             return 1;
         } catch (IOException e) {
-            ctx.getSource().sendError(Component.literal("Error al exportar: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.literal("Error al exportar: " + e.getMessage()));
             return 0;
         }
     }
@@ -127,7 +127,7 @@ final class CoreyStatsCommand {
             Map<Identifier, Integer> mutationCounter = new HashMap<>();
             int tiered = 0;
             for (ServerLevel world : server.getWorlds()) {
-                for (Entity entity : world.iterateEntities()) {
+                for (Entity entity : world.getAllEntities()) {
                     if (!(entity instanceof Mob mob) || !mob.isAlive()) {
                         continue;
                     }
@@ -141,7 +141,7 @@ final class CoreyStatsCommand {
                     }
                 }
             }
-            List<PlayerEntry> players = server.getPlayerManager().getPlayerList().stream()
+            List<PlayerEntry> players = server.getPlayerList().getPlayers().stream()
                 .map(player -> new PlayerEntry(player.getName().getString(), player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY).getPlayerDifficulty()))
                 .sorted(Comparator.comparingInt(PlayerEntry::difficulty).reversed())
                 .collect(Collectors.toList());

@@ -35,13 +35,13 @@ public final class AntiFarmManager {
         if (!(entity instanceof Mob mob)) {
             return;
         }
-        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
-        if (!isTieredMob(mob.type())) {
+        if (!isTieredMob(mob.getType())) {
             return;
         }
-        ChunkPos chunkPos = new ChunkPos(mob.getBlockPos());
+        ChunkPos chunkPos = new ChunkPos(mob.blockPosition());
         if (shouldIgnoreForAntiFarm(mob, chunkPos)) {
             return;
         }
@@ -55,7 +55,7 @@ public final class AntiFarmManager {
 
         ChunkActivityData data = state.getOrCreateChunkActivity(chunkKey);
         long window = antifarm_config.getWindowTicks();
-        int killCount = data.registerKill(world.getTime(), window);
+        int killCount = data.registerKill(world.getGameTime(), window);
         state.setChunkActivity(chunkKey, data);
 
         int threshold = AntiFarmEvents.THRESHOLD_MODIFIER.invoker().modifyThreshold(mob, chunkPos, antifarm_config.getKillThreshold());
@@ -77,20 +77,20 @@ public final class AntiFarmManager {
         if (!antifarm_config.isRestrictTieredSpawns()) {
             return false;
         }
-        if (!(mob.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(mob.level() instanceof ServerLevel world)) {
             return false;
         }
-        if (!isTieredMob(mob.type())) {
+        if (!isTieredMob(mob.getType())) {
             return false;
         }
         CoreyServerState state = CoreyServerState.get(world.getServer());
-        long chunkKey = new ChunkPos(mob.getBlockPos()).toLong();
+        long chunkKey = new ChunkPos(mob.blockPosition()).toLong();
         return state.isChunkSpawnBlocked(chunkKey);
     }
 
     private static void activateSafeZone(ServerLevel world, CoreyServerState state, ChunkPos center, Mob sample, int threshold) {
         int radius = Math.max(0, antifarm_config.getBlockRadiusChunks());
-        long tick = world.getTime();
+        long tick = world.getGameTime();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 long chunkKey = ChunkPos.toLong(center.x + dx, center.z + dz);
@@ -103,8 +103,8 @@ public final class AntiFarmManager {
                 (radius * 2) + 1,
                 center.x,
                 center.z,
-                world.getRegistryKey().getValue(),
-                sample.type().getTranslationKey()
+                world.dimension().identifier(),
+                sample.type().getDescriptionId()
             );
         }
         ChunkActivityData centerData = state.getChunkActivity(center.toLong());
@@ -124,10 +124,10 @@ public final class AntiFarmManager {
     }
 
     private static boolean shouldIgnoreForAntiFarm(Mob mob, ChunkPos chunkPos) {
-        if (mob.getCommandTags().contains(ANTI_FARM_EXEMPT_TAG)) {
+        if (mob.entityTags().contains(ANTI_FARM_EXEMPT_TAG)) {
             return true;
         }
-        if (AntiFarmExclusionDataLoader.isExcluded(mob.type())) {
+        if (AntiFarmExclusionDataLoader.isExcluded(mob.getType())) {
             return true;
         }
         return AntiFarmEvents.SHOULD_IGNORE.invoker().shouldIgnore(mob, chunkPos);

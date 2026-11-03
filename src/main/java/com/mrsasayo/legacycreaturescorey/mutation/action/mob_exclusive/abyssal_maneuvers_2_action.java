@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.EntityType;
@@ -42,7 +44,7 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof WitherBoss wither) || entity.level().isClientSide()) {
             return;
         }
         
@@ -79,18 +81,18 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
      * Dispara los proyectiles adicionales hacia el objetivo con spread
      */
     private void fireExtraProjectiles(WitherBoss wither, LivingEntity target) {
-        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
+        if (!(wither.level() instanceof ServerLevel world)) {
             return;
         }
         
-        Vec3 witherPos = wither.getEyePos();
-        Vec3 targetPos = target.getEyePos();
+        Vec3 witherPos = wither.getEyePosition();
+        Vec3 targetPos = target.getEyePosition();
         Vec3 baseDirection = targetPos.subtract(witherPos).normalize();
         
         // Calcular vectores perpendiculares para el spread
         Vec3 up = new Vec3(0, 1, 0);
-        Vec3 right = baseDirection.crossProduct(up).normalize();
-        if (right.lengthSquared() < 0.01) {
+        Vec3 right = baseDirection.cross(up).normalize();
+        if (right.lengthSqr() < 0.01) {
             right = new Vec3(1, 0, 0);
         }
         
@@ -98,7 +100,7 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
         double spreadRad = Math.toRadians(spreadAngle);
         
         // Efectos visuales al disparar
-        world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+        world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                 witherPos.x, witherPos.y, witherPos.z,
                 20, 0.5D, 0.5D, 0.5D, 0.1D);
         
@@ -125,25 +127,25 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
         double cos = Math.cos(angleRad);
         double sin = Math.sin(angleRad);
         
-        return vector.multiply(cos)
-                .add(axis.crossProduct(vector).multiply(sin))
-                .add(axis.multiply(axis.dotProduct(vector) * (1 - cos)));
+        return vector.scale(cos)
+                .add(axis.cross(vector).scale(sin))
+                .add(axis.scale(axis.dot(vector) * (1 - cos)));
     }
     
     /**
      * Crea y dispara un cráneo de Wither
      */
     private void spawnWitherSkull(WitherBoss wither, ServerLevel world, Vec3 pos, Vec3 direction) {
-        WitherSkull skull = EntityType.WITHER_SKULL.create(world, EntitySpawnReason.MOB_SUMMONED);
+        WitherSkull skull = (WitherSkull) BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("wither_skull")).create(world, EntitySpawnReason.MOB_SUMMONED);
         if (skull == null) {
             return;
         }
         skull.setOwner(wither);
         skull.setPos(pos.x, pos.y, pos.z);
-        skull.setVelocity(direction.x * 0.9D, direction.y * 0.9D, direction.z * 0.9D);
+        skull.setDeltaMovement(new Vec3(direction.x * 0.9D, direction.y * 0.9D, direction.z * 0.9D));
         skull.setDangerous(chargedSkulls);
         
-        world.spawnEntity(skull);
+        world.addFreshEntity(skull);
     }
 
     @Override

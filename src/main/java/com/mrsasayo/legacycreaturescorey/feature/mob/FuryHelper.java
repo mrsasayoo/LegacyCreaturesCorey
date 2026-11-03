@@ -14,7 +14,7 @@ final class FuryHelper {
     private FuryHelper() {}
 
     static void applyFury(Mob mob, MobLegacyData data) {
-        if (data.isFurious() || mob.getEntityWorld().isClient()) {
+        if (data.isFurious() || mob.level().isClientSide()) {
             return;
         }
 
@@ -22,7 +22,7 @@ final class FuryHelper {
             return; // Ya son hostiles por defecto
         }
 
-        Player player = mob.getEntityWorld().getClosestPlayer(mob, TARGET_RANGE);
+        Player player = mob.level().getNearestPlayer(mob, TARGET_RANGE);
         if (player == null) {
             return;
         }
@@ -33,7 +33,7 @@ final class FuryHelper {
 
         if (mob instanceof NeutralMob angerable) {
             angerable.setAngerTime(600);
-            angerable.setAngryAt(player.getUuid());
+            angerable.setAngryAt(player.getUUID());
         }
     }
 }

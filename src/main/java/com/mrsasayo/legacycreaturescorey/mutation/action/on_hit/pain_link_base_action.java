@@ -71,7 +71,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     private ParticleOptions resolveParticleEffect(mutation_action_config config, ParticleOptions fallback) {
         Identifier id = config.getIdentifier("particle_effect", null);
         if (id != null) {
-            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(id);
+            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.getValue(id);
             if (type instanceof ParticleOptions effect) {
                 return effect;
             }
@@ -86,9 +86,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (resolved != null) {
-                effect = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(resolved);
             }
         }
         if (effect == null) {
@@ -106,9 +106,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.getValue(id);
             if (resolved != null) {
-                effect = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(resolved);
             }
         }
         if (effect == null) {
@@ -139,7 +139,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Handler.INSTANCE.registerLink(world, attacker, player, profile);
         PlayerBuff buff = profile.playerBuff();
         if (buff != null && buff.durationTicks() > 0 && buff.effect() != null) {
-            player.addStatusEffect(new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
+            player.addEffect(new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
         }
     }
 
@@ -192,7 +192,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (effect == null) {
             return null;
         }
-        Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
         if (entry == null) {
             return null;
         }
@@ -203,7 +203,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (effect == null) {
             return null;
         }
-        Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
         if (entry == null) {
             return null;
         }
@@ -233,7 +233,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             }
             registered = true;
 
-            ServerTickEvents.END_WORLD_TICK.register(this::tickWorld);
+            ServerTickEvents.END_LEVEL_TICK.register(this::tickWorld);
             ServerLivingEntityEvents.AFTER_DAMAGE.register(this::afterDamage);
         }
 
@@ -242,14 +242,14 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             if (existing != null) {
                 removeFromMob(existing);
             }
-            ActiveLink link = new ActiveLink(world.getTime() + profile.durationTicks(), mob, player, profile);
+            ActiveLink link = new ActiveLink(world.getGameTime() + profile.durationTicks(), mob, player, profile);
             linksByPlayer.put(player, link);
             linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).add(link);
             link.playActivation(world);
         }
 
         private void tickWorld(ServerLevel world) {
-            long time = world.getTime();
+            long time = world.getGameTime();
             var iterator = linksByPlayer.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<ServerPlayer, ActiveLink> entry = iterator.next();
@@ -324,10 +324,10 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 return;
             }
             double mobX = mob.getX();
-            double mobY = mob.getY() + mob.getStandingEyeHeight() * 0.5D;
+            double mobY = mob.getY() + mob.getEyeHeight() * 0.5D;
             double mobZ = mob.getZ();
             double playerX = player.getX();
-            double playerY = player.getY() + player.getStandingEyeHeight() * 0.4D;
+            double playerY = player.getY() + player.getEyeHeight() * 0.4D;
             double playerZ = player.getZ();
             float basePitch = 0.85F + world.getRandom().nextFloat() * 0.15F;
             world.playSound(null, mobX, mobY, mobZ, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.HOSTILE, 0.6F, basePitch);
@@ -336,7 +336,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             spawnBurst(world, new Vec3(playerX, playerY, playerZ));
             applyGlow();
             refreshAura(world);
-            long time = world.getTime();
+            long time = world.getGameTime();
             nextParticleTick = time;
             nextGlowRefresh = time;
             nextAuraRefresh = time;
@@ -404,7 +404,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 return;
             }
             skipPlayerDamage = true;
-            player.damage(world, world.getDamageSources().magic(), amount);
+            player.hurtServer(world, world.damageSources().magic(), amount);
         }
 
         private void transferFlatDamageToMob(ServerLevel world) {
@@ -413,7 +413,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 return;
             }
             skipMobDamage = true;
-            mob.damage(world, world.getDamageSources().magic(), amount);
+            mob.hurtServer(world, world.damageSources().magic(), amount);
         }
 
         private void shareDamage(ServerLevel world, LivingEntity damaged, LivingEntity partner, float damage) {
@@ -441,18 +441,18 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             }
             if (target == player) {
                 skipPlayerDamage = true;
-                player.damage(world, world.getDamageSources().magic(), amount);
+                player.hurtServer(world, world.damageSources().magic(), amount);
             } else if (target == mob) {
                 skipMobDamage = true;
-                mob.damage(world, world.getDamageSources().magic(), amount);
+                mob.hurtServer(world, world.damageSources().magic(), amount);
             }
         }
 
         private void applyGlow() {
             MobEffectInstance marker = new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false);
-            player.addStatusEffect(marker);
+            player.addEffect(marker);
             if (mob.isAlive()) {
-                mob.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
+                mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
             }
         }
 
@@ -462,32 +462,32 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier());
-            player.addStatusEffect(instance);
+            player.addEffect(instance);
             if (mob.isAlive()) {
-                mob.addStatusEffect(new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
+                mob.addEffect(new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
             }
         }
 
         private void spawnLinkParticles(ServerLevel world) {
-            Vec3 from = new Vec3(mob.getX(), mob.getY() + mob.getStandingEyeHeight() * 0.6D, mob.getZ());
-            Vec3 to = new Vec3(player.getX(), player.getY() + player.getStandingEyeHeight() * 0.4D, player.getZ());
+            Vec3 from = new Vec3(mob.getX(), mob.getY() + mob.getEyeHeight() * 0.6D, mob.getZ());
+            Vec3 to = new Vec3(player.getX(), player.getY() + player.getEyeHeight() * 0.4D, player.getZ());
             Vec3 delta = to.subtract(from);
             int segments = Math.max(2, profile.particleSegments());
             int perSegment = Math.max(1, profile.particlesPerSegment());
             ParticleOptions effect = profile.particleEffect() != null ? profile.particleEffect() : ParticleTypes.ELECTRIC_SPARK;
             for (int i = 0; i <= segments; i++) {
                 double t = i / (double) segments;
-                Vec3 point = from.add(delta.multiply(t));
-                world.spawnParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
+                Vec3 point = from.add(delta.scale(t));
+                world.sendParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
                 if (profile.mode() == LinkMode.SPLIT_SHARE) {
-                    world.spawnParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                    world.sendParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
                 }
             }
         }
 
         private void spawnBurst(ServerLevel world, Vec3 origin) {
-            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
-            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
+            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
+            world.sendParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
         }
     }
 }

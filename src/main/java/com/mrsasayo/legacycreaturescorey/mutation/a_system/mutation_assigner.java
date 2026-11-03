@@ -79,7 +79,7 @@ public final class mutation_assigner {
 
         if (!applied.isEmpty()) {
             Legacycreaturescorey.LOGGER.info("🧬 {} recibió mutaciones {} (PM gastados: {}/{})",
-                mob.getType().getTranslationKey(),
+                mob.getType().getDescriptionId(),
                 applied,
                 spent,
                 budget
