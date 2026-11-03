@@ -57,7 +57,7 @@ public final class PhantasmalHandler {
                 return;
             }
         }
-        list.offset(new ActiveAura(entity, source, time));
+        list.add(new ActiveAura(entity, source, time));
     }
 
     public void unregister(LivingEntity entity, PhantasmalSource source) {
@@ -118,15 +118,15 @@ public final class PhantasmalHandler {
             double offsetY = random.nextDouble() * Math.max(0.5D, source.getHeight());
             double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
             ParticleOptions effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-            world.sendParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
+            world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
                     0.0D);
         }
 
         if (random.nextBoolean()) {
-            world.makeSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_HURT,
+            world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_HURT,
                     SoundSource.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
         } else {
-            world.makeSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_LEVELUP,
+            world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_LEVELUP,
                     SoundSource.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
         }
 
@@ -148,7 +148,7 @@ public final class PhantasmalHandler {
         }
         int min = Math.min(aura.sourceDef.getCloneMinCount(), max);
         RandomSource random = world.random;
-        int count = Mth.nextIntBetweenInclusive(random, min, max);
+        int count = Mth.nextBetween(random, min, max);
         if (count <= 0) {
             aura.lastTriggerTick = time;
             return;
@@ -170,7 +170,7 @@ public final class PhantasmalHandler {
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
         List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class,
-                source.getLocalBoundsForPose().expand(radius),
+                source.getBoundingBox().expand(radius),
                 entity -> entity.isAlive()
                         && entity != source
                         && source.squaredDistanceTo(entity) <= radiusSq
@@ -222,7 +222,7 @@ public final class PhantasmalHandler {
         }
         clone.setHealth(Math.max(1.0F, clone.getMaxHealth() * 0.25F));
         if (aura.sourceDef.shouldCloneGlow()) {
-            clone.addEffect(new MobEffectInstance(MobEffects.GLOWING,
+            clone.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING,
                     aura.sourceDef.getCloneLifetimeTicks(), 0, true, true, true));
         }
 
@@ -235,7 +235,7 @@ public final class PhantasmalHandler {
         long expiry = time + aura.sourceDef.getCloneLifetimeTicks();
         IllusionRecord record = new IllusionRecord(clone, aura.source, expiry);
         List<IllusionRecord> worldRecords = clones.computeIfAbsent(world, ignored -> new ArrayList<>());
-        worldRecords.offset(record);
+        worldRecords.add(record);
         cloneLookup.put(clone, record);
 
         if (!world.spawnEntity(clone)) {
@@ -267,7 +267,7 @@ public final class PhantasmalHandler {
     }
 
     private void applyShroudEffect(LivingEntity entity, int duration) {
-        entity.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
+        entity.addStatusEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                 duration,
                 0,
                 true,
@@ -310,9 +310,9 @@ public final class PhantasmalHandler {
         }
         Mob clone = record.illusion();
         if (playEffects) {
-            world.sendParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
+            world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
                     0.2D, 0.4D, 0.01D);
-            world.makeSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.EVOKER_CAST_SPELL,
+            world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.EVOKER_CAST_SPELL,
                     SoundSource.HOSTILE, 0.7F, 1.4F);
         }
         if (clone.isAlive()) {

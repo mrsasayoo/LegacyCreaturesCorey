@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.monster.Husk;
+import net.minecraft.world.entity.monster.zombie.Husk;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.Holder;
@@ -47,8 +47,8 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
      * Aplica el efecto de hambre precaria que reduce la nutrición de la comida en 25%
      */
     private void applyPrecariousHunger(Player player) {
-        player.addEffect(new MobEffectInstance(
-            Holder.direct(ModStatusEffects.PRECARIOUS_HUNGER),
+        player.addStatusEffect(new MobEffectInstance(
+            Holder.of(ModStatusEffects.PRECARIOUS_HUNGER),
             precariousHungerDuration,
             0, // amplificador 0 = 25% reducción
             false, // ambient
@@ -58,7 +58,7 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
         
         // Partículas especiales de hambre al aplicar el efecto
         if (player.getEntityWorld() instanceof ServerLevel world) {
-            world.sendParticles(ParticleTypes.WITCH,
+            world.spawnParticles(ParticleTypes.WITCH,
                     player.getX(),
                     player.getY() + 0.5D,
                     player.getZ(),
@@ -75,7 +75,7 @@ public final class ancient_curse_3_action extends ancient_curse_base_action {
      */
     private void spawnCurseParticles(Player player) {
         if (player.getEntityWorld() instanceof ServerLevel world) {
-            world.sendParticles(ParticleTypes.SOUL,
+            world.spawnParticles(ParticleTypes.SOUL,
                     player.getX(),
                     player.getY() + 1.0D,
                     player.getZ(),

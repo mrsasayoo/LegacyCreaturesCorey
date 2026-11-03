@@ -9,8 +9,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.projectile.AbstractThrownPotion;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.component.DataComponents;
@@ -33,12 +33,12 @@ import java.util.WeakHashMap;
 public final class VanguardsBulwarkHandler {
     public static final VanguardsBulwarkHandler INSTANCE = new VanguardsBulwarkHandler();
 
-    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_basic"));
-    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_intermediate"));
-    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_hard"));
+    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_basic"));
+    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_intermediate"));
+    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_hard"));
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<LivingEntity, Long> lastActionTick = new WeakHashMap<>();
@@ -66,12 +66,12 @@ public final class VanguardsBulwarkHandler {
                 return;
             }
         }
-        list.atLowerCornerWithOffset(new ActiveAura(entity, source, time));
+        list.add(new ActiveAura(entity, source, time));
     }
 
     public void unregister(LivingEntity entity, VanguardsBulwarkSource source) {
         ServerLevel world = (ServerLevel) entity.level();
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
         }
@@ -83,7 +83,7 @@ public final class VanguardsBulwarkHandler {
 
     private void handleWorldTick(ServerLevel world) {
         cleanup(world);
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -117,7 +117,7 @@ public final class VanguardsBulwarkHandler {
 
     private void applyResistanceMode(ServerLevel world, ActiveAura aura, long time) {
         // Apply Resistance I every 4 seconds (80 ticks)
-        Long lastAction = lastActionTick.byString(aura.source);
+        Long lastAction = lastActionTick.get(aura.source);
         if (lastAction != null && time - lastAction < aura.sourceDef.getIntervalTicks()) {
             return;
         }
@@ -131,11 +131,11 @@ public final class VanguardsBulwarkHandler {
 
     private void applyConditionalMode(ServerLevel world, ActiveAura aura, long time) {
         LivingEntity source = aura.source;
-        boolean isUndead = source.type().is(EntityTypeTags.UNDEAD);
+        boolean isUndead = source.type().isIn(EntityTypeTags.UNDEAD);
 
         if (isUndead) {
             // Throw Instant Damage II potion every 7 seconds (140 ticks)
-            Long lastAction = lastActionTick.byString(source);
+            Long lastAction = lastActionTick.get(source);
             if (lastAction != null && time - lastAction < aura.sourceDef.getPotionInterval()) {
                 return;
             }
@@ -143,11 +143,11 @@ public final class VanguardsBulwarkHandler {
             // Find nearest player
             ServerLevel serverWorld = (ServerLevel) source.level();
             List<net.minecraft.server.level.ServerPlayer> players = serverWorld.getPlayers(
-                    player -> player.isAlive() && source.distanceToSqr(player) <= aura.sourceDef.getRadius()
+                    player -> player.isAlive() && source.squaredDistanceTo(player) <= aura.sourceDef.getRadius()
                             * aura.sourceDef.getRadius());
 
             if (!players.isEmpty()) {
-                net.minecraft.server.level.ServerPlayer target = players.byString(0);
+                net.minecraft.server.level.ServerPlayer target = players.get(0);
                 throwHarmPotion(serverWorld, source, target);
                 lastActionTick.put(source, time);
             }
@@ -174,7 +174,7 @@ public final class VanguardsBulwarkHandler {
         }
 
         // Find all Conditional mode vanguards nearby
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -184,13 +184,13 @@ public final class VanguardsBulwarkHandler {
                 continue;
             }
 
-            if (aura.source.type().is(EntityTypeTags.UNDEAD)) {
+            if (aura.source.type().isIn(EntityTypeTags.UNDEAD)) {
                 continue;
             }
 
             // Check if the dead entity is an ally and within range
             double radius = aura.sourceDef.getRadius();
-            if (aura.source.distanceToSqr(entity) > radius * radius) {
+            if (aura.source.squaredDistanceTo(entity) > radius * radius) {
                 continue;
             }
 
@@ -223,18 +223,18 @@ public final class VanguardsBulwarkHandler {
         Vec3 direction = targetPos.subtract(sourcePos).normalize();
         double velocity = 0.5;
 
-        potionEntity.setVelocity(direction.scale(velocity));
+        potionEntity.setVelocity(direction.multiply(velocity));
         potionEntity.setPosition(sourcePos);
 
         world.spawnEntity(potionEntity);
     }
 
     private List<Mob> getAllies(ServerLevel world, LivingEntity source, double radius) {
-        AABB box = source.getLocalBoundsForPose().inflate(radius);
-        List<Mob> mobs = world.getEntities(EntityTypeTest.forClass(Mob.class), box,
+        AABB box = source.getBoundingBox().expand(radius);
+        List<Mob> mobs = world.getEntitiesByType(EntityTypeTest.instanceOf(Mob.class), box,
                 entity -> entity.isAlive() && entity != source);
         if (mobs.isEmpty()) {
-            return List.create();
+            return List.of();
         }
         List<Mob> allies = new ArrayList<>(mobs.size());
         // Removed unused sourceGroup variable
@@ -243,7 +243,7 @@ public final class VanguardsBulwarkHandler {
                 continue;
             }
             if (isAlly(source, candidate)) {
-                allies.atLowerCornerWithOffset(candidate);
+                allies.add(candidate);
             }
         }
         return allies;
@@ -254,18 +254,18 @@ public final class VanguardsBulwarkHandler {
             return true;
         }
         if (source instanceof Mob mobSource) {
-            MobCategory sourceGroup = mobSource.type().getCategory();
-            MobCategory candidateGroup = candidate.type().getCategory();
+            MobCategory sourceGroup = mobSource.type().getSpawnGroup();
+            MobCategory candidateGroup = candidate.type().getSpawnGroup();
             if (candidateGroup == sourceGroup && candidateGroup != MobCategory.MISC) {
                 return true;
             }
         }
         EntityType<?> type = candidate.type();
-        return type.is(TIER_BASIC) || type.is(TIER_INTERMEDIATE) || type.is(TIER_HARD);
+        return type.isIn(TIER_BASIC) || type.isIn(TIER_INTERMEDIATE) || type.isIn(TIER_HARD);
     }
 
     private void cleanup(ServerLevel world) {
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -315,7 +315,7 @@ public final class VanguardsBulwarkHandler {
         for (status_effect_config_parser.status_effect_config_entry entry : configs) {
             var instance = status_effect_config_parser.buildInstance(entry);
             if (instance != null) {
-                target.addEffect(instance);
+                target.addStatusEffect(instance);
             }
         }
     }

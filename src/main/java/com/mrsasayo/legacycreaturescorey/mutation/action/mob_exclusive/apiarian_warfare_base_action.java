@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -66,17 +66,17 @@ abstract class apiarian_warfare_base_action implements mutation_action {
             BlockPos center = bee.getBlockPos();
             for (int x = -1; x <= 1; x++) {
                 for (int z = -1; z <= 1; z++) {
-                    placeTemporaryHoney(world, center.offset(x, 0, z), blockDurationTicks);
+                    placeTemporaryHoney(world, center.add(x, 0, z), blockDurationTicks);
                 }
             }
             List<Player> players = world.getEntitiesByClass(Player.class,
-                    bee.getLocalBoundsForPose().expand(debuffRadius), Player::isAlive);
+                    bee.getBoundingBox().expand(debuffRadius), Player::isAlive);
             for (Player player : players) {
-                player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,
+                player.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS,
                         debuffDurationTicks,
                         debuffAmplifier));
             }
-            world.sendParticles(ParticleTypes.DRIPPING_HONEY,
+            world.spawnParticles(ParticleTypes.DRIPPING_HONEY,
                     bee.getX(),
                     bee.getBodyY(0.5),
                     bee.getZ(),
@@ -94,7 +94,7 @@ abstract class apiarian_warfare_base_action implements mutation_action {
             }
             BlockState original = current;
             world.setBlockState(pos, Blocks.HONEY_BLOCK.getDefaultState());
-            temporaryBlocks.offset(new TemporaryBlock(pos.immutable(), world, original, blockDurationTicks));
+            temporaryBlocks.add(new TemporaryBlock(pos.toImmutable(), world, original, blockDurationTicks));
         }
 
         private void tick(ServerLevel world) {

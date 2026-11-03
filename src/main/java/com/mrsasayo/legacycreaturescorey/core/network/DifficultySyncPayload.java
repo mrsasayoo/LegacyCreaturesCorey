@@ -14,7 +14,7 @@ public record DifficultySyncPayload(int globalDifficulty,
                                     int personalDifficulty,
                                     boolean hudEnabled) implements CustomPacketPayload {
 
-    public static final Id<DifficultySyncPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
+    public static final Id<DifficultySyncPayload> ID = new Id<>(Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DifficultySyncPayload> CODEC = new StreamCodec<>() {
         @Override

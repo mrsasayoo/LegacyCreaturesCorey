@@ -16,6 +16,6 @@ public final class true_damage_2_action extends true_damage_base_action {
 
     private static List<SideEffect> buildDefaultEffects(int durationTicks) {
         Holder<MobEffect> entry = MobEffects.MINING_FATIGUE;
-        return entry == null ? List.direct() : List.direct(new SideEffect(entry, durationTicks, 3, Target.SELF, true, true, true));
+        return entry == null ? List.of() : List.of(new SideEffect(entry, durationTicks, 3, Target.SELF, true, true, true));
     }
 }

@@ -33,9 +33,9 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
             Holder<MobEffect> fallbackEffect,
             int fallbackDuration,
             int fallbackAmplifier) {
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackEffect != null && fallbackDuration > 0) {
-            fallback = List.direct(status_effect_config_parser.createEntry(fallbackEffect,
+            fallback = List.of(status_effect_config_parser.createEntry(fallbackEffect,
                     fallbackDuration,
                     fallbackAmplifier,
                     true,
@@ -48,15 +48,15 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
     private Holder<MobEffect> resolveEffect(mutation_action_config config, MobEffect fallback) {
         Identifier configured = config.getIdentifier("effect", null);
         if (configured != null) {
-            MobEffect custom = BuiltInRegistries.MOB_EFFECT.get(configured);
+            MobEffect custom = BuiltInRegistries.STATUS_EFFECT.get(configured);
             if (custom != null) {
-                Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(custom);
+                Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(custom);
                 if (entry != null) {
                     return entry;
                 }
             }
         }
-        Holder<MobEffect> fallbackEntry = BuiltInRegistries.MOB_EFFECT.getEntry(fallback);
+        Holder<MobEffect> fallbackEntry = BuiltInRegistries.STATUS_EFFECT.getEntry(fallback);
         if (fallbackEntry == null) {
             throw new IllegalStateException("No se pudo encontrar un efecto válido para deafening_strike");
         }

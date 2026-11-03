@@ -99,9 +99,9 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
                 target.getZ() - guardian.getZ()
             );
             
-            double distSq = offset.horizontalDistanceSqr();
+            double distSq = offset.horizontalLengthSquared();
             if (distSq > 4.0D) { // Solo moverse si está lejos del objetivo
-                Vec3 direction = offset.normalize().scale(horizontalSpeed);
+                Vec3 direction = offset.normalize().multiply(horizontalSpeed);
                 Vec3 newVel = guardian.getVelocity();
                 
                 // Aplicar movimiento horizontal estabilizado
@@ -111,12 +111,12 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
                 guardian.setVelocity(newX, newVel.y, newZ);
             } else {
                 // Cerca del objetivo: estabilizar posición para disparar
-                Vec3 damped = guardian.getVelocity().scale(0.7D, 1.0D, 0.7D);
+                Vec3 damped = guardian.getVelocity().multiply(0.7D, 1.0D, 0.7D);
                 guardian.setVelocity(damped);
             }
         } else {
             // Sin objetivo: reducir movimiento horizontal rápidamente
-            Vec3 damped = guardian.getVelocity().scale(0.6D, 1.0D, 0.6D);
+            Vec3 damped = guardian.getVelocity().multiply(0.6D, 1.0D, 0.6D);
             guardian.setVelocity(damped);
         }
         
@@ -150,7 +150,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
     }
 
     private double findGroundY(Guardian guardian) {
-        BlockPos.Mutable mutable = guardian.getBlockPos().mutable();
+        BlockPos.Mutable mutable = guardian.getBlockPos().mutableCopy();
         for (int i = 0; i < groundSearchDepth; i++) {
             mutable.move(0, -1, 0);
             if (!guardian.getEntityWorld().getBlockState(mutable).isAir()) {

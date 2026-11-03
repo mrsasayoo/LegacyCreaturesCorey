@@ -96,7 +96,7 @@ public final class ClientEffectHandler {
         if (silence != null) {
             scale = Mth.clamp(silence.intensity, 0.0F, 1.0F);
         }
-        if (Mth.equal(scale, 1.0F)) {
+        if (Mth.approximatelyEquals(scale, 1.0F)) {
             restoreHostileVolume();
             return;
         }

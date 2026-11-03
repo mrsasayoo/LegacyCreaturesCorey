@@ -8,7 +8,7 @@ import com.mrsasayo.legacycreaturescorey.feature.antifarm.ChunkActivityData;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.Level;
 
@@ -29,7 +29,7 @@ public class CoreyServerState extends SavedData {
     public static final Codec<CoreyServerState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.INT.optionalFieldOf("global_difficulty", 0).forGetter(CoreyServerState::getGlobalDifficulty),
         Codec.LONG.optionalFieldOf("last_day_checked", 0L).forGetter(CoreyServerState::getLastDayChecked),
-        Codec.unboundedMap(CHUNK_KEY_CODEC, ChunkActivityData.RESOURCE_KEY_CODEC)
+        Codec.unboundedMap(CHUNK_KEY_CODEC, ChunkActivityData.CODEC)
             .optionalFieldOf("chunk_activity", Map.of())
             .forGetter(CoreyServerState::getChunkActivitySnapshot)
     ).apply(instance, CoreyServerState::fromCodec));
@@ -73,7 +73,7 @@ public class CoreyServerState extends SavedData {
 
     public void setGlobalDifficulty(int value) {
         this.globalDifficulty = clampDifficulty(value);
-        this.blockEntityChanged();
+        this.setDirty();
     }
 
     public void increaseGlobalDifficulty(int amount) {
@@ -86,13 +86,13 @@ public class CoreyServerState extends SavedData {
 
     public void setLastDayChecked(long day) {
         this.lastDayChecked = Math.max(0L, day);
-        this.blockEntityChanged();
+        this.setDirty();
     }
 
     public static CoreyServerState get(MinecraftServer server) {
         DimensionDataStorage stateManager = server.getWorld(Level.OVERWORLD).getPersistentStateManager();
-        CoreyServerState state = stateManager.computeIfAbsent(TYPE);
-        state.blockEntityChanged();
+        CoreyServerState state = stateManager.getOrCreate(TYPE);
+        state.setDirty();
         return state;
     }
 
@@ -110,14 +110,14 @@ public class CoreyServerState extends SavedData {
 
     public ChunkActivityData getOrCreateChunkActivity(long chunkKey) {
         return this.chunkActivity.computeIfAbsent(chunkKey, key -> {
-            this.blockEntityChanged();
+            this.setDirty();
             return new ChunkActivityData();
         });
     }
 
     public void setChunkActivity(long chunkKey, ChunkActivityData data) {
         this.chunkActivity.put(chunkKey, data);
-        this.blockEntityChanged();
+        this.setDirty();
     }
 
     public boolean isChunkSpawnBlocked(long chunkKey) {
@@ -130,7 +130,7 @@ public class CoreyServerState extends SavedData {
         if (!data.isSpawnBlocked()) {
             data.markSpawnBlocked(time);
             this.chunkActivity.put(chunkKey, data);
-            this.blockEntityChanged();
+            this.setDirty();
         }
     }
 
@@ -138,13 +138,13 @@ public class CoreyServerState extends SavedData {
         ChunkActivityData data = this.chunkActivity.get(chunkKey);
         if (data != null) {
             data.resetHeat();
-            this.blockEntityChanged();
+            this.setDirty();
         }
     }
 
     public void removeChunkActivity(long chunkKey) {
         if (this.chunkActivity.remove(chunkKey) != null) {
-            this.blockEntityChanged();
+            this.setDirty();
         }
     }
 
@@ -177,7 +177,7 @@ public class CoreyServerState extends SavedData {
         }
 
         if (changed) {
-            this.blockEntityChanged();
+            this.setDirty();
         }
     }
 

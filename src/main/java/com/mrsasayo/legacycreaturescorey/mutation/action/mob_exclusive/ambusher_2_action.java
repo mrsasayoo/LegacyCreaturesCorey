@@ -18,7 +18,7 @@ public final class ambusher_2_action extends ambusher_base_action {
         this.invisibilityDuration = config.getInt("invisibility_duration", 40);
         this.invisibilityAmplifier = config.getInt("invisibility_amplifier", 0);
         this.ambient = config.getBoolean("ambient", false);
-        this.visible = config.getBoolean("show_particles", false);
+        this.showParticles = config.getBoolean("show_particles", false);
     }
 
     @Override
@@ -35,7 +35,7 @@ public final class ambusher_2_action extends ambusher_base_action {
                     invisibilityAmplifier,
                     ambient,
                     showParticles);
-            creeper.addEffect(invisibility);
+            creeper.addStatusEffect(invisibility);
         }
     }
 }

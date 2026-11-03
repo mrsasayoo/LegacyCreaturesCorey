@@ -44,9 +44,9 @@ public final class FinalGambitOnDeathAction implements mutation_action {
     }
 
     private void purgeProjectiles(ServerLevel world, Vec3 origin) {
-        AABB box = AABB.ofSize(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
+        AABB box = AABB.of(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
         List<Projectile> projectiles = world.getEntitiesByClass(Projectile.class, box,
-            projectile -> projectile.isAlive() && projectile.distanceToSqr(origin) <= radius * radius);
+            projectile -> projectile.isAlive() && projectile.squaredDistanceTo(origin) <= radius * radius);
         for (Projectile projectile : projectiles) {
             projectile.discard();
         }

@@ -21,7 +21,7 @@ public final class CoreyCommandShared {
 
     public static final SuggestionProvider<CommandSourceStack> TIER_SUGGESTIONS = (context, builder) -> {
         for (MobTier tier : MobTier.values()) {
-            builder.suggest(tier.textName().toLowerCase(Locale.WRITABLE_REGISTRY));
+            builder.suggest(tier.name().toLowerCase(Locale.WRITABLE_REGISTRY));
         }
         return builder.buildFuture();
     };
@@ -70,7 +70,7 @@ public final class CoreyCommandShared {
         String[] split = raw.replace(';', ',').split(",");
         List<Identifier> ids = new ArrayList<>();
         for (String entry : split) {
-            Identifier id = Identifier.tryBuild(entry.trim());
+            Identifier id = Identifier.tryParse(entry.trim());
             if (id != null) {
                 ids.add(id);
             }

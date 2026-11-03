@@ -53,10 +53,10 @@ public final class StatusEffectAuraAction implements mutation_action {
         if (effect == null || !action_context.isServer(entity)) {
             return;
         }
-        if (requireUndead && !entity.kind().is(EntityTypeTags.UNDEAD)) {
+        if (requireUndead && !entity.kind().isIn(EntityTypeTags.UNDEAD)) {
             return;
         }
-        if (requireNonUndead && entity.kind().is(EntityTypeTags.UNDEAD)) {
+        if (requireNonUndead && entity.kind().isIn(EntityTypeTags.UNDEAD)) {
             return;
         }
         if (entity.age % interval != 0) {
@@ -78,7 +78,7 @@ public final class StatusEffectAuraAction implements mutation_action {
                 if (!(entity instanceof Mob mob)) {
                     return;
                 }
-                List<Mob> mobs = world.getEntitiesByClass(Mob.class, mob.getLocalBoundsForPose().expand(radius), other -> other.isAlive());
+                List<Mob> mobs = world.getEntitiesByClass(Mob.class, mob.getBoundingBox().expand(radius), other -> other.isAlive());
                 for (Mob other : mobs) {
                     if (skipCandidate(entity, other)) {
                         continue;
@@ -97,7 +97,7 @@ public final class StatusEffectAuraAction implements mutation_action {
     }
 
     private void applyEffect(LivingEntity targetEntity) {
-        targetEntity.addEffect(new MobEffectInstance(effect, duration, amplifier, true, true, true));
+        targetEntity.addStatusEffect(new MobEffectInstance(effect, duration, amplifier, true, true, true));
     }
 
     public enum Target {

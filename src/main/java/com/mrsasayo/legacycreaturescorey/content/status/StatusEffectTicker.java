@@ -38,7 +38,7 @@ public final class StatusEffectTicker {
         if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
-        Holder<MobEffect> effectEntry = effect.getEffect();
+        Holder<MobEffect> effectEntry = effect.getEffectType();
         TrackedEffect tracked = TrackedEffect.from(effectEntry);
         if (tracked == null) {
             return;
@@ -50,14 +50,14 @@ public final class StatusEffectTicker {
         if (start) {
             if (entry == null) {
                 entry = new TrackedEntry(entity);
-                entries.atLowerCornerWithOffset(entry);
+                entries.add(entry);
             }
             entry.set(tracked, effectEntry, effect.getAmplifier());
         } else {
             if (entry == null) {
                 return;
             }
-            if (entity.hasEffect(effectEntry)) {
+            if (entity.hasStatusEffect(effectEntry)) {
                 entry.set(tracked, effectEntry, effect.getAmplifier());
                 return;
             }
@@ -88,7 +88,7 @@ public final class StatusEffectTicker {
                 Map.Entry<TrackedEffect, EffectState> e = effectIterator.next();
                 TrackedEffect tracked = e.unwrapKey();
                 EffectState state = e.getValue();
-                if (!entity.hasEffect(state.entry)) {
+                if (!entity.hasStatusEffect(state.entry)) {
                     effectIterator.remove();
                     continue;
                 }
@@ -124,7 +124,7 @@ public final class StatusEffectTicker {
 
                 Vec3 velocity = entity.getVelocity();
                 Vec3 horizontal = new Vec3(velocity.x, 0.0D, velocity.z);
-                double horizontalSq = horizontal.lengthSqr();
+                double horizontalSq = horizontal.lengthSquared();
                 if (horizontalSq > 1.0E-4D) {
                     state.setSlideDirection(horizontal);
                 }
@@ -138,7 +138,7 @@ public final class StatusEffectTicker {
                 double inertiaFloor = 0.24D + state.amplifier * 0.05D;
                 double acceleration = 1.12D + state.amplifier * 0.06D;
                 double newSpeed = Math.min(Math.max(baseSpeed, inertiaFloor) * acceleration, 1.35D);
-                Vec3 newHorizontal = direction.scale(newSpeed);
+                Vec3 newHorizontal = direction.multiply(newSpeed);
 
                 double vertical = velocity.y;
                 if (entity.isOnGround()) {
@@ -262,7 +262,7 @@ public final class StatusEffectTicker {
                 return;
             }
             Vec3 horizontal = new Vec3(direction.x, 0.0D, direction.z);
-            double lenSq = horizontal.lengthSqr();
+            double lenSq = horizontal.lengthSquared();
             if (lenSq < 1.0E-4D) {
                 return;
             }

@@ -12,7 +12,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,23 +35,23 @@ import java.util.WeakHashMap;
 public final class HordeBeaconHandler {
     public static final HordeBeaconHandler INSTANCE = new HordeBeaconHandler();
 
-    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_basic"));
-    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_intermediate"));
-    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.create(Registries.ENTITY_TYPE,
-            Identifier.create("legacycreaturescorey", "tier_hard"));
-    private static final Set<EntityType<?>> FEARLESS_SKELETON_TYPES = Set.create(
+    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_basic"));
+    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_intermediate"));
+    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.of(Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath("legacycreaturescorey", "tier_hard"));
+    private static final Set<EntityType<?>> FEARLESS_SKELETON_TYPES = Set.of(
         EntityType.SKELETON,
         EntityType.STRAY,
         EntityType.BOGGED);
-    private static final Set<EntityType<?>> FEARLESS_CAT_TARGETS = Set.create(
+    private static final Set<EntityType<?>> FEARLESS_CAT_TARGETS = Set.of(
         EntityType.CREEPER,
         EntityType.PHANTOM);
-    private static final Set<EntityType<?>> CAT_TYPES = Set.create(
+    private static final Set<EntityType<?>> CAT_TYPES = Set.of(
         EntityType.CAT,
         EntityType.OCELOT);
-    private static final Set<EntityType<?>> WOLF_TYPES = Set.create(EntityType.WOLF);
+    private static final Set<EntityType<?>> WOLF_TYPES = Set.of(EntityType.WOLF);
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<Mob, Long> retargetCooldowns = new WeakHashMap<>();
@@ -84,7 +84,7 @@ public final class HordeBeaconHandler {
 
     public void unregister(LivingEntity entity, HordeBeaconSource source) {
         ServerLevel world = (ServerLevel) entity.level();
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
         }
@@ -96,7 +96,7 @@ public final class HordeBeaconHandler {
 
     private void handleWorldTick(ServerLevel world) {
         cleanup(world);
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             cleanupRetargets();
             cleanupFollowRange(world.getTime());
@@ -133,7 +133,7 @@ public final class HordeBeaconHandler {
         AttributeModifier modifier = source.getFollowRangeModifier();
         if (modifier == null)
             return;
-        AttributeInstance instance = mob.getAttribute(Attributes.FOLLOW_RANGE);
+        AttributeInstance instance = mob.getAttributeInstance(Attributes.FOLLOW_RANGE);
         if (instance == null)
             return;
         Identifier modifierId = source.getFollowRangeModifierId();
@@ -141,7 +141,7 @@ public final class HordeBeaconHandler {
             return;
 
         if (!instance.hasModifier(modifierId)) {
-            instance.addPermanentModifier(modifier);
+            instance.addPersistentModifier(modifier);
         }
         followRangeTracker.computeIfAbsent(mob, ignored -> new HashMap<>()).put(source, time);
     }
@@ -184,7 +184,7 @@ public final class HordeBeaconHandler {
         Identifier modifierId = source.getFollowRangeModifierId();
         if (modifierId == null)
             return;
-        AttributeInstance instance = mob.getAttribute(Attributes.FOLLOW_RANGE);
+        AttributeInstance instance = mob.getAttributeInstance(Attributes.FOLLOW_RANGE);
         if (instance == null)
             return;
         if (instance.hasModifier(modifierId)) {
@@ -231,7 +231,7 @@ public final class HordeBeaconHandler {
         if (!isFearPair(mob.getType(), feared.getType())) {
             return false;
         }
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return false;
         }
@@ -262,10 +262,10 @@ public final class HordeBeaconHandler {
         if (cowardType == null || fearedType == null) {
             return false;
         }
-        if (FEARLESS_SKELETON_TYPES.intersects(cowardType) && WOLF_TYPES.intersects(fearedType)) {
+        if (FEARLESS_SKELETON_TYPES.contains(cowardType) && WOLF_TYPES.contains(fearedType)) {
             return true;
         }
-        return FEARLESS_CAT_TARGETS.intersects(cowardType) && CAT_TYPES.intersects(fearedType);
+        return FEARLESS_CAT_TARGETS.contains(cowardType) && CAT_TYPES.contains(fearedType);
     }
 
     private void applyTargetMark(ServerLevel world, ActiveAura aura, long time) {
@@ -284,16 +284,16 @@ public final class HordeBeaconHandler {
             List<ServerPlayer> players = world
                     .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (!players.isEmpty()) {
-                ServerPlayer chosen = players.byString(world.random.nextInt(players.size()));
+                ServerPlayer chosen = players.get(world.random.nextInt(players.size()));
                 boolean appliedGlow = false;
                 if (aura.sourceDef.getMarkDurationTicks() > 0) {
-                    chosen.addEffect(new MobEffectInstance(MobEffects.GLOWING,
+                    chosen.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING,
                             aura.sourceDef.getMarkDurationTicks(), 0, true, true, true));
                     appliedGlow = true;
                 }
                 aura.markedTarget = new MarkedTarget(chosen, time + aura.sourceDef.getMarkDurationTicks(), appliedGlow);
                 aura.lastTriggerTick = time;
-                world.makeSound(null,
+                world.playSound(null,
                         chosen.getX(),
                         chosen.getY(),
                         chosen.getZ(),
@@ -324,7 +324,7 @@ public final class HordeBeaconHandler {
             if (mob instanceof PathfinderMob pathAware && target.isAlive()) {
                 pathAware.getNavigation().startMovingTo(target, 1.2D);
             }
-            mob.addEffect(new MobEffectInstance(MobEffects.SPEED,
+            mob.addStatusEffect(new MobEffectInstance(MobEffects.SPEED,
                     aura.sourceDef.getSpeedDurationTicks(),
                     aura.sourceDef.getSpeedAmplifier(),
                     true,
@@ -334,14 +334,14 @@ public final class HordeBeaconHandler {
     }
 
     private List<Mob> getAllies(ServerLevel world, LivingEntity source, double radius) {
-        AABB box = source.getLocalBoundsForPose().inflate(radius);
-        List<Mob> mobs = world.getEntities(EntityTypeTest.forClass(Mob.class), box,
+        AABB box = source.getBoundingBox().expand(radius);
+        List<Mob> mobs = world.getEntitiesByType(EntityTypeTest.instanceOf(Mob.class), box,
                 entity -> entity.isAlive() && entity != source);
         if (mobs.isEmpty()) {
-            return List.create();
+            return List.of();
         }
         List<Mob> allies = new ArrayList<>(mobs.size());
-        MobCategory sourceGroup = source instanceof Mob mobSource ? mobSource.getType().getCategory()
+        MobCategory sourceGroup = source instanceof Mob mobSource ? mobSource.getType().getSpawnGroup()
                 : MobCategory.MONSTER;
         for (Mob candidate : mobs) {
             if (candidate instanceof IronGolem) {
@@ -355,7 +355,7 @@ public final class HordeBeaconHandler {
                 continue;
             }
             if (source instanceof Mob) {
-                MobCategory candidateGroup = candidate.getType().getCategory();
+                MobCategory candidateGroup = candidate.getType().getSpawnGroup();
                 if (candidateGroup == sourceGroup && candidateGroup != MobCategory.MISC) {
                     allies.add(candidate);
                     continue;
@@ -370,17 +370,17 @@ public final class HordeBeaconHandler {
 
     private boolean isTieredAlly(Mob candidate) {
         EntityType<?> type = candidate.getType();
-        return type.is(TIER_BASIC) || type.is(TIER_INTERMEDIATE) || type.is(TIER_HARD);
+        return type.isIn(TIER_BASIC) || type.isIn(TIER_INTERMEDIATE) || type.isIn(TIER_HARD);
     }
 
     private List<Creeper> getThreateningCreepers(ServerLevel world, LivingEntity source, double radius) {
-        AABB box = source.getLocalBoundsForPose().inflate(radius);
+        AABB box = source.getBoundingBox().expand(radius);
         return world.getEntitiesByClass(Creeper.class, box,
                 creeper -> creeper.isAlive() && (creeper.isIgnited() || creeper.getSwellDir() > 0));
     }
 
     private List<IronGolem> getNearbyGolems(ServerLevel world, LivingEntity source, double radius) {
-        AABB box = source.getLocalBoundsForPose().inflate(radius);
+        AABB box = source.getBoundingBox().expand(radius);
         return world.getEntitiesByClass(IronGolem.class, box, IronGolem::isAlive);
     }
 
@@ -431,7 +431,7 @@ public final class HordeBeaconHandler {
     }
 
     private void cleanup(ServerLevel world) {
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -499,7 +499,7 @@ public final class HordeBeaconHandler {
             }
             ServerPlayer player = markedTarget.player();
             if (markedTarget.appliedGlow()) {
-                player.removeEffect(MobEffects.GLOWING);
+                player.removeStatusEffect(MobEffects.GLOWING);
             }
             markedTarget = null;
         }

@@ -79,7 +79,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
             player.setYaw(newYaw);
             player.setHeadYaw(newYaw);
             player.setBodyYaw(newYaw);
-            player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+            player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
         }
     }
 
@@ -102,7 +102,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
                 player.setYaw(newYaw);
                 player.setHeadYaw(newYaw);
                 player.setBodyYaw(newYaw);
-                player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
                 return --ticksRemaining <= 0;
             }
         });
@@ -140,21 +140,21 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         for (status_effect_config_parser.status_effect_config_entry entry : configs) {
             MobEffectInstance instance = status_effect_config_parser.buildInstance(entry);
             if (instance != null) {
-                target.addEffect(instance);
+                target.addStatusEffect(instance);
             }
         }
     }
 
     private static List<status_effect_config_parser.status_effect_config_entry> defaultPlayerEffects(Mode mode) {
         return switch (mode) {
-            case TUNNEL -> List.direct(entry(MobEffects.DARKNESS, 60, 0));
-            case DISORIENT -> List.direct(entry(MobEffects.NAUSEA, 80, 0));
-            default -> List.direct();
+            case TUNNEL -> List.of(entry(MobEffects.DARKNESS, 60, 0));
+            case DISORIENT -> List.of(entry(MobEffects.NAUSEA, 80, 0));
+            default -> List.of();
         };
     }
 
     private static List<status_effect_config_parser.status_effect_config_entry> defaultAttackerEffects(Mode mode) {
-        return List.direct();
+        return List.of();
     }
 
     private static status_effect_config_parser.status_effect_config_entry entry(Holder<MobEffect> effect,
@@ -183,7 +183,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
                 player.setYaw(wrappedYaw);
                 player.setHeadYaw(wrappedYaw);
                 player.setBodyYaw(wrappedYaw);
-                player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
+                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
                 return true;
             }
         });

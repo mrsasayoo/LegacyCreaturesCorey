@@ -45,7 +45,7 @@ abstract class vertical_thrust_base_action extends proc_on_hit_action {
             victim.velocityModified = true;
         }
         if (attacker != null && selfDowntimeTicks > 0) {
-            attacker.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,
+            attacker.addStatusEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,
                     selfDowntimeTicks,
                     Math.max(0, downtimeAmplifier)));
         }

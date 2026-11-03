@@ -26,7 +26,7 @@ public final class aerial_maneuvers_1_action implements mutation_action {
         if (!(entity instanceof Ghast ghast) || entity.getEntityWorld().isClient()) {
             return;
         }
-        AttributeInstance speed = ghast.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = ghast.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
         }
@@ -37,7 +37,7 @@ public final class aerial_maneuvers_1_action implements mutation_action {
                     SPEED_MODIFIER_ID,
                     speedBonus,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            speed.addPermanentModifier(modifier);
+            speed.addPersistentModifier(modifier);
         } else if (!hasTarget && hasModifier) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }
@@ -48,7 +48,7 @@ public final class aerial_maneuvers_1_action implements mutation_action {
         if (!(entity instanceof Ghast ghast)) {
             return;
         }
-        AttributeInstance speed = ghast.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = ghast.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.hasModifier(SPEED_MODIFIER_ID)) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }

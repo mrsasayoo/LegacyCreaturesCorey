@@ -54,11 +54,11 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
         List<ItemStack> captured = new ArrayList<>(drops.size());
         for (ItemEntity drop : drops) {
-            ItemStack stack = drop.getItem();
+            ItemStack stack = drop.getStack();
             if (stack.isEmpty()) {
                 continue;
             }
-            captured.atLowerCornerWithOffset(stack.copyFrom());
+            captured.add(stack.copy());
             drop.discard();
         }
 
@@ -72,7 +72,7 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
             return;
         }
 
-        FakeLootPileManager.registerItem(world, placeholder, captured, lifetimeTicks, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
+        FakeLootPileManager.register(world, placeholder, captured, lifetimeTicks, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
     }
 
     @Nullable
@@ -92,12 +92,12 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
             if (stack.isEmpty()) {
                 continue;
             }
-            ItemEntity drop = new ItemEntity(world, origin.x, origin.y, origin.z, stack.copyFrom());
+            ItemEntity drop = new ItemEntity(world, origin.x, origin.y, origin.z, stack.copy());
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = scatterHorizontal * (0.4D + random.nextDouble() * 0.6D);
             double vy = scatterVertical * (0.4D + random.nextDouble() * 0.6D);
             drop.setVelocity(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
-            drop.setDefaultPickUpDelay();
+            drop.setToDefaultPickupDelay();
             drop.velocityDirty = true;
             world.spawnEntity(drop);
         }

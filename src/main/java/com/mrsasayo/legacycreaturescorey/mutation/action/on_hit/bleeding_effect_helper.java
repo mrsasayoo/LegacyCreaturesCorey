@@ -58,7 +58,7 @@ final class bleeding_effect_helper {
         }
 
         if (shouldApplyEffect) {
-            victim.addEffect(instance);
+            victim.addStatusEffect(instance);
         }
     }
 
@@ -73,7 +73,7 @@ final class bleeding_effect_helper {
     }
 
     private static Holder<MobEffect> bleedingEntry() {
-        return Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getEntry(ModStatusEffects.BLEEDING),
+        return Objects.requireNonNull(BuiltInRegistries.STATUS_EFFECT.getEntry(ModStatusEffects.BLEEDING),
             "Missing registry entry for bleeding effect");
     }
 
@@ -91,7 +91,7 @@ final class bleeding_effect_helper {
                 float[] pulses,
                 int interval,
                 int amplifier) {
-            this.causingEntity = attacker;
+            this.attacker = attacker;
             this.victim = victim;
             this.pulses = pulses;
             this.interval = interval;
@@ -108,7 +108,7 @@ final class bleeding_effect_helper {
                 float[] pulses,
                 int interval,
                 int amplifier) {
-            this.causingEntity = attacker;
+            this.attacker = attacker;
             this.pulses = pulses;
             this.interval = interval;
             this.amplifier = amplifier;
@@ -119,11 +119,11 @@ final class bleeding_effect_helper {
         @Override
         public boolean tick(ServerLevel currentWorld) {
             if (victim.isRemoved() || !victim.isAlive()) {
-                victim.removeEffect(bleedingEntry());
+                victim.removeStatusEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }
-            if (!victim.hasEffect(bleedingEntry())) {
+            if (!victim.hasStatusEffect(bleedingEntry())) {
                 removeTask(victim, this);
                 return true;
             }
@@ -139,7 +139,7 @@ final class bleeding_effect_helper {
             }
 
             if (index >= pulses.length) {
-                victim.removeEffect(bleedingEntry());
+                victim.removeStatusEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }

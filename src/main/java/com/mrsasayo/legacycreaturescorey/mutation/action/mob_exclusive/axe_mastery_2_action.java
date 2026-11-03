@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.world.entity.monster.illager.Vindicator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -61,7 +61,7 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
         }
         
         // Crear caja de colisión expandida para el AoE
-        AABB aoeBox = vindicator.getLocalBoundsForPose().inflate(slashRange);
+        AABB aoeBox = vindicator.getBoundingBox().expand(slashRange);
         
         // Obtener todas las entidades vivas en el área (excepto el Vindicator)
         List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, aoeBox,
@@ -79,7 +79,7 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
         spawnSlashParticles(world, vindicator);
         
         // Sonido del golpe
-        world.makeSound(null, vindicator.getX(), vindicator.getY(), vindicator.getZ(),
+        world.playSound(null, vindicator.getX(), vindicator.getY(), vindicator.getZ(),
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.5F, 0.8F);
         
         // Aplicar daño a todos los objetivos en el área
@@ -87,7 +87,7 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
         
         for (LivingEntity target : targets) {
             // Verificar distancia real (el box puede incluir entidades fuera del rango circular)
-            double distSq = vindicator.distanceToSqr(target);
+            double distSq = vindicator.squaredDistanceTo(target);
             if (distSq > slashRange * slashRange) {
                 continue;
             }
@@ -120,13 +120,13 @@ public final class axe_mastery_2_action extends axe_mastery_base_action {
             double offsetX = Math.cos(angle) * slashRange * 0.8D;
             double offsetZ = Math.sin(angle) * slashRange * 0.8D;
             
-            world.sendParticles(ParticleTypes.SWEEP_ATTACK,
+            world.spawnParticles(ParticleTypes.SWEEP_ATTACK,
                     x + offsetX, y, z + offsetZ,
                     1, 0, 0, 0, 0);
         }
         
         // Partículas de daño en el centro
-        world.sendParticles(ParticleTypes.CRIT,
+        world.spawnParticles(ParticleTypes.CRIT,
                 x, y, z,
                 10, slashRange * 0.5D, 0.3D, slashRange * 0.5D, 0.1D);
     }

@@ -43,7 +43,7 @@ public class deep_darkness_aura_2_action implements mutation_action {
                     continue;
                 }
                 if (removeNightVision) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
+                    player.removeStatusEffect(MobEffects.NIGHT_VISION);
                 }
                 status_effect_config_parser.applyEffects(player, effects);
             }

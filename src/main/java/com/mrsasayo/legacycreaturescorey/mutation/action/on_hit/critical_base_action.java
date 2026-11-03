@@ -49,11 +49,11 @@ abstract class critical_base_action extends proc_on_hit_action {
         resetDamageCooldown(victim);
         victim.damage(world, source, bonusDamage);
         float pitch = 0.9F + world.getRandom().nextFloat() * 0.2F;
-        world.makeSound(null, victim.getX(), victim.getBodyY(0.5D), victim.getZ(),
+        world.playSound(null, victim.getX(), victim.getBodyY(0.5D), victim.getZ(),
                 SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.HOSTILE, 0.9F, pitch);
-        world.sendParticles(ParticleTypes.CRIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 10,
+        world.spawnParticles(ParticleTypes.CRIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 10,
                 0.35D, 0.2D, 0.35D, 0.15D);
-        world.sendParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 4,
+        world.spawnParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 4,
                 0.2D, 0.1D, 0.2D, 0.02D);
 
         if (!additionalEffects.isEmpty()) {
@@ -62,18 +62,18 @@ abstract class critical_base_action extends proc_on_hit_action {
                 if (!action_context.isServer(target)) {
                     continue;
                 }
-                target.addEffect(new MobEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
+                target.addStatusEffect(new MobEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
             }
         }
     }
 
     private static List<extra_effect> parseAdditionalEffects(JsonObject root) {
         if (root == null || !root.has("extra_effects")) {
-            return List.direct();
+            return List.of();
         }
         JsonElement element = root.get("extra_effects");
         if (!element.isJsonArray()) {
-            return List.direct();
+            return List.of();
         }
         JsonArray array = element.getAsJsonArray();
         List<extra_effect> effects = new ArrayList<>();
@@ -82,15 +82,15 @@ abstract class critical_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entry.getAsJsonObject();
-            Identifier id = Identifier.tryBuild(obj.has("effect") ? obj.get("effect").getAsString() : "");
+            Identifier id = Identifier.tryParse(obj.has("effect") ? obj.get("effect").getAsString() : "");
             if (id == null) {
                 continue;
             }
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.STATUS_EFFECT.get(id);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -99,7 +99,7 @@ abstract class critical_base_action extends proc_on_hit_action {
             boolean applyToSelf = parseApplyToSelf(obj.has("target") ? obj.get("target").getAsString() : null);
             effects.add(new extra_effect(entryRef, duration, amplifier, applyToSelf));
         }
-        return effects.isEmpty() ? List.direct() : List.copyOf(effects);
+        return effects.isEmpty() ? List.of() : List.copyOf(effects);
     }
 
     private static boolean parseApplyToSelf(String raw) {

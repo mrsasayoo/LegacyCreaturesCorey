@@ -41,13 +41,13 @@ public final class AntiFarmManager {
         if (!isTieredMob(mob.type())) {
             return;
         }
-        ChunkPos chunkPos = new ChunkPos(mob.getBlockAt());
+        ChunkPos chunkPos = new ChunkPos(mob.getBlockPos());
         if (shouldIgnoreForAntiFarm(mob, chunkPos)) {
             return;
         }
 
-        CoreyServerState state = CoreyServerState.byString(world.getServer());
-        long chunkKey = chunkPos.asLong();
+        CoreyServerState state = CoreyServerState.get(world.getServer());
+        long chunkKey = chunkPos.toLong();
 
         if (state.isChunkSpawnBlocked(chunkKey)) {
             return;
@@ -83,8 +83,8 @@ public final class AntiFarmManager {
         if (!isTieredMob(mob.type())) {
             return false;
         }
-        CoreyServerState state = CoreyServerState.byString(world.getServer());
-        long chunkKey = new ChunkPos(mob.getBlockAt()).asLong();
+        CoreyServerState state = CoreyServerState.get(world.getServer());
+        long chunkKey = new ChunkPos(mob.getBlockPos()).toLong();
         return state.isChunkSpawnBlocked(chunkKey);
     }
 
@@ -93,7 +93,7 @@ public final class AntiFarmManager {
         long tick = world.getTime();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                long chunkKey = ChunkPos.asLong(center.x + dx, center.z + dz);
+                long chunkKey = ChunkPos.toLong(center.x + dx, center.z + dz);
                 state.markChunkSpawnBlocked(chunkKey, tick);
             }
         }
@@ -104,10 +104,10 @@ public final class AntiFarmManager {
                 center.x,
                 center.z,
                 world.getRegistryKey().getValue(),
-                sample.type().getDescriptionId()
+                sample.type().getTranslationKey()
             );
         }
-        ChunkActivityData centerData = state.getChunkActivity(center.asLong());
+        ChunkActivityData centerData = state.getChunkActivity(center.toLong());
         AntiFarmDashboardEvents.CHUNK_ACTIVITY_UPDATED.invoker().onChunkActivityUpdated(
             world,
             center,

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
-import net.minecraft.world.entity.projectile.WitherSkull;
+import net.minecraft.world.entity.projectile.hurtingprojectile.WitherSkull;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -89,8 +89,8 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
         
         // Calcular vectores perpendiculares para el spread
         Vec3 up = new Vec3(0, 1, 0);
-        Vec3 right = baseDirection.cross(up).normalize();
-        if (right.lengthSqr() < 0.01) {
+        Vec3 right = baseDirection.crossProduct(up).normalize();
+        if (right.lengthSquared() < 0.01) {
             right = new Vec3(1, 0, 0);
         }
         
@@ -98,11 +98,11 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
         double spreadRad = Math.toRadians(spreadAngle);
         
         // Efectos visuales al disparar
-        world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+        world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
                 witherPos.x, witherPos.y, witherPos.z,
                 20, 0.5D, 0.5D, 0.5D, 0.1D);
         
-        world.makeSound(null, wither.getX(), wither.getY(), wither.getZ(),
+        world.playSound(null, wither.getX(), wither.getY(), wither.getZ(),
                 SoundEvents.WITHER_SHOOT, SoundSource.HOSTILE, 1.0F, 0.7F);
         
         // Disparar proyectiles con spread uniforme
@@ -125,9 +125,9 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
         double cos = Math.cos(angleRad);
         double sin = Math.sin(angleRad);
         
-        return vector.scale(cos)
-                .atLowerCornerWithOffset(axis.cross(vector).scale(sin))
-                .atLowerCornerWithOffset(axis.scale(axis.dot(vector) * (1 - cos)));
+        return vector.multiply(cos)
+                .add(axis.crossProduct(vector).multiply(sin))
+                .add(axis.multiply(axis.dotProduct(vector) * (1 - cos)));
     }
     
     /**

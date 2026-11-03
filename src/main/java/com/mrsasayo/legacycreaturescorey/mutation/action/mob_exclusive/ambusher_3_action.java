@@ -45,7 +45,7 @@ public final class ambusher_3_action extends ambusher_base_action {
     private void explode(Creeper creeper) {
         Handler.INSTANCE.reset(creeper);
         Level world = creeper.getEntityWorld();
-        world.explode(
+        world.createExplosion(
                 creeper,
                 creeper.getX(),
                 creeper.getY(),

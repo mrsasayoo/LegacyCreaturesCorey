@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.Panda;
+import net.minecraft.world.entity.animal.panda.Panda;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class bamboo_eater_base_action implements mutation_action {
-    private static final Identifier STOP_MOVE_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_stop");
-    private static final Identifier REACH_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_reach");
-    private static final Identifier KNOCKBACK_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_knockback");
+    private static final Identifier STOP_MOVE_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "bamboo_stop");
+    private static final Identifier REACH_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "bamboo_reach");
+    private static final Identifier KNOCKBACK_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "bamboo_knockback");
     
     // Rastrear pandas que ya han sido configurados para ser agresivos
     private static final Map<Panda, Boolean> aggressivePandas = new WeakHashMap<>();
@@ -59,10 +59,10 @@ abstract class bamboo_eater_base_action implements mutation_action {
         mob_entity_goal_accessor accessor = (mob_entity_goal_accessor) panda;
         
         // Añadir goal de ataque melee con alta prioridad
-        accessor.getGoalSelector().offset(1, new MeleeAttackGoal(panda, 1.5D, true));
+        accessor.getGoalSelector().add(1, new MeleeAttackGoal(panda, 1.5D, true));
         
         // Añadir goal para targetear jugadores
-        accessor.getTargetSelector().offset(1, new NearestAttackableTargetGoal<>(panda, Player.class, true));
+        accessor.getTargetSelector().add(1, new NearestAttackableTargetGoal<>(panda, Player.class, true));
         
         // Marcar como configurado
         aggressivePandas.put(panda, true);
@@ -107,7 +107,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
         world.breakBlock(bambooPos, false);
         panda.heal(healAmount);
         if (resistanceTicks > 0) {
-            panda.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,
+            panda.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE,
                     resistanceTicks,
                     Math.max(0, resistanceAmplifier)));
         }
@@ -159,7 +159,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
         for (int x = -2; x <= 2; x++) {
             for (int y = 0; y <= 2; y++) {
                 for (int z = -2; z <= 2; z++) {
-                    BlockPos candidate = center.offset(x, y, z);
+                    BlockPos candidate = center.add(x, y, z);
                     if (world.getBlockState(candidate).isOf(Blocks.BAMBOO)) {
                         return candidate;
                     }
@@ -170,16 +170,16 @@ abstract class bamboo_eater_base_action implements mutation_action {
     }
 
     private static void applyStopMovement(Panda panda) {
-        AttributeInstance speed = panda.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = panda.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed != null && !speed.hasModifier(STOP_MOVE_ID)) {
-            speed.addPermanentModifier(new AttributeModifier(STOP_MOVE_ID,
+            speed.addPersistentModifier(new AttributeModifier(STOP_MOVE_ID,
                     -1.0D,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
     }
 
     private static void removeStopMovement(Panda panda) {
-        AttributeInstance speed = panda.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = panda.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.hasModifier(STOP_MOVE_ID)) {
             speed.removeModifier(STOP_MOVE_ID);
         }
@@ -204,9 +204,9 @@ abstract class bamboo_eater_base_action implements mutation_action {
             Identifier id,
             double value,
             AttributeModifier.Operation operation) {
-        AttributeInstance instance = panda.getAttribute(attribute);
+        AttributeInstance instance = panda.getAttributeInstance(attribute);
         if (instance != null && !instance.hasModifier(id)) {
-            instance.addPermanentModifier(new AttributeModifier(id, value, operation));
+            instance.addPersistentModifier(new AttributeModifier(id, value, operation));
         }
     }
 
@@ -224,7 +224,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
     private static void removeModifier(Panda panda,
             Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
             Identifier id) {
-        AttributeInstance instance = panda.getAttribute(attribute);
+        AttributeInstance instance = panda.getAttributeInstance(attribute);
         if (instance != null && instance.hasModifier(id)) {
             instance.removeModifier(id);
         }

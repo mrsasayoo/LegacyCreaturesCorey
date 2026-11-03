@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mixin.accessor.persistent_projectile_en
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerLevel;
 
@@ -86,7 +86,7 @@ public final class ProjectileShroudHandler {
 
         List<AbstractArrow> projectiles = world.getEntitiesByClass(
                 AbstractArrow.class,
-                entity.getLocalBoundsForPose().expand(radius),
+                entity.getBoundingBox().expand(radius),
                 projectile -> projectile.isAlive() && !projectile.isOnGround());
 
         for (AbstractArrow projectile : projectiles) {
@@ -104,9 +104,9 @@ public final class ProjectileShroudHandler {
                 case DESTROY -> discardProjectile(world, projectile, aura.sourceDef);
                 case DEFLECT -> {
                     double reflectFactor = Math.max(0.0D, aura.sourceDef.getReflectDamageFactor());
-                    projectile.setTarget(entity);
+                    projectile.setOwner(entity);
                     double baseDamage = getProjectileDamage(projectile);
-                    projectile.setDamageValue(Math.max(0.0D, baseDamage * reflectFactor));
+                    projectile.setDamage(Math.max(0.0D, baseDamage * reflectFactor));
                     projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectFactor)));
                     projectile.velocityDirty = true;
                     projectile.velocityModified = true;
@@ -140,7 +140,7 @@ public final class ProjectileShroudHandler {
             return;
         }
         ItemEntity drop = new ItemEntity(world, projectile.getX(), projectile.getY(), projectile.getZ(), stack);
-        drop.setPickUpDelay(5);
+        drop.setPickupDelay(5);
         world.spawnEntity(drop);
     }
 
@@ -148,7 +148,7 @@ public final class ProjectileShroudHandler {
         if (projectile instanceof persistent_projectile_entity_accessor accessor) {
             ItemStack stack = accessor.legacycreaturescorey$invokeAsItemStack();
             if (!stack.isEmpty()) {
-                return stack.copyFrom();
+                return stack.copy();
             }
         }
         return ItemStack.EMPTY;

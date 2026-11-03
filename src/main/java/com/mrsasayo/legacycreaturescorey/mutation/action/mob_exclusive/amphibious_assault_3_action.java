@@ -79,7 +79,7 @@ public final class amphibious_assault_3_action extends amphibious_assault_base_a
     }
 
     private void igniteBlock(ServerLevel world, BlockPos pos) {
-        BlockPos targetPos = world.isAir(pos) ? pos : pos.above();
+        BlockPos targetPos = world.isAir(pos) ? pos : pos.up();
         if (!world.isAir(targetPos)) {
             return;
         }

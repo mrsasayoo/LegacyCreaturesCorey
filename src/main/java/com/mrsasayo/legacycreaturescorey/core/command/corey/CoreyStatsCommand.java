@@ -48,19 +48,19 @@ final class CoreyStatsCommand {
 
         stats.then(Commands.literal("global").executes(ctx -> {
             StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-            ctx.getSource().sendSuccess(snapshot::toGlobalText, false);
+            ctx.getSource().sendFeedback(snapshot::toGlobalText, false);
             return 1;
         }));
 
         stats.then(Commands.literal("mobs")
             .then(Commands.literal("spawned").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendSuccess(snapshot::toMobSpawnText, false);
+                ctx.getSource().sendFeedback(snapshot::toMobSpawnText, false);
                 return snapshot.totalTieredMobs;
             }))
             .then(Commands.literal("mutations").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendSuccess(snapshot::toMutationText, false);
+                ctx.getSource().sendFeedback(snapshot::toMutationText, false);
                 return snapshot.mutationUsage.values().stream().mapToInt(Integer::intValue).sum();
             }))
         );
@@ -68,7 +68,7 @@ final class CoreyStatsCommand {
         stats.then(Commands.literal("players")
             .then(Commands.literal("ranking").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendSuccess(snapshot::toRankingText, false);
+                ctx.getSource().sendFeedback(snapshot::toRankingText, false);
                 return snapshot.playerEntries.size();
             }))
             .then(Commands.literal("individual")
@@ -76,15 +76,15 @@ final class CoreyStatsCommand {
                     .executes(ctx -> {
                         ServerPlayer player = EntityArgument.getPlayer(ctx, "jugador");
                         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-                        ctx.getSource().sendSuccess(() -> Component.literal(
-                            "Jugador " + player.getTextName().getString() + " -> dificultad " + data.getPlayerDifficulty()
+                        ctx.getSource().sendFeedback(() -> Component.literal(
+                            "Jugador " + player.getName().getString() + " -> dificultad " + data.getPlayerDifficulty()
                         ), false);
                         return data.getPlayerDifficulty();
                     })))
         );
 
         stats.then(Commands.literal("performance").executes(ctx -> {
-            ctx.getSource().sendSuccess(() -> Component.literal("Consulta /debug perf para métricas detalladas."), false);
+            ctx.getSource().sendFeedback(() -> Component.literal("Consulta /debug perf para métricas detalladas."), false);
             return 0;
         }));
 
@@ -104,10 +104,10 @@ final class CoreyStatsCommand {
             String fileName = "legacy_creatures_report_" + FILE_TIMESTAMP.format(Instant.now()) + "." + format;
             Path file = exportDir.resolve(fileName);
             Files.writeString(file, snapshot.export(format), StandardCharsets.UTF_8);
-            ctx.getSource().sendSuccess(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
+            ctx.getSource().sendFeedback(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
             return 1;
         } catch (IOException e) {
-            ctx.getSource().sendFailure(Component.literal("Error al exportar: " + e.getMessage()));
+            ctx.getSource().sendError(Component.literal("Error al exportar: " + e.getMessage()));
             return 0;
         }
     }
@@ -127,7 +127,7 @@ final class CoreyStatsCommand {
             Map<Identifier, Integer> mutationCounter = new HashMap<>();
             int tiered = 0;
             for (ServerLevel world : server.getWorlds()) {
-                for (Entity entity : world.getAllEntities()) {
+                for (Entity entity : world.iterateEntities()) {
                     if (!(entity instanceof Mob mob) || !mob.isAlive()) {
                         continue;
                     }
@@ -142,7 +142,7 @@ final class CoreyStatsCommand {
                 }
             }
             List<PlayerEntry> players = server.getPlayerManager().getPlayerList().stream()
-                .map(player -> new PlayerEntry(player.getTextName().getString(), player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY).getPlayerDifficulty()))
+                .map(player -> new PlayerEntry(player.getName().getString(), player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY).getPlayerDifficulty()))
                 .sorted(Comparator.comparingInt(PlayerEntry::difficulty).reversed())
                 .collect(Collectors.toList());
 
@@ -190,7 +190,7 @@ final class CoreyStatsCommand {
             StringBuilder builder = new StringBuilder("Ranking actual de dificultad:\n");
             int rank = 1;
             for (PlayerEntry entry : playerEntries) {
-                builder.append(rank++).append(". ").append(entry.textName()).append(" -> ").append(entry.difficulty()).append('\n');
+                builder.append(rank++).append(". ").append(entry.name()).append(" -> ").append(entry.difficulty()).append('\n');
                 if (rank > 5) {
                     break;
                 }
@@ -208,10 +208,10 @@ final class CoreyStatsCommand {
 
         private String exportJson() {
             String playersJson = playerEntries.stream()
-                .map(entry -> String.format(Locale.ROOT, "{\"name\":\"%s\",\"difficulty\":%d}", entry.textName(), entry.difficulty()))
+                .map(entry -> String.format(Locale.ROOT, "{\"name\":\"%s\",\"difficulty\":%d}", entry.name(), entry.difficulty()))
                 .collect(Collectors.joining(","));
             String tiersJson = mobsPerTier.entrySet().stream()
-                .map(entry -> String.format(Locale.ROOT, "\"%s\":%d", entry.getKey().textName().toLowerCase(Locale.ROOT), entry.getValue()))
+                .map(entry -> String.format(Locale.ROOT, "\"%s\":%d", entry.getKey().name().toLowerCase(Locale.ROOT), entry.getValue()))
                 .collect(Collectors.joining(","));
             return "{" +
                 "\"globalDifficulty\":" + globalDifficulty + ',' +
@@ -227,10 +227,10 @@ final class CoreyStatsCommand {
             builder.append("global,difficulty,").append(globalDifficulty).append('\n');
             builder.append("global,tiered_mobs,").append(totalTieredMobs).append('\n');
             for (Map.Entry<MobTier, Integer> entry : mobsPerTier.entrySet()) {
-                builder.append("tier,").append(entry.getKey().textName().toLowerCase(Locale.ROOT)).append(',').append(entry.getValue()).append('\n');
+                builder.append("tier,").append(entry.getKey().name().toLowerCase(Locale.ROOT)).append(',').append(entry.getValue()).append('\n');
             }
             for (PlayerEntry entry : playerEntries) {
-                builder.append("player,").append(entry.textName()).append(',').append(entry.difficulty()).append('\n');
+                builder.append("player,").append(entry.name()).append(',').append(entry.difficulty()).append('\n');
             }
             return builder.toString();
         }
@@ -246,7 +246,7 @@ final class CoreyStatsCommand {
             builder.append("</ul>");
             builder.append("<h2>Jugadores</h2><ol>");
             for (PlayerEntry entry : playerEntries) {
-                builder.append("<li>").append(entry.textName()).append(" - ").append(entry.difficulty()).append("</li>");
+                builder.append("<li>").append(entry.name()).append(" - ").append(entry.difficulty()).append("</li>");
             }
             builder.append("</ol></body></html>");
             return builder.toString();

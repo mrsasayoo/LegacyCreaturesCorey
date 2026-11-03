@@ -34,35 +34,35 @@ public final class CoreyHudCommand {
 
     private static int queryHud(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         if (!difficulty_config.isEnableDifficultyHud()) {
-            ctx.getSource().sendFailure(Component.literal("El HUD de dificultad está desactivado por el servidor."));
+            ctx.getSource().sendError(Component.literal("El HUD de dificultad está desactivado por el servidor."));
             return 0;
         }
         ServerPlayer player = requirePlayer(ctx);
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        ctx.getSource().sendSuccess(() -> Component.literal(statusMessage(data.isDifficultyHudEnabled())), false);
+        ctx.getSource().sendFeedback(() -> Component.literal(statusMessage(data.isDifficultyHudEnabled())), false);
         return 1;
     }
 
     private static int setHud(CommandContext<CommandSourceStack> ctx, boolean enabled) throws CommandSyntaxException {
         if (!difficulty_config.isEnableDifficultyHud()) {
-            ctx.getSource().sendFailure(Component.literal("El HUD de dificultad está desactivado por el servidor."));
+            ctx.getSource().sendError(Component.literal("El HUD de dificultad está desactivado por el servidor."));
             return 0;
         }
         ServerPlayer player = requirePlayer(ctx);
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
         if (data.isDifficultyHudEnabled() == enabled) {
-            ctx.getSource().sendSuccess(() -> Component.literal(statusMessage(enabled)), false);
+            ctx.getSource().sendFeedback(() -> Component.literal(statusMessage(enabled)), false);
             return 1;
         }
         data.setDifficultyHudEnabled(enabled);
         DifficultyManager.syncPlayer(player);
-        ctx.getSource().sendSuccess(() -> Component.literal("HUD de dificultad " + (enabled ? "activado" : "desactivado")), false);
+        ctx.getSource().sendFeedback(() -> Component.literal("HUD de dificultad " + (enabled ? "activado" : "desactivado")), false);
         return 1;
     }
 
     private static int toggleHud(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         if (!difficulty_config.isEnableDifficultyHud()) {
-            ctx.getSource().sendFailure(Component.literal("El HUD de dificultad está desactivado por el servidor."));
+            ctx.getSource().sendError(Component.literal("El HUD de dificultad está desactivado por el servidor."));
             return 0;
         }
         ServerPlayer player = requirePlayer(ctx);
@@ -70,12 +70,12 @@ public final class CoreyHudCommand {
         data.toggleDifficultyHud();
         boolean enabled = data.isDifficultyHudEnabled();
         DifficultyManager.syncPlayer(player);
-        ctx.getSource().sendSuccess(() -> Component.literal("HUD de dificultad " + (enabled ? "activado" : "desactivado")), false);
+        ctx.getSource().sendFeedback(() -> Component.literal("HUD de dificultad " + (enabled ? "activado" : "desactivado")), false);
         return 1;
     }
 
     private static ServerPlayer requirePlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        return ctx.getSource().getPlayerOrException();
+        return ctx.getSource().getPlayerOrThrow();
     }
 
     private static String statusMessage(boolean enabled) {

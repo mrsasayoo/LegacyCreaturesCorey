@@ -24,10 +24,10 @@ public final class battering_ram_3_action extends battering_ram_base_action {
         if (attacker.getEntityWorld().isClient()) {
             return;
         }
-        target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,
+        target.addStatusEffect(new MobEffectInstance(MobEffects.WEAKNESS,
                 weaknessDurationTicks,
                 weaknessAmplifier));
-        target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,
+        target.addStatusEffect(new MobEffectInstance(MobEffects.NAUSEA,
                 nauseaDurationTicks,
                 nauseaAmplifier));
     }

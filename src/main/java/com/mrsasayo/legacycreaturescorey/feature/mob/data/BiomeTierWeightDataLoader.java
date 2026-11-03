@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final Identifier RELOAD_ID = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "biome_tier_weights");
-    private static final Identifier DATA_PATH = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "biome_tier_weights.json");
+    private static final Identifier RELOAD_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "biome_tier_weights");
+    private static final Identifier DATA_PATH = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "biome_tier_weights.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> biomeOverrides = Map.createRegistryKey();
+    private static volatile Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> biomeOverrides = Map.of();
     private static volatile EnumMap<MobTier, Double> globalDefaults = defaultMultipliers();
 
     private BiomeTierWeightDataLoader() {
@@ -85,7 +85,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
     public void reload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
-            biomeOverrides = Map.createRegistryKey();
+            biomeOverrides = Map.of();
             globalDefaults = defaultMultipliers();
             Legacycreaturescorey.LOGGER.debug("No se encontró {}. Se usará multiplicador 1.0 para todos los biomas.", DATA_PATH);
             return;
@@ -93,7 +93,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
 
         Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> parsed = new HashMap<>();
         EnumMap<MobTier, Double> defaults = defaultMultipliers();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
 
             if (root.has("defaults")) {
@@ -102,14 +102,14 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
 
             JsonArray entries = root.has("entries") ? GsonHelper.getAsJsonArray(root, "entries") : new JsonArray();
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entry = GsonHelper.convertToJsonObject(entries.get(i), "entries[" + i + "]");
-                String biomeIdRaw = GsonHelper.getAsString(entry, "biome");
-                Identifier biomeId = Identifier.tryBuild(biomeIdRaw);
+                JsonObject entry = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
+                String biomeIdRaw = GsonHelper.getString(entry, "biome");
+                Identifier biomeId = Identifier.tryParse(biomeIdRaw);
                 if (biomeId == null) {
                     Legacycreaturescorey.LOGGER.warn("Bioma inválido '{}' en biome_tier_weights", biomeIdRaw);
                     continue;
                 }
-                ResourceKey<Biome> biomeKey = ResourceKey.createRegistryKey(net.minecraft.core.registries.Registries.BIOME, biomeId);
+                ResourceKey<Biome> biomeKey = ResourceKey.of(net.minecraft.core.registries.Registries.BIOME, biomeId);
                 JsonObject tiersObject = GsonHelper.getAsJsonObject(entry, "tiers");
                 EnumMap<MobTier, Double> tierMap = parseTierMap(tiersObject, "entries[" + i + "]");
                 parsed.put(biomeKey, tierMap);
@@ -119,7 +119,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
             globalDefaults = defaults;
             Legacycreaturescorey.LOGGER.info("Cargadas {} reglas de pesos por bioma", biomeOverrides.size());
         } catch (IOException exception) {
-            biomeOverrides = Map.createRegistryKey();
+            biomeOverrides = Map.of();
             globalDefaults = defaultMultipliers();
             Legacycreaturescorey.LOGGER.error("Error al leer {}: {}", DATA_PATH, exception.getMessage());
         }
@@ -137,7 +137,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
                 Legacycreaturescorey.LOGGER.warn("Tier '{}' inválido en {}", entry.getKey(), context);
                 continue;
             }
-            double value = GsonHelper.convertToDouble(entry.location(), entry.getKey());
+            double value = GsonHelper.asDouble(entry.getValue(), entry.getKey());
             multipliers.put(tier, Math.max(0.0D, value));
         }
         return multipliers;
@@ -155,7 +155,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
     }
 
     private static MobTier parseTierKey(String raw) {
-        String normalized = raw.trim().toLowerCase(Locale.ROOT_REGISTRY_NAME);
+        String normalized = raw.trim().toLowerCase(Locale.ROOT);
         return switch (normalized) {
             case "epic" -> MobTier.EPIC;
             case "legendary" -> MobTier.LEGENDARY;

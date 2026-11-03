@@ -74,7 +74,7 @@ public final class AttributeAuraAction implements mutation_action {
         while (iterator.hasNext()) {
             Map.Entry<LivingEntity, Identifier> entry = iterator.next();
             LivingEntity target = entry.unwrapKey();
-            if (!currentTargets.intersects(target) || !target.isAlive()) {
+            if (!currentTargets.contains(target) || !target.isAlive()) {
                 removeModifier(target, entry.getValue());
                 iterator.remove();
             }
@@ -116,10 +116,10 @@ public final class AttributeAuraAction implements mutation_action {
 
     private Set<LivingEntity> findTargets(LivingEntity source, ServerLevel world) {
         double radiusSquared = radius * radius;
-        AABB box = source.getLocalBoundsForPose().inflate(radius);
+        AABB box = source.getBoundingBox().expand(radius);
         List<? extends Entity> candidates = switch (target) {
             case ALLY_MOBS -> world.getEntitiesByClass(Mob.class, box, Entity::isAlive);
-            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSquared);
+            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSquared);
             case SELF -> Collections.singletonList(source);
         };
 
@@ -135,7 +135,7 @@ public final class AttributeAuraAction implements mutation_action {
             if (excludeSelf && candidate == source) {
                 continue;
             }
-            if (source.distanceToSqr(living) > radiusSquared) {
+            if (source.squaredDistanceTo(living) > radiusSquared) {
                 continue;
             }
             results.add(living);
@@ -147,11 +147,11 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        AttributeInstance instance = target.getAttribute(attribute);
+        AttributeInstance instance = target.getAttributeInstance(attribute);
         if (instance == null) {
             return;
         }
-        Identifier modifierId = Identifier.ofSize(
+        Identifier modifierId = Identifier.fromNamespaceAndPath(
             Legacycreaturescorey.MOD_ID,
             "attribute_aura_" + Integer.toHexString(System.identityHashCode(this)) + "_" + target.getId()
         );
@@ -164,7 +164,7 @@ public final class AttributeAuraAction implements mutation_action {
             return;
         }
         AttributeModifier modifier = new AttributeModifier(modifierId, amount, op);
-        instance.addPermanentModifier(modifier);
+        instance.addPersistentModifier(modifier);
         appliedModifiers.put(target, modifierId);
         if (attributeType == Attributes.MAX_HEALTH) {
             // Ensure current health is not above the new cap
@@ -179,7 +179,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        AttributeInstance instance = target.getAttribute(attribute);
+        AttributeInstance instance = target.getAttributeInstance(attribute);
         if (instance == null) {
             return;
         }

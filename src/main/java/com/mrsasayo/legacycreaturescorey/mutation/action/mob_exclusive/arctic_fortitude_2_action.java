@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.polarbear.PolarBear;
 import net.minecraft.core.BlockPos;
 
 public final class arctic_fortitude_2_action extends arctic_fortitude_base_action {
@@ -21,13 +21,13 @@ public final class arctic_fortitude_2_action extends arctic_fortitude_base_actio
         if (bear == null) {
             return;
         }
-        if (bear.hasEffect(MobEffects.SLOWNESS)) {
-            bear.removeEffect(MobEffects.SLOWNESS);
+        if (bear.hasStatusEffect(MobEffects.SLOWNESS)) {
+            bear.removeStatusEffect(MobEffects.SLOWNESS);
         }
         if (bear.isFrozen()) {
             bear.setFrozenTicks(0);
         }
-        BlockPos below = bear.getBlockPos().below();
+        BlockPos below = bear.getBlockPos().down();
         if (isIceOrSnow(bear.getEntityWorld().getBlockState(below))) {
             applySpeedBuff(bear, speedDurationTicks, speedAmplifier);
         }

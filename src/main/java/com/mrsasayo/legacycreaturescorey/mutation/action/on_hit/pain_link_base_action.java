@@ -86,9 +86,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(id);
             if (resolved != null) {
-                effect = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
             }
         }
         if (effect == null) {
@@ -106,9 +106,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(id);
             if (resolved != null) {
-                effect = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
             }
         }
         if (effect == null) {
@@ -139,7 +139,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         Handler.INSTANCE.registerLink(world, attacker, player, profile);
         PlayerBuff buff = profile.playerBuff();
         if (buff != null && buff.durationTicks() > 0 && buff.effect() != null) {
-            player.addEffect(new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
+            player.addStatusEffect(new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
         }
     }
 
@@ -192,7 +192,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (effect == null) {
             return null;
         }
-        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
         if (entry == null) {
             return null;
         }
@@ -203,7 +203,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (effect == null) {
             return null;
         }
-        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
         if (entry == null) {
             return null;
         }
@@ -244,7 +244,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             }
             ActiveLink link = new ActiveLink(world.getTime() + profile.durationTicks(), mob, player, profile);
             linksByPlayer.put(player, link);
-            linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).atLowerCornerWithOffset(link);
+            linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).add(link);
             link.playActivation(world);
         }
 
@@ -330,8 +330,8 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             double playerY = player.getY() + player.getStandingEyeHeight() * 0.4D;
             double playerZ = player.getZ();
             float basePitch = 0.85F + world.getRandom().nextFloat() * 0.15F;
-            world.makeSound(null, mobX, mobY, mobZ, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.HOSTILE, 0.6F, basePitch);
-            world.makeSound(null, playerX, playerY, playerZ, SoundEvents.ENDERMAN_AMBIENT, SoundSource.PLAYERS, 0.4F, 1.2F);
+            world.playSound(null, mobX, mobY, mobZ, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.HOSTILE, 0.6F, basePitch);
+            world.playSound(null, playerX, playerY, playerZ, SoundEvents.ENDERMAN_AMBIENT, SoundSource.PLAYERS, 0.4F, 1.2F);
             spawnBurst(world, new Vec3(mobX, mobY, mobZ));
             spawnBurst(world, new Vec3(playerX, playerY, playerZ));
             applyGlow();
@@ -450,9 +450,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
 
         private void applyGlow() {
             MobEffectInstance marker = new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false);
-            player.addEffect(marker);
+            player.addStatusEffect(marker);
             if (mob.isAlive()) {
-                mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
+                mob.addStatusEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
             }
         }
 
@@ -462,9 +462,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier());
-            player.addEffect(instance);
+            player.addStatusEffect(instance);
             if (mob.isAlive()) {
-                mob.addEffect(new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
+                mob.addStatusEffect(new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
             }
         }
 
@@ -477,17 +477,17 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             ParticleOptions effect = profile.particleEffect() != null ? profile.particleEffect() : ParticleTypes.ELECTRIC_SPARK;
             for (int i = 0; i <= segments; i++) {
                 double t = i / (double) segments;
-                Vec3 point = from.atLowerCornerWithOffset(delta.scale(t));
-                world.sendParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
+                Vec3 point = from.add(delta.multiply(t));
+                world.spawnParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
                 if (profile.mode() == LinkMode.SPLIT_SHARE) {
-                    world.sendParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                    world.spawnParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
                 }
             }
         }
 
         private void spawnBurst(ServerLevel world, Vec3 origin) {
-            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
-            world.sendParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
+            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
+            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
         }
     }
 }

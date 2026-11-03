@@ -206,7 +206,7 @@ public class entropy_aura_3_action implements mutation_action {
                 return;
             }
             player.getInventory().setSelectedSlot(slot);
-            player.connection.sendPacketToServer(new ClientboundSetHeldSlotPacket(slot));
+            player.networkHandler.sendPacket(new ClientboundSetHeldSlotPacket(slot));
             lastSelectedSlot.put(player, slot);
         }
 

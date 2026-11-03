@@ -37,7 +37,7 @@ public class deep_darkness_aura_1_action implements mutation_action {
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
             if (player.squaredDistanceTo(entity) <= radius * radius) {
                 if (removeNightVision) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
+                    player.removeStatusEffect(MobEffects.NIGHT_VISION);
                 }
                 status_effect_config_parser.applyEffects(player, effects);
             }

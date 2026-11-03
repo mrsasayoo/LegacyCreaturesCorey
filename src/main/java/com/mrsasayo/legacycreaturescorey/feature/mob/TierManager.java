@@ -39,7 +39,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🚧 {} spawn bloqueado por anti-granja en chunk {}|{}",
-                    mob.getType().getDescriptionId(),
+                    mob.getType().getTranslationKey(),
                     mob.getChunkPos().x,
                     mob.getChunkPos().z
                 );
@@ -50,9 +50,9 @@ public final class TierManager {
         EnumSet<MobTier> allowedTiers = determineAllowedTiers(mob.getType());
         if (allowedTiers.isEmpty()) {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
             } else {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
             }
             return currentTier;
         }
@@ -62,7 +62,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🎲 {} permaneció Normal | dificultad={} | permitidos={}",
-                    mob.getType().getDescriptionId(),
+                    mob.getType().getTranslationKey(),
                     effectiveDifficulty,
                     allowedTiers
                 );
@@ -79,7 +79,7 @@ public final class TierManager {
         TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, chosen, false);
         Legacycreaturescorey.LOGGER.info(
             "⚔️ {} promovido a tier {} en ({}, {}, {})",
-            mob.getType().getDescriptionId(),
+            mob.getType().getTranslationKey(),
             chosen.getDisplayName(),
             mob.getBlockX(),
             mob.getBlockY(),
@@ -129,7 +129,7 @@ public final class TierManager {
         if (forcedExact != null && !allowedTiers.contains(forcedExact) && logDetails) {
             Legacycreaturescorey.LOGGER.debug(
                 "🚫 {} no permite forzar tier {}. Permitidos: {}",
-                mob.getType().getDescriptionId(),
+                mob.getType().getTranslationKey(),
                 forcedExact,
                 allowedTiers
             );
@@ -143,7 +143,7 @@ public final class TierManager {
             if (logDetails) {
                 Legacycreaturescorey.LOGGER.debug(
                     "⚠️ {} no tiene tiers superiores a Normal disponibles",
-                    mob.getType().getDescriptionId()
+                    mob.getType().getTranslationKey()
                 );
             }
         }
@@ -202,10 +202,10 @@ public final class TierManager {
     }
 
     private static void applyVisuals(Mob mob, MobTier tier) {
-        MutableComponent baseName = Component.translatable(mob.getType().getDescriptionId());
+        MutableComponent baseName = Component.translatable(mob.getType().getTranslationKey());
         MutableComponent tierSuffix = Component.literal(" " + tier.getDisplayName());
         MutableComponent customName = Component.empty().append(baseName).append(tierSuffix)
-            .withStyle(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
+            .styled(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
 
         mob.setCustomName(customName);
         mob.setCustomNameVisible(true);

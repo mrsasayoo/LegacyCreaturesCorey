@@ -86,8 +86,8 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         
         // Posición del vórtice (cerca del Wither, ligeramente adelante)
         Vec3 witherPos = new Vec3(wither.getX(), wither.getY(), wither.getZ());
-        Vec3 forward = wither.getRotationVector().normalize().scale(3.0D);
-        Vec3 vortexPos = witherPos.atLowerCornerWithOffset(forward);
+        Vec3 forward = wither.getRotationVector().normalize().multiply(3.0D);
+        Vec3 vortexPos = witherPos.add(forward);
         
         // Crear ArmorStand invisible como centro de gravedad
         ArmorStand centerStand = new ArmorStand(EntityType.ARMOR_STAND, world);
@@ -101,10 +101,10 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         
         state.vortexCenterUUID = centerStand.getUuid();
         state.vortexTimer = 0;
-        state.vortexCenter = vortexPos.atLowerCornerWithOffset(0, 1.0D, 0);
+        state.vortexCenter = vortexPos.add(0, 1.0D, 0);
         
         // Sonido de inicio del vórtice
-        world.makeSound(null, vortexPos.x, vortexPos.y, vortexPos.z,
+        world.playSound(null, vortexPos.x, vortexPos.y, vortexPos.z,
                 SoundEvents.WITHER_AMBIENT, SoundSource.HOSTILE, 1.5F, 0.5F);
     }
     
@@ -138,7 +138,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         
         // Sonido ambiental del vórtice (cada 20 ticks)
         if (state.vortexTimer % 20 == 0) {
-            world.makeSound(null, center.x, center.y, center.z,
+            world.playSound(null, center.x, center.y, center.z,
                     SoundEvents.PORTAL_AMBIENT, SoundSource.HOSTILE, 0.5F, 0.3F);
         }
     }
@@ -160,17 +160,17 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double startY = center.y + (Math.sin(timer * 0.1D + i) * 1.5D);
             
             // Velocidad hacia el centro
-            Vec3 toCenter = center.subtract(startX, startY, startZ).normalize().scale(0.3D);
+            Vec3 toCenter = center.subtract(startX, startY, startZ).normalize().multiply(0.3D);
             
             // Partículas moradas (portal/enderman)
-            world.sendParticles(ParticleTypes.PORTAL,
+            world.spawnParticles(ParticleTypes.PORTAL,
                     startX, startY, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
                     0.5D);
             
             // Partículas negras (humo del alma)
-            world.sendParticles(ParticleTypes.SOUL,
+            world.spawnParticles(ParticleTypes.SOUL,
                     startX, startY + 0.5D, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
@@ -178,7 +178,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         }
         
         // Partículas en el centro (columna de energía)
-        world.sendParticles(ParticleTypes.REVERSE_PORTAL,
+        world.spawnParticles(ParticleTypes.REVERSE_PORTAL,
                 center.x, center.y, center.z,
                 5,
                 0.2D, 0.5D, 0.2D,
@@ -189,7 +189,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double spiralAngle = angle * 2 + (i * Math.PI * 2 / 3);
             double spiralRadius = 0.5D + (timer % 20) * 0.05D;
             
-            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
                     center.x + Math.cos(spiralAngle) * spiralRadius,
                     center.y + (timer % 20) * 0.1D - 1.0D,
                     center.z + Math.sin(spiralAngle) * spiralRadius,
@@ -212,7 +212,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         double radiusSq = pullRadius * pullRadius;
         
         for (Player player : players) {
-            double distSq = player.distanceToSqr(center.x, center.y, center.z);
+            double distSq = player.squaredDistanceTo(center.x, center.y, center.z);
             if (distSq > radiusSq || distSq < 1.0D) {
                 continue;
             }
@@ -225,15 +225,15 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double forceFactor = pullStrength * (1.0D - (distance / pullRadius));
             forceFactor = Math.min(forceFactor, maxPullSpeed);
             
-            Vec3 pullVelocity = toCenter.normalize().scale(forceFactor);
+            Vec3 pullVelocity = toCenter.normalize().multiply(forceFactor);
             
             // Aplicar velocidad suave (como corriente de agua)
             Vec3 currentVel = player.getVelocity();
-            Vec3 newVel = currentVel.atLowerCornerWithOffset(pullVelocity);
+            Vec3 newVel = currentVel.add(pullVelocity);
             
             // Limitar velocidad máxima
             if (newVel.length() > maxPullSpeed * 2) {
-                newVel = newVel.normalize().scale(maxPullSpeed * 2);
+                newVel = newVel.normalize().multiply(maxPullSpeed * 2);
             }
             
             player.setVelocity(newVel);
@@ -258,11 +258,11 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             if (vortexCenterUUID != null && wither.getEntityWorld() instanceof ServerLevel world) {
                 // Buscar y eliminar el ArmorStand
                 world.getEntitiesByClass(ArmorStand.class,
-                        wither.getLocalBoundsForPose().inflate(20.0D),
+                        wither.getBoundingBox().expand(20.0D),
                         stand -> stand.getUuid().equals(vortexCenterUUID))
                         .forEach(stand -> {
                             // Partículas de dispersión al terminar
-                            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
                                     stand.getX(), stand.getY(), stand.getZ(),
                                     30, 1.0D, 1.0D, 1.0D, 0.1D);
                             stand.discard();

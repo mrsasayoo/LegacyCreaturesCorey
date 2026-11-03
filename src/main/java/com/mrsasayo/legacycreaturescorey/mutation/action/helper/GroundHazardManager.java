@@ -33,11 +33,11 @@ public final class GroundHazardManager {
 			return;
 		}
 		ACTIVE_HAZARDS.computeIfAbsent(world, ignored -> new ArrayList<>())
-			.relative(new Hazard(world, origin, config));
+			.add(new Hazard(world, origin, config));
 	}
 
 	public static void tick(ServerLevel world) {
-		List<Hazard> hazards = ACTIVE_HAZARDS.getFirstAvailable(world);
+		List<Hazard> hazards = ACTIVE_HAZARDS.get(world);
 		if (hazards == null || hazards.isEmpty()) {
 			return;
 		}
@@ -112,7 +112,7 @@ public final class GroundHazardManager {
 			this.config = config;
 			this.remainingTicks = config.durationTicks();
 			this.pulseCooldown = 0;
-			BlockPos pos = BlockPos.containing(origin);
+			BlockPos pos = BlockPos.ofFloored(origin);
 			int groundY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, pos.getX(), pos.getZ());
 			double y = Math.max(origin.y, groundY + 0.05D);
 			this.origin = new Vec3(origin.x, y, origin.z);
@@ -136,9 +136,9 @@ public final class GroundHazardManager {
 		}
 
 		private void pulse(ServerLevel world) {
-			AABB box = AABB.ofSize(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
+			AABB box = AABB.of(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
 			List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, box,
-				entity -> entity.isAlive() && config.target().matches(entity) && entity.distanceToSqr(origin) <= radiusSq);
+				entity -> entity.isAlive() && config.target().matches(entity) && entity.squaredDistanceTo(origin) <= radiusSq);
 
 			if (targets.isEmpty()) {
 				return;
@@ -149,7 +149,7 @@ public final class GroundHazardManager {
 					entity.damage(world, world.getDamageSources().magic(), config.damagePerPulse());
 				}
 				if (config.statusEffect() != null && config.statusDuration() > 0) {
-					entity.addEffect(new MobEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
+					entity.addStatusEffect(new MobEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
 				}
 			}
 		}

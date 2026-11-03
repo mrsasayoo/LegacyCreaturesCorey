@@ -62,11 +62,11 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             case SHUFFLE -> shuffleHotbar(inventory, attacker.getRandom().nextLong());
         }
         inventory.markDirty();
-        player.setItemInHand(InteractionHand.MAIN_HAND, inventory.getStack(selected));
+        player.setStackInHand(InteractionHand.MAIN_HAND, inventory.getStack(selected));
         player.playerScreenHandler.sendContentUpdates();
 
         if (selfSlownessTicks > 0) {
-            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, 1));
+            player.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, 1));
         }
     }
 

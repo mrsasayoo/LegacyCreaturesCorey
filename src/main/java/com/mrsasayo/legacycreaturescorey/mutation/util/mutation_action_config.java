@@ -50,7 +50,7 @@ public final class mutation_action_config {
         if (element != null && element.isJsonPrimitive()) {
             String raw = element.getAsString();
             if (!raw.isEmpty()) {
-                return Identifier.tryBuild(raw);
+                return Identifier.tryParse(raw);
             }
         }
         return defaultValue;

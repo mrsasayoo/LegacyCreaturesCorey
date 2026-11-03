@@ -32,8 +32,8 @@ final class FuryHelper {
         mob.setAggressive(true);
 
         if (mob instanceof NeutralMob angerable) {
-            angerable.setRemainingPersistentAngerTime(600);
-            angerable.setPersistentAngerTarget(player.getUuid());
+            angerable.setAngerTime(600);
+            angerable.setAngryAt(player.getUuid());
         }
     }
 }

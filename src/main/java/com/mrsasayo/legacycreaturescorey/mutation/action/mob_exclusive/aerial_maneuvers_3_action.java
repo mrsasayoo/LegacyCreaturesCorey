@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Ghast;
-import net.minecraft.world.entity.projectile.LargeFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -72,11 +72,11 @@ public final class aerial_maneuvers_3_action implements mutation_action {
             
             // Sonido de inicio de ráfaga
             if (ghast.getEntityWorld() instanceof ServerLevel world) {
-                world.makeSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                world.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                         SoundEvents.GHAST_WARN, SoundSource.HOSTILE, 1.5F, 1.2F);
                 
                 // Partículas de carga
-                world.sendParticles(ParticleTypes.FLAME,
+                world.spawnParticles(ParticleTypes.FLAME,
                         ghast.getX(), ghast.getEyeY(), ghast.getZ(),
                         15, 0.8D, 0.8D, 0.8D, 0.05D);
             }
@@ -118,22 +118,22 @@ public final class aerial_maneuvers_3_action implements mutation_action {
         double z = Math.sin(yaw) * Math.cos(pitch);
         Vec3 direction = new Vec3(x, y, z).normalize();
 
-        Vec3 start = ghastPos.atLowerCornerWithOffset(direction.scale(2.0D));
+        Vec3 start = ghastPos.add(direction.multiply(2.0D));
         
         // Crear y disparar la bola de fuego
-        LargeFireball fireball = new LargeFireball(world, ghast, direction.scale(0.3D), fireballPower);
+        LargeFireball fireball = new LargeFireball(world, ghast, direction.multiply(0.3D), fireballPower);
         fireball.setPos(start.x, start.y, start.z);
         world.spawnEntity(fireball);
         
         // Sonido de disparo
-        world.makeSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+        world.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                 SoundEvents.GHAST_SHOOT, SoundSource.HOSTILE, 1.0F, 1.0F + shotIndex * 0.1F);
         
         // Partículas de disparo
-        world.sendParticles(ParticleTypes.SMOKE,
+        world.spawnParticles(ParticleTypes.SMOKE,
                 start.x, start.y, start.z,
                 8, 0.2D, 0.2D, 0.2D, 0.03D);
-        world.sendParticles(ParticleTypes.FLAME,
+        world.spawnParticles(ParticleTypes.FLAME,
                 start.x, start.y, start.z,
                 5, 0.1D, 0.1D, 0.1D, 0.02D);
     }

@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
@@ -45,7 +45,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                         double offsetX = (world.random.nextDouble() - 0.5) * zone.radius * 2;
                         double offsetY = (world.random.nextDouble()) * 2;
                         double offsetZ = (world.random.nextDouble() - 0.5) * zone.radius * 2;
-                        world.sendParticles(
+                        world.spawnParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 zone.center.x + offsetX,
                                 zone.center.y + offsetY,
@@ -54,7 +54,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube
-                    world.sendParticles(
+                    world.spawnParticles(
                             ParticleTypes.CLOUD,
                             zone.center.x, zone.center.y + 1, zone.center.z,
                             3, zone.radius * 0.5, 0.5, zone.radius * 0.5, 0.01
@@ -63,12 +63,12 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
 
                 // Aplicar ceguera a quienes ENTREN en la zona
                 if (zone.ticksRemaining % 10 == 0) {
-                    AABB area = new AABB(zone.center, zone.center).inflate(zone.radius);
+                    AABB area = new AABB(zone.center, zone.center).expand(zone.radius);
                     List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
                     for (Player player : players) {
                         // Solo aplicar si no tienen ya el efecto (para evitar spam)
-                        if (!player.hasEffect(MobEffects.BLINDNESS)) {
-                            player.addEffect(new MobEffectInstance(
+                        if (!player.hasStatusEffect(MobEffects.BLINDNESS)) {
+                            player.addStatusEffect(new MobEffectInstance(
                                     MobEffects.BLINDNESS,
                                     zone.blindnessDuration,
                                     0,
@@ -128,12 +128,12 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
         Vec3 center = new Vec3(snowball.getX(), snowball.getY(), snowball.getZ());
 
         // Efecto inicial de impacto
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.SNOWFLAKE,
                 center.x, center.y, center.z,
                 30, blindnessRadius * 0.5, 1, blindnessRadius * 0.5, 0.1
         );
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.CLOUD,
                 center.x, center.y + 0.5, center.z,
                 15, blindnessRadius * 0.3, 0.5, blindnessRadius * 0.3, 0.05
@@ -147,7 +147,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                 blizzardDurationTicks,
                 blindnessDurationTicks
         );
-        ACTIVE_ZONES.atLowerCornerWithOffset(zone);
+        ACTIVE_ZONES.add(zone);
     }
 
     private static class BlizzardZone {

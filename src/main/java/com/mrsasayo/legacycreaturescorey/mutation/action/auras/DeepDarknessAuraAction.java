@@ -174,7 +174,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
                     return;
                 }
             }
-            list.offset(new ActiveAura(entity, action, time));
+            list.add(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, DeepDarknessAuraAction action) {
@@ -224,12 +224,12 @@ public final class DeepDarknessAuraAction implements mutation_action {
 
             for (ServerPlayer player : players) {
                 if (aura.action.shouldRemoveNightVision()) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
+                    player.removeStatusEffect(MobEffects.NIGHT_VISION);
                 }
                 applyStatusEffect(player, aura.action);
             }
 
-            world.sendParticles(ParticleTypes.ASH,
+            world.spawnParticles(ParticleTypes.ASH,
                 source.getX(),
                 source.getBodyY(0.5D),
                 source.getZ(),
@@ -251,7 +251,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
 
             for (ServerPlayer player : players) {
                 if (aura.action.shouldRemoveNightVision()) {
-                    player.removeEffect(MobEffects.NIGHT_VISION);
+                    player.removeStatusEffect(MobEffects.NIGHT_VISION);
                 }
                 if (!isNearLight(world, player.getBlockPos(), aura.action.getLightThreshold())) {
                     applyStatusEffect(player, aura.action);
@@ -265,12 +265,12 @@ public final class DeepDarknessAuraAction implements mutation_action {
             BlockPos origin = source.getBlockPos();
             Map<BlockPos, ScheduledLight> registry = scheduledLights.computeIfAbsent(world, ignored -> new HashMap<>());
 
-            BlockPos.betweenClosed(origin.offset(-radius, -1, -radius), origin.offset(radius, 1, radius)).forEach(pos -> {
+            BlockPos.iterate(origin.add(-radius, -1, -radius), origin.add(radius, 1, radius)).forEach(pos -> {
                 BlockState state = world.getBlockState(pos);
                 if (state.getLuminance() <= aura.action.getLightThreshold()) {
                     return;
                 }
-                BlockPos immutable = pos.immutable();
+                BlockPos immutable = pos.toImmutable();
                 registry.computeIfAbsent(immutable, key -> new ScheduledLight(immutable, time + aura.action.getLightBreakDelayTicks(), aura.source));
             });
         }
@@ -290,7 +290,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
                 BlockState state = world.getBlockState(scheduled.pos);
                 if (state.getLuminance() > 0) {
                     world.breakBlock(scheduled.pos, true, scheduled.source);
-                    world.sendParticles(ParticleTypes.SMOKE,
+                    world.spawnParticles(ParticleTypes.SMOKE,
                         scheduled.pos.getX() + 0.5D,
                         scheduled.pos.getY() + 0.5D,
                         scheduled.pos.getZ() + 0.5D,
@@ -308,7 +308,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
         }
 
         private boolean isNearLight(ServerLevel world, BlockPos origin, int threshold) {
-            for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(1, 1, 1))) {
+            for (BlockPos pos : BlockPos.iterate(origin.add(-1, -1, -1), origin.add(1, 1, 1))) {
                 int light = world.getLightLevel(LightLayer.BLOCK, pos);
                 if (light > threshold) {
                     return true;
@@ -325,7 +325,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
             if (entry == null) {
                 return;
             }
-            player.addEffect(new MobEffectInstance(entry,
+            player.addStatusEffect(new MobEffectInstance(entry,
                 action.getDarknessDuration(),
                 0,
                 true,

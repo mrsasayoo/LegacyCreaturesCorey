@@ -17,7 +17,7 @@ public final class StatusEffectSyncHelper {
     public static void handle(LivingEntity entity, MobEffectInstance effect, boolean start) {
         StatusEffectTicker.handleStatusEffectUpdate(entity, effect, start);
 
-        Holder<MobEffect> entry = effect.getEffect();
+        Holder<MobEffect> entry = effect.getEffectType();
         MobEffect raw = entry.value();
         if (!(raw instanceof NotifyingStatusEffect notifying)) {
             return;
@@ -25,12 +25,12 @@ public final class StatusEffectSyncHelper {
         if (!(entity instanceof ServerPlayer player)) {
             return;
         }
-        if (!start && entity.hasEffect(entry)) {
+        if (!start && entity.hasStatusEffect(entry)) {
             return;
         }
 
         int duration = start ? effect.getDuration() : 0;
         float intensity = start ? notifying.computeIntensity(effect.getAmplifier()) : 0.0F;
-        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffect(), start, duration, intensity));
+        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffectType(), start, duration, intensity));
     }
 }

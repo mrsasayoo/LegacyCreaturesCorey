@@ -90,7 +90,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MAX_HEALTH);
                 if (attribute == null) {
                     return;
                 }
@@ -101,7 +101,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MAX_HEALTH);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.35D);
                     entity.setHealth((float) Math.min(entity.getHealth(), entity.getMaxHealth()));
@@ -115,7 +115,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 1) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED);
                 if (attribute == null) {
                     return;
                 }
@@ -124,7 +124,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.20D);
                 }
@@ -137,7 +137,7 @@ public final class mutation_registry {
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute == null) {
                     return;
                 }
@@ -146,7 +146,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() - 0.40D);
                 }
@@ -162,10 +162,10 @@ public final class mutation_registry {
                 if (target.getEntityWorld().isClient()) {
                     return;
                 }
-                if (target.hasEffect(MobEffects.POISON)) {
+                if (target.hasStatusEffect(MobEffects.POISON)) {
                     return;
                 }
-                target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
+                target.addStatusEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
             }
         };
     }
@@ -178,7 +178,7 @@ public final class mutation_registry {
                 if (target.getEntityWorld().isClient()) {
                     return;
                 }
-                target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
+                target.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
             }
         };
     }

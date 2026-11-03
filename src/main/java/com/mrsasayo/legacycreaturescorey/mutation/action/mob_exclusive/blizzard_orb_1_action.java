@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -50,7 +50,7 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
 
                     // Partículas durante la carga
                     if (state.chargeTicks % 5 == 0) {
-                        ((ServerLevel) world).sendParticles(
+                        ((ServerLevel) world).spawnParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 golem.getX(), golem.getY() + 1.5, golem.getZ(),
                                 3, 0.3, 0.3, 0.3, 0.02
@@ -103,7 +103,7 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
             state.targetPlayer = target instanceof Player ? (Player) target : null;
 
             // Sonido de inicio de carga
-            world.makeSound(null, golem.getX(), golem.getY(), golem.getZ(),
+            world.playSound(null, golem.getX(), golem.getY(), golem.getZ(),
                     SoundEvents.SNOW_BREAK, SoundSource.HOSTILE, 1.0f, 0.5f);
         }
     }
@@ -137,19 +137,19 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
         snowball.setVelocity(direction.x, direction.y + 0.1, direction.z, 1.6f, 0.5f);
 
         // Efecto de disparo grande
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.SNOWFLAKE,
                 golem.getX(), golem.getEyeY(), golem.getZ(),
                 15, 0.5, 0.5, 0.5, 0.1
         );
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.CLOUD,
                 golem.getX(), golem.getEyeY(), golem.getZ(),
                 8, 0.3, 0.3, 0.3, 0.05
         );
 
         // Sonido de disparo potente
-        world.makeSound(null, golem.getX(), golem.getY(), golem.getZ(),
+        world.playSound(null, golem.getX(), golem.getY(), golem.getZ(),
                 SoundEvents.SNOW_GOLEM_SHOOT, SoundSource.HOSTILE, 1.5f, 0.7f);
 
         world.spawnEntity(snowball);

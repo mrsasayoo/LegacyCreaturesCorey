@@ -40,7 +40,7 @@ public final class GhostFragmentsOnDeathAction implements mutation_action {
                 entity.getBodyY(0.5D),
                 entity.getZ(),
                 stack);
-            fragment.setDefaultPickUpDelay();
+            fragment.setToDefaultPickupDelay();
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = 0.25D + random.nextDouble() * 0.2D;
             double vy = 0.2D + random.nextDouble() * 0.2D;

@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.Collections;
@@ -47,7 +47,7 @@ public final class ProjectileShroudAuraAction implements mutation_action {
         Set<AbstractArrow> processed = PROCESSED_PROJECTILES.computeIfAbsent(world, ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
         List<AbstractArrow> projectiles = world.getEntitiesByClass(
             AbstractArrow.class,
-            entity.getLocalBoundsForPose().expand(radius),
+            entity.getBoundingBox().expand(radius),
             projectile -> projectile.isAlive() && projectile.isOnGround() == false
         );
 

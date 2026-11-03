@@ -2,7 +2,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.phys.Vec3;
 
 public final class aquatic_stalker_2_action extends aquatic_stalker_base_action {
@@ -32,14 +32,14 @@ public final class aquatic_stalker_2_action extends aquatic_stalker_base_action 
         if (target == null) {
             return;
         }
-        double distanceSq = drowned.distanceToSqr(target);
+        double distanceSq = drowned.squaredDistanceTo(target);
         if (distanceSq < minDistanceSq || distanceSq > maxDistanceSq) {
             return;
         }
         Vec3 direction = new Vec3(target.getX() - drowned.getX(),
                 target.getY() - drowned.getY(),
                 target.getZ() - drowned.getZ()).normalize();
-        drowned.setVelocity(drowned.getVelocity().atLowerCornerWithOffset(direction.scale(dashSpeed)));
+        drowned.setVelocity(drowned.getVelocity().add(direction.multiply(dashSpeed)));
         drowned.velocityModified = true;
         handler.setCooldown(drowned, cooldownTicks);
     }

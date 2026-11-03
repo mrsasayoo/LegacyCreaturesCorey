@@ -11,7 +11,7 @@ import net.minecraft.resources.Identifier;
  */
 public record ServerHelloPayload(int protocolVersion) implements CustomPacketPayload {
 
-    public static final Id<ServerHelloPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "server_hello"));
+    public static final Id<ServerHelloPayload> ID = new Id<>(Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "server_hello"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerHelloPayload> CODEC = new StreamCodec<>() {
         @Override

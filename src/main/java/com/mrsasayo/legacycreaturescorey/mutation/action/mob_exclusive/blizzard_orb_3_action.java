@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
@@ -75,8 +75,8 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                     if (distance > 0.1) {
                         // Velocidad de seguimiento
                         double speed = Math.min(0.3, distance * 0.1);
-                        Vec3 movement = diff.normalize().scale(speed);
-                        blizzard.currentPosition = blizzard.currentPosition.atLowerCornerWithOffset(movement);
+                        Vec3 movement = diff.normalize().multiply(speed);
+                        blizzard.currentPosition = blizzard.currentPosition.add(movement);
                     }
                 }
 
@@ -92,7 +92,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                         double rotX = Math.cos(angle) * 0.1;
                         double rotZ = Math.sin(angle) * 0.1;
 
-                        world.sendParticles(
+                        world.spawnParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 blizzard.currentPosition.x + offsetX,
                                 blizzard.currentPosition.y + offsetY,
@@ -101,14 +101,14 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube/hielo en la base
-                    world.sendParticles(
+                    world.spawnParticles(
                             ParticleTypes.CLOUD,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 0.5,
                             blizzard.currentPosition.z,
                             5, blizzard.radius * 0.4, 0.2, blizzard.radius * 0.4, 0.01
                     );
-                    world.sendParticles(
+                    world.spawnParticles(
                             ParticleTypes.WHITE_ASH,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 1.5,
@@ -119,11 +119,11 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
 
                 // Aplicar efectos a jugadores en el área 3x3 (continuo)
                 if (blizzard.ticksRemaining % 5 == 0) {
-                    AABB area = new AABB(blizzard.currentPosition, blizzard.currentPosition).inflate(blizzard.radius, 3, blizzard.radius);
+                    AABB area = new AABB(blizzard.currentPosition, blizzard.currentPosition).expand(blizzard.radius, 3, blizzard.radius);
                     List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
                     for (Player player : players) {
                         // Aplicar Ceguera CONTINUA mientras estén en la zona
-                        player.addEffect(new MobEffectInstance(
+                        player.addStatusEffect(new MobEffectInstance(
                                 MobEffects.BLINDNESS,
                                 blizzard.blindnessDuration,
                                 0,
@@ -131,7 +131,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                                 false
                         ));
                         // Aplicar lentitud también
-                        player.addEffect(new MobEffectInstance(
+                        player.addStatusEffect(new MobEffectInstance(
                                 MobEffects.SLOWNESS,
                                 blizzard.blindnessDuration,
                                 blizzard.slownessLevel,
@@ -202,12 +202,12 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
         Player closestPlayer = world.getClosestPlayer(impactPos.x, impactPos.y, impactPos.z, 20.0, false);
 
         // Efecto de invocación
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.SNOWFLAKE,
                 impactPos.x, impactPos.y, impactPos.z,
                 50, orbRadius, 2, orbRadius, 0.15
         );
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.CLOUD,
                 impactPos.x, impactPos.y + 1, impactPos.z,
                 25, orbRadius * 0.5, 1, orbRadius * 0.5, 0.1
@@ -223,7 +223,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                 slownessAmplifier,
                 closestPlayer
         );
-        ACTIVE_BLIZZARDS.atLowerCornerWithOffset(blizzard);
+        ACTIVE_BLIZZARDS.add(blizzard);
     }
 
     private static class TrackingBlizzard {

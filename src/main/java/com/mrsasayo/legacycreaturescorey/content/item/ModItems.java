@@ -20,8 +20,8 @@ public final class ModItems {
 
     public static void init() {
         // Minecraft 1.21+ requiere ResourceKey en Settings antes de la construcción
-        Identifier id = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "ghost_fragment");
-        ResourceKey<Item> key = ResourceKey.createRegistryKey(RegistryKeys.ITEM, id);
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "ghost_fragment");
+        ResourceKey<Item> key = ResourceKey.of(RegistryKeys.ITEM, id);
         GHOST_FRAGMENT = Registry.register(
                 BuiltInRegistries.ITEM,
                 id,

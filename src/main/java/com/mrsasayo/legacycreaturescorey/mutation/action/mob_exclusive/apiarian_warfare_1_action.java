@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 
@@ -47,7 +47,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         }
         
         // Aplicar veneno
-        target.addEffect(new MobEffectInstance(
+        target.addStatusEffect(new MobEffectInstance(
             MobEffects.POISON, 
             poisonDurationTicks, 
             poisonAmplifier,
@@ -61,7 +61,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         
         // Efectos visuales
         if (bee.getEntityWorld() instanceof ServerLevel world) {
-            world.sendParticles(ParticleTypes.ITEM_SLIME,
+            world.spawnParticles(ParticleTypes.ITEM_SLIME,
                     target.getX(),
                     target.getY() + target.getHeight() / 2,
                     target.getZ(),

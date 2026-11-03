@@ -44,7 +44,7 @@ abstract class abyssal_armor_base_action implements mutation_action {
         }
 
         if (state.channeling) {
-            guardian.setDeltaMovement(Vec3.ZERO);
+            guardian.setVelocity(Vec3.ZERO);
             guardian.hurtMarked = true;
             state.channelTimer++;
             if (state.channelTimer >= getChannelTicks()) {
@@ -109,7 +109,7 @@ abstract class abyssal_armor_base_action implements mutation_action {
         if (!hasThornsRetaliation()) {
             return;
         }
-        if (!source.is(DamageTypes.THORNS)) {
+        if (!source.isOf(DamageTypes.THORNS)) {
             return;
         }
         Entity attacker = source.getLastHurtByMob();

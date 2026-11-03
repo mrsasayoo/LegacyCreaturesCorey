@@ -34,12 +34,12 @@ public final class SummonMobAction implements mutation_action {
         if (!action_context.isServer(entity)) {
             return;
         }
-        if (entity.tickCount % interval != 0) {
+        if (entity.age % interval != 0) {
             return;
         }
 
         ServerLevel world = (ServerLevel) entity.getEntityWorld();
-        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.byString(entityId);
+        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId);
         if (entityType == null) {
             return;
         }
@@ -50,7 +50,7 @@ public final class SummonMobAction implements mutation_action {
         }
 
         BlockPos blockPos = pickSpawnPosition(entity);
-        Entity spawned = entityType.registerSimple(world, null, blockPos, EntitySpawnReason.MOB_SUMMONED, true, false);
+        Entity spawned = entityType.create(world, null, blockPos, EntitySpawnReason.MOB_SUMMONED, true, false);
         if (!(spawned instanceof Mob mob)) {
             if (spawned != null) {
                 spawned.discard();
@@ -58,7 +58,7 @@ public final class SummonMobAction implements mutation_action {
             return;
         }
 
-        mob.snapTo(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, entity.getYaw(), 0.0F);
+        mob.refreshPositionAndAngles(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, entity.getYRot(), 0.0F);
         if (world.isSpaceEmpty(mob)) {
             world.spawnEntityAndPassengers(mob);
         } else {
@@ -72,10 +72,10 @@ public final class SummonMobAction implements mutation_action {
         double x = entity.getX() + Math.cos(angle) * distance;
         double z = entity.getZ() + Math.sin(angle) * distance;
         double y = entity.getY();
-        return BlockPos.containing(x, y, z);
+        return BlockPos.ofFloored(x, y, z);
     }
 
     private AABB searchBox(LivingEntity entity) {
-        return entity.getLocalBoundsForPose().inflate(radius);
+        return entity.getBoundingBox().expand(radius);
     }
 }

@@ -25,16 +25,16 @@ public final class unstable_hit_1_action extends status_effect_single_target_bas
         }
 
         Vec3 offset = new Vec3(victim.getX() - attacker.getX(), 0.0D, victim.getZ() - attacker.getZ());
-        if (offset.lengthSqr() < 1.0E-4D) {
+        if (offset.lengthSquared() < 1.0E-4D) {
             Vec3 facing = attacker.getRotationVector();
             offset = new Vec3(facing.x, 0.0D, facing.z);
         }
-        double magnitudeSq = offset.lengthSqr();
+        double magnitudeSq = offset.lengthSquared();
         if (magnitudeSq < 1.0E-4D) {
             return;
         }
 
-        Vec3 impulse = offset.normalize().scale(0.35D);
+        Vec3 impulse = offset.normalize().multiply(0.35D);
         victim.addVelocity(impulse.x, 0.02D, impulse.z);
         victim.velocityModified = true;
     }

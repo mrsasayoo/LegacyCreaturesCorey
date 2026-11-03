@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.monster.Husk;
+import net.minecraft.world.entity.monster.zombie.Husk;
 
 public final class ancient_curse_1_action extends ancient_curse_base_action {
     private final double chance;
@@ -24,7 +24,7 @@ public final class ancient_curse_1_action extends ancient_curse_base_action {
             return;
         }
         if (husk.getRandom().nextDouble() <= chance) {
-            target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, durationTicks, amplifier));
+            target.addStatusEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, durationTicks, amplifier));
         }
     }
 }

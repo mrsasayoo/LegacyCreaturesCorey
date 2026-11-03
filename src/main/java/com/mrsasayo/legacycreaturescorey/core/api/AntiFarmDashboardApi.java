@@ -25,7 +25,7 @@ public final class AntiFarmDashboardApi {
             return Optional.empty();
         }
         CoreyServerState state = CoreyServerState.get(server);
-        return Optional.ofNullable(state.getChunkActivity(chunkPos.asLong()));
+        return Optional.ofNullable(state.getChunkActivity(chunkPos.toLong()));
     }
 
     public static boolean isChunkBlocked(MinecraftServer server, ChunkPos chunkPos) {
@@ -33,6 +33,6 @@ public final class AntiFarmDashboardApi {
             return false;
         }
         CoreyServerState state = CoreyServerState.get(server);
-        return state.isChunkSpawnBlocked(chunkPos.asLong());
+        return state.isChunkSpawnBlocked(chunkPos.toLong());
     }
 }

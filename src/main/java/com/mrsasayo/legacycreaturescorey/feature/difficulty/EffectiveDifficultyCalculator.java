@@ -45,7 +45,7 @@ public final class EffectiveDifficultyCalculator {
         List<ServerPlayer> relevantPlayers;
         if (radius > 0.0D) {
             double radiusSq = radius * radius;
-            relevantPlayers = dimensionPlayers.rangeClosed()
+            relevantPlayers = dimensionPlayers.stream()
                 .filter(player -> player.squaredDistanceTo(centerX, centerY, centerZ) <= radiusSq)
                 .toList();
         } else {
@@ -123,7 +123,7 @@ public final class EffectiveDifficultyCalculator {
         }
 
         ChunkPos chunkPos = new ChunkPos(origin);
-        ChunkActivityData data = state.getChunkActivity(chunkPos.asLong());
+        ChunkActivityData data = state.getChunkActivity(chunkPos.toLong());
         if (data == null) {
             return 1.0D;
         }

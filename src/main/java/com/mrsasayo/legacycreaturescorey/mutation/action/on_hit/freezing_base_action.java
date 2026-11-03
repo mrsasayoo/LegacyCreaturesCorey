@@ -75,7 +75,7 @@ abstract class freezing_base_action extends proc_on_hit_action {
         }
         status_effect_config_parser.applyEffects(victim, victimEffects);
         if (selfSlownessTicks > 0 && action_context.isServer(attacker)) {
-            attacker.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
+            attacker.addStatusEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
         }
     }
 }

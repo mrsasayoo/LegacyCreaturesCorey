@@ -78,7 +78,7 @@ public class stasis_field_aura_3_action implements mutation_action, StasisSource
     private Identifier resolveModifierId(mutation_action_config config, String prefix) {
         String raw = config.getString("modifier_id", "").trim();
         if (!raw.isEmpty()) {
-            Identifier parsed = Identifier.tryBuild(raw);
+            Identifier parsed = Identifier.tryParse(raw);
             if (parsed != null) {
                 return parsed;
             }

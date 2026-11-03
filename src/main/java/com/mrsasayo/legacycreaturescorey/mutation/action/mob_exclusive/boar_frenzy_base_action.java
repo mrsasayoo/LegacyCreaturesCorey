@@ -19,13 +19,13 @@ abstract class boar_frenzy_base_action implements mutation_action {
     }
 
     protected void applySpeedModifier(LivingEntity entity, double value) {
-        AttributeInstance speed = entity.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+        AttributeInstance speed = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
         if (speed == null) {
             return;
         }
         speed.removeModifier(SPEED_ID);
         if (value > 0.0D) {
-            speed.addTransientModifier(new AttributeModifier(
+            speed.addTemporaryModifier(new AttributeModifier(
                     SPEED_ID,
                     value,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
@@ -33,20 +33,20 @@ abstract class boar_frenzy_base_action implements mutation_action {
     }
 
     protected void removeSpeedModifier(LivingEntity entity) {
-        AttributeInstance speed = entity.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+        AttributeInstance speed = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
         if (speed != null) {
             speed.removeModifier(SPEED_ID);
         }
     }
 
     protected void applyAttackSpeedModifier(LivingEntity entity, double value) {
-        AttributeInstance attackSpeed = entity.getAttribute(Attributes.ATTACK_SPEED);
+        AttributeInstance attackSpeed = entity.getAttributeInstance(Attributes.ATTACK_SPEED);
         if (attackSpeed == null) {
             return;
         }
         attackSpeed.removeModifier(ATTACK_SPEED_ID);
         if (value > 0.0D) {
-            attackSpeed.addTransientModifier(new AttributeModifier(
+            attackSpeed.addTemporaryModifier(new AttributeModifier(
                     ATTACK_SPEED_ID,
                     value,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
@@ -54,7 +54,7 @@ abstract class boar_frenzy_base_action implements mutation_action {
     }
 
     protected void removeAttackSpeedModifier(LivingEntity entity) {
-        AttributeInstance attackSpeed = entity.getAttribute(Attributes.ATTACK_SPEED);
+        AttributeInstance attackSpeed = entity.getAttributeInstance(Attributes.ATTACK_SPEED);
         if (attackSpeed != null) {
             attackSpeed.removeModifier(ATTACK_SPEED_ID);
         }

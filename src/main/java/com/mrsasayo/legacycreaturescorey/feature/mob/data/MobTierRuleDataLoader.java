@@ -42,16 +42,16 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new MobTierRuleDataLoader());
+            ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new MobTierRuleDataLoader());
         }
     }
 
     public static EnumSet<MobTier> getAllowedTiers(EntityType<?> type) {
-        Identifier id = EntityType.getKey(type);
+        Identifier id = EntityType.getId(type);
         if (id == null) {
             return null;
         }
-        EnumSet<MobTier> tiers = overrides.byString(id);
+        EnumSet<MobTier> tiers = overrides.get(id);
         return tiers == null ? null : EnumSet.copyOf(tiers);
     }
 
@@ -70,16 +70,16 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
         }
 
         Map<Identifier, EnumSet<MobTier>> parsed = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.byString().open(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entry = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getAsString(entry, "id"));
+                JsonObject entry = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
+                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getString(entry, "id"));
                 JsonArray tiersArray = GsonHelper.getAsJsonArray(entry, "tiers");
                 EnumSet<MobTier> tiers = EnumSet.noneOf(MobTier.class);
                 for (int j = 0; j < tiersArray.size(); j++) {
-                    JsonElement element = tiersArray.byString(j);
+                    JsonElement element = tiersArray.get(j);
                     MobTier tier = parseTier(element.getAsString());
                     if (tier == null) {
                         Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en mob_tier_rules para {}", element.getAsString(), entityId);

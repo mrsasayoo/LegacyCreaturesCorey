@@ -192,12 +192,12 @@ public final class AlphaPresenceAction implements mutation_action {
             // "Allies don't flee" -> Give Resistance I to simulate toughness
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
+            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
                             && m.squaredDistanceTo(source) <= radius * radius);
 
             for (Mob ally : allies) {
-                ally.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 0, true, false));
+                ally.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 0, true, false));
             }
         }
 
@@ -205,13 +205,13 @@ public final class AlphaPresenceAction implements mutation_action {
             // "Immune to fear, open doors" -> Give Strength I + Speed I
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
+            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
                             && m.squaredDistanceTo(source) <= radius * radius);
 
             for (Mob ally : allies) {
-                ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, true, false));
-                ally.addEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, true, false));
+                ally.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH, 40, 0, true, false));
+                ally.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, 40, 0, true, false));
             }
         }
 
@@ -219,17 +219,17 @@ public final class AlphaPresenceAction implements mutation_action {
             // "On death, allies get Strength"
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
+            List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getBoundingBox().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
                             && m.squaredDistanceTo(source) <= radius * radius);
 
             if (!allies.isEmpty()) {
-                world.makeSound(null, source.getX(), source.getY(), source.getZ(),
+                world.playSound(null, source.getX(), source.getY(), source.getZ(),
                         SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.HOSTILE, 1.0f, 0.5f);
                 for (Mob ally : allies) {
-                    ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
+                    ally.addStatusEffect(new MobEffectInstance(MobEffects.STRENGTH,
                             aura.action.getDurationTicks(), aura.action.getAmplifier(), true, true));
-                    world.sendParticles(ParticleTypes.ANGRY_VILLAGER, ally.getX(), ally.getEyeY(), ally.getZ(), 3, 0.3,
+                    world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, ally.getX(), ally.getEyeY(), ally.getZ(), 3, 0.3,
                             0.3, 0.3, 0.1);
                 }
             }

@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.polarbear.PolarBear;
 import net.minecraft.resources.Identifier;
 
 abstract class arctic_fortitude_base_action implements mutation_action {
@@ -21,7 +21,7 @@ abstract class arctic_fortitude_base_action implements mutation_action {
     }
 
     protected Identifier id(String path) {
-        return Identifier.direct(Legacycreaturescorey.MOD_ID, path);
+        return Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, path);
     }
 
     protected void applyModifier(LivingEntity entity,
@@ -29,16 +29,16 @@ abstract class arctic_fortitude_base_action implements mutation_action {
             Identifier identifier,
             double value,
             AttributeModifier.Operation operation) {
-        AttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttributeInstance(attribute);
         if (instance != null && !instance.hasModifier(identifier)) {
-            instance.addPermanentModifier(new AttributeModifier(identifier, value, operation));
+            instance.addPersistentModifier(new AttributeModifier(identifier, value, operation));
         }
     }
 
     protected void removeModifier(LivingEntity entity,
             net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
             Identifier identifier) {
-        AttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttributeInstance(attribute);
         if (instance != null && instance.hasModifier(identifier)) {
             instance.removeModifier(identifier);
         }
@@ -50,6 +50,6 @@ abstract class arctic_fortitude_base_action implements mutation_action {
     }
 
     protected void applySpeedBuff(PolarBear bear, int durationTicks, int amplifier) {
-        bear.addEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false));
+        bear.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false));
     }
 }

@@ -58,7 +58,7 @@ public final class attribute_mutation_action implements mutation_action {
         removeModifier(instance);
         double before = instance.getValue();
         AttributeModifier modifier = new AttributeModifier(modifierId, amount, operation);
-        instance.addPermanentModifier(modifier);
+        instance.addPersistentModifier(modifier);
         handleMaxHealthAdjustment(entity, before, instance.getValue());
     }
 
@@ -77,7 +77,7 @@ public final class attribute_mutation_action implements mutation_action {
     }
 
     private AttributeInstance resolveInstance(LivingEntity entity) {
-        return attributeEntry == null ? null : entity.getAttribute(attributeEntry);
+        return attributeEntry == null ? null : entity.getAttributeInstance(attributeEntry);
     }
 
     private void removeModifier(AttributeInstance instance) {
@@ -102,7 +102,7 @@ public final class attribute_mutation_action implements mutation_action {
         String attrPath = attributeId.getNamespace() + "_" + attributeId.getPath().replace('.', '_');
         String bits = Long.toHexString(Double.doubleToLongBits(amount));
         String suffix = mode.name().toLowerCase(Locale.WRITABLE_REGISTRY) + "_" + bits;
-        return Identifier.direct(namespace, "passive_" + attrPath + "_" + suffix);
+        return Identifier.fromNamespaceAndPath(namespace, "passive_" + attrPath + "_" + suffix);
     }
 
     public enum Mode {

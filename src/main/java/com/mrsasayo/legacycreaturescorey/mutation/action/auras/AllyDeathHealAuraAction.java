@@ -90,7 +90,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
                         continue;
                     }
                     double radius = aura.action().getRadius();
-                    if (bearer.distanceToSqr(deathPos) > radius * radius) {
+                    if (bearer.squaredDistanceTo(deathPos) > radius * radius) {
                         continue;
                     }
                     bearer.heal(aura.action().getHealAmount());
@@ -109,7 +109,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
                     return;
                 }
             }
-            list.atLowerCornerWithOffset(new ActiveAura(entity, action, time));
+            list.add(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, AllyDeathHealAuraAction action) {

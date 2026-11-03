@@ -6,7 +6,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.polarbear.PolarBear;
 import net.minecraft.resources.Identifier;
 
 public final class arctic_fortitude_3_action extends arctic_fortitude_base_action {
@@ -36,7 +36,7 @@ public final class arctic_fortitude_3_action extends arctic_fortitude_base_actio
                     furyId,
                     knockbackBonus,
                     AttributeModifier.Operation.ADD_VALUE);
-            bear.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,
+            bear.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE,
                     resistanceDurationTicks,
                     resistanceAmplifier,
                     false,

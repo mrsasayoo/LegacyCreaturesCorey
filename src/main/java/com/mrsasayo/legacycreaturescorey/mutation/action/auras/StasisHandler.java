@@ -9,9 +9,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.server.level.ServerPlayer;
@@ -58,18 +58,18 @@ public final class StasisHandler {
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getGameTime();
         for (int i = 0; i < list.size(); i++) {
-            ActiveAura aura = list.byString(i);
+            ActiveAura aura = list.get(i);
             if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
                 return;
             }
         }
-        list.atLowerCornerWithOffset(new ActiveAura(entity, source, time));
+        list.add(new ActiveAura(entity, source, time));
     }
 
     public void unregister(LivingEntity entity, StasisSource source) {
         ServerLevel world = (ServerLevel) entity.level();
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
         }
@@ -81,7 +81,7 @@ public final class StasisHandler {
 
     private void handleWorldTick(ServerLevel world) {
         cleanup(world);
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             cleanupAttackSpeed(world.getGameTime());
             return;
@@ -100,7 +100,7 @@ public final class StasisHandler {
         if (!(world instanceof ServerLevel serverWorld)) {
             return InteractionResult.PASS;
         }
-        List<ActiveAura> list = active.byString(serverWorld);
+        List<ActiveAura> list = active.get(serverWorld);
         if (list == null || list.isEmpty()) {
             return InteractionResult.PASS;
         }
@@ -116,7 +116,7 @@ public final class StasisHandler {
                     continue;
                 }
                 double radius = aura.sourceDef.getRadius();
-                if (source.distanceToSqr(pos) <= radius * radius) {
+                if (source.squaredDistanceTo(pos) <= radius * radius) {
                     teleportCancelled = true;
                     break;
                 }
@@ -127,7 +127,7 @@ public final class StasisHandler {
         }
 
         boolean handledShield = false;
-        if (player.getItemInHand(hand).is(Items.SHIELD)) {
+        if (player.getStackInHand(hand).isOf(Items.SHIELD)) {
             for (ActiveAura aura : list) {
                 if (aura.sourceDef.getShieldCooldownTicks() <= 0
                         || aura.sourceDef.getMode() != StasisSource.Mode.SPRINT_SUPPRESSION) {
@@ -138,8 +138,8 @@ public final class StasisHandler {
                     continue;
                 }
                 double radius = aura.sourceDef.getRadius();
-                if (source.distanceToSqr(pos) <= radius * radius) {
-                    ItemStack shieldStack = new ItemStack(player.getItemInHand(hand).getItem());
+                if (source.squaredDistanceTo(pos) <= radius * radius) {
+                    ItemStack shieldStack = new ItemStack(player.getStackInHand(hand).getItem());
                     player.getCooldowns().set(shieldStack, aura.sourceDef.getShieldCooldownTicks());
                     handledShield = true;
                     break;
@@ -157,11 +157,11 @@ public final class StasisHandler {
             return false;
         }
         var stack = player.getMainHandItem();
-        if (stack.is(Items.ENDER_PEARL) || stack.is(Items.CHORUS_FRUIT)) {
+        if (stack.isOf(Items.ENDER_PEARL) || stack.isOf(Items.CHORUS_FRUIT)) {
             return true;
         }
         stack = player.getOffhandItem();
-        return stack.is(Items.ENDER_PEARL) || stack.is(Items.CHORUS_FRUIT);
+        return stack.isOf(Items.ENDER_PEARL) || stack.isOf(Items.CHORUS_FRUIT);
     }
 
     private void processProjectileDampen(ServerLevel world, List<ActiveAura> list) {
@@ -176,22 +176,22 @@ public final class StasisHandler {
                 continue;
             }
             double radius = aura.sourceDef.getRadius();
-            AABB search = source.getLocalBoundsForPose().inflate(radius);
+            AABB search = source.getBoundingBox().expand(radius);
             List<Projectile> projectiles = world.getEntitiesByClass(Projectile.class, search,
                     projectile -> shouldSlow(projectile, source, radius));
             if (projectiles.isEmpty()) {
                 continue;
             }
             for (Projectile projectile : projectiles) {
-                if (dampened.intersects(projectile)) {
+                if (dampened.contains(projectile)) {
                     continue;
                 }
                 Vec3 velocity = projectile.getDeltaMovement();
-                Vec3 slowed = velocity.scale(aura.sourceDef.getProjectileSlowFactor());
-                projectile.setDeltaMovement(slowed);
-                projectile.hasImpulse = true;
+                Vec3 slowed = velocity.multiply(aura.sourceDef.getProjectileSlowFactor());
+                projectile.setVelocity(slowed);
+                projectile.velocityDirty = true;
                 projectile.hurtMarked = true;
-                dampened.atLowerCornerWithOffset(projectile);
+                dampened.add(projectile);
             }
         }
     }
@@ -210,7 +210,7 @@ public final class StasisHandler {
         if (!(owner instanceof Player)) {
             return false;
         }
-        return source.distanceToSqr(projectile) <= radius * radius;
+        return source.squaredDistanceTo(projectile) <= radius * radius;
     }
 
     private void processSprintSuppression(ServerLevel world, List<ActiveAura> list) {
@@ -224,7 +224,7 @@ public final class StasisHandler {
             }
             double radius = aura.sourceDef.getRadius();
             List<Player> players = new ArrayList<>(world
-                    .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radius * radius));
+                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius));
             long time = world.getGameTime();
             for (Player player : players) {
                 if (player.isSprinting()) {
@@ -251,7 +251,7 @@ public final class StasisHandler {
             double radiusSq = radius * radius;
             long time = world.getGameTime();
             for (ServerPlayer player : world
-                    .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq)) {
+                    .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq)) {
                 applyAttackSpeed(player, aura.sourceDef, time);
             }
         }
@@ -262,7 +262,7 @@ public final class StasisHandler {
         if (modifier == null) {
             return;
         }
-        AttributeInstance instance = player.getAttribute(Attributes.ATTACK_SPEED);
+        AttributeInstance instance = player.getAttributeInstance(Attributes.ATTACK_SPEED);
         if (instance == null) {
             return;
         }
@@ -271,7 +271,7 @@ public final class StasisHandler {
             return;
         }
         if (!instance.hasModifier(modifierId)) {
-            instance.addPermanentModifier(modifier);
+            instance.addPersistentModifier(modifier);
         }
         attackSpeedTracker.computeIfAbsent(player, ignored -> new HashMap<>()).put(source, time);
     }
@@ -316,7 +316,7 @@ public final class StasisHandler {
         if (modifierId == null) {
             return;
         }
-        AttributeInstance instance = player.getAttribute(Attributes.ATTACK_SPEED);
+        AttributeInstance instance = player.getAttributeInstance(Attributes.ATTACK_SPEED);
         if (instance == null) {
             return;
         }
@@ -326,7 +326,7 @@ public final class StasisHandler {
     }
 
     private void cleanup(ServerLevel world) {
-        List<ActiveAura> list = active.byString(world);
+        List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -341,7 +341,7 @@ public final class StasisHandler {
         if (list.isEmpty()) {
             active.remove(world);
         }
-        Set<Projectile> dampened = dampenedProjectiles.byString(world);
+        Set<Projectile> dampened = dampenedProjectiles.get(world);
         if (dampened != null) {
             dampened.removeIf(projectile -> projectile == null || !projectile.isAlive());
             if (dampened.isEmpty()) {

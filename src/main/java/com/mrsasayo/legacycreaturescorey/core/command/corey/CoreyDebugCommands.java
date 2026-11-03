@@ -54,7 +54,7 @@ final class CoreyDebugCommands {
             ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
             Mob looked = CoreyCommandUtil.raycastMob(player, CoreyCommandShared.DEFAULT_DEBUG_RANGE);
             if (looked == null) {
-                ctx.getSource().sendFailure(Component.literal("No se detectó ningún mob enfrente."));
+                ctx.getSource().sendError(Component.literal("No se detectó ningún mob enfrente."));
                 return 0;
             }
             sendMobAnalysis(ctx.getSource(), looked);
@@ -72,7 +72,7 @@ final class CoreyDebugCommands {
                     UUID uuid = UuidArgument.getUuid(ctx, "id");
                     Mob mobEntity = CoreyCommandUtil.findMobByUuid(ctx.getSource().getServer(), uuid);
                     if (mobEntity == null) {
-                        ctx.getSource().sendFailure(Component.literal("No se encontró ningún mob con ese UUID."));
+                        ctx.getSource().sendError(Component.literal("No se encontró ningún mob con ese UUID."));
                         return 0;
                     }
                     sendMobAnalysis(ctx.getSource(), mobEntity);
@@ -87,7 +87,7 @@ final class CoreyDebugCommands {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         Mob nearest = CoreyCommandUtil.findNearestMob(player, radius);
         if (nearest == null) {
-            ctx.getSource().sendFailure(Component.literal("No se encontraron mobs cercanos."));
+            ctx.getSource().sendError(Component.literal("No se encontraron mobs cercanos."));
             return 0;
         }
         sendMobAnalysis(ctx.getSource(), nearest);
@@ -131,12 +131,12 @@ final class CoreyDebugCommands {
             mob.getCommandTags().forEach(tag -> builder.append("#").append(tag).append('\n'));
         }
 
-        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(mob.getX(), mob.getY(), mob.getZ()));
+        ChunkPos chunkPos = new ChunkPos(BlockPos.ofFloored(mob.getX(), mob.getY(), mob.getZ()));
         builder.append("Chunk: ").append(chunkPos.x).append(", ").append(chunkPos.z).append('\n');
         builder.append("Posición: ")
             .append(String.format(Locale.WRITABLE_REGISTRY, "%.1f, %.1f, %.1f", mob.getX(), mob.getY(), mob.getZ())).append('\n');
 
-        source.sendSuccess(() -> Component.literal(builder.toString()), false);
+        source.sendFeedback(() -> Component.literal(builder.toString()), false);
     }
 
     private static void appendAttribute(StringBuilder builder, String name, AttributeInstance instance) {
@@ -163,11 +163,11 @@ final class CoreyDebugCommands {
 
     private static int listEntities(CommandContext<CommandSourceStack> ctx, double radius) throws CommandSyntaxException {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
-        AABB box = player.getBoundingBox().inflate(radius);
+        AABB box = player.getBoundingBox().expand(radius);
         ServerLevel world = (ServerLevel) player.level();
         List<Mob> mobs = world.getEntitiesByClass(Mob.class, box, mob -> mob.isAlive() && !mob.isSpectator());
         if (mobs.isEmpty()) {
-            ctx.getSource().sendFailure(Component.literal("No hay mobs categorizados dentro del radio."));
+            ctx.getSource().sendError(Component.literal("No hay mobs categorizados dentro del radio."));
             return 0;
         }
         mobs.sort(Comparator.comparingDouble(entity -> entity.squaredDistanceTo(player)));
@@ -180,7 +180,7 @@ final class CoreyDebugCommands {
                 data.getTier().getDisplayName(),
                 Math.sqrt(mob.squaredDistanceTo(player))));
         }
-        ctx.getSource().sendSuccess(() -> Component.literal(builder.toString()), false);
+        ctx.getSource().sendFeedback(() -> Component.literal(builder.toString()), false);
         return mobs.size();
     }
 
@@ -190,11 +190,11 @@ final class CoreyDebugCommands {
         chunk.then(Commands.literal("activity").executes(ctx -> {
             ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
             CoreyServerState state = CoreyServerState.get(ctx.getSource().getServer());
-            ChunkPos pos = new ChunkPos(BlockPos.containing(player.getX(), player.getY(), player.getZ()));
-            long key = pos.asLong();
+            ChunkPos pos = new ChunkPos(BlockPos.ofFloored(player.getX(), player.getY(), player.getZ()));
+            long key = pos.toLong();
             ChunkActivityData data = state.getChunkActivity(key);
             if (data == null) {
-                ctx.getSource().sendSuccess(() -> Component.literal("Sin actividad registrada para el chunk " + pos.x + ", " + pos.z), false);
+                ctx.getSource().sendFeedback(() -> Component.literal("Sin actividad registrada para el chunk " + pos.x + ", " + pos.z), false);
                 return 1;
             }
             StringBuilder builder = new StringBuilder();
@@ -205,7 +205,7 @@ final class CoreyDebugCommands {
             if (data.isSpawnBlocked()) {
                 builder.append("Marcado en tick: ").append(data.getFlaggedAt()).append('\n');
             }
-            ctx.getSource().sendSuccess(() -> Component.literal(builder.toString()), false);
+            ctx.getSource().sendFeedback(() -> Component.literal(builder.toString()), false);
             return 1;
         }));
 
@@ -234,18 +234,18 @@ final class CoreyDebugCommands {
     private static int debugPlayerComponents(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
         StringBuilder builder = new StringBuilder();
-        builder.append("Componentes de ").append(player.getTextName().getString()).append('\n');
+        builder.append("Componentes de ").append(player.getName().getString()).append('\n');
         builder.append("Dificultad: ").append(data.getPlayerDifficulty()).append('\n');
         builder.append("Última penalización: ").append(data.getLastDeathPenaltyTime()).append(" ticks\n");
         builder.append("Muertes recientes: ").append(data.getRecentDeathsList()).append('\n');
-        ctx.getSource().sendSuccess(() -> Component.literal(builder.toString()), false);
+        ctx.getSource().sendFeedback(() -> Component.literal(builder.toString()), false);
         return 1;
     }
 
     private static int showPlayerDifficulty(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        ctx.getSource().sendSuccess(() -> Component.literal(
-            "Dificultad de " + player.getTextName().getString() + ": " + data.getPlayerDifficulty()
+        ctx.getSource().sendFeedback(() -> Component.literal(
+            "Dificultad de " + player.getName().getString() + ": " + data.getPlayerDifficulty()
         ), false);
         return 1;
     }

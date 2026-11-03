@@ -24,7 +24,7 @@ public final class TierParticleTicker {
             return;
         }
 
-        for (Entity entity : world.getAllEntities()) {
+        for (Entity entity : world.iterateEntities()) {
             if (!(entity instanceof Mob mob)) {
                 continue;
             }

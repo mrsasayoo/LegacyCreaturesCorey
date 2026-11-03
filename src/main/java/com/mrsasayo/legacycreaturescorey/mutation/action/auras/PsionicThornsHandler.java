@@ -53,9 +53,9 @@ public final class PsionicThornsHandler {
         }
 
         // Check if damage is melee
-        if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
-                source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
-                source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
+        if (source.isIn(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                source.isIn(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                source.isIn(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
             return;
         }
 
@@ -80,7 +80,7 @@ public final class PsionicThornsHandler {
         if (selfEffects != null && !selfEffects.isEmpty()) {
             for (PsionicThornsSource.ThornsEffect effect : selfEffects) {
                 if (effect.effect() != null) {
-                    victim.addEffect(
+                    victim.addStatusEffect(
                             new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }
@@ -91,7 +91,7 @@ public final class PsionicThornsHandler {
 
         List<LivingEntity> nearbyTargets = serverWorld.getEntitiesByClass(
                 LivingEntity.class,
-                victim.getLocalBoundsForPose().expand(maxDistance),
+                victim.getBoundingBox().expand(maxDistance),
                 living -> living.isAlive()
                         && living != victim
                         && !(living instanceof Player));
@@ -121,7 +121,7 @@ public final class PsionicThornsHandler {
             }
             for (PsionicThornsSource.ThornsEffect effect : effects) {
                 if (effect.effect() != null) {
-                    target.addEffect(
+                    target.addStatusEffect(
                             new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }

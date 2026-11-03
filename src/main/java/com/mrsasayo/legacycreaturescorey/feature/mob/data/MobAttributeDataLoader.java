@@ -42,7 +42,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new MobAttributeDataLoader());
+            ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new MobAttributeDataLoader());
         }
     }
 
@@ -51,7 +51,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
         if (entry == null) {
             return null;
         }
-        AttributeValues values = entry.valuesByTier.byString(tier);
+        AttributeValues values = entry.valuesByTier.get(tier);
         return values == null ? null : values.maxHealth();
     }
 
@@ -60,16 +60,16 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
         if (entry == null) {
             return null;
         }
-        AttributeValues values = entry.valuesByTier.byString(tier);
+        AttributeValues values = entry.valuesByTier.get(tier);
         return values == null ? null : values.attackDamage();
     }
 
     private static Entry getEntry(EntityType<?> type) {
-        Identifier id = EntityType.getKey(type);
+        Identifier id = EntityType.getId(type);
         if (id == null) {
             return null;
         }
-        return overrides.byString(id);
+        return overrides.get(id);
     }
 
     @Override
@@ -87,12 +87,12 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.byString().open(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.get().getInputStream(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entryObject = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getAsString(entryObject, "id"));
+                JsonObject entryObject = GsonHelper.asObject(entries.get(i), "entries[" + i + "]");
+                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getString(entryObject, "id"));
 
                 EnumMap<MobTier, AttributeValues> valuesByTier = new EnumMap<>(MobTier.class);
                 if (entryObject.has("tiers")) {
@@ -103,9 +103,9 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
                             Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en el override de {}", tierEntry.getKey(), entityId);
                             continue;
                         }
-                        JsonObject tierValues = GsonHelper.convertToJsonObject(tierEntry.getValue(), "tier_values");
-                        Double maxHealth = tierValues.has("max_health") ? tierValues.byString("max_health").getAsDouble() : null;
-                        Double attackDamage = tierValues.has("attack_damage") ? tierValues.byString("attack_damage").getAsDouble() : null;
+                        JsonObject tierValues = GsonHelper.asObject(tierEntry.getValue(), "tier_values");
+                        Double maxHealth = tierValues.has("max_health") ? tierValues.get("max_health").getAsDouble() : null;
+                        Double attackDamage = tierValues.has("attack_damage") ? tierValues.get("attack_damage").getAsDouble() : null;
                         if (maxHealth == null && attackDamage == null) {
                             continue;
                         }

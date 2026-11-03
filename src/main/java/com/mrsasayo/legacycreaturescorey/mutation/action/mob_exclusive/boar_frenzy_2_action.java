@@ -41,7 +41,7 @@ public final class boar_frenzy_2_action extends boar_frenzy_base_action {
         if (bonusPerEntity <= 0.0D || radius <= 0.0D) {
             return 0.0D;
         }
-        AABB area = entity.getLocalBoundsForPose().inflate(radius);
+        AABB area = entity.getBoundingBox().expand(radius);
         List<LivingEntity> nearby = entity.getEntityWorld().getEntitiesByClass(
                 LivingEntity.class,
                 area,

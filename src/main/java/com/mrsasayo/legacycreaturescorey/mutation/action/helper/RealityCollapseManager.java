@@ -48,8 +48,8 @@ public final class RealityCollapseManager {
             return;
         }
         Field field = new Field(FIELD_COUNTER.incrementAndGet(), center, radius, durationTicks);
-        ACTIVE_FIELDS.computeIfAbsent(world, ignored -> new ArrayList<>()).relative(field);
-        logDebug("Campo #%d creado en (%.1f, %.1f, %.1f) radio=%.1f duración=%d ticks", field.name,
+        ACTIVE_FIELDS.computeIfAbsent(world, ignored -> new ArrayList<>()).add(field);
+        logDebug("Campo #%d creado en (%.1f, %.1f, %.1f) radio=%.1f duración=%d ticks", field.id,
             center.x, center.y, center.z, radius, durationTicks);
     }
 
@@ -63,7 +63,7 @@ public final class RealityCollapseManager {
         while (iterator.hasNext()) {
             Field field = iterator.next();
             if (field.tick(world)) {
-                logDebug("Campo #%d finalizó; ya no bloquea acciones.", field.name);
+                logDebug("Campo #%d finalizó; ya no bloquea acciones.", field.id);
                 iterator.remove();
             }
         }
@@ -90,7 +90,7 @@ public final class RealityCollapseManager {
         Field field = findContainingField(serverWorld, new Vec3(player.getX(), player.getY(), player.getZ()), true);
         if (field != null) {
             logDebug("Ataque a bloque cancelado: %s dentro del campo #%d (radio %.1f, restan %d ticks)",
-                player.getName().getString(), field.name, field.radius, field.remainingTicks);
+                player.getName().getString(), field.id, field.radius, field.remainingTicks);
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
@@ -112,7 +112,7 @@ public final class RealityCollapseManager {
         Field field = findContainingField(serverWorld, hitResult.getBlockPos(), true);
         if (field != null) {
             logDebug("Uso de bloque cancelado en (%.1f, %.1f, %.1f) por campo #%d (radio %.1f, restan %d ticks)",
-                hitResult.getBlockPos().x, hitResult.getBlockPos().y, hitResult.getBlockPos().z, field.name, field.radius, field.remainingTicks);
+                hitResult.getBlockPos().x, hitResult.getBlockPos().y, hitResult.getBlockPos().z, field.id, field.radius, field.remainingTicks);
             return InteractionResult.FAIL;
         }
         return InteractionResult.PASS;
@@ -136,7 +136,7 @@ public final class RealityCollapseManager {
             new Vec3(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D), true);
         if (field != null) {
             logDebug("Rotura de bloque cancelada para %s en (%d, %d, %d) por campo #%d (radio %.1f, restan %d ticks)",
-                player.getName().getString(), pos.getX(), pos.getY(), pos.getZ(), field.name, field.radius, field.remainingTicks);
+                player.getName().getString(), pos.getX(), pos.getY(), pos.getZ(), field.id, field.radius, field.remainingTicks);
             return true;
         }
         return false;
@@ -171,7 +171,7 @@ public final class RealityCollapseManager {
         private int remainingTicks;
 
         private Field(long id, Vec3 center, double radius, int durationTicks) {
-            this.name = id;
+            this.id = id;
             this.center = center;
             this.radius = radius;
             this.radiusSq = radius * radius;
@@ -182,7 +182,7 @@ public final class RealityCollapseManager {
             if (--remainingTicks <= 0) {
                 return true;
             }
-            List<ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(center) <= radiusSq);
+            List<ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(center) <= radiusSq);
             for (ServerPlayer player : players) {
                 purgeStatusEffects(player);
             }
@@ -192,12 +192,12 @@ public final class RealityCollapseManager {
         private void purgeStatusEffects(ServerPlayer player) {
             Set<MobEffectInstance> effects = Set.copyOf(player.getStatusEffects());
             for (MobEffectInstance instance : effects) {
-                player.removeStatusEffect(instance.getEffect());
+                player.removeStatusEffect(instance.getEffectType());
             }
         }
 
         private boolean contains(Vec3 pos) {
-            return pos.distanceToSqr(center) <= radiusSq;
+            return pos.squaredDistanceTo(center) <= radiusSq;
         }
     }
 }

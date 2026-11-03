@@ -82,7 +82,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
             }
             case PLAYERS_IN_RADIUS -> {
                 double radiusSq = radius * radius;
-                List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(origin) <= radiusSq);
+                List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(origin) <= radiusSq);
                 players.forEach(player -> applyToEntity(world, origin, player));
             }
             case ALL_PLAYERS -> world.getPlayers(player -> !player.isSpectator()).forEach(player -> applyToEntity(world, origin, player));
@@ -93,7 +93,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
         if (pullStrength > 0.0D) {
             Vec3 targetPos = new Vec3(targetEntity.getX(), targetEntity.getY(), targetEntity.getZ());
             Vec3 delta = origin.subtract(targetPos);
-            Vec3 normalized = delta.normalize().scale(pullStrength);
+            Vec3 normalized = delta.normalize().multiply(pullStrength);
             targetEntity.addVelocity(normalized.x, normalized.y, normalized.z);
             targetEntity.velocityModified = true;
         }
@@ -101,7 +101,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
             targetEntity.damage(world, world.getDamageSources().magic(), damage);
         }
         if (effect != null) {
-            targetEntity.addEffect(new MobEffectInstance(effect, duration, amplifier));
+            targetEntity.addStatusEffect(new MobEffectInstance(effect, duration, amplifier));
         }
     }
 

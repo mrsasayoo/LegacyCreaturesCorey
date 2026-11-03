@@ -46,13 +46,13 @@ public final class CoreyLootModifiers {
         if (!difficulty_config.isTieredLootEnabled()) {
             return;
         }
-        Entity entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
+        Entity entity = context.get(LootContextParams.THIS_ENTITY);
         if (!(entity instanceof Mob mob)) {
             return;
         }
 
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.getParamSet());
-        Identifier expectedTable = entityId == null ? null : Identifier.create(entityId.getNamespace(), ENTITY_TABLE_PREFIX + entityId.getPath());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
+        Identifier expectedTable = entityId == null ? null : Identifier.fromNamespaceAndPath(entityId.getNamespace(), ENTITY_TABLE_PREFIX + entityId.getPath());
 
         Optional<ResourceKey<LootTable>> key = lootTableEntry.unwrapKey();
         Identifier tableId = key.map(ResourceKey::getValue).orElse(null);
@@ -79,7 +79,7 @@ public final class CoreyLootModifiers {
 
         if (Legacycreaturescorey.LOGGER.isDebugEnabled()) {
             Legacycreaturescorey.LOGGER.debug("Loot intercept: {} ({}) dropped tier {} loot hook", mob.getHoverName().getString(),
-                mob.getParamSet().getTranslationKey(), tier.getDisplayName());
+                mob.kind().getTranslationKey(), tier.getDisplayName());
         }
 
         int baselineSize = drops.size();
@@ -108,17 +108,17 @@ public final class CoreyLootModifiers {
     }
 
     private static boolean generateTieredLoot(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops) {
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.getParamSet());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
         if (entityId == null) {
             return false;
         }
 
-        TieredMobLoot table = TieredLootManager.getOptionalParameter(tier, entityId).orElse(null);
+        TieredMobLoot table = TieredLootManager.get(tier, entityId).orElse(null);
         if (table == null) {
             return false;
         }
 
-        table.update(context, drops);
+        table.apply(context, drops);
         return true;
     }
 }

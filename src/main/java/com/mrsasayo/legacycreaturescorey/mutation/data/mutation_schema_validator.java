@@ -536,10 +536,10 @@ final class mutation_schema_validator {
             String raw = element.getAsString();
             if (raw.startsWith("#")) {
                 String tagValue = raw.substring(1);
-                if (Identifier.tryBuild(tagValue) == null) {
+                if (Identifier.tryParse(tagValue) == null) {
                     collector.error("restrictions." + key + "[" + i + "]", "Tag inválido");
                 }
-            } else if (Identifier.tryBuild(raw) == null) {
+            } else if (Identifier.tryParse(raw) == null) {
                 collector.error("restrictions." + key + "[" + i + "]", "Identificador inválido");
             }
         }
@@ -641,7 +641,7 @@ final class mutation_schema_validator {
             collector.error(path, "Debe ser un identificador");
             return;
         }
-        if (Identifier.tryBuild(element.getAsString()) == null) {
+        if (Identifier.tryParse(element.getAsString()) == null) {
             collector.error(path, "Identificador inválido");
         }
     }

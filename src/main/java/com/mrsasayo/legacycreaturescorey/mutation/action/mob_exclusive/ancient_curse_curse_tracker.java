@@ -61,7 +61,7 @@ public final class ancient_curse_curse_tracker {
             } else {
                 entry.setValue(remaining);
                 if (remaining % 20 == 0) {
-                    world.sendParticles(ParticleTypes.ASH,
+                    world.spawnParticles(ParticleTypes.ASH,
                             player.getX(),
                             player.getY() + 1.0D,
                             player.getZ(),

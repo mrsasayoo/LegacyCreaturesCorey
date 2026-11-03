@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.world.entity.monster.illager.Vindicator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.Identifier;
@@ -33,7 +33,7 @@ abstract class axe_mastery_base_action implements mutation_action {
 
     protected static final class Handler {
         private static final Handler INSTANCE = new Handler();
-        private static final Identifier STOP_MOVEMENT_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
+        private static final Identifier STOP_MOVEMENT_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID,
                 "axe_mastery_stop");
         private final Map<Vindicator, Map<String, Integer>> cooldowns = new WeakHashMap<>();
         private final Map<Vindicator, AxeState> axeStates = new WeakHashMap<>();
@@ -81,7 +81,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                 if (target == null) {
                     return;
                 }
-                double distanceSq = vindicator.distanceToSqr(target);
+                double distanceSq = vindicator.squaredDistanceTo(target);
                 if (distanceSq < 16.0D || distanceSq > 256.0D) {
                     return;
                 }
@@ -106,17 +106,17 @@ abstract class axe_mastery_base_action implements mutation_action {
             if (!(vindicator.getEntityWorld() instanceof ServerLevel world)) {
                 return;
             }
-            AABB hitBox = new AABB(position.atLowerCornerWithOffset(-radius, -radius, -radius), position.atLowerCornerWithOffset(radius, radius, radius));
+            AABB hitBox = new AABB(position.add(-radius, -radius, -radius), position.add(radius, radius, radius));
             List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, hitBox,
                     entity -> entity != vindicator && entity.isAlive());
             for (LivingEntity target : targets) {
-                vindicator.doHurtTarget(world, target);
+                vindicator.tryAttack(world, target);
             }
         }
 
         private void spawnTrailParticles(Vindicator vindicator, Vec3 position) {
             if (vindicator.getEntityWorld() instanceof ServerLevel world) {
-                world.sendParticles(ParticleTypes.CRIT,
+                world.spawnParticles(ParticleTypes.CRIT,
                         position.x,
                         position.y,
                         position.z,
@@ -129,16 +129,16 @@ abstract class axe_mastery_base_action implements mutation_action {
         }
 
         private void applyStopMovement(Vindicator vindicator) {
-            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speed = vindicator.getAttributeInstance(Attributes.MOVEMENT_SPEED);
             if (speed != null && !speed.hasModifier(STOP_MOVEMENT_ID)) {
-                speed.addPermanentModifier(new AttributeModifier(STOP_MOVEMENT_ID,
+                speed.addPersistentModifier(new AttributeModifier(STOP_MOVEMENT_ID,
                         -1.0D,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
         }
 
         private void clearStopMovement(Vindicator vindicator) {
-            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speed = vindicator.getAttributeInstance(Attributes.MOVEMENT_SPEED);
             if (speed != null && speed.hasModifier(STOP_MOVEMENT_ID)) {
                 speed.removeModifier(STOP_MOVEMENT_ID);
             }
@@ -170,7 +170,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                 } else {
                     distance = Math.max(0.0D, distance - speed);
                 }
-                return start.atLowerCornerWithOffset(direction.scale(distance));
+                return start.add(direction.multiply(distance));
             }
 
             private boolean isFinished() {

@@ -11,7 +11,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.particles.ParticleTypes;
@@ -139,9 +139,9 @@ public final class InterferenceAuraAction implements mutation_action {
             }
 
             BlockPos targetPos = hitResult.getBlockPos();
-            Direction side = hitResult.getDirection();
+            Direction side = hitResult.getSide();
             // The block that would be placed resides on the hit side.
-            targetPos = targetPos.relative(side);
+            targetPos = targetPos.offset(side);
 
             if (shouldSabotagePlacement(serverWorld, player, targetPos, auras)) {
                 queueBlockBreak(serverWorld, targetPos);
@@ -156,7 +156,7 @@ public final class InterferenceAuraAction implements mutation_action {
             if (!(world instanceof ServerLevel serverWorld)) {
                 return InteractionResult.PASS;
             }
-            ItemStack stack = player.getItemInHand(hand);
+            ItemStack stack = player.getStackInHand(hand);
             if (stack.isEmpty()) {
                 return InteractionResult.PASS;
             }
@@ -180,13 +180,13 @@ public final class InterferenceAuraAction implements mutation_action {
             if (stack.isEmpty()) {
                 return false;
             }
-            if (stack.intersects(DataComponents.FOOD) || stack.intersects(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
+            if (stack.contains(DataComponents.FOOD) || stack.contains(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
                 return true;
             }
-            if (stack.intersects(DataComponents.POTION_CONTENTS)) {
+            if (stack.contains(DataComponents.POTION_CONTENTS)) {
                 return true;
             }
-            return stack.is(Items.MILK_BUCKET) || stack.is(Items.HONEY_BOTTLE);
+            return stack.isOf(Items.MILK_BUCKET) || stack.isOf(Items.HONEY_BOTTLE);
         }
 
         private void handleWorldTick(ServerLevel world) {
@@ -206,7 +206,7 @@ public final class InterferenceAuraAction implements mutation_action {
                     return;
                 }
             }
-            list.relative(new ActiveAura(entity, action, time));
+            list.add(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, InterferenceAuraAction action) {
@@ -224,12 +224,12 @@ public final class InterferenceAuraAction implements mutation_action {
         private List<ActiveAura> getAurasFor(ServerLevel world, Mode mode) {
             List<ActiveAura> list = activeAuras.get(world);
             if (list == null || list.isEmpty()) {
-                return List.atLowerCornerOf();
+                return List.of();
             }
             List<ActiveAura> filtered = new ArrayList<>();
             for (ActiveAura aura : list) {
                 if (aura.action().getMode() == mode) {
-                    filtered.relative(aura);
+                    filtered.add(aura);
                 }
             }
             return filtered;
@@ -242,7 +242,7 @@ public final class InterferenceAuraAction implements mutation_action {
                 if (!source.isAlive()) {
                     continue;
                 }
-                if (source.distanceToSqr(targetCenter) > aura.action().getRadius() * aura.action().getRadius()) {
+                if (source.squaredDistanceTo(targetCenter) > aura.action().getRadius() * aura.action().getRadius()) {
                     continue;
                 }
                 if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -254,7 +254,7 @@ public final class InterferenceAuraAction implements mutation_action {
         }
 
         private void queueBlockBreak(ServerLevel world, BlockPos pos) {
-            pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).relative(pos.immutable());
+            pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.toImmutable());
         }
 
         private boolean shouldInterruptConsumption(ServerLevel world, Player player, List<ActiveAura> auras) {
@@ -264,7 +264,7 @@ public final class InterferenceAuraAction implements mutation_action {
                 if (!source.isAlive()) {
                     continue;
                 }
-                if (source.distanceToSqr(position) > aura.action().getRadius() * aura.action().getRadius()) {
+                if (source.squaredDistanceTo(position) > aura.action().getRadius() * aura.action().getRadius()) {
                     continue;
                 }
                 if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -307,18 +307,18 @@ public final class InterferenceAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action().getRadius();
-                AABB box = source.getLocalBoundsForPose().inflate(radius);
+                AABB box = source.getBoundingBox().expand(radius);
                 List<ThrownEnderpearl> pearls = world.getEntitiesByClass(ThrownEnderpearl.class, box,
                     pearl -> pearl.isAlive() && pearl.getOwner() instanceof Player);
                 if (pearls.isEmpty()) {
                     continue;
                 }
                 for (ThrownEnderpearl pearl : pearls) {
-                    if (handled.intersects(pearl)) {
+                    if (handled.contains(pearl)) {
                         continue;
                     }
                     Vec3 pos = new Vec3(pearl.getX(), pearl.getY(), pearl.getZ());
-                    if (source.distanceToSqr(pos) > radius * radius) {
+                    if (source.squaredDistanceTo(pos) > radius * radius) {
                         continue;
                     }
                     if (aura.action().getChance() < 1.0D && source.getRandom().nextDouble() >= aura.action().getChance()) {
@@ -327,7 +327,7 @@ public final class InterferenceAuraAction implements mutation_action {
                     Player owner = (Player) pearl.getOwner();
                     if (!pearl.isRemoved()) {
                         pearl.remove(Entity.RemovalReason.KILLED);
-                        world.sendParticles(ParticleTypes.SMOKE,
+                        world.spawnParticles(ParticleTypes.SMOKE,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
@@ -336,7 +336,7 @@ public final class InterferenceAuraAction implements mutation_action {
                             0.1D,
                             0.1D,
                             0.01D);
-                        world.makeSound(null,
+                        world.playSound(null,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
@@ -348,7 +348,7 @@ public final class InterferenceAuraAction implements mutation_action {
                     if (owner != null) {
                         owner.damage(world, world.damageSources().magic(), aura.action().getPearlDamage());
                     }
-                    handled.relative(pearl);
+                    handled.add(pearl);
                 }
             }
         }

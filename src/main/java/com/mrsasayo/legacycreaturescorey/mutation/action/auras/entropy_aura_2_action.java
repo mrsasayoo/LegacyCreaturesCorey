@@ -32,8 +32,8 @@ public class entropy_aura_2_action implements mutation_action {
             if (player.squaredDistanceTo(entity) <= radius * radius) {
                 for (EquipmentSlot slot : EquipmentSlot.values()) {
                     if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                        ItemStack stack = player.getItemBySlot(slot);
-                        if (!stack.isEmpty() && stack.isDamageableItem()) {
+                        ItemStack stack = player.getEquippedStack(slot);
+                        if (!stack.isEmpty() && stack.isDamageable()) {
                             stack.damage(durabilityDamage, player, slot);
                         }
                     }

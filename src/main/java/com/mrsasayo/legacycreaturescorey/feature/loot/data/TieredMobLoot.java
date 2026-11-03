@@ -22,7 +22,7 @@ import java.util.List;
  * Runtime representation of a tiered loot definition for a specific entity.
  */
 public final class TieredMobLoot {
-    private static final HolderLookup.WrapperLookup BUILTIN_LOOKUP = VanillaRegistries.createLookup();
+    private static final HolderLookup.WrapperLookup BUILTIN_LOOKUP = VanillaRegistries.createWrapperLookup();
 
     private final boolean replaceVanillaDrops;
     private final IntRange rolls;
@@ -63,7 +63,7 @@ public final class TieredMobLoot {
             if (selected == null) {
                 continue;
             }
-            ItemStack stack = selected.addDynamicDrops().createStack(random, registryOps);
+            ItemStack stack = selected.drop().createStack(random, registryOps);
             if (!stack.isEmpty()) {
                 drops.add(stack);
             }
@@ -86,9 +86,9 @@ public final class TieredMobLoot {
     }
 
     private static RegistryOps<JsonElement> resolveRegistryOps(LootContext context) {
-        ServerLevel world = context.getLevel();
+        ServerLevel world = context.getWorld();
         HolderLookup.WrapperLookup lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
-        return RegistryOps.create(JsonOps.INSTANCE, lookup);
+        return RegistryOps.of(JsonOps.INSTANCE, lookup);
     }
 
     public record Drop(StackProvider template, IntRange countRange) {
@@ -101,7 +101,7 @@ public final class TieredMobLoot {
             if (count <= 0) {
                 return ItemStack.EMPTY;
             }
-            ItemStack stack = base.copyFrom();
+            ItemStack stack = base.copy();
             stack.setCount(count);
             return stack;
         }

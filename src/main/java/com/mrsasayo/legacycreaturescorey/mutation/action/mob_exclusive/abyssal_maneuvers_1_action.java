@@ -26,7 +26,7 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
         if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
             return;
         }
-        AttributeInstance speed = wither.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = wither.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
         }
@@ -38,7 +38,7 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
                     SPEED_MODIFIER_ID,
                     speedBonus,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            speed.addPermanentModifier(modifier);
+            speed.addPersistentModifier(modifier);
         } else if (!hasTarget && hasModifier) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }
@@ -49,7 +49,7 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
         if (!(entity instanceof WitherBoss wither)) {
             return;
         }
-        AttributeInstance speed = wither.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = wither.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.hasModifier(SPEED_MODIFIER_ID)) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }

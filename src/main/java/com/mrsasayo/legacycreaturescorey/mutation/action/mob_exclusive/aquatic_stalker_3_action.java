@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.entity.monster.zombie.Drowned;
 
 public final class aquatic_stalker_3_action extends aquatic_stalker_base_action {
     private final int effectDurationTicks;
@@ -21,7 +21,7 @@ public final class aquatic_stalker_3_action extends aquatic_stalker_base_action 
         if (drowned == null || !drowned.isSubmergedInWater()) {
             return;
         }
-        drowned.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
+        drowned.addStatusEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                 effectDurationTicks,
                 effectAmplifier,
                 false,

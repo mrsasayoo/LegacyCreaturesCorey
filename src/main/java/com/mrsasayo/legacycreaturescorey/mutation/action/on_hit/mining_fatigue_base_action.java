@@ -40,9 +40,9 @@ abstract class mining_fatigue_base_action extends proc_on_hit_action {
             int fallbackDurationTicks,
             int fallbackAmplifier) {
         Holder<net.minecraft.world.effect.MobEffect> fatigue = MobEffects.MINING_FATIGUE;
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fatigue != null && fallbackDurationTicks > 0) {
-            fallback = List.direct(status_effect_config_parser.createEntry(fatigue,
+            fallback = List.of(status_effect_config_parser.createEntry(fatigue,
                     fallbackDurationTicks,
                     fallbackAmplifier,
                     true,

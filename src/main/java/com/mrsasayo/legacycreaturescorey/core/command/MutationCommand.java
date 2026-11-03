@@ -87,7 +87,7 @@ public final class MutationCommand {
 
     private static CompletableFuture<Suggestions> suggestTypes(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         for (mutation_type t : mutation_type.values()) {
-            builder.suggest(t.textName());
+            builder.suggest(t.name());
         }
         return builder.buildFuture();
     }
@@ -121,25 +121,25 @@ public final class MutationCommand {
         try {
             targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendFailure(Component.literal("Target entity not found."));
+            src.sendError(Component.literal("Target entity not found."));
             return 0;
         }
 
         if (!(targetEntity instanceof Mob mob)) {
-            src.sendFailure(Component.literal("Target is not a mob entity."));
+            src.sendError(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        Identifier mid = Identifier.tryBuild(mutationIdStr);
+        Identifier mid = Identifier.tryParse(mutationIdStr);
         if (mid == null) {
-            src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
+            src.sendError(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
         }
 
         mutation mut = mutation_registry.get(mid);
         if (mut == null) {
-            src.sendFailure(Component.literal("Unknown mutation: " + mid.toString()));
+            src.sendError(Component.literal("Unknown mutation: " + mid.toString()));
             return 0;
         }
 
@@ -150,7 +150,7 @@ public final class MutationCommand {
             List<Identifier> existing = new ArrayList<>(data.getMutations());
             String reason = mut.getApplyFailureReason(mob, existing);
             if (reason != null) {
-                src.sendFailure(Component.literal("Cannot assign mutation: " + reason));
+                src.sendError(Component.literal("Cannot assign mutation: " + reason));
                 return 0;
             }
 
@@ -163,7 +163,7 @@ public final class MutationCommand {
             }
             int remaining = budget - used;
             if (mut.getCost() > remaining) {
-                src.sendFailure(Component.literal("Not enough mutation points remaining for this mob (remaining=" + remaining + ")"));
+                src.sendError(Component.literal("Not enough mutation points remaining for this mob (remaining=" + remaining + ")"));
                 return 0;
             }
         }
@@ -172,11 +172,11 @@ public final class MutationCommand {
         try {
             mut.onApply(mob);
             data.addMutation(mid);
-            src.sendSuccess(() -> Component.literal("Assigned mutation " + mid + " to " + mob.getTextName().getString()), true);
-            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getTextName(), mid, mob.getType().getTranslationKey(), force);
+            src.sendFeedback(() -> Component.literal("Assigned mutation " + mid + " to " + mob.getName().getString()), true);
+            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getName(), mid, mob.getType().getTranslationKey(), force);
             return 1;
         } catch (Exception e) {
-            src.sendFailure(Component.literal("Failed to apply mutation: " + e.getMessage()));
+            src.sendError(Component.literal("Failed to apply mutation: " + e.getMessage()));
             return 0;
         }
     }
@@ -187,19 +187,19 @@ public final class MutationCommand {
         try {
             targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendFailure(Component.literal("Target entity not found."));
+            src.sendError(Component.literal("Target entity not found."));
             return 0;
         }
 
         if (!(targetEntity instanceof Mob mob)) {
-            src.sendFailure(Component.literal("Target is not a mob entity."));
+            src.sendError(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         var list = data.getMutations();
         if (list.isEmpty()) {
-            src.sendSuccess(() -> Component.literal("No mutations assigned."), true);
+            src.sendFeedback(() -> Component.literal("No mutations assigned."), true);
             return 1;
         }
 
@@ -217,7 +217,7 @@ public final class MutationCommand {
     String out = sb.toString();
     if (out.endsWith(", ")) out = out.substring(0, out.length() - 2);
     final String outFinal = out;
-    src.sendSuccess(() -> Component.literal("Mutations: " + outFinal), true);
+    src.sendFeedback(() -> Component.literal("Mutations: " + outFinal), true);
         return 1;
     }
 
@@ -227,38 +227,38 @@ public final class MutationCommand {
         try {
             targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendFailure(Component.literal("Target entity not found."));
+            src.sendError(Component.literal("Target entity not found."));
             return 0;
         }
 
         if (!(targetEntity instanceof Mob mob)) {
-            src.sendFailure(Component.literal("Target is not a mob entity."));
+            src.sendError(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        Identifier mid = Identifier.tryBuild(mutationIdStr);
+        Identifier mid = Identifier.tryParse(mutationIdStr);
         if (mid == null) {
-            src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
+            src.sendError(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
         }
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         if (!data.getMutations().contains(mid)) {
-            src.sendFailure(Component.literal("Entity does not have mutation " + mid));
+            src.sendError(Component.literal("Entity does not have mutation " + mid));
             return 0;
         }
 
         mutation m = mutation_registry.get(mid);
         try {
-            if (m != null) m.onRemoval(mob);
+            if (m != null) m.onRemove(mob);
         } catch (Exception e) {
             // continue with removal anyway
             Legacycreaturescorey.LOGGER.warn("Error while calling onRemove for {}: {}", mid, e.getMessage());
         }
 
         data.removeMutation(mid);
-        src.sendSuccess(() -> Component.literal("Removed mutation " + mid + " from " + mob.getTextName().getString()), true);
+        src.sendFeedback(() -> Component.literal("Removed mutation " + mid + " from " + mob.getName().getString()), true);
         return 1;
     }
 
@@ -268,12 +268,12 @@ public final class MutationCommand {
         try {
             targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendFailure(Component.literal("Target entity not found."));
+            src.sendError(Component.literal("Target entity not found."));
             return 0;
         }
 
         if (!(targetEntity instanceof Mob mob)) {
-            src.sendFailure(Component.literal("Target is not a mob entity."));
+            src.sendError(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
@@ -282,13 +282,13 @@ public final class MutationCommand {
         for (Identifier id : list) {
             mutation m = mutation_registry.get(id);
             try {
-                if (m != null) m.onRemoval(mob);
+                if (m != null) m.onRemove(mob);
             } catch (Exception e) {
                 Legacycreaturescorey.LOGGER.warn("Error while calling onRemove for {}: {}", id, e.getMessage());
             }
         }
         data.clearMutations();
-        src.sendSuccess(() -> Component.literal("Cleared " + list.size() + " mutations from " + mob.getTextName().getString()), true);
+        src.sendFeedback(() -> Component.literal("Cleared " + list.size() + " mutations from " + mob.getName().getString()), true);
         return 1;
     }
 

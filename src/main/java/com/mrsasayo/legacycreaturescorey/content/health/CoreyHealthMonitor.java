@@ -1,4 +1,4 @@
-package com.mrsasayo.legacycreaturescorey.contents.health;
+package com.mrsasayo.legacycreaturescorey.content.health;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.core.config.config_manager;
@@ -52,15 +52,15 @@ public final class CoreyHealthMonitor {
         MutableComponent header = Component.literal(healthy
             ? "✅ Todos los checks pasaron"
             : "⚠️ " + failed + " check(s) con problemas");
-        source.sendSuccess(() -> header, false);
+        source.sendFeedback(() -> header, false);
 
         StringBuilder builder = new StringBuilder();
         results.forEach(result -> builder
             .append(result.passed() ? "[OK] " : "[FALLA] ")
-            .append(result.textName()).append(" — ")
+            .append(result.name()).append(" — ")
             .append(result.details()).append('\n'));
 
-        source.sendSuccess(() -> Component.literal(builder.toString()), false);
+        source.sendFeedback(() -> Component.literal(builder.toString()), false);
         return healthy ? 1 : 0;
     }
 
@@ -73,7 +73,7 @@ public final class CoreyHealthMonitor {
             results.stream()
                 .filter(result -> !result.passed())
                 .forEach(result -> Legacycreaturescorey.LOGGER.warn("- {}: {}",
-                    result.textName(), result.details()));
+                    result.name(), result.details()));
         }
     }
 

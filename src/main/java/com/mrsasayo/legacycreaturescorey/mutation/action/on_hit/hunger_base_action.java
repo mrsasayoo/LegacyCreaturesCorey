@@ -39,9 +39,9 @@ abstract class hunger_base_action extends proc_on_hit_action {
             int fallbackDurationTicks,
             int fallbackAmplifier) {
         Holder<net.minecraft.world.effect.MobEffect> hunger = MobEffects.HUNGER;
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (hunger != null && fallbackDurationTicks > 0) {
-            fallback = List.direct(status_effect_config_parser.createEntry(hunger,
+            fallback = List.of(status_effect_config_parser.createEntry(hunger,
                     fallbackDurationTicks,
                     fallbackAmplifier,
                     true,

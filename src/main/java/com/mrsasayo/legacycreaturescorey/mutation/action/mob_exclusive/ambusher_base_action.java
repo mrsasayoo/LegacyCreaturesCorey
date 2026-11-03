@@ -19,7 +19,7 @@ abstract class ambusher_base_action implements mutation_action {
     protected boolean canPlayerSee(Creeper creeper, Player player, double fovThreshold) {
         Vec3 playerLook = player.getRotationVector();
         Vec3 toCreeper = creeper.getEyePos().subtract(player.getEyePos()).normalize();
-        if (playerLook.dot(toCreeper) < fovThreshold) {
+        if (playerLook.dotProduct(toCreeper) < fovThreshold) {
             return false;
         }
         ClipContext context = new ClipContext(

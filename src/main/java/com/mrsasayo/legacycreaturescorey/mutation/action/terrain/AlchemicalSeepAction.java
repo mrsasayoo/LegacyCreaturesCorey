@@ -141,7 +141,7 @@ public final class AlchemicalSeepAction implements mutation_action {
                     return;
                 }
             }
-            list.offset(new ActiveAura(entity, action, time));
+            list.add(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, AlchemicalSeepAction action) {
@@ -218,12 +218,12 @@ public final class AlchemicalSeepAction implements mutation_action {
             if (players.isEmpty())
                 return false;
 
-            world.sendParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
+            world.spawnParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
                     radius / 2, 0.1);
 
             for (ServerPlayer player : players) {
                 if (player.removeAllEffects()) {
-                    world.makeSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUCKET_EMPTY,
+                    world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUCKET_EMPTY,
                             SoundSource.PLAYERS, 1.0f, 1.0f);
                 }
             }
@@ -240,16 +240,16 @@ public final class AlchemicalSeepAction implements mutation_action {
             if (players.isEmpty())
                 return false;
 
-            world.sendParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
+            world.spawnParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
                     radius / 2, 0.1, radius / 2, 0.1);
 
             for (ServerPlayer player : players) {
-                player.addEffect(
+                player.addStatusEffect(
                         new MobEffectInstance(MobEffects.SLOWNESS, aura.action.getDurationTicks(), 0)); // -15% is
                                                                                                               // roughly
                                                                                                               // Slowness
                                                                                                               // I
-                player.addEffect(
+                player.addStatusEffect(
                         new MobEffectInstance(MobEffects.JUMP_BOOST, aura.action.getDurationTicks(), 128)); // Negative
                                                                                                                   // jump
                                                                                                                   // boost
@@ -262,11 +262,11 @@ public final class AlchemicalSeepAction implements mutation_action {
         private boolean applyTransmutationZone(ServerLevel world, ActiveAura aura) {
             // "Zona de 5x5... piedra->grava, tierra->arena, agua->hielo"
             LivingEntity source = aura.source;
-            BlockPos center = source.getBlockPos().below();
+            BlockPos center = source.getBlockPos().down();
             int r = Mth.ceil(aura.action.getRadius());
 
             boolean changed = false;
-            for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
+            for (BlockPos pos : BlockPos.iterate(center.add(-r, -1, -r), center.add(r, 1, r))) {
                 if (world.random.nextFloat() > 0.3f)
                     continue; // Don't change everything instantly
 
@@ -284,9 +284,9 @@ public final class AlchemicalSeepAction implements mutation_action {
             }
 
             if (changed) {
-                world.sendParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
+                world.spawnParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
                         0.1);
-                world.makeSound(null, source.getX(), source.getY(), source.getZ(),
+                world.playSound(null, source.getX(), source.getY(), source.getZ(),
                         SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.HOSTILE, 1.0f, 0.5f);
             }
             return changed;

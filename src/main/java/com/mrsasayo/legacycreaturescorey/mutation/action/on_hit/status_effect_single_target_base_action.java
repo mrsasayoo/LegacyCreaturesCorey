@@ -33,9 +33,9 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
             Holder<net.minecraft.world.effect.MobEffect> fallbackEffect,
             int fallbackDurationTicks,
             int fallbackAmplifier) {
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackEffect != null && fallbackDurationTicks > 0) {
-            fallback = List.direct(status_effect_config_parser.createEntry(
+            fallback = List.of(status_effect_config_parser.createEntry(
                     fallbackEffect,
                     fallbackDurationTicks,
                     fallbackAmplifier,
@@ -53,18 +53,18 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
         int duration = resolveDurationTicks(config, fallbackDurationTicks);
         int amplifier = Math.max(0, config.getInt("amplifier", fallbackAmplifier));
         if (resolved == null || duration <= 0) {
-            return List.direct();
+            return List.of();
         }
-        return List.direct(status_effect_config_parser.createEntry(resolved, duration, amplifier, true, true, true));
+        return List.of(status_effect_config_parser.createEntry(resolved, duration, amplifier, true, true, true));
     }
 
     private Holder<net.minecraft.world.effect.MobEffect> resolveEffect(mutation_action_config config,
             Holder<net.minecraft.world.effect.MobEffect> fallback) {
         Identifier override = config.getIdentifier("effect", null);
         if (override != null) {
-            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(override);
+            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.STATUS_EFFECT.get(override);
             if (resolved != null) {
-                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
+                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.STATUS_EFFECT.getEntry(resolved);
                 if (entry != null) {
                     return entry;
                 }
@@ -113,7 +113,7 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
     }
 
     protected static Holder<net.minecraft.world.effect.MobEffect> asEntry(net.minecraft.world.effect.MobEffect effect) {
-        return BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+        return BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
     }
 
     protected enum Target {

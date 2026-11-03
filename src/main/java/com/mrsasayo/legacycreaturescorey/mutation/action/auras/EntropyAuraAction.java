@@ -258,7 +258,7 @@ public final class EntropyAuraAction implements mutation_action {
                 }
                 for (ServerPlayer player : players) {
                     for (EquipmentSlot slot : ARMOR_SLOTS) {
-                        ItemStack armor = player.getItemBySlot(slot);
+                        ItemStack armor = player.getEquippedStack(slot);
                         if (armor.isEmpty()) {
                             continue;
                         }
@@ -384,7 +384,7 @@ public final class EntropyAuraAction implements mutation_action {
                 return;
             }
             player.getInventory().setSelectedSlot(slot);
-            player.connection.sendPacketToServer(new ClientboundSetHeldSlotPacket(slot));
+            player.networkHandler.sendPacket(new ClientboundSetHeldSlotPacket(slot));
             lastSelectedSlot.put(player, slot);
         }
 

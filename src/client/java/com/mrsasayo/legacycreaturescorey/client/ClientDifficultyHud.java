@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
  * Renderiza en pantalla los valores de dificultad sincronizados por el servidor.
  */
 public final class ClientDifficultyHud {
-    private static final Identifier HUD_ID = Identifier.translationArg(Legacycreaturescorey.MOD_ID, "difficulty_hud");
+    private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "difficulty_hud");
     private static int globalDifficulty;
     private static int maxGlobalDifficulty;
     private static int personalDifficulty;
@@ -45,8 +45,8 @@ public final class ClientDifficultyHud {
             return;
         }
 
-        int width = context.guiWidth();
-        int height = context.guiHeight();
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
         int x = Math.max(6, width - 146);
         int y = height - 48;
 
@@ -56,13 +56,13 @@ public final class ClientDifficultyHud {
 
         int barX = x;
         int barY = y - 6;
-        context.submitColoredRectangle(barX, barY, barX + barWidth, barY + barHeight, 0x66000000);
-        context.submitColoredRectangle(barX, barY, barX + (int) (barWidth * globalPct), barY + barHeight, 0xFFEBAA5B);
+        context.fill(barX, barY, barX + barWidth, barY + barHeight, 0x66000000);
+        context.fill(barX, barY, barX + (int) (barWidth * globalPct), barY + barHeight, 0xFFEBAA5B);
 
-        var textRenderer = client.font;
+        var textRenderer = client.textRenderer;
         String globalText = String.format("Dificultad Global: %d/%d", globalDifficulty, maxGlobalDifficulty);
         String personalText = String.format("Dificultad Personal: %d", personalDifficulty);
-        context.drawString(textRenderer, Component.literal(globalText), x, y, 0xFFF2E3C6, false);
-        context.drawString(textRenderer, Component.literal(personalText), x, y + 10, 0xFFB2F2E8, false);
+        context.drawText(textRenderer, Component.literal(globalText), x, y, 0xFFF2E3C6, false);
+        context.drawText(textRenderer, Component.literal(personalText), x, y + 10, 0xFFB2F2E8, false);
     }
 }

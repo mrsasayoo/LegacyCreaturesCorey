@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.resources.Identifier;
 
 public final class aquatic_stalker_1_action extends aquatic_stalker_base_action {
@@ -24,16 +24,16 @@ public final class aquatic_stalker_1_action extends aquatic_stalker_base_action 
         if (drowned == null) {
             return;
         }
-        AttributeInstance swimAttr = drowned.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY);
+        AttributeInstance swimAttr = drowned.getAttributeInstance(Attributes.WATER_MOVEMENT_EFFICIENCY);
         if (swimAttr == null) {
-            swimAttr = drowned.getAttribute(Attributes.MOVEMENT_SPEED);
+            swimAttr = drowned.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         }
         if (swimAttr == null) {
             return;
         }
         if (drowned.isSubmergedInWater()) {
             if (!swimAttr.hasModifier(SPEED_MODIFIER_ID)) {
-                swimAttr.addPermanentModifier(new AttributeModifier(SPEED_MODIFIER_ID,
+                swimAttr.addPersistentModifier(new AttributeModifier(SPEED_MODIFIER_ID,
                         speedBonus,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
@@ -44,9 +44,9 @@ public final class aquatic_stalker_1_action extends aquatic_stalker_base_action 
 
     @Override
     public void onRemove(LivingEntity entity) {
-        AttributeInstance swimAttr = entity.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY);
+        AttributeInstance swimAttr = entity.getAttributeInstance(Attributes.WATER_MOVEMENT_EFFICIENCY);
         if (swimAttr == null) {
-            swimAttr = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+            swimAttr = entity.getAttributeInstance(Attributes.MOVEMENT_SPEED);
         }
         if (swimAttr != null && swimAttr.hasModifier(SPEED_MODIFIER_ID)) {
             swimAttr.removeModifier(SPEED_MODIFIER_ID);

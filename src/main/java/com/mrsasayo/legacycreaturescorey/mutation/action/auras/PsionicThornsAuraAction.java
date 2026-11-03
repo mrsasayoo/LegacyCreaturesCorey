@@ -26,7 +26,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
         this.reflectionPercentage = reflectionPercentage;
         this.maxDistance = maxDistance;
 
-        this.effects = effects == null ? List.direct() : List.copyOf(effects);
+        this.effects = effects == null ? List.of() : List.copyOf(effects);
     }
 
     @Override
@@ -42,7 +42,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
     public record ThornsEffect(Holder<MobEffect> effect, int duration, int amplifier) {
         public void apply(LivingEntity target) {
             if (effect != null) {
-                target.addEffect(new MobEffectInstance(effect, duration, amplifier));
+                target.addStatusEffect(new MobEffectInstance(effect, duration, amplifier));
             }
         }
     }
@@ -77,9 +77,9 @@ public final class PsionicThornsAuraAction implements mutation_action {
             }
 
             // Check if damage is melee
-            if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
-                    source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
-                    source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
+            if (source.isIn(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                    source.isIn(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                    source.isIn(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
                 return;
             }
 

@@ -92,7 +92,7 @@ public final class OppressivePresenceHandler {
             for (status_effect_config_parser.status_effect_config_entry effectConfig : effects) {
                 MobEffectInstance instance = status_effect_config_parser.buildInstance(effectConfig);
                 if (instance != null) {
-                    player.addEffect(instance);
+                    player.addStatusEffect(instance);
                 }
             }
         }

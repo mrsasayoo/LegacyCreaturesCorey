@@ -72,7 +72,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
         }
 
         // Verificar distancia - disparar solo si está en rango de ataque
-        double distance = guardian.distanceToSqr(target);
+        double distance = guardian.squaredDistanceTo(target);
         if (distance > 256.0D) { // 16 bloques máximo
             return;
         }
@@ -99,7 +99,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
             double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
             double offsetY = (world.random.nextDouble() - 0.5) * 0.5;
             double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
-            world.sendParticles(
+            world.spawnParticles(
                     ParticleTypes.BUBBLE_POP,
                     eyePos.x + offsetX,
                     eyePos.y + offsetY,
@@ -107,14 +107,14 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
                     1, 0, 0, 0, 0.05
             );
         }
-        world.sendParticles(
+        world.spawnParticles(
                 ParticleTypes.GLOW,
                 eyePos.x, eyePos.y, eyePos.z,
                 5, 0.2, 0.2, 0.2, 0.1
         );
 
         // Sonido de disparo
-        world.makeSound(
+        world.playSound(
                 null,
                 guardian.getX(), guardian.getY(), guardian.getZ(),
                 SoundEvents.GUARDIAN_ATTACK,

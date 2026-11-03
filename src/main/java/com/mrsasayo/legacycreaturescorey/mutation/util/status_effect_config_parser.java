@@ -52,11 +52,11 @@ public final class status_effect_config_parser {
             if (identifier == null) {
                 continue;
             }
-            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(identifier);
+            MobEffect effect = BuiltInRegistries.STATUS_EFFECT.get(identifier);
             if (effect == null) {
                 continue;
             }
-            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.STATUS_EFFECT.getEntry(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -80,7 +80,7 @@ public final class status_effect_config_parser {
                 duration,
                 Math.max(0, configEntry.amplifier()),
                 configEntry.ambient(),
-                configEntry.visible(),
+                configEntry.showParticles(),
                 configEntry.showIcon());
     }
 
@@ -91,7 +91,7 @@ public final class status_effect_config_parser {
         for (status_effect_config_entry entry : configs) {
             MobEffectInstance instance = buildInstance(entry);
             if (instance != null) {
-                target.addEffect(instance);
+                target.addStatusEffect(instance);
             }
         }
     }
@@ -112,10 +112,10 @@ public final class status_effect_config_parser {
 
     private static Identifier readIdentifier(JsonObject obj) {
         if (obj.has("id")) {
-            return Identifier.tryBuild(obj.get("id").getAsString());
+            return Identifier.tryParse(obj.get("id").getAsString());
         }
         if (obj.has("effect")) {
-            return Identifier.tryBuild(obj.get("effect").getAsString());
+            return Identifier.tryParse(obj.get("effect").getAsString());
         }
         return null;
     }

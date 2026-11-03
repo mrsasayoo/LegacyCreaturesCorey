@@ -14,7 +14,7 @@ public record ClientEffectPayload(ClientEffectType effect,
                                   int durationTicks,
                                   float intensity) implements CustomPacketPayload {
 
-    public static final Id<ClientEffectPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "client_effect"));
+    public static final Id<ClientEffectPayload> ID = new Id<>(Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "client_effect"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientEffectPayload> CODEC = new StreamCodec<>() {
         @Override

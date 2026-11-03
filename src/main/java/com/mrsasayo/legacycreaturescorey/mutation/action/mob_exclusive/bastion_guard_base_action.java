@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class bastion_guard_base_action implements mutation_action {
-    private static final Identifier STANCE_SPEED_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
+    private static final Identifier STANCE_SPEED_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID,
             "bastion_guard_speed_lock");
-    private static final Identifier STANCE_KNOCKBACK_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
+    private static final Identifier STANCE_KNOCKBACK_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID,
             "bastion_guard_knockback");
 
     protected PiglinBrute asServerBrute(LivingEntity entity) {
@@ -139,11 +139,11 @@ abstract class bastion_guard_base_action implements mutation_action {
             Vec3 direction = new Vec3(attacker.getX() - piglin.getX(),
                     attacker.getEyeY() - piglin.getEyeY(),
                     attacker.getZ() - piglin.getZ());
-            if (direction.lengthSqr() < 1.0E-4D) {
+            if (direction.lengthSquared() < 1.0E-4D) {
                 return;
             }
             direction = direction.normalize();
-            if (forward.dot(direction) >= state.forwardDotThreshold) {
+            if (forward.dotProduct(direction) >= state.forwardDotThreshold) {
                 piglin.heal(amount * (float) state.damageReduction);
             }
         }
@@ -186,22 +186,22 @@ abstract class bastion_guard_base_action implements mutation_action {
         }
 
         private void applyStanceEffects(PiglinBrute piglin) {
-            piglin.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 10, 1, false, false, true));
-            piglin.setLastHurtByPlayer(false);
+            piglin.addStatusEffect(new MobEffectInstance(MobEffects.RESISTANCE, 10, 1, false, false, true));
+            piglin.setAttacking(false);
             piglin.getNavigation().stop();
             applyStanceModifiers(piglin);
         }
 
         private static void applyStanceModifiers(PiglinBrute piglin) {
-            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+            AttributeInstance speed = piglin.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
             if (speed != null && !speed.hasModifier(STANCE_SPEED_ID)) {
-                speed.addPermanentModifier(new AttributeModifier(STANCE_SPEED_ID,
+                speed.addPersistentModifier(new AttributeModifier(STANCE_SPEED_ID,
                         -1.0D,
                         AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
-            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && !knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
-                knockback.addPermanentModifier(new AttributeModifier(STANCE_KNOCKBACK_ID,
+                knockback.addPersistentModifier(new AttributeModifier(STANCE_KNOCKBACK_ID,
                         1.0D,
                         AttributeModifier.Operation.ADD_VALUE));
             }
@@ -211,11 +211,11 @@ abstract class bastion_guard_base_action implements mutation_action {
             if (piglin == null) {
                 return;
             }
-            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
+            AttributeInstance speed = piglin.getAttributeInstance(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
             if (speed != null && speed.hasModifier(STANCE_SPEED_ID)) {
                 speed.removeModifier(STANCE_SPEED_ID);
             }
-            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttributeInstance(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
                 knockback.removeModifier(STANCE_KNOCKBACK_ID);
             }

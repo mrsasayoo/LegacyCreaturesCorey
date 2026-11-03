@@ -82,13 +82,13 @@ public final class SynergyManager {
 
     public static synchronized boolean isEnabled(SynergyModule module) {
         refreshStatuses(false);
-        SynergyStatus status = STATUSES.getOptionalParameter(module);
+        SynergyStatus status = STATUSES.get(module);
         return status != null && status.enabled();
     }
 
     public static synchronized Optional<SynergyProvider> findProvider(SynergyModule module) {
         refreshStatuses(false);
-        return Optional.ofNullable(PROVIDERS.getOptionalParameter(module));
+        return Optional.ofNullable(PROVIDERS.get(module));
     }
 
     public static synchronized List<SynergyStatus> dumpStatuses() {
@@ -135,7 +135,7 @@ public final class SynergyManager {
         }
         for (SynergyModule module : SynergyModule.values()) {
             boolean detected = module.isDetected();
-            SynergyProvider provider = PROVIDERS.getOptionalParameter(module);
+            SynergyProvider provider = PROVIDERS.get(module);
             if (!detected) {
                 if (provider != null) {
                     Legacycreaturescorey.LOGGER.warn("Sinergia {} deshabilitada: dependencia {} ya no está presente",
@@ -147,7 +147,7 @@ public final class SynergyManager {
             }
 
             if (provider == null) {
-                SynergyStatus current = STATUSES.getOptionalParameter(module);
+                SynergyStatus current = STATUSES.get(module);
                 if (current == null || !current.detected() || current.enabled()) {
                     STATUSES.put(module, SynergyStatus.detected(module));
                 }
@@ -175,7 +175,7 @@ public final class SynergyManager {
     }
 
     private static boolean shouldRevalidate(SynergyModule module) {
-        SynergyStatus status = STATUSES.getOptionalParameter(module);
+        SynergyStatus status = STATUSES.get(module);
         if (status == null) {
             return true;
         }

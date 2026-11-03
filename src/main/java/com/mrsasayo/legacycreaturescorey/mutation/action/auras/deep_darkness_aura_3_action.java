@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.List;
 
 public class deep_darkness_aura_3_action implements mutation_action {
-    private static final Set<Block> TARGET_LIGHT_BLOCKS = Set.create(
+    private static final Set<Block> TARGET_LIGHT_BLOCKS = Set.of(
             Blocks.TORCH,
             Blocks.WALL_TORCH,
             Blocks.SOUL_TORCH,
@@ -79,12 +79,12 @@ public class deep_darkness_aura_3_action implements mutation_action {
     private void scheduleNearbyLights(ServerLevel world, LivingEntity entity, long currentTime) {
         int maxDistance = Mth.ceil(radius);
         BlockPos origin = entity.getBlockPos();
-        BlockPos min = origin.offset(-maxDistance, -2, -maxDistance);
-        BlockPos max = origin.offset(maxDistance, 2, maxDistance);
+        BlockPos min = origin.add(-maxDistance, -2, -maxDistance);
+        BlockPos max = origin.add(maxDistance, 2, maxDistance);
         Map<BlockPos, Long> queue = PENDING_REMOVALS
                 .computeIfAbsent(world.dimension(), key -> new HashMap<>());
 
-        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+        for (BlockPos pos : BlockPos.iterate(min, max)) {
             double distanceSq = entity.squaredDistanceTo(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
             if (distanceSq > radius * radius) {
                 continue;
@@ -93,7 +93,7 @@ public class deep_darkness_aura_3_action implements mutation_action {
             if (!isTargetLight(state)) {
                 continue;
             }
-            BlockPos immutable = pos.immutable();
+            BlockPos immutable = pos.toImmutable();
             queue.putIfAbsent(immutable, currentTime + torchRemovalDelayTicks);
         }
     }
@@ -106,7 +106,7 @@ public class deep_darkness_aura_3_action implements mutation_action {
         Iterator<Map.Entry<BlockPos, Long>> iterator = queue.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<BlockPos, Long> entry = iterator.next();
-            if (entry.location() > currentTime) {
+            if (entry.getValue() > currentTime) {
                 continue;
             }
             BlockPos pos = entry.getKey();
@@ -132,9 +132,9 @@ public class deep_darkness_aura_3_action implements mutation_action {
                 continue;
             }
             if (removeNightVision && player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.removeEffect(MobEffects.NIGHT_VISION);
+                serverPlayer.removeStatusEffect(MobEffects.NIGHT_VISION);
             } else if (removeNightVision) {
-                player.removeEffect(MobEffects.NIGHT_VISION);
+                player.removeStatusEffect(MobEffects.NIGHT_VISION);
             }
             status_effect_config_parser.applyEffects(player, effects);
         }
@@ -146,9 +146,9 @@ public class deep_darkness_aura_3_action implements mutation_action {
 
     private List<status_effect_config_parser.status_effect_config_entry> resolveEffects(mutation_action_config config,
             int fallbackDurationTicks) {
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.create();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackDurationTicks > 0) {
-            fallback = List.create(status_effect_config_parser.createEntry(MobEffects.DARKNESS,
+            fallback = List.of(status_effect_config_parser.createEntry(MobEffects.DARKNESS,
                     fallbackDurationTicks,
                     0,
                     true,

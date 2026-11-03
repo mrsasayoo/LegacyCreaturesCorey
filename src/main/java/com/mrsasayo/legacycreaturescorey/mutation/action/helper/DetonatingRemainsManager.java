@@ -34,7 +34,7 @@ public final class DetonatingRemainsManager {
             return;
         }
         Remnant remnant = new Remnant(origin, config);
-        ACTIVE_REMNANTS.computeIfAbsent(world, ignored -> new ArrayList<>()).atLowerCornerWithOffset(remnant);
+        ACTIVE_REMNANTS.computeIfAbsent(world, ignored -> new ArrayList<>()).add(remnant);
     }
 
     public static void markChainTargets(ServerLevel world,
@@ -45,7 +45,7 @@ public final class DetonatingRemainsManager {
         if (radius <= 0.0D || durationTicks <= 0 || config == null) {
             return;
         }
-        AABB area = source.getLocalBoundsForPose().inflate(radius);
+        AABB area = source.getBoundingBox().expand(radius);
         List<LivingEntity> matches = world.getEntitiesByClass(LivingEntity.class, area,
             entity -> entity.isAlive() && entity.kind() == source.kind() && entity != source);
         if (matches.isEmpty()) {
@@ -139,7 +139,7 @@ public final class DetonatingRemainsManager {
         }
 
         private boolean checkPlayers(ServerLevel world) {
-            List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(origin) <= radiusSq);
+            List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(origin) <= radiusSq);
             if (players.isEmpty()) {
                 return false;
             }
@@ -154,10 +154,10 @@ public final class DetonatingRemainsManager {
                         player.damage(world, world.getDamageSources().magic(), config.damage);
                     }
                     if (config.statusEffect != null && config.statusDuration > 0) {
-                        player.addEffect(new MobEffectInstance(config.statusEffect, config.statusDuration, config.statusAmplifier));
+                        player.addStatusEffect(new MobEffectInstance(config.statusEffect, config.statusDuration, config.statusAmplifier));
                     }
                 }
-                world.makeSound(null,
+                world.playSound(null,
                     origin.x,
                     origin.y,
                     origin.z,

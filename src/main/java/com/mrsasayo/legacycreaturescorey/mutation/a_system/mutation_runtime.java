@@ -31,7 +31,7 @@ public final class mutation_runtime {
     }
 
     private static void handleWorldTick(ServerLevel world) {
-        for (Entity entity : world.getAllEntities()) {
+        for (Entity entity : world.iterateEntities()) {
             if (!(entity instanceof Mob mob)) {
                 continue;
             }
@@ -125,7 +125,7 @@ public final class mutation_runtime {
             if (m == null) {
                 continue;
             }
-            m.die(mob, source, killer);
+            m.onDeath(mob, source, killer);
         }
     }
 }

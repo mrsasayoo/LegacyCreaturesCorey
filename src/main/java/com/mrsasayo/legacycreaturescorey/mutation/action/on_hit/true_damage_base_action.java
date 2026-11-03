@@ -28,9 +28,9 @@ import java.util.Locale;
  */
 abstract class true_damage_base_action extends proc_on_hit_action {
     private final List<SideEffect> sideEffects;
-    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.createRegistryKey(
+    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.of(
             RegistryKeys.DAMAGE_TYPE,
-            Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "true_damage"));
+            Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "true_damage"));
 
     protected true_damage_base_action(mutation_action_config config,
             double defaultChance,
@@ -60,7 +60,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
 
     private DamageSource resolveTrueDamageSource(ServerLevel world, LivingEntity attacker) {
         try {
-            return world.getDamageSources().registerSimple(TRUE_DAMAGE_KEY, attacker);
+            return world.getDamageSources().create(TRUE_DAMAGE_KEY, attacker);
         } catch (RuntimeException ignored) {
             return world.getDamageSources().magic();
         }
@@ -78,12 +78,12 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             if (effect.effect() == null || effect.duration() <= 0) {
                 continue;
             }
-            receiver.addEffect(new MobEffectInstance(
+            receiver.addStatusEffect(new MobEffectInstance(
                     effect.effect(),
                     effect.duration(),
                     Math.max(0, effect.amplifier()),
                     effect.ambient(),
-                    effect.visible(),
+                    effect.showParticles(),
                     effect.showIcon()));
         }
     }
@@ -107,9 +107,9 @@ abstract class true_damage_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entryElement.getAsJsonObject();
-            Identifier id = obj.has("id") ? Identifier.tryBuild(obj.get("id").getAsString()) : null;
+            Identifier id = obj.has("id") ? Identifier.tryParse(obj.get("id").getAsString()) : null;
             if (id == null && obj.has("effect")) {
-                id = Identifier.tryBuild(obj.get("effect").getAsString());
+                id = Identifier.tryParse(obj.get("effect").getAsString());
             }
             if (id == null) {
                 continue;
@@ -155,7 +155,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        return switch (raw.trim().toUpperCase(Locale.ROOT_REGISTRY_NAME)) {
+        return switch (raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY)) {
             case "SELF", "ATTACKER" -> Target.SELF;
             case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
             default -> fallback;

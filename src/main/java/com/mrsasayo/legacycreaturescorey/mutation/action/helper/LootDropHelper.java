@@ -13,7 +13,7 @@ public final class LootDropHelper {
 
     public static List<ItemEntity> findDrops(ServerLevel world, LivingEntity owner, double radius) {
         UUID ownerId = owner.getUuid();
-        AABB searchBox = owner.getLocalBoundsForPose().inflate(radius);
+        AABB searchBox = owner.getBoundingBox().expand(radius);
         return world.getEntitiesByClass(ItemEntity.class, searchBox,
             item -> item.isAlive() && matchesOwner(item, ownerId));
     }

@@ -30,19 +30,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("deprecation")
 public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResourceReloadListener {
 
-    private static final Identifier RELOAD_ID = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "anti_farm_exclusions");
-    private static final Identifier DATA_PATH = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "anti_farm_exclusions.json");
+    private static final Identifier RELOAD_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "anti_farm_exclusions");
+    private static final Identifier DATA_PATH = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "anti_farm_exclusions.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Set<Identifier> EXCLUDED_IDS = Set.createRegistryKey();
-    private static volatile Set<TagKey<EntityType<?>>> EXCLUDED_TAGS = Set.createRegistryKey();
+    private static volatile Set<Identifier> EXCLUDED_IDS = Set.of();
+    private static volatile Set<TagKey<EntityType<?>>> EXCLUDED_TAGS = Set.of();
 
     private AntiFarmExclusionDataLoader() {
     }
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new AntiFarmExclusionDataLoader());
+            ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new AntiFarmExclusionDataLoader());
         }
     }
 
@@ -50,12 +50,12 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
         if (type == null) {
             return false;
         }
-        Identifier id = EntityType.getKey(type);
+        Identifier id = EntityType.getId(type);
         if (id != null && EXCLUDED_IDS.contains(id)) {
             return true;
         }
         for (TagKey<EntityType<?>> tagKey : EXCLUDED_TAGS) {
-            if (type.is(tagKey)) {
+            if (type.isIn(tagKey)) {
                 return true;
             }
         }
@@ -71,27 +71,27 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
     public void reload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
-            EXCLUDED_IDS = Set.createRegistryKey();
-            EXCLUDED_TAGS = Set.createRegistryKey();
+            EXCLUDED_IDS = Set.of();
+            EXCLUDED_TAGS = Set.of();
             Legacycreaturescorey.LOGGER.debug("No se encontró {}. No se excluirán mobs adicionales por datapack.", DATA_PATH);
             return;
         }
 
         Set<Identifier> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.byString().open(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonElement element = entries.byString(i);
+                JsonElement element = entries.get(i);
                 parseEntry("entries[" + i + "]", element, ids, tags);
             }
             EXCLUDED_IDS = Set.copyOf(ids);
             EXCLUDED_TAGS = Set.copyOf(tags);
             Legacycreaturescorey.LOGGER.info("Cargadas {} exclusiones anti-farm ({} tags)", EXCLUDED_IDS.size(), EXCLUDED_TAGS.size());
         } catch (Exception exception) {
-            EXCLUDED_IDS = Set.createRegistryKey();
-            EXCLUDED_TAGS = Set.createRegistryKey();
+            EXCLUDED_IDS = Set.of();
+            EXCLUDED_TAGS = Set.of();
             Legacycreaturescorey.LOGGER.error("Error al leer {}: {}", DATA_PATH, exception.getMessage());
         }
     }
@@ -104,11 +104,11 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
         if (element.isJsonObject()) {
             JsonObject object = element.getAsJsonObject();
             if (object.has("id")) {
-                addSelector(path + ".id", object.byString("id").getAsString(), ids, tags);
+                addSelector(path + ".id", object.get("id").getAsString(), ids, tags);
                 return;
             }
             if (object.has("tag")) {
-                addSelector(path + ".tag", "#" + object.byString("tag").getAsString(), ids, tags);
+                addSelector(path + ".tag", "#" + object.get("tag").getAsString(), ids, tags);
                 return;
             }
         }
@@ -123,10 +123,10 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
         }
         try {
             if (value.startsWith("#")) {
-                Identifier tagId = Identifier.createRegistryKey(value.substring(1));
-                tags.add(TagKey.createRegistryKey(Registries.ENTITY_TYPE, tagId));
+                Identifier tagId = Identifier.fromNamespaceAndPath(value.substring(1));
+                tags.add(TagKey.of(Registries.ENTITY_TYPE, tagId));
             } else {
-                ids.add(Identifier.createRegistryKey(value));
+                ids.add(Identifier.fromNamespaceAndPath(value));
             }
         } catch (Exception exception) {
             Legacycreaturescorey.LOGGER.warn("{} no es un identificador válido ('{}'): {}", path, value, exception.getMessage());
