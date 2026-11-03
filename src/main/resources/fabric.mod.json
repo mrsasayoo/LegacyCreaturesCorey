@@ -24,10 +24,10 @@
       "environment": "client"
     }
   ],
-  "depends": {
-    "fabricloader": ">=0.17.3",
-    "minecraft": "~1.21.10",
-    "java": ">=21",
-    "fabric-api": "*"
-  }
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
 }
