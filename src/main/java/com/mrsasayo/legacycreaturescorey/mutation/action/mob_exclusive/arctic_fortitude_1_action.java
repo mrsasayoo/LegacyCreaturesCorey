@@ -5,11 +5,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.PolarBear;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class arctic_fortitude_1_action extends arctic_fortitude_base_action {
-    private final ResourceLocation armorId = id("arctic_fortitude_armor");
-    private final ResourceLocation knockbackId = id("arctic_fortitude_knockback");
+    private final Identifier armorId = id("arctic_fortitude_armor");
+    private final Identifier knockbackId = id("arctic_fortitude_knockback");
     private final double armorBonus;
     private final double knockbackBonus;
 

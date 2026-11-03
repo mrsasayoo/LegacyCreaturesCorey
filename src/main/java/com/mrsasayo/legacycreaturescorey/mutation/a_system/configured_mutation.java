@@ -5,7 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -18,17 +18,17 @@ import java.util.Set;
  */
 public final class configured_mutation extends abstract_mutation {
     private final List<mutation_action> actions;
-    private final Set<ResourceLocation> incompatibleIds;
+    private final Set<Identifier> incompatibleIds;
     private final incompatibility_manager restrictions;
 
-    public configured_mutation(ResourceLocation id,
+    public configured_mutation(Identifier id,
                                mutation_type type,
                                int cost,
                                Component displayName,
                                Component description,
                                int weight,
                                List<mutation_action> actions,
-                               Set<ResourceLocation> incompatibleIds,
+                               Set<Identifier> incompatibleIds,
                                incompatibility_manager restrictions) {
         super(id,
               type,
@@ -48,12 +48,12 @@ public final class configured_mutation extends abstract_mutation {
     }
 
     @Override
-    public String getApplyFailureReason(Mob entity, List<ResourceLocation> existingMutations) {
+    public String getApplyFailureReason(Mob entity, List<Identifier> existingMutations) {
         String r = restrictions.whyCannotApply(entity);
         if (r != null) return r;
 
         if (!incompatibleIds.isEmpty()) {
-            for (ResourceLocation existing : existingMutations) {
+            for (Identifier existing : existingMutations) {
                 if (incompatibleIds.contains(existing)) {
                     return "Incompatible with mutation: " + existing.toString();
                 }
@@ -113,11 +113,11 @@ public final class configured_mutation extends abstract_mutation {
     }
 
     @Override
-    public boolean isCompatibleWith(List<ResourceLocation> existingMutations) {
+    public boolean isCompatibleWith(List<Identifier> existingMutations) {
         if (incompatibleIds.isEmpty()) {
             return true;
         }
-        for (ResourceLocation existing : existingMutations) {
+        for (Identifier existing : existingMutations) {
             if (incompatibleIds.contains(existing)) {
                 return false;
             }

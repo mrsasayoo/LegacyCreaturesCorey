@@ -8,7 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.List;
@@ -46,7 +46,7 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
     }
 
     private Holder<MobEffect> resolveEffect(mutation_action_config config, MobEffect fallback) {
-        ResourceLocation configured = config.getIdentifier("effect", null);
+        Identifier configured = config.getIdentifier("effect", null);
         if (configured != null) {
             MobEffect custom = BuiltInRegistries.MOB_EFFECT.get(configured);
             if (custom != null) {

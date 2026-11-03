@@ -17,9 +17,9 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.permissionLevel.entity.Entity;
-import net.minecraft.permissionLevel.entity.Mob;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public final class MutationCommand {
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        ResourceLocation mid = ResourceLocation.tryBuild(mutationIdStr);
+        Identifier mid = Identifier.tryBuild(mutationIdStr);
         if (mid == null) {
             src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
@@ -147,7 +147,7 @@ public final class MutationCommand {
 
         // If not forcing, validate restrictions, compatibility and budget and provide detailed reasons
         if (!force) {
-            List<ResourceLocation> existing = new ArrayList<>(data.getMutations());
+            List<Identifier> existing = new ArrayList<>(data.getMutations());
             String reason = mut.getApplyFailureReason(mob, existing);
             if (reason != null) {
                 src.sendFailure(Component.literal("Cannot assign mutation: " + reason));
@@ -157,7 +157,7 @@ public final class MutationCommand {
             // compute remaining PM
             int budget = getBudgetForTier(data.getTier());
             int used = 0;
-            for (ResourceLocation id : data.getMutations()) {
+            for (Identifier id : data.getMutations()) {
                 mutation m = mutation_registry.get(id);
                 if (m != null) used += m.getCost();
             }
@@ -204,7 +204,7 @@ public final class MutationCommand {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (ResourceLocation id : list) {
+        for (Identifier id : list) {
             mutation m = mutation_registry.get(id);
             sb.append(id.toString());
             if (m != null) {
@@ -237,7 +237,7 @@ public final class MutationCommand {
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        ResourceLocation mid = ResourceLocation.tryBuild(mutationIdStr);
+        Identifier mid = Identifier.tryBuild(mutationIdStr);
         if (mid == null) {
             src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
@@ -279,7 +279,7 @@ public final class MutationCommand {
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         var list = new ArrayList<>(data.getMutations());
-        for (ResourceLocation id : list) {
+        for (Identifier id : list) {
             mutation m = mutation_registry.get(id);
             try {
                 if (m != null) m.onRemoval(mob);

@@ -60,7 +60,7 @@ public final class PsionicThornsHandler {
         }
 
         // Ensure attacker is present and alive
-        if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
+        if (!(source.getLastHurtByMob() instanceof LivingEntity attacker) || attacker == victim) {
             return;
         }
 

@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.UUID;
@@ -56,7 +56,7 @@ abstract class shatter_armor_base_action extends proc_on_hit_action {
         if (instance == null || percentModifier == 0.0D) {
             return;
         }
-        ResourceLocation id = ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "shatter_armor_" + UUID.randomUUID().toString().replace("-", ""));
+        Identifier id = Identifier.direct(Legacycreaturescorey.MOD_ID, "shatter_armor_" + UUID.randomUUID().toString().replace("-", ""));
         AttributeModifier modifier = new AttributeModifier(id, percentModifier, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         instance.addTransientModifier(modifier);
         playFeedback(world, victim);
@@ -74,10 +74,10 @@ abstract class shatter_armor_base_action extends proc_on_hit_action {
     private static final class RemoveModifierTask implements mutation_task_scheduler.TimedTask {
         private final LivingEntity entity;
         private final Holder<Attribute> attribute;
-        private final ResourceLocation modifierId;
+        private final Identifier modifierId;
         private int ticksLeft;
 
-        private RemoveModifierTask(LivingEntity entity, Holder<Attribute> attribute, ResourceLocation modifierId, int ticks) {
+        private RemoveModifierTask(LivingEntity entity, Holder<Attribute> attribute, Identifier modifierId, int ticks) {
             this.entity = entity;
             this.attribute = attribute;
             this.modifierId = modifierId;

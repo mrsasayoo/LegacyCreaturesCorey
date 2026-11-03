@@ -19,7 +19,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ abstract class critical_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entry.getAsJsonObject();
-            ResourceLocation id = ResourceLocation.tryBuild(obj.has("effect") ? obj.get("effect").getAsString() : "");
+            Identifier id = Identifier.tryBuild(obj.has("effect") ? obj.get("effect").getAsString() : "");
             if (id == null) {
                 continue;
             }

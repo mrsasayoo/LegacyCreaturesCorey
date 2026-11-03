@@ -34,7 +34,7 @@ public class entropy_aura_2_action implements mutation_action {
                     if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                         ItemStack stack = player.getItemBySlot(slot);
                         if (!stack.isEmpty() && stack.isDamageableItem()) {
-                            stack.hurtAndConvertOnBreak(durabilityDamage, player, slot);
+                            stack.damage(durabilityDamage, player, slot);
                         }
                     }
                 }

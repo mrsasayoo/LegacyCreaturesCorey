@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ final class mutation_schema_validator {
     private mutation_schema_validator() {
     }
 
-    List<String> validate(ResourceLocation mutationId, JsonObject root) {
+    List<String> validate(Identifier mutationId, JsonObject root) {
         ValidationCollector collector = new ValidationCollector(mutationId);
         validateRootFields(root, collector);
         validateRestrictions(root, collector);
@@ -536,10 +536,10 @@ final class mutation_schema_validator {
             String raw = element.getAsString();
             if (raw.startsWith("#")) {
                 String tagValue = raw.substring(1);
-                if (ResourceLocation.tryBuild(tagValue) == null) {
+                if (Identifier.tryBuild(tagValue) == null) {
                     collector.error("restrictions." + key + "[" + i + "]", "Tag inválido");
                 }
-            } else if (ResourceLocation.tryBuild(raw) == null) {
+            } else if (Identifier.tryBuild(raw) == null) {
                 collector.error("restrictions." + key + "[" + i + "]", "Identificador inválido");
             }
         }
@@ -641,7 +641,7 @@ final class mutation_schema_validator {
             collector.error(path, "Debe ser un identificador");
             return;
         }
-        if (ResourceLocation.tryBuild(element.getAsString()) == null) {
+        if (Identifier.tryBuild(element.getAsString()) == null) {
             collector.error(path, "Identificador inválido");
         }
     }
@@ -674,10 +674,10 @@ final class mutation_schema_validator {
     }
 
     static final class ValidationCollector {
-        private final ResourceLocation mutationId;
+        private final Identifier mutationId;
         private final List<String> errors = new ArrayList<>();
 
-        private ValidationCollector(ResourceLocation mutationId) {
+        private ValidationCollector(Identifier mutationId) {
             this.mutationId = mutationId;
         }
 
@@ -689,7 +689,7 @@ final class mutation_schema_validator {
             return List.copyOf(errors);
         }
 
-        ResourceLocation mutationId() {
+        Identifier mutationId() {
             return mutationId;
         }
     }

@@ -5,7 +5,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class horde_beacon_aura_2_action implements mutation_action, HordeBeaconSource {
     private final double radius;
@@ -74,7 +74,7 @@ public class horde_beacon_aura_2_action implements mutation_action, HordeBeaconS
     }
 
     @Override
-    public ResourceLocation getFollowRangeModifierId() {
+    public Identifier getFollowRangeModifierId() {
         return null;
     }
 }

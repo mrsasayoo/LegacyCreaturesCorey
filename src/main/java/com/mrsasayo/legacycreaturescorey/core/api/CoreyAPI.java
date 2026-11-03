@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public final class CoreyAPI {
                                                           BlockPos position,
                                                           EntityType<? extends Mob> entityType,
                                                           MobTier tier,
-                                                          List<ResourceLocation> forcedMutations) {
+                                                          List<Identifier> forcedMutations) {
         if (world == null || position == null || entityType == null) {
             return Optional.empty();
         }
@@ -59,7 +59,7 @@ public final class CoreyAPI {
         if (!assignDefaults) {
             MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
             data.clearMutations();
-            for (ResourceLocation mutationId : forcedMutations) {
+            for (Identifier mutationId : forcedMutations) {
                 data.addMutation(mutationId);
             }
         }
@@ -78,7 +78,7 @@ public final class CoreyAPI {
         return Optional.ofNullable(data.getTier());
     }
 
-    public static List<ResourceLocation> getMutations(Mob mob) {
+    public static List<Identifier> getMutations(Mob mob) {
         if (mob == null) {
             return List.of();
         }

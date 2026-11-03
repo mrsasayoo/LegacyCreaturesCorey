@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.pickUpItem.LootContext;
+import net.minecraft.world.level.storage.loot.LootContext;
 
 import java.util.List;
 

@@ -4,18 +4,18 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.LivingEntity;
-import net.minecraft.level.entity.ai.attributes.Attribute;
-import net.minecraft.level.entity.ai.attributes.AttributeInstance;
-import net.minecraft.level.entity.ai.attributes.AttributeModifier;
-import net.minecraft.level.entity.ai.attributes.Attributes;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.level.phys.AABB;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import java.util.Set;
  * Applies an attribute modifier to nearby entities while the aura is active.
  */
 public final class AttributeAuraAction implements mutation_action {
-    private final ResourceLocation attributeId;
+    private final Identifier attributeId;
     private Holder<Attribute> attribute;
     private Attribute attributeType;
     private boolean loggedMissingAttribute;
@@ -39,9 +39,9 @@ public final class AttributeAuraAction implements mutation_action {
     private final Target target;
     private final boolean excludeSelf;
 
-    private final Map<LivingEntity, ResourceLocation> appliedModifiers = new HashMap<>();
+    private final Map<LivingEntity, Identifier> appliedModifiers = new HashMap<>();
 
-    public AttributeAuraAction(ResourceLocation attributeId, Operation operation, double amount, double radius, Target target, boolean excludeSelf) {
+    public AttributeAuraAction(Identifier attributeId, Operation operation, double amount, double radius, Target target, boolean excludeSelf) {
         this.attributeId = attributeId;
         this.operation = operation;
         this.amount = amount;
@@ -70,9 +70,9 @@ public final class AttributeAuraAction implements mutation_action {
         }
 
         // Remove modifiers from entities that left the aura
-        Iterator<Map.Entry<LivingEntity, ResourceLocation>> iterator = appliedModifiers.entrySet().iterator();
+        Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<LivingEntity, ResourceLocation> entry = iterator.next();
+            Map.Entry<LivingEntity, Identifier> entry = iterator.next();
             LivingEntity target = entry.unwrapKey();
             if (!currentTargets.intersects(target) || !target.isAlive()) {
                 removeModifier(target, entry.getValue());
@@ -84,9 +84,9 @@ public final class AttributeAuraAction implements mutation_action {
     @Override
     public void onRemove(LivingEntity entity) {
         // Clear any lingering modifiers when the aura is removed
-        Iterator<Map.Entry<LivingEntity, ResourceLocation>> iterator = appliedModifiers.entrySet().iterator();
+        Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<LivingEntity, ResourceLocation> entry = iterator.next();
+            Map.Entry<LivingEntity, Identifier> entry = iterator.next();
             removeModifier(entry.unwrapKey(), entry.getValue());
             iterator.remove();
         }
@@ -151,7 +151,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (instance == null) {
             return;
         }
-        ResourceLocation modifierId = ResourceLocation.direct(
+        Identifier modifierId = Identifier.ofSize(
             Legacycreaturescorey.MOD_ID,
             "attribute_aura_" + Integer.toHexString(System.identityHashCode(this)) + "_" + target.getId()
         );
@@ -175,7 +175,7 @@ public final class AttributeAuraAction implements mutation_action {
         }
     }
 
-    private void removeModifier(LivingEntity target, ResourceLocation modifierId) {
+    private void removeModifier(LivingEntity target, Identifier modifierId) {
         if (!ensureAttributeAvailable()) {
             return;
         }

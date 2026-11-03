@@ -12,28 +12,28 @@ import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import com.mrsasayo.legacycreaturescorey.feature.mob.TierManager;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.EntityType;
-import net.minecraft.level.entity.EntitySpawnReason;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.permissionLevel.ServerPlayer;
-import net.minecraft.server.permissionLevel.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.level.phys.Vec3;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 final class CoreySpawnCommands {
-    private static final List<EntityType<? extends Mob>> DEFAULT_HORDE_TYPES = List.atLowerCornerOf(
+    private static final List<EntityType<? extends Mob>> DEFAULT_HORDE_TYPES = List.translationArg(
         EntityType.ZOMBIE,
         EntityType.HUSK,
         EntityType.SKELETON,
@@ -57,34 +57,34 @@ final class CoreySpawnCommands {
 
     private static ArgumentBuilder<CommandSourceStack, ?> buildSpawnMobNode() {
         LiteralArgumentBuilder<CommandSourceStack> mob = Commands.literal("mob");
-        mob.then(Commands.argument("entidad", ResourceLocationArgument.id())
+        mob.then(Commands.argument("entidad", IdentifierArgument.id())
             .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
-            .executes(ctx -> spawnSingleMob(ctx, ResourceLocationArgument.getKey(ctx, "entidad"), null, List.atLowerCornerOf()))
+            .executes(ctx -> spawnSingleMob(ctx, IdentifierArgument.getId(ctx, "entidad"), null, List.translationArg()))
             .then(Commands.argument("tier", StringArgumentType.word())
                 .suggests(CoreyCommandShared.TIER_SUGGESTIONS)
                 .executes(ctx -> spawnSingleMob(ctx,
-                    ResourceLocationArgument.getKey(ctx, "entidad"),
+                    IdentifierArgument.getId(ctx, "entidad"),
                     StringArgumentType.getString(ctx, "tier"),
-                    List.atLowerCornerOf()))
+                    List.translationArg()))
                 .then(Commands.argument("mutaciones", StringArgumentType.greedyString())
                     .suggests(CoreyCommandShared.MUTATION_LIST_SUGGESTIONS)
                     .executes(ctx -> spawnSingleMob(ctx,
-                        ResourceLocationArgument.getKey(ctx, "entidad"),
+                        IdentifierArgument.getId(ctx, "entidad"),
                         StringArgumentType.getString(ctx, "tier"),
                         CoreyCommandShared.parseMutations(StringArgumentType.getString(ctx, "mutaciones"))))))
             .then(Commands.argument("pos", Vec3Argument.vec3())
-                .executes(ctx -> spawnSingleMob(ctx, ResourceLocationArgument.getKey(ctx, "entidad"), null, List.atLowerCornerOf()))
+                .executes(ctx -> spawnSingleMob(ctx, IdentifierArgument.getId(ctx, "entidad"), null, List.translationArg()))
                 .then(Commands.argument("tier", StringArgumentType.word())
                     .suggests(CoreyCommandShared.TIER_SUGGESTIONS)
                     .executes(ctx -> spawnSingleMob(ctx,
-                        ResourceLocationArgument.getKey(ctx, "entidad"),
+                        IdentifierArgument.getId(ctx, "entidad"),
                         StringArgumentType.getString(ctx, "tier"),
-                        List.atLowerCornerOf()))))
+                        List.translationArg()))))
         );
         return mob;
     }
 
-    private static int spawnSingleMob(CommandContext<CommandSourceStack> ctx, ResourceLocation typeId, String tierName, List<ResourceLocation> customMutations) throws CommandSyntaxException {
+    private static int spawnSingleMob(CommandContext<CommandSourceStack> ctx, Identifier typeId, String tierName, List<Identifier> customMutations) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         ServerLevel world = source.getLevel();
         Vec3 pos = CoreyCommandUtil.resolvePosition(ctx, "pos");
@@ -132,11 +132,11 @@ final class CoreySpawnCommands {
                         StringArgumentType.getString(ctx, "tier"))))));
 
         horde.then(Commands.literal("specific")
-            .then(Commands.argument("entidad", ResourceLocationArgument.id())
+            .then(Commands.argument("entidad", IdentifierArgument.id())
                 .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
                 .then(Commands.argument("cantidad", IntegerArgumentType.integer(1, 64))
                     .executes(ctx -> spawnSpecificHorde(ctx,
-                        ResourceLocationArgument.getKey(ctx, "entidad"),
+                        IdentifierArgument.getId(ctx, "entidad"),
                         IntegerArgumentType.getInteger(ctx, "cantidad"))))));
 
         return horde;
@@ -172,7 +172,7 @@ final class CoreySpawnCommands {
         return totalSpawned;
     }
 
-    private static int spawnSpecificHorde(CommandContext<CommandSourceStack> ctx, ResourceLocation typeId, int count) throws CommandSyntaxException {
+    private static int spawnSpecificHorde(CommandContext<CommandSourceStack> ctx, Identifier typeId, int count) throws CommandSyntaxException {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         ServerLevel world = (ServerLevel) player.level();
         Vec3 origin = new Vec3(player.getX(), player.getY(), player.getZ());
@@ -200,24 +200,24 @@ final class CoreySpawnCommands {
 
     private static ArgumentBuilder<CommandSourceStack, ?> buildSpawnBossNode() {
         LiteralArgumentBuilder<CommandSourceStack> boss = Commands.literal("boss");
-        boss.then(Commands.argument("entidad", ResourceLocationArgument.id())
+        boss.then(Commands.argument("entidad", IdentifierArgument.id())
             .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
-            .executes(ctx -> spawnBoss(ctx, ResourceLocationArgument.getKey(ctx, "entidad"), null, null))
+            .executes(ctx -> spawnBoss(ctx, IdentifierArgument.getId(ctx, "entidad"), null, null))
             .then(Commands.argument("tier", StringArgumentType.word())
                 .suggests(CoreyCommandShared.TIER_SUGGESTIONS)
                 .executes(ctx -> spawnBoss(ctx,
-                    ResourceLocationArgument.getKey(ctx, "entidad"),
+                    IdentifierArgument.getId(ctx, "entidad"),
                     StringArgumentType.getString(ctx, "tier"),
                     null))
                 .then(Commands.argument("nombre", StringArgumentType.greedyString())
                     .executes(ctx -> spawnBoss(ctx,
-                        ResourceLocationArgument.getKey(ctx, "entidad"),
+                        IdentifierArgument.getId(ctx, "entidad"),
                         StringArgumentType.getString(ctx, "tier"),
                         StringArgumentType.getString(ctx, "nombre"))))));
         return boss;
     }
 
-    private static int spawnBoss(CommandContext<CommandSourceStack> ctx, ResourceLocation typeId, String tierName, String customName) throws CommandSyntaxException {
+    private static int spawnBoss(CommandContext<CommandSourceStack> ctx, Identifier typeId, String tierName, String customName) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         ServerLevel world = source.getLevel();
         Vec3 pos = CoreyCommandUtil.resolvePosition(ctx, "pos");
@@ -252,23 +252,23 @@ final class CoreySpawnCommands {
         LiteralArgumentBuilder<CommandSourceStack> test = Commands.literal("test");
 
         test.then(Commands.literal("all_tiers")
-            .then(Commands.argument("entidad", ResourceLocationArgument.id())
+            .then(Commands.argument("entidad", IdentifierArgument.id())
                 .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
-                .executes(ctx -> spawnAllTiers(ctx, ResourceLocationArgument.getKey(ctx, "entidad")))));
+                .executes(ctx -> spawnAllTiers(ctx, IdentifierArgument.getId(ctx, "entidad")))));
 
         test.then(Commands.literal("battle")
-            .then(Commands.argument("combatienteA", ResourceLocationArgument.id())
+            .then(Commands.argument("combatienteA", IdentifierArgument.id())
                 .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
-                .then(Commands.argument("combatienteB", ResourceLocationArgument.id())
+                .then(Commands.argument("combatienteB", IdentifierArgument.id())
                     .suggests(CoreyCommandShared.ENTITY_SUGGESTIONS)
                     .executes(ctx -> spawnBattleTest(ctx,
-                        ResourceLocationArgument.getKey(ctx, "combatienteA"),
-                        ResourceLocationArgument.getKey(ctx, "combatienteB"))))));
+                        IdentifierArgument.getId(ctx, "combatienteA"),
+                        IdentifierArgument.getId(ctx, "combatienteB"))))));
 
         return test;
     }
 
-    private static int spawnAllTiers(CommandContext<CommandSourceStack> ctx, ResourceLocation typeId) throws CommandSyntaxException {
+    private static int spawnAllTiers(CommandContext<CommandSourceStack> ctx, Identifier typeId) throws CommandSyntaxException {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         ServerLevel world = (ServerLevel) player.level();
         Vec3 origin = new Vec3(player.getX(), player.getY(), player.getZ());
@@ -296,7 +296,7 @@ final class CoreySpawnCommands {
         return totalSpawned;
     }
 
-    private static int spawnBattleTest(CommandContext<CommandSourceStack> ctx, ResourceLocation aTypeId, ResourceLocation bTypeId) throws CommandSyntaxException {
+    private static int spawnBattleTest(CommandContext<CommandSourceStack> ctx, Identifier aTypeId, Identifier bTypeId) throws CommandSyntaxException {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         ServerLevel world = (ServerLevel) player.level();
         Vec3 origin = new Vec3(player.getX(), player.getY(), player.getZ());
@@ -312,7 +312,7 @@ final class CoreySpawnCommands {
         return 1;
     }
 
-    private static Mob createBattleMob(ServerLevel world, ResourceLocation typeId, Vec3 pos) {
+    private static Mob createBattleMob(ServerLevel world, Identifier typeId, Vec3 pos) {
         if (!BuiltInRegistries.ENTITY_TYPE.containsId(typeId)) {
             return null;
         }
@@ -328,13 +328,13 @@ final class CoreySpawnCommands {
         return mob;
     }
 
-    private static void applyCustomMutations(CommandSourceStack source, Mob mob, List<ResourceLocation> customMutations) {
+    private static void applyCustomMutations(CommandSourceStack source, Mob mob, List<Identifier> customMutations) {
         if (customMutations.isEmpty()) {
             return;
         }
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         data.clearMutations();
-        for (ResourceLocation id : customMutations) {
+        for (Identifier id : customMutations) {
             mutation m = mutation_registry.byString(id);
             if (m == null) {
                 source.sendFailure(Component.literal("Mutación desconocida: " + id));

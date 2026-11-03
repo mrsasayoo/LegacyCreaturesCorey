@@ -4,7 +4,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,18 +14,18 @@ import java.util.Set;
  * Define restricciones sobre qué tipos de entidades pueden recibir una mutación.
  */
 public final class incompatibility_manager {
-    private final Set<ResourceLocation> allowedTypes;
-    private final Set<ResourceLocation> excludedTypes;
+    private final Set<Identifier> allowedTypes;
+    private final Set<Identifier> excludedTypes;
     private final Set<TagKey<EntityType<?>>> allowedTags;
     private final Set<TagKey<EntityType<?>>> excludedTags;
     private final boolean requiresWater;
 
-    public incompatibility_manager(Set<ResourceLocation> allowedTypes, Set<ResourceLocation> excludedTypes, boolean requiresWater) {
+    public incompatibility_manager(Set<Identifier> allowedTypes, Set<Identifier> excludedTypes, boolean requiresWater) {
         this(allowedTypes, excludedTypes, Collections.emptySet(), Collections.emptySet(), requiresWater);
     }
 
-    public incompatibility_manager(Set<ResourceLocation> allowedTypes,
-                                   Set<ResourceLocation> excludedTypes,
+    public incompatibility_manager(Set<Identifier> allowedTypes,
+                                   Set<Identifier> excludedTypes,
                                    Set<TagKey<EntityType<?>>> allowedTags,
                                    Set<TagKey<EntityType<?>>> excludedTags,
                                    boolean requiresWater) {
@@ -60,7 +60,7 @@ public final class incompatibility_manager {
         return true;
     }
 
-    private ResourceLocation typeId(Mob entity) {
+    private Identifier typeId(Mob entity) {
         EntityType<?> type = entity.getType();
         return BuiltInRegistries.ENTITY_TYPE.getKey(type);
     }

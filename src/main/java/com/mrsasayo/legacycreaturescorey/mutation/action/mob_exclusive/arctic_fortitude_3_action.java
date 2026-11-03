@@ -7,10 +7,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.animal.PolarBear;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class arctic_fortitude_3_action extends arctic_fortitude_base_action {
-    private final ResourceLocation furyId = id("arctic_fortitude_fury");
+    private final Identifier furyId = id("arctic_fortitude_fury");
     private final double healthThreshold;
     private final double knockbackBonus;
     private final int resistanceDurationTicks;

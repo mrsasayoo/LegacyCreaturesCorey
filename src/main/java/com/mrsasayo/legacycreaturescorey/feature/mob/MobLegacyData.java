@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.feature.mob;
 
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public final class MobLegacyData {
     private MobTier tier;
-    private final List<ResourceLocation> mutations;
+    private final List<Identifier> mutations;
     private boolean farmed;
     private boolean furious;
 
@@ -17,7 +17,7 @@ public final class MobLegacyData {
         this(MobTier.NORMAL, new ArrayList<>(), false, false);
     }
 
-    public MobLegacyData(MobTier tier, List<ResourceLocation> mutations, boolean farmed, boolean furious) {
+    public MobLegacyData(MobTier tier, List<Identifier> mutations, boolean farmed, boolean furious) {
         this.tier = tier;
         this.mutations = new ArrayList<>(mutations);
         this.farmed = farmed;
@@ -32,17 +32,17 @@ public final class MobLegacyData {
         this.tier = tier;
     }
 
-    public List<ResourceLocation> getMutations() {
+    public List<Identifier> getMutations() {
         return Collections.unmodifiableList(mutations);
     }
 
-    public void addMutation(ResourceLocation mutationId) {
+    public void addMutation(Identifier mutationId) {
         if (!mutations.contains(mutationId)) {
             mutations.add(mutationId);
         }
     }
 
-    public void removeMutation(ResourceLocation mutationId) {
+    public void removeMutation(Identifier mutationId) {
         mutations.remove(mutationId);
     }
 

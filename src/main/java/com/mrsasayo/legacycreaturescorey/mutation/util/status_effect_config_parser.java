@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public final class status_effect_config_parser {
                 continue;
             }
             JsonObject obj = entry.getAsJsonObject();
-            ResourceLocation identifier = readIdentifier(obj);
+            Identifier identifier = readIdentifier(obj);
             if (identifier == null) {
                 continue;
             }
@@ -110,12 +110,12 @@ public final class status_effect_config_parser {
                 showIcon);
     }
 
-    private static ResourceLocation readIdentifier(JsonObject obj) {
+    private static Identifier readIdentifier(JsonObject obj) {
         if (obj.has("id")) {
-            return ResourceLocation.tryBuild(obj.get("id").getAsString());
+            return Identifier.tryBuild(obj.get("id").getAsString());
         }
         if (obj.has("effect")) {
-            return ResourceLocation.tryBuild(obj.get("effect").getAsString());
+            return Identifier.tryBuild(obj.get("effect").getAsString());
         }
         return null;
     }

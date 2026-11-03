@@ -150,7 +150,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         private long lastTriggerTick;
 
         private ActiveAura(LivingEntity source, PhantasmalVeilAuraAction action, long currentTick) {
-            this.directEntity = source;
+            this.source = source;
             this.action = action;
             this.lastSeenTick = currentTick;
             this.lastTriggerTick = currentTick;
@@ -187,7 +187,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (aura.directEntity == entity && aura.action == action) {
+                if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
                     return;
                 }
@@ -201,7 +201,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (list == null) {
                 return;
             }
-            list.removeIf(aura -> aura.directEntity == entity && aura.action == action);
+            list.removeIf(aura -> aura.source == entity && aura.action == action);
             if (list.isEmpty()) {
                 active.remove(world);
             }
@@ -217,7 +217,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (!aura.directEntity.isAlive()) {
+                if (!aura.source.isAlive()) {
                     continue;
                 }
                 Mode mode = aura.action.getMode();
@@ -235,7 +235,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (time - aura.lastTriggerTick < aura.action.getIntervalTicks()) {
                 return;
             }
-            LivingEntity source = aura.directEntity;
+            LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
             List<ServerPlayer> players = world
@@ -274,7 +274,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (time - aura.lastTriggerTick < aura.action.getIntervalTicks()) {
                 return;
             }
-            if (!(aura.directEntity instanceof Mob)) {
+            if (!(aura.source instanceof Mob)) {
                 aura.lastTriggerTick = time;
                 return;
             }
@@ -299,13 +299,13 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         }
 
         private void runAllyShroud(ServerLevel world, ActiveAura aura, long time) {
-            if (!(aura.directEntity instanceof Mob sourceMob)) {
+            if (!(aura.source instanceof Mob sourceMob)) {
                 return;
             }
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
             List<Mob> mobs = world.getEntitiesByClass(Mob.class, sourceMob.getLocalBoundsForPose().expand(radius),
-                    mob -> mob.isAlive() && mob != sourceMob && mob.effect().getSpawnGroup() == MobCategory.MONSTER
+                    mob -> mob.isAlive() && mob != sourceMob && mob.type().getSpawnGroup() == MobCategory.MONSTER
                             && sourceMob.squaredDistanceTo(mob) <= radiusSq);
             if (mobs.isEmpty()) {
                 return;
@@ -317,11 +317,11 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         }
 
         private void spawnClone(ServerLevel world, ActiveAura aura, long time, RandomSource random) {
-            if (!(aura.directEntity instanceof Mob sourceMob)) {
+            if (!(aura.source instanceof Mob sourceMob)) {
                 return;
             }
             BlockPos spawnPos = sourceMob.getBlockPos();
-            var created = sourceMob.effect().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
+            var created = sourceMob.type().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
             if (!(created instanceof Mob clone)) {
                 return;
             }
@@ -357,7 +357,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
 
             long expiry = time + aura.action.getCloneLifetimeTicks();
-            IllusionRecord record = new IllusionRecord(clone, aura.directEntity, expiry);
+            IllusionRecord record = new IllusionRecord(clone, aura.source, expiry);
             clones.computeIfAbsent(world, ignored -> new ArrayList<>()).offset(record);
             cloneLookup.put(clone, record);
         }
@@ -471,7 +471,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();
-                LivingEntity source = aura.directEntity;
+                LivingEntity source = aura.source;
                 if (!source.isAlive() || time - aura.lastSeenTick > 20L) {
                     iterator.remove();
                 }

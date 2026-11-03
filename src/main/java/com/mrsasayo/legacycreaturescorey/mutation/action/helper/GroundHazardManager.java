@@ -136,7 +136,7 @@ public final class GroundHazardManager {
 		}
 
 		private void pulse(ServerLevel world) {
-			AABB box = AABB.direct(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
+			AABB box = AABB.ofSize(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
 			List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, box,
 				entity -> entity.isAlive() && config.target().matches(entity) && entity.distanceToSqr(origin) <= radiusSq);
 

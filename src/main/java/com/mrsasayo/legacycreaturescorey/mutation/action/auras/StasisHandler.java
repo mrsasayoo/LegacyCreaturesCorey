@@ -2,26 +2,26 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.EntityType;
-import net.minecraft.level.entity.LivingEntity;
-import net.minecraft.level.entity.ai.attributes.AttributeInstance;
-import net.minecraft.level.entity.ai.attributes.AttributeModifier;
-import net.minecraft.level.entity.ai.attributes.Attributes;
-import net.minecraft.level.entity.player.Player;
-import net.minecraft.level.entity.projectile.AbstractArrow;
-import net.minecraft.level.entity.projectile.Projectile;
-import net.minecraft.level.entity.projectile.ThrownEnderpearl;
-import net.minecraft.level.item.ItemStack;
-import net.minecraft.level.item.Items;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.level.InteractionResult;
-import net.minecraft.level.InteractionHand;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.level.phys.AABB;
-import net.minecraft.level.phys.Vec3;
-import net.minecraft.level.level.Level;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -266,7 +266,7 @@ public final class StasisHandler {
         if (instance == null) {
             return;
         }
-        ResourceLocation modifierId = source.getAttackSpeedModifierId();
+        Identifier modifierId = source.getAttackSpeedModifierId();
         if (modifierId == null) {
             return;
         }
@@ -312,7 +312,7 @@ public final class StasisHandler {
     }
 
     private void removeModifier(ServerPlayer player, StasisSource source) {
-        ResourceLocation modifierId = source.getAttackSpeedModifierId();
+        Identifier modifierId = source.getAttackSpeedModifierId();
         if (modifierId == null) {
             return;
         }

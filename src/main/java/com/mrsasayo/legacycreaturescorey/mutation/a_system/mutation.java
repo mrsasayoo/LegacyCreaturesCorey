@@ -4,7 +4,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface mutation {
     /**
      * Identificador único dentro del mod. Se usa para guardado y sincronización.
      */
-    ResourceLocation getId();
+    Identifier getId();
 
     /**
      * Tipo funcional de la mutación (pasiva de atributos, pasiva por golpe o activa
@@ -98,7 +98,7 @@ public interface mutation {
     /**
      * Permite definir incompatibilidades con otras mutaciones ya asignadas.
      */
-    default boolean isCompatibleWith(List<ResourceLocation> existingMutations) {
+    default boolean isCompatibleWith(List<Identifier> existingMutations) {
         return true;
     }
 
@@ -107,7 +107,7 @@ public interface mutation {
      * human-readable failure reason explaining why it cannot be applied to the 
      * given entity with the provided existing mutations.
      */
-    default String getApplyFailureReason(Mob entity, List<ResourceLocation> existingMutations) {
+    default String getApplyFailureReason(Mob entity, List<Identifier> existingMutations) {
         if (!canApplyTo(entity)) {
             return "Entity does not meet mutation restrictions";
         }

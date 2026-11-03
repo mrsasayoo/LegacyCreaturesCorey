@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Vindicator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -33,7 +33,7 @@ abstract class axe_mastery_base_action implements mutation_action {
 
     protected static final class Handler {
         private static final Handler INSTANCE = new Handler();
-        private static final ResourceLocation STOP_MOVEMENT_ID = ResourceLocation.ofSize(Legacycreaturescorey.MOD_ID,
+        private static final Identifier STOP_MOVEMENT_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
                 "axe_mastery_stop");
         private final Map<Vindicator, Map<String, Integer>> cooldowns = new WeakHashMap<>();
         private final Map<Vindicator, AxeState> axeStates = new WeakHashMap<>();

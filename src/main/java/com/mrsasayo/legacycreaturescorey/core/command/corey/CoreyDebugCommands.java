@@ -14,19 +14,19 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.UuidArgument;
-import net.minecraft.level.entity.ai.attributes.AttributeInstance;
-import net.minecraft.level.entity.ai.attributes.Attributes;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.permissionLevel.ServerPlayer;
-import net.minecraft.server.permissionLevel.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.level.phys.AABB;
-import net.minecraft.level.permissionLevel.ChunkPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.Comparator;
 import java.util.List;
@@ -114,7 +114,7 @@ final class CoreyDebugCommands {
         if (data.getMutations().isEmpty()) {
             builder.append("(sin mutaciones)\n");
         } else {
-            for (ResourceLocation mutationId : data.getMutations()) {
+            for (Identifier mutationId : data.getMutations()) {
                 mutation m = mutation_registry.get(mutationId);
                 builder.append("- ").append(mutationId);
                 if (m != null && m.getDisplayName() != null) {
@@ -164,7 +164,7 @@ final class CoreyDebugCommands {
     private static int listEntities(CommandContext<CommandSourceStack> ctx, double radius) throws CommandSyntaxException {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         AABB box = player.getBoundingBox().inflate(radius);
-        ServerLevel world = (ServerLevel) player.permissionLevel();
+        ServerLevel world = (ServerLevel) player.level();
         List<Mob> mobs = world.getEntitiesByClass(Mob.class, box, mob -> mob.isAlive() && !mob.isSpectator());
         if (mobs.isEmpty()) {
             ctx.getSource().sendFailure(Component.literal("No hay mobs categorizados dentro del radio."));

@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
@@ -9,22 +9,22 @@ import java.util.Objects;
  * Implementación base con metadata común para cualquier mutación.
  */
 public abstract class abstract_mutation implements mutation {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final mutation_type type;
     private final int cost;
     private final int weight;
     private final Component displayName;
     private final Component description;
 
-    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost) {
+    protected abstract_mutation(Identifier id, mutation_type type, int cost) {
         this(id, type, cost, 1, createDefaultName(id), createDefaultDescription(id));
     }
 
-    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost, Component displayName, Component description) {
+    protected abstract_mutation(Identifier id, mutation_type type, int cost, Component displayName, Component description) {
         this(id, type, cost, 1, displayName, description);
     }
 
-    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost, int weight, Component displayName, Component description) {
+    protected abstract_mutation(Identifier id, mutation_type type, int cost, int weight, Component displayName, Component description) {
         this.id = Objects.requireNonNull(id, "id");
         this.type = Objects.requireNonNull(type, "type");
         this.cost = Math.max(0, cost);
@@ -34,7 +34,7 @@ public abstract class abstract_mutation implements mutation {
     }
 
     @Override
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return id;
     }
 
@@ -80,11 +80,11 @@ public abstract class abstract_mutation implements mutation {
         return id.equals(m.getId());
     }
 
-    protected static Component createDefaultName(ResourceLocation id) {
+    protected static Component createDefaultName(Identifier id) {
         return Component.translatable("mutation." + id.getNamespace() + "." + id.getPath());
     }
 
-    protected static Component createDefaultDescription(ResourceLocation id) {
+    protected static Component createDefaultDescription(Identifier id) {
         return Component.translatable("mutation." + id.getNamespace() + "." + id.getPath() + ".desc");
     }
 }

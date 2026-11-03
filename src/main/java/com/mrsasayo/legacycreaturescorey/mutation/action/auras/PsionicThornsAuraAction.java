@@ -84,7 +84,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
             }
 
             // Ensure attacker is present and alive
-            if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
+            if (!(source.getLastHurtByMob() instanceof LivingEntity attacker) || attacker == victim) {
                 return;
             }
 

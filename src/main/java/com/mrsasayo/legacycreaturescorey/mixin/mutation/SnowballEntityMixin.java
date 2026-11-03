@@ -6,7 +6,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.blizzard_orb_base_action;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.golem.SnowGolem;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -39,12 +39,12 @@ public class SnowballEntityMixin {
             return;
         }
 
-        List<ResourceLocation> mutations = CoreyAPI.getMutations(snowGolem);
+        List<Identifier> mutations = CoreyAPI.getMutations(snowGolem);
         if (mutations.isEmpty()) {
             return;
         }
 
-        for (ResourceLocation id : mutations) {
+        for (Identifier id : mutations) {
             mutation m = mutation_registry.get(id);
             if (!(m instanceof configured_mutation configured)) {
                 continue;

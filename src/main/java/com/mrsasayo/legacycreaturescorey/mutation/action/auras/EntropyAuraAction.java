@@ -262,7 +262,7 @@ public final class EntropyAuraAction implements mutation_action {
                         if (armor.isEmpty()) {
                             continue;
                         }
-                        armor.hurtAndConvertOnBreak(aura.action.durabilityDamage, player, slot);
+                        armor.damage(aura.action.durabilityDamage, player, slot);
                     }
                 }
                 aura.lastEffectTick = time;

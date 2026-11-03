@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ import java.util.Locale;
  */
 abstract class true_damage_base_action extends proc_on_hit_action {
     private final List<SideEffect> sideEffects;
-    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.direct(
+    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.createRegistryKey(
             RegistryKeys.DAMAGE_TYPE,
-            ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "true_damage"));
+            Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "true_damage"));
 
     protected true_damage_base_action(mutation_action_config config,
             double defaultChance,
@@ -107,9 +107,9 @@ abstract class true_damage_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entryElement.getAsJsonObject();
-            ResourceLocation id = obj.has("id") ? ResourceLocation.tryBuild(obj.get("id").getAsString()) : null;
+            Identifier id = obj.has("id") ? Identifier.tryBuild(obj.get("id").getAsString()) : null;
             if (id == null && obj.has("effect")) {
-                id = ResourceLocation.tryBuild(obj.get("effect").getAsString());
+                id = Identifier.tryBuild(obj.get("effect").getAsString());
             }
             if (id == null) {
                 continue;

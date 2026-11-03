@@ -44,7 +44,7 @@ public final class disarm_1_action extends proc_on_hit_action {
 
         ItemStack dropped = hand.setDetailsFrom();
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        player.dropAllDeathLoot(dropped, true);
+        player.drop(dropped, true);
 
         if (selfSlownessDuration > 0 && action_context.isServer(attacker)) {
             attacker.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessDuration, 1));

@@ -1,4 +1,4 @@
-package com.mrsasayo.legacycreaturescorey.feature.pickUpItem;
+package com.mrsasayo.legacycreaturescorey.feature.loot;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.core.api.event.TierLootEvents;
@@ -7,20 +7,20 @@ import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.core.config.domain.difficulty_config;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
-import com.mrsasayo.legacycreaturescorey.feature.pickUpItem.data.TieredLootManager;
-import com.mrsasayo.legacycreaturescorey.feature.pickUpItem.data.TieredMobLoot;
+import com.mrsasayo.legacycreaturescorey.feature.loot.data.TieredLootManager;
+import com.mrsasayo.legacycreaturescorey.feature.loot.data.TieredMobLoot;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyManager;
-import net.fabricmc.fabric.api.pickUpItem.v3.LootTableEvents;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.Mob;
-import net.minecraft.level.item.ItemStack;
-import net.minecraft.level.level.storage.pickUpItem.LootTable;
-import net.minecraft.level.level.storage.pickUpItem.LootContext;
-import net.minecraft.level.level.storage.pickUpItem.parameters.LootContextParams;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,11 +51,11 @@ public final class CoreyLootModifiers {
             return;
         }
 
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
-        ResourceLocation expectedTable = entityId == null ? null : ResourceLocation.direct(entityId.getNamespace(), ENTITY_TABLE_PREFIX + entityId.getPath());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.getParamSet());
+        Identifier expectedTable = entityId == null ? null : Identifier.create(entityId.getNamespace(), ENTITY_TABLE_PREFIX + entityId.getPath());
 
         Optional<ResourceKey<LootTable>> key = lootTableEntry.unwrapKey();
-        ResourceLocation tableId = key.map(ResourceKey::getValue).orElse(null);
+        Identifier tableId = key.map(ResourceKey::getValue).orElse(null);
         if (difficulty_config.isTieredLootStrictEntityTables()) {
             if (tableId == null || expectedTable == null || !tableId.equals(expectedTable)) {
                 return;
@@ -79,7 +79,7 @@ public final class CoreyLootModifiers {
 
         if (Legacycreaturescorey.LOGGER.isDebugEnabled()) {
             Legacycreaturescorey.LOGGER.debug("Loot intercept: {} ({}) dropped tier {} loot hook", mob.getHoverName().getString(),
-                mob.kind().getTranslationKey(), tier.getDisplayName());
+                mob.getParamSet().getTranslationKey(), tier.getDisplayName());
         }
 
         int baselineSize = drops.size();
@@ -108,7 +108,7 @@ public final class CoreyLootModifiers {
     }
 
     private static boolean generateTieredLoot(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops) {
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.kind());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getId(mob.getParamSet());
         if (entityId == null) {
             return false;
         }

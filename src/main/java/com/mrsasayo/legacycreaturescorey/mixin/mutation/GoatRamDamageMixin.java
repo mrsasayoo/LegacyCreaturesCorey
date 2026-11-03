@@ -6,7 +6,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.battering_ram_base_action;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,7 +34,7 @@ public class GoatRamDamageMixin {
             return amount;
         }
 
-        List<ResourceLocation> mutations = CoreyAPI.getMutations(goat);
+        List<Identifier> mutations = CoreyAPI.getMutations(goat);
         if (mutations.isEmpty()) {
             return amount;
         }
@@ -43,7 +43,7 @@ public class GoatRamDamageMixin {
         float bonusDamage = 0;
         double knockbackBonus = 0.0D;
 
-        for (ResourceLocation id : mutations) {
+        for (Identifier id : mutations) {
             mutation m = mutation_registry.get(id);
             if (!(m instanceof configured_mutation configured)) {
                 continue;

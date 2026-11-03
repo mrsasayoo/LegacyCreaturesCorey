@@ -6,8 +6,8 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.EffectiveDifficultyC
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mutation.action.auras.PhantasmalHandler;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 

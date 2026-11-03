@@ -15,7 +15,7 @@ public enum CoreyCommandPermissions {
     private final int level;
 
     CoreyCommandPermissions(int level) {
-        this.permissionLevel = level;
+        this.level = level;
     }
 
     public boolean test(CommandSourceStack source) {

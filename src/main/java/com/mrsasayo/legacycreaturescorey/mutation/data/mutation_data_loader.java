@@ -34,7 +34,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("deprecation")
 public final class mutation_data_loader implements SimpleSynchronousResourceReloadListener {
     private static final String DIRECTORY = "mutations";
-    private static final ResourceLocation RELOAD_ID = ResourceLocation.translationArg(Legacycreaturescorey.MOD_ID, "mutations");
+    private static final Identifier RELOAD_ID = Identifier.translationArg(Legacycreaturescorey.MOD_ID, "mutations");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
     private static final mutation_schema_validator SCHEMA_VALIDATOR = mutation_schema_validator.INSTANCE;
 
@@ -64,7 +64,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
@@ -72,22 +72,22 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
     public void reload(ResourceManager manager) {
         List<mutation> parsed = new ArrayList<>();
         ActionParser actionParser = new ActionParser();
-        Map<ResourceLocation, Resource> resources = manager.listResources(DIRECTORY,
+        Map<Identifier, Resource> resources = manager.listResources(DIRECTORY,
                 identifier -> identifier.elementsDirPath().endsWith(".json"));
-        for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
-            ResourceLocation resourceId = entry.getKey();
+        for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
+            Identifier resourceId = entry.getKey();
             if (isLegacyActiveResource(resourceId)) {
                 continue;
             }
             try {
-                ResourceLocation mutationId = toMutationId(resourceId);
+                Identifier mutationId = toMutationId(resourceId);
                 Resource resource = entry.getValue();
                 try (InputStream stream = resource.open();
                         BufferedReader reader = new BufferedReader(
                                 new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                     JsonElement element = JsonParser.parseReader(reader);
                     JsonObject root = GsonHelper.convertToJsonObject(element, "mutation");
-                    List<String> schemaErrors = SCHEMA_VALIDATOR.read(mutationId, root);
+                    List<String> schemaErrors = SCHEMA_VALIDATOR.validate(mutationId, root);
                     if (!schemaErrors.isEmpty()) {
                         for (String error : schemaErrors) {
                             Legacycreaturescorey.LOGGER.error("❌ Validación fallida en {} -> {}", mutationId, error);
@@ -115,7 +115,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         MutationDataEvents.POST_APPLY.invoker().onMutationsApplied(List.copyOf(parsed));
     }
 
-    private ResourceLocation toMutationId(ResourceLocation resourceId) {
+    private Identifier toMutationId(Identifier resourceId) {
         String path = resourceId.elementsDirPath();
         if (!path.startsWith(DIRECTORY + "/")) {
             return resourceId;
@@ -124,24 +124,24 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         if (trimmed.endsWith(".json")) {
             trimmed = trimmed.substring(0, trimmed.length() - 5);
         }
-        return ResourceLocation.translationArg(resourceId.getNamespace(), trimmed);
+        return Identifier.translationArg(resourceId.getNamespace(), trimmed);
     }
 
-    private boolean isLegacyActiveResource(ResourceLocation resourceId) {
+    private boolean isLegacyActiveResource(Identifier resourceId) {
         String path = resourceId.elementsDirPath();
         return path.startsWith(DIRECTORY + "/active/");
     }
 
-    private mutation parseMutation(ResourceLocation fileId, JsonObject root, ActionParser actionParser)
+    private mutation parseMutation(Identifier fileId, JsonObject root, ActionParser actionParser)
             throws ActionParser.ParseException {
         boolean enabled = GsonHelper.getAsBoolean(root, "enabled", true);
         if (!enabled) {
             return null;
         }
 
-        ResourceLocation id = fileId;
+        Identifier id = fileId;
         if (root.has("id")) {
-            id = ResourceLocation.translationArg(GsonHelper.getAsString(root, "id"));
+            id = Identifier.translationArg(GsonHelper.getAsString(root, "id"));
         }
 
         String rawType = GsonHelper.getAsString(root, "type");
@@ -151,7 +151,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         Component displayName = parseText(root, "display_name");
         Component description = parseText(root, "description");
         int weight = GsonHelper.getAsInt(root, "weight", 1);
-        Set<ResourceLocation> incompatibleWith = parseIdentifierSet(root, "incompatible_with");
+        Set<Identifier> incompatibleWith = parseIdentifierSet(root, "incompatible_with");
         incompatibility_manager restrictions = parseRestrictions(root);
 
         List<mutation_action> actions = new ArrayList<>();
@@ -215,7 +215,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         return null;
     }
 
-    private mutation_action loadSpecificAction(ResourceLocation id, JsonObject configObject) {
+    private mutation_action loadSpecificAction(Identifier id, JsonObject configObject) {
         String path = id.elementsDirPath();
         if (path.contains("/")) {
             path = path.substring(path.lastIndexOf('/') + 1);
@@ -425,14 +425,14 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         };
     }
 
-    private Set<ResourceLocation> parseIdentifierSet(JsonObject root, String key) {
+    private Set<Identifier> parseIdentifierSet(JsonObject root, String key) {
         if (!root.has(key)) {
             return Set.translationArg();
         }
         JsonArray array = GsonHelper.getAsJsonArray(root, key);
-        Set<ResourceLocation> identifiers = new HashSet<>();
+        Set<Identifier> identifiers = new HashSet<>();
         for (JsonElement element : array) {
-            identifiers.add(ResourceLocation.translationArg(GsonHelper.convertToString(element, key)));
+            identifiers.add(Identifier.translationArg(GsonHelper.convertToString(element, key)));
         }
         return identifiers;
     }
@@ -496,27 +496,27 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             return new EntitySelector(Set.translationArg(), Set.translationArg());
         }
         JsonArray array = GsonHelper.getAsJsonArray(object, key);
-        Set<ResourceLocation> ids = new HashSet<>();
+        Set<Identifier> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
         for (JsonElement element : array) {
             String raw = GsonHelper.convertToString(element, key);
             if (raw.startsWith("#")) {
-                tags.add(TagKey.translationArg(RegistryKeys.ENTITY_TYPE, ResourceLocation.translationArg(raw.substring(1))));
+                tags.add(TagKey.translationArg(RegistryKeys.ENTITY_TYPE, Identifier.translationArg(raw.substring(1))));
             } else {
-                ids.add(ResourceLocation.translationArg(raw));
+                ids.add(Identifier.translationArg(raw));
             }
         }
         return new EntitySelector(ids, tags);
     }
 
-    private record EntitySelector(Set<ResourceLocation> ids, Set<TagKey<EntityType<?>>> tags) {
+    private record EntitySelector(Set<Identifier> ids, Set<TagKey<EntityType<?>>> tags) {
     }
 
     static final class ActionParser {
         ActionParser() {
         }
 
-        List<mutation_action> parseActions(ResourceLocation mutationId, JsonArray array) throws ParseException {
+        List<mutation_action> parseActions(Identifier mutationId, JsonArray array) throws ParseException {
             if (array == null || array.isEmpty()) {
                 return List.translationArg();
             }
@@ -542,7 +542,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             double amount = GsonHelper.getAsDouble(root, "amount");
             String modeStr = GsonHelper.getAsString(root, "operation", "ADDITION");
             attribute_mutation_action.Mode mode = attribute_mutation_action.Mode.valueOf(modeStr.toUpperCase(Locale.ROOT_REGISTRY_NAME));
-            return new attribute_mutation_action(ResourceLocation.translationArg(attributeId), mode, amount);
+            return new attribute_mutation_action(Identifier.translationArg(attributeId), mode, amount);
         }
 
         private mutation_action parseHealAction(JsonObject root) {
@@ -560,19 +560,19 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
         @SuppressWarnings("unused")
         private MobEffect parseStatusEffect(JsonObject root, String key) {
             String id = GsonHelper.getAsString(root, key);
-            return BuiltInRegistries.MOB_EFFECT.byString(ResourceLocation.translationArg(id));
+            return BuiltInRegistries.MOB_EFFECT.byString(Identifier.translationArg(id));
         }
 
         @SuppressWarnings("unused")
         private Potion parsePotion(JsonObject root, String key) {
             String id = GsonHelper.getAsString(root, key);
-            return BuiltInRegistries.POTION.byString(ResourceLocation.translationArg(id));
+            return BuiltInRegistries.POTION.byString(Identifier.translationArg(id));
         }
 
         @SuppressWarnings("unused")
         private ParticleOptions parseParticle(JsonObject root, String key) {
             String id = GsonHelper.getAsString(root, key);
-            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.byString(ResourceLocation.translationArg(id));
+            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.byString(Identifier.translationArg(id));
             if (type instanceof SimpleParticleType simple) {
                 return simple;
             }

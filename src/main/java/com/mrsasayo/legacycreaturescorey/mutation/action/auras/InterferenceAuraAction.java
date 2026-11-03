@@ -6,26 +6,26 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.level.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.LivingEntity;
-import net.minecraft.level.entity.player.Player;
-import net.minecraft.level.entity.projectile.ThrownEnderpearl;
-import net.minecraft.level.item.ItemStack;
-import net.minecraft.level.item.Items;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.level.InteractionResult;
-import net.minecraft.level.InteractionHand;
-import net.minecraft.level.phys.BlockHitResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
-import net.minecraft.level.phys.AABB;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.core.Direction;
-import net.minecraft.level.phys.Vec3;
-import net.minecraft.level.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -141,7 +141,7 @@ public final class InterferenceAuraAction implements mutation_action {
             BlockPos targetPos = hitResult.getBlockPos();
             Direction side = hitResult.getDirection();
             // The block that would be placed resides on the hit side.
-            targetPos = targetPos.move(side);
+            targetPos = targetPos.relative(side);
 
             if (shouldSabotagePlacement(serverWorld, player, targetPos, auras)) {
                 queueBlockBreak(serverWorld, targetPos);
@@ -224,7 +224,7 @@ public final class InterferenceAuraAction implements mutation_action {
         private List<ActiveAura> getAurasFor(ServerLevel world, Mode mode) {
             List<ActiveAura> list = activeAuras.get(world);
             if (list == null || list.isEmpty()) {
-                return List.ofSize();
+                return List.atLowerCornerOf();
             }
             List<ActiveAura> filtered = new ArrayList<>();
             for (ActiveAura aura : list) {
@@ -343,10 +343,10 @@ public final class InterferenceAuraAction implements mutation_action {
                             SoundEvents.ENDERMAN_TELEPORT,
                             SoundSource.HOSTILE,
                             0.4F,
-                            1.1F + world.getRandom.nextFloat() * 0.2F);
+                            1.1F + world.random.nextFloat() * 0.2F);
                     }
                     if (owner != null) {
-                        owner.hurtAndConvertOnBreak(world, world.damageSources().magic(), aura.action().getPearlDamage());
+                        owner.damage(world, world.damageSources().magic(), aura.action().getPearlDamage());
                     }
                     handled.relative(pearl);
                 }

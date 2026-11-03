@@ -62,7 +62,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
 
     private void applyBurst(ServerLevel world, LivingEntity owner, Vec3 origin) {
         double radiusSq = radius * radius;
-        AABB area = AABB.ofSize(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
+        AABB area = AABB.atLowerCornerOf(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
         List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, area,
             living -> living.isAlive() && living != owner && !living.isSpectator());
         if (targets.isEmpty()) {
@@ -124,7 +124,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
                     continue;
                 }
                 if (world.setBlockState(firePos, Blocks.FIRE.defaultBlockState(), Block.UPDATE_ALL)) {
-                    ignited.relative(firePos.immutable());
+                    ignited.atLowerCornerWithOffset(firePos.immutable());
                 }
             }
         }
@@ -160,7 +160,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
             SoundEvents.GENERIC_EXPLODE,
             SoundSource.HOSTILE,
             0.9F,
-            0.8F + world.getRandom.nextFloat() * 0.4F);
+            0.8F + world.random.nextFloat() * 0.4F);
     }
 
     private static final class FireCleanupTask implements mutation_task_scheduler.TimedTask {

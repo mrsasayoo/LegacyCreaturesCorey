@@ -18,7 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
 
@@ -69,7 +69,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     }
 
     private ParticleOptions resolveParticleEffect(mutation_action_config config, ParticleOptions fallback) {
-        ResourceLocation id = config.getIdentifier("particle_effect", null);
+        Identifier id = config.getIdentifier("particle_effect", null);
         if (id != null) {
             ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(id);
             if (type instanceof ParticleOptions effect) {
@@ -83,7 +83,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (config == null || config.raw().size() == 0) {
             return fallback;
         }
-        ResourceLocation id = config.getIdentifier("id", null);
+        Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
             MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);
@@ -103,7 +103,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (config == null || config.raw().size() == 0) {
             return fallback;
         }
-        ResourceLocation id = config.getIdentifier("id", null);
+        Identifier id = config.getIdentifier("id", null);
         Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
             MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);

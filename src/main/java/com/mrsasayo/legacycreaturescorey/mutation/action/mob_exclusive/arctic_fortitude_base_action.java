@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.animal.PolarBear;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 abstract class arctic_fortitude_base_action implements mutation_action {
     protected PolarBear asServerPolarBear(LivingEntity entity) {
@@ -20,13 +20,13 @@ abstract class arctic_fortitude_base_action implements mutation_action {
         return null;
     }
 
-    protected ResourceLocation id(String path) {
-        return ResourceLocation.direct(Legacycreaturescorey.MOD_ID, path);
+    protected Identifier id(String path) {
+        return Identifier.direct(Legacycreaturescorey.MOD_ID, path);
     }
 
     protected void applyModifier(LivingEntity entity,
             net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
-            ResourceLocation identifier,
+            Identifier identifier,
             double value,
             AttributeModifier.Operation operation) {
         AttributeInstance instance = entity.getAttribute(attribute);
@@ -37,7 +37,7 @@ abstract class arctic_fortitude_base_action implements mutation_action {
 
     protected void removeModifier(LivingEntity entity,
             net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
-            ResourceLocation identifier) {
+            Identifier identifier) {
         AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && instance.hasModifier(identifier)) {
             instance.removeModifier(identifier);

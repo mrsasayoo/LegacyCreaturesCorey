@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mixin.mutation;
 import com.mrsasayo.legacycreaturescorey.core.api.CoreyAPI;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,12 +29,12 @@ public abstract class LivingEntityDamageMixin {
             return;
         }
 
-        List<ResourceLocation> mutationIds = CoreyAPI.getMutations(mob);
+        List<Identifier> mutationIds = CoreyAPI.getMutations(mob);
         if (mutationIds.isEmpty()) {
             return;
         }
 
-        for (ResourceLocation id : mutationIds) {
+        for (Identifier id : mutationIds) {
             mutation m = mutation_registry.get(id);
             if (m != null) {
                 m.onDamage(self, source, amount);

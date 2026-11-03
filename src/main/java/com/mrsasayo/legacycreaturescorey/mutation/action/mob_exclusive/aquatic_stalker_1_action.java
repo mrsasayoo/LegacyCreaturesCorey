@@ -7,10 +7,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Drowned;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class aquatic_stalker_1_action extends aquatic_stalker_base_action {
-    private static final ResourceLocation SPEED_MODIFIER_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID,
+    private static final Identifier SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID,
             "aquatic_stalker_swim_speed");
     private final double speedBonus;
 

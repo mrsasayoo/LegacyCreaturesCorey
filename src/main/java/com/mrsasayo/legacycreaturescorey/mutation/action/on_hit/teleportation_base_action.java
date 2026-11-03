@@ -15,7 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -71,7 +71,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entryElement.getAsJsonObject();
-            ResourceLocation id = obj.has("id") ? ResourceLocation.tryBuild(obj.get("id").getAsString()) : null;
+            Identifier id = obj.has("id") ? Identifier.tryBuild(obj.get("id").getAsString()) : null;
             if (id == null) {
                 continue;
             }
@@ -92,7 +92,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
             boolean ambient = obj.has("ambient") ? obj.get("ambient").getAsBoolean() : true;
             boolean showParticles = obj.has("show_particles") ? obj.get("show_particles").getAsBoolean() : true;
             boolean showIcon = obj.has("show_icon") ? obj.get("show_icon").getAsBoolean() : true;
-            parsed.relative(new SideEffect(effectEntry, durationTicks, amplifier, target, ambient, showParticles, showIcon));
+            parsed.atLowerCornerWithOffset(new SideEffect(effectEntry, durationTicks, amplifier, target, ambient, showParticles, showIcon));
         }
         return parsed.isEmpty() ? fallback : List.copyOf(parsed);
     }

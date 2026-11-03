@@ -2,7 +2,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Wrapper ligero sobre la sección {@code actions} de cada JSON de mutación para facilitar la lectura
@@ -45,12 +45,12 @@ public final class mutation_action_config {
         return element != null && element.isJsonPrimitive() ? element.getAsString() : defaultValue;
     }
 
-    public ResourceLocation getIdentifier(String key, ResourceLocation defaultValue) {
+    public Identifier getIdentifier(String key, Identifier defaultValue) {
         JsonElement element = data.get(key);
         if (element != null && element.isJsonPrimitive()) {
             String raw = element.getAsString();
             if (!raw.isEmpty()) {
-                return ResourceLocation.tryBuild(raw);
+                return Identifier.tryBuild(raw);
             }
         }
         return defaultValue;

@@ -98,7 +98,7 @@ public final class VirulentHandler {
 
     private void attemptGrowth(ServerLevel world, ActiveAura aura) {
         LivingEntity source = aura.source;
-        RandomSource random = world.getRandom;
+        RandomSource random = world.random;
         double radius = aura.sourceDef.getRadius();
         int attempts = aura.sourceDef.getAttempts();
         boolean success = false;
@@ -162,7 +162,7 @@ public final class VirulentHandler {
                 SoundEvents.EVOKER_PREPARE_ATTACK,
                 SoundSource.HOSTILE,
                 0.6F,
-                0.9F + world.getRandom.nextFloat() * 0.2F);
+                0.9F + world.random.nextFloat() * 0.2F);
     }
 
     private void spawnFangsAround(ServerLevel world, ServerPlayer player, ActiveAura aura) {

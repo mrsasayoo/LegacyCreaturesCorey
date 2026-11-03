@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.EnumSet;
 
@@ -15,7 +15,7 @@ public record ClientCapabilitiesPayload(String modVersion,
                                         int protocolVersion,
                                         EnumSet<ClientFeature> features) implements CustomPacketPayload {
 
-    public static final Id<ClientCapabilitiesPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "client_capabilities"));
+    public static final Id<ClientCapabilitiesPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "client_capabilities"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientCapabilitiesPayload> CODEC = new StreamCodec<>() {
         @Override

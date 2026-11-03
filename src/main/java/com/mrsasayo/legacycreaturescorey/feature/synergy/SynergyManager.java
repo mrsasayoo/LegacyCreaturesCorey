@@ -5,7 +5,7 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.pickUpItem.LootContext;
+import net.minecraft.world.level.storage.loot.LootContext;
 
 import java.time.Duration;
 import java.util.EnumMap;
@@ -47,7 +47,7 @@ public final class SynergyManager {
             return false;
         }
         try {
-            if (!provider.validateStrict()) {
+            if (!provider.validate()) {
                 STATUSES.put(module, SynergyStatus.disabled(module, "Validación inicial fallida"));
                 return false;
             }
@@ -159,7 +159,7 @@ public final class SynergyManager {
             }
 
             try {
-                if (!provider.validateStrict()) {
+                if (!provider.validate()) {
                     PROVIDERS.remove(module);
                     STATUSES.put(module, SynergyStatus.disabled(module, "Validación periódica fallida"));
                     Legacycreaturescorey.LOGGER.warn("Sinergia {} deshabilitada tras revalidación.", module.displayName());

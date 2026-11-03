@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.pickUpItem.LootContext;
+import net.minecraft.world.level.storage.loot.LootContext;
 
 import java.util.List;
 

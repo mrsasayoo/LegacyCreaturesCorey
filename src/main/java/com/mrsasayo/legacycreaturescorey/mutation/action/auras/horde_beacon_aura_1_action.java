@@ -5,11 +5,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class horde_beacon_aura_1_action implements mutation_action, HordeBeaconSource {
     private final double radius;
-    private final ResourceLocation followRangeModifierId;
+    private final Identifier followRangeModifierId;
     private final AttributeModifier followRangeModifier;
 
     public horde_beacon_aura_1_action(mutation_action_config config) {
@@ -17,7 +17,7 @@ public class horde_beacon_aura_1_action implements mutation_action, HordeBeaconS
         double followRangeBonus = config.getDouble("follow_range_bonus", 0.5D);
         String key = "horde_beacon_follow_range_"
                 + Integer.toHexString(Double.hashCode(radius + followRangeBonus));
-        this.followRangeModifierId = ResourceLocation.of("legacycreaturescorey", key);
+        this.followRangeModifierId = Identifier.fromNamespaceAndPath("legacycreaturescorey", key);
         this.followRangeModifier = new AttributeModifier(followRangeModifierId, followRangeBonus,
                 AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         HordeBeaconHandler.INSTANCE.ensureInitialized();
@@ -80,7 +80,7 @@ public class horde_beacon_aura_1_action implements mutation_action, HordeBeaconS
     }
 
     @Override
-    public ResourceLocation getFollowRangeModifierId() {
+    public Identifier getFollowRangeModifierId() {
         return followRangeModifierId;
     }
 }

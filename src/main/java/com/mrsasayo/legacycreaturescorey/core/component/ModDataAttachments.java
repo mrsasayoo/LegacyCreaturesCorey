@@ -7,7 +7,7 @@ import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyComponent;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class ModDataAttachments {
     
     public static final AttachmentType<PlayerDifficultyData> PLAYER_DIFFICULTY =
         AttachmentRegistry.create(
-            ResourceLocation.of(Legacycreaturescorey.MOD_ID, "player_difficulty"),
+            Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "player_difficulty"),
             builder -> builder
                 .initializer(PlayerDifficultyData::new)
                 .persistent(PLAYER_DIFFICULTY_CODEC)
@@ -35,7 +35,7 @@ public class ModDataAttachments {
 
     public static final AttachmentType<MobLegacyData> MOB_LEGACY =
         AttachmentRegistry.create(
-            ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_legacy"),
+            Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "mob_legacy"),
             builder -> builder
                 .initializer(MobLegacyData::new)
                 .persistent(MOB_LEGACY_CODEC)

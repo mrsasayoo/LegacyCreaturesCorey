@@ -12,7 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
@@ -31,11 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class MobAttributeDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final ResourceLocation RELOAD_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_attributes");
-    private static final ResourceLocation DATA_PATH = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_attributes.json");
+    private static final Identifier RELOAD_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "mob_attributes");
+    private static final Identifier DATA_PATH = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "mob_attributes.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<ResourceLocation, Entry> overrides = Map.of();
+    private static volatile Map<Identifier, Entry> overrides = Map.of();
 
     private MobAttributeDataLoader() {
     }
@@ -65,7 +65,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
     }
 
     private static Entry getEntry(EntityType<?> type) {
-        ResourceLocation id = EntityType.getKey(type);
+        Identifier id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
@@ -73,13 +73,13 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
     public void reload(ResourceManager manager) {
-        Map<ResourceLocation, Entry> parsed = new HashMap<>();
+        Map<Identifier, Entry> parsed = new HashMap<>();
         Optional<Resource> resourceOptional = manager.getResource(DATA_PATH);
         if (resourceOptional.isEmpty()) {
             Legacycreaturescorey.LOGGER.warn("No se encontro {} en los datos. Se usaran multiplicadores por defecto.", DATA_PATH);
@@ -92,7 +92,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
                 JsonObject entryObject = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
-                ResourceLocation entityId = ResourceLocation.of(GsonHelper.getAsString(entryObject, "id"));
+                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getAsString(entryObject, "id"));
 
                 EnumMap<MobTier, AttributeValues> valuesByTier = new EnumMap<>(MobTier.class);
                 if (entryObject.has("tiers")) {

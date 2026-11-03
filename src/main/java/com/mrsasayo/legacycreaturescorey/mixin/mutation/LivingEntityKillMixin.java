@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mixin.mutation;
 import com.mrsasayo.legacycreaturescorey.core.api.CoreyAPI;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -26,12 +26,12 @@ public abstract class LivingEntityKillMixin {
 
         // Get the attacker
         if (damageSource.getEntity() instanceof Mob attacker) {
-            List<ResourceLocation> mutationIds = CoreyAPI.getMutations(attacker);
+            List<Identifier> mutationIds = CoreyAPI.getMutations(attacker);
             if (mutationIds.isEmpty()) {
                 return;
             }
 
-            for (ResourceLocation id : mutationIds) {
+            for (Identifier id : mutationIds) {
                 mutation m = mutation_registry.get(id);
                 if (m != null) {
                     m.onKill(attacker, self);

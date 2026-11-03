@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +22,8 @@ import java.util.Set;
  * Administración central de mutaciones cargadas desde JSON con un pequeño respaldo en código.
  */
 public final class mutation_registry {
-    private static final Map<ResourceLocation, mutation> MUTATIONS = new LinkedHashMap<>();
-    private static final Set<ResourceLocation> DYNAMIC_MUTATION_IDS = new HashSet<>();
+    private static final Map<Identifier, mutation> MUTATIONS = new LinkedHashMap<>();
+    private static final Set<Identifier> DYNAMIC_MUTATION_IDS = new HashSet<>();
 
     private mutation_registry() {}
 
@@ -31,7 +31,7 @@ public final class mutation_registry {
         Legacycreaturescorey.LOGGER.debug("Mutation registry initialized");
     }
 
-    public static mutation get(ResourceLocation id) {
+    public static mutation get(Identifier id) {
         return MUTATIONS.get(id);
     }
 
@@ -40,7 +40,7 @@ public final class mutation_registry {
     }
 
     public static void registerDynamicMutations(Collection<mutation> mutations) {
-        for (ResourceLocation id : DYNAMIC_MUTATION_IDS) {
+        for (Identifier id : DYNAMIC_MUTATION_IDS) {
             MUTATIONS.remove(id);
         }
         DYNAMIC_MUTATION_IDS.clear();
@@ -58,7 +58,7 @@ public final class mutation_registry {
         }
 
         for (mutation m : source) {
-            ResourceLocation id = m.getId();
+            Identifier id = m.getId();
             if (MUTATIONS.containsKey(id) && !DYNAMIC_MUTATION_IDS.contains(id)) {
                 Legacycreaturescorey.LOGGER.warn("⚠️ Reemplazando mutación existente {} mediante {}", id, loadedFromJson ? "JSON" : "respaldo");
             }
@@ -86,7 +86,7 @@ public final class mutation_registry {
     }
 
     private static mutation createExtraHealthMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "extra_health");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "extra_health");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
@@ -111,7 +111,7 @@ public final class mutation_registry {
     }
 
     private static mutation createSpeedMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "swiftness");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "swiftness");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 1) {
             @Override
             public void onApply(LivingEntity entity) {
@@ -133,7 +133,7 @@ public final class mutation_registry {
     }
 
     private static mutation createKnockbackResistanceMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "fortitude");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "fortitude");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
@@ -155,7 +155,7 @@ public final class mutation_registry {
     }
 
     private static mutation createVenomStrikeMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "venom_strike");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "venom_strike");
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 2) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
@@ -171,7 +171,7 @@ public final class mutation_registry {
     }
 
     private static mutation createCripplingBlowMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "crippling_blow");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "crippling_blow");
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 1) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
@@ -184,7 +184,7 @@ public final class mutation_registry {
     }
 
     private static mutation createRegenerationMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "regrowth");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "regrowth");
         return new abstract_mutation(id, mutation_type.ACTIVE, 2) {
             @Override
             public void onTick(LivingEntity entity) {
@@ -199,7 +199,7 @@ public final class mutation_registry {
     }
 
     private static mutation createDamageAuraMutation() {
-        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "destructive_aura");
+        Identifier id = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "destructive_aura");
         return new abstract_mutation(id, mutation_type.ACTIVE, 3) {
             @Override
             public void onTick(LivingEntity entity) {

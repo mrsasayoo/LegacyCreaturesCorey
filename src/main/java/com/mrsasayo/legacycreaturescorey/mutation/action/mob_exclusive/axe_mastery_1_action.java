@@ -7,7 +7,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Vindicator;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -19,7 +19,7 @@ import java.util.WeakHashMap;
  * mientras tenga la mutación activa.
  */
 public final class axe_mastery_1_action extends axe_mastery_base_action {
-    private static final ResourceLocation ATTACK_SPEED_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID,
+    private static final Identifier ATTACK_SPEED_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID,
             "axe_mastery_attack_speed");
     
     private final double attackSpeedBonus;

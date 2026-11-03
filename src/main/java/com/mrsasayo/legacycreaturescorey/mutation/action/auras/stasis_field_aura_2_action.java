@@ -5,13 +5,13 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class stasis_field_aura_2_action implements mutation_action, StasisSource {
     private final double radius;
     private final int shieldCooldownTicks;
     private final double attackSpeedMultiplier;
-    private final ResourceLocation attackSpeedModifierId;
+    private final Identifier attackSpeedModifierId;
     private final AttributeModifier attackSpeedModifier;
 
     public stasis_field_aura_2_action(mutation_action_config config) {
@@ -73,19 +73,19 @@ public class stasis_field_aura_2_action implements mutation_action, StasisSource
     }
 
     @Override
-    public ResourceLocation getAttackSpeedModifierId() {
+    public Identifier getAttackSpeedModifierId() {
         return attackSpeedModifierId;
     }
 
-    private ResourceLocation resolveModifierId(mutation_action_config config, String prefix) {
+    private Identifier resolveModifierId(mutation_action_config config, String prefix) {
         String raw = config.getString("modifier_id", "").trim();
         if (!raw.isEmpty()) {
-            ResourceLocation parsed = ResourceLocation.tryBuild(raw);
+            Identifier parsed = Identifier.tryBuild(raw);
             if (parsed != null) {
                 return parsed;
             }
         }
         String key = prefix + "_" + Integer.toHexString(Double.hashCode(radius + attackSpeedMultiplier));
-        return ResourceLocation.of("legacycreaturescorey", key);
+        return Identifier.fromNamespaceAndPath("legacycreaturescorey", key);
     }
 }

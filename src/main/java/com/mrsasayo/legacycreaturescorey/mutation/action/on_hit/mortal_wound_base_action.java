@@ -7,7 +7,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_pars
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.List;
@@ -27,7 +27,7 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
 
     private Holder<net.minecraft.world.effect.MobEffect> resolveEffect(mutation_action_config config,
             Holder<net.minecraft.world.effect.MobEffect> fallback) {
-        ResourceLocation override = config.getIdentifier("effect", null);
+        Identifier override = config.getIdentifier("effect", null);
         if (override != null) {
             net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(override);
             if (resolved != null) {

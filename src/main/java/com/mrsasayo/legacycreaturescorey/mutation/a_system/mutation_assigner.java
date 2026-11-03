@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;
@@ -36,17 +36,17 @@ public final class mutation_assigner {
         RandomSource random = mob.getRandom();
         int remaining = budget;
         int spent = 0;
-        List<ResourceLocation> applied = new ArrayList<>();
-        List<ResourceLocation> existing = new ArrayList<>(data.getMutations());
-        Set<ResourceLocation> alreadyApplied = new HashSet<>(existing);
+        List<Identifier> applied = new ArrayList<>();
+        List<Identifier> existing = new ArrayList<>(data.getMutations());
+        Set<Identifier> alreadyApplied = new HashSet<>(existing);
 
         while (remaining > 0) {
             List<mutation> candidates = new ArrayList<>();
-            List<ResourceLocation> compatibilityContext = new ArrayList<>(existing);
+            List<Identifier> compatibilityContext = new ArrayList<>(existing);
             compatibilityContext.addAll(applied);
 
             for (mutation m : pool) {
-                ResourceLocation mutationId = m.getId();
+                Identifier mutationId = m.getId();
                 if (alreadyApplied.contains(mutationId)) {
                     continue;
                 }
@@ -67,7 +67,7 @@ public final class mutation_assigner {
             }
 
             mutation selected = pickByWeight(candidates, random);
-            ResourceLocation selectedId = selected.getId();
+            Identifier selectedId = selected.getId();
 
             selected.onApply(mob);
             data.addMutation(selectedId);

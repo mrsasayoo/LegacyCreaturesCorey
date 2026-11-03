@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
@@ -35,23 +35,23 @@ import java.util.WeakHashMap;
 public final class HordeBeaconHandler {
     public static final HordeBeaconHandler INSTANCE = new HordeBeaconHandler();
 
-    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.ofSize(Registries.ENTITY_TYPE,
-            ResourceLocation.ofSize("legacycreaturescorey", "tier_basic"));
-    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.ofSize(Registries.ENTITY_TYPE,
-            ResourceLocation.ofSize("legacycreaturescorey", "tier_intermediate"));
-    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.ofSize(Registries.ENTITY_TYPE,
-            ResourceLocation.ofSize("legacycreaturescorey", "tier_hard"));
-    private static final Set<EntityType<?>> FEARLESS_SKELETON_TYPES = Set.ofSize(
+    private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.create(Registries.ENTITY_TYPE,
+            Identifier.create("legacycreaturescorey", "tier_basic"));
+    private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.create(Registries.ENTITY_TYPE,
+            Identifier.create("legacycreaturescorey", "tier_intermediate"));
+    private static final TagKey<EntityType<?>> TIER_HARD = TagKey.create(Registries.ENTITY_TYPE,
+            Identifier.create("legacycreaturescorey", "tier_hard"));
+    private static final Set<EntityType<?>> FEARLESS_SKELETON_TYPES = Set.create(
         EntityType.SKELETON,
         EntityType.STRAY,
         EntityType.BOGGED);
-    private static final Set<EntityType<?>> FEARLESS_CAT_TARGETS = Set.ofSize(
+    private static final Set<EntityType<?>> FEARLESS_CAT_TARGETS = Set.create(
         EntityType.CREEPER,
         EntityType.PHANTOM);
-    private static final Set<EntityType<?>> CAT_TYPES = Set.ofSize(
+    private static final Set<EntityType<?>> CAT_TYPES = Set.create(
         EntityType.CAT,
         EntityType.OCELOT);
-    private static final Set<EntityType<?>> WOLF_TYPES = Set.ofSize(EntityType.WOLF);
+    private static final Set<EntityType<?>> WOLF_TYPES = Set.create(EntityType.WOLF);
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<Mob, Long> retargetCooldowns = new WeakHashMap<>();
@@ -136,7 +136,7 @@ public final class HordeBeaconHandler {
         AttributeInstance instance = mob.getAttribute(Attributes.FOLLOW_RANGE);
         if (instance == null)
             return;
-        ResourceLocation modifierId = source.getFollowRangeModifierId();
+        Identifier modifierId = source.getFollowRangeModifierId();
         if (modifierId == null)
             return;
 
@@ -181,7 +181,7 @@ public final class HordeBeaconHandler {
     }
 
     private void removeModifier(Mob mob, HordeBeaconSource source) {
-        ResourceLocation modifierId = source.getFollowRangeModifierId();
+        Identifier modifierId = source.getFollowRangeModifierId();
         if (modifierId == null)
             return;
         AttributeInstance instance = mob.getAttribute(Attributes.FOLLOW_RANGE);
@@ -338,7 +338,7 @@ public final class HordeBeaconHandler {
         List<Mob> mobs = world.getEntities(EntityTypeTest.forClass(Mob.class), box,
                 entity -> entity.isAlive() && entity != source);
         if (mobs.isEmpty()) {
-            return List.ofSize();
+            return List.create();
         }
         List<Mob> allies = new ArrayList<>(mobs.size());
         MobCategory sourceGroup = source instanceof Mob mobSource ? mobSource.getType().getCategory()

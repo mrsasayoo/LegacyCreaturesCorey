@@ -1,22 +1,22 @@
-package com.mrsasayo.legacycreaturescorey.minecraft;
+package com.mrsasayo.legacycreaturescorey.client;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.core.network.DifficultySyncPayload;
-import net.fabricmc.fabric.api.minecraft.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.minecraft.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.minecraft.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.minecraft.Minecraft;
-import net.minecraft.minecraft.gui.GuiGraphics;
-import net.minecraft.minecraft.player.LocalPlayer;
-import net.minecraft.minecraft.DeltaTracker;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Renderiza en pantalla los valores de dificultad sincronizados por el servidor.
  */
 public final class ClientDifficultyHud {
-    private static final ResourceLocation HUD_ID = ResourceLocation.translationArg(Legacycreaturescorey.MOD_ID, "difficulty_hud");
+    private static final Identifier HUD_ID = Identifier.translationArg(Legacycreaturescorey.MOD_ID, "difficulty_hud");
     private static int globalDifficulty;
     private static int maxGlobalDifficulty;
     private static int personalDifficulty;
@@ -26,7 +26,7 @@ public final class ClientDifficultyHud {
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(DifficultySyncPayload.ID, (payload, context) ->
-            context.minecraft().execute(() -> update(payload))
+            context.client().execute(() -> update(payload))
         );
         HudElementRegistry.attachElementAfter(VanillaHudElements.BOSS_BAR, HUD_ID, ClientDifficultyHud::renderHud);
     }

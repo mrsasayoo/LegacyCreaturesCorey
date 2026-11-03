@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.feature.loot.data;
 
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -12,23 +12,23 @@ import java.util.Optional;
  * Holds the tiered loot definitions loaded from datapack JSON.
  */
 public final class TieredLootManager {
-    private static final EnumMap<MobTier, Map<ResourceLocation, TieredMobLoot>> LOOT = new EnumMap<>(MobTier.class);
+    private static final EnumMap<MobTier, Map<Identifier, TieredMobLoot>> LOOT = new EnumMap<>(MobTier.class);
 
     private TieredLootManager() {}
 
-    public static void apply(Map<MobTier, Map<ResourceLocation, TieredMobLoot>> definitions) {
+    public static void apply(Map<MobTier, Map<Identifier, TieredMobLoot>> definitions) {
         LOOT.clear();
         for (MobTier tier : MobTier.values()) {
             if (tier == MobTier.NORMAL) {
                 continue;
             }
-            Map<ResourceLocation, TieredMobLoot> tierEntries = definitions.getOrDefault(tier, Collections.emptyMap());
+            Map<Identifier, TieredMobLoot> tierEntries = definitions.getOrDefault(tier, Collections.emptyMap());
             LOOT.put(tier, Map.copyOf(tierEntries));
         }
     }
 
-    public static Optional<TieredMobLoot> get(MobTier tier, ResourceLocation entityId) {
-        Map<ResourceLocation, TieredMobLoot> tierMap = LOOT.get(tier);
+    public static Optional<TieredMobLoot> get(MobTier tier, Identifier entityId) {
+        Map<Identifier, TieredMobLoot> tierMap = LOOT.get(tier);
         if (tierMap == null || tierMap.isEmpty()) {
             return Optional.empty();
         }
@@ -39,13 +39,13 @@ public final class TieredLootManager {
         LOOT.clear();
     }
 
-    public static Map<MobTier, Map<ResourceLocation, TieredMobLoot>> getAll() {
-        EnumMap<MobTier, Map<ResourceLocation, TieredMobLoot>> snapshot = new EnumMap<>(MobTier.class);
+    public static Map<MobTier, Map<Identifier, TieredMobLoot>> getAll() {
+        EnumMap<MobTier, Map<Identifier, TieredMobLoot>> snapshot = new EnumMap<>(MobTier.class);
         for (MobTier tier : MobTier.values()) {
             if (tier == MobTier.NORMAL) {
                 continue;
             }
-            Map<ResourceLocation, TieredMobLoot> tierMap = LOOT.getOrDefault(tier, Collections.emptyMap());
+            Map<Identifier, TieredMobLoot> tierMap = LOOT.getOrDefault(tier, Collections.emptyMap());
             snapshot.put(tier, tierMap);
         }
         return Collections.unmodifiableMap(snapshot);

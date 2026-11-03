@@ -6,7 +6,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive.bloodlust_2_action;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,14 +33,14 @@ public class VindicatorDamageMixin {
             return amount;
         }
 
-        List<ResourceLocation> mutations = CoreyAPI.getMutations(vindicator);
+        List<Identifier> mutations = CoreyAPI.getMutations(vindicator);
         if (mutations.isEmpty()) {
             return amount;
         }
 
         double damageMultiplier = 1.0;
 
-        for (ResourceLocation id : mutations) {
+        for (Identifier id : mutations) {
             mutation m = mutation_registry.get(id);
             if (!(m instanceof configured_mutation configured)) {
                 continue;

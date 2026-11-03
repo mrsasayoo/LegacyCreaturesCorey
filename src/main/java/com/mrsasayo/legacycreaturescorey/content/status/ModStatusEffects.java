@@ -6,7 +6,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Holds the custom status effects required to reproduce bespoke mechanics.
@@ -44,6 +44,6 @@ public final class ModStatusEffects {
     }
 
     private static MobEffect register(String name, MobEffect effect) {
-        return Registry.register(BuiltInRegistries.MOB_EFFECT, ResourceLocation.of(Legacycreaturescorey.MOD_ID, name), effect);
+        return Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, name), effect);
     }
 }

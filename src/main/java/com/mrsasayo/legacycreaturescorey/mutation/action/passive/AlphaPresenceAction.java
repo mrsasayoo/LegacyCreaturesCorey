@@ -93,7 +93,7 @@ public final class AlphaPresenceAction implements mutation_action {
         private long lastTriggerTick;
 
         private ActiveAura(LivingEntity source, AlphaPresenceAction action, long currentTick) {
-            this.directEntity = source;
+            this.source = source;
             this.action = action;
             this.lastSeenTick = currentTick;
             this.lastTriggerTick = currentTick;
@@ -127,7 +127,7 @@ public final class AlphaPresenceAction implements mutation_action {
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (aura.directEntity == entity && aura.action == action) {
+                if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
                     return;
                 }
@@ -141,7 +141,7 @@ public final class AlphaPresenceAction implements mutation_action {
             if (list == null) {
                 return;
             }
-            list.removeIf(aura -> aura.directEntity == entity && aura.action == action);
+            list.removeIf(aura -> aura.source == entity && aura.action == action);
             if (list.isEmpty()) {
                 active.remove(world);
             }
@@ -155,7 +155,7 @@ public final class AlphaPresenceAction implements mutation_action {
             }
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (!aura.directEntity.isAlive()) {
+                if (!aura.source.isAlive()) {
                     continue;
                 }
                 if (time - aura.lastTriggerTick < 20) { // Check every second
@@ -181,7 +181,7 @@ public final class AlphaPresenceAction implements mutation_action {
                 return true;
 
             for (ActiveAura aura : list) {
-                if (aura.directEntity == entity && aura.action.getMode() == Mode.VENGEANCE) {
+                if (aura.source == entity && aura.action.getMode() == Mode.VENGEANCE) {
                     applyVengeance(world, aura);
                 }
             }
@@ -190,7 +190,7 @@ public final class AlphaPresenceAction implements mutation_action {
 
         private void applyCourage(ServerLevel world, ActiveAura aura) {
             // "Allies don't flee" -> Give Resistance I to simulate toughness
-            LivingEntity source = aura.directEntity;
+            LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
@@ -203,7 +203,7 @@ public final class AlphaPresenceAction implements mutation_action {
 
         private void applyCommander(ServerLevel world, ActiveAura aura) {
             // "Immune to fear, open doors" -> Give Strength I + Speed I
-            LivingEntity source = aura.directEntity;
+            LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
@@ -217,7 +217,7 @@ public final class AlphaPresenceAction implements mutation_action {
 
         private void applyVengeance(ServerLevel world, ActiveAura aura) {
             // "On death, allies get Strength"
-            LivingEntity source = aura.directEntity;
+            LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             List<Mob> allies = world.getEntitiesByClass(Mob.class, source.getLocalBoundsForPose().expand(radius),
                     m -> m.isAlive() && m != source && m instanceof Enemy
@@ -244,7 +244,7 @@ public final class AlphaPresenceAction implements mutation_action {
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();
-                if (!aura.directEntity.isAlive() || time - aura.lastSeenTick > 20L) {
+                if (!aura.source.isAlive() || time - aura.lastSeenTick > 20L) {
                     iterator.remove();
                 }
             }

@@ -19,7 +19,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -34,11 +34,11 @@ public final class VanguardsBulwarkHandler {
     public static final VanguardsBulwarkHandler INSTANCE = new VanguardsBulwarkHandler();
 
     private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.create(Registries.ENTITY_TYPE,
-            ResourceLocation.create("legacycreaturescorey", "tier_basic"));
+            Identifier.create("legacycreaturescorey", "tier_basic"));
     private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.create(Registries.ENTITY_TYPE,
-            ResourceLocation.create("legacycreaturescorey", "tier_intermediate"));
+            Identifier.create("legacycreaturescorey", "tier_intermediate"));
     private static final TagKey<EntityType<?>> TIER_HARD = TagKey.create(Registries.ENTITY_TYPE,
-            ResourceLocation.create("legacycreaturescorey", "tier_hard"));
+            Identifier.create("legacycreaturescorey", "tier_hard"));
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<LivingEntity, Long> lastActionTick = new WeakHashMap<>();
@@ -61,7 +61,7 @@ public final class VanguardsBulwarkHandler {
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getTime();
         for (ActiveAura aura : list) {
-            if (aura.directEntity == entity && aura.sourceDef == source) {
+            if (aura.source == entity && aura.sourceDef == source) {
                 aura.refresh(time);
                 return;
             }
@@ -75,7 +75,7 @@ public final class VanguardsBulwarkHandler {
         if (list == null) {
             return;
         }
-        list.removeIf(aura -> aura.directEntity == entity && aura.sourceDef == source);
+        list.removeIf(aura -> aura.source == entity && aura.sourceDef == source);
         if (list.isEmpty()) {
             active.remove(world);
         }
@@ -90,7 +90,7 @@ public final class VanguardsBulwarkHandler {
         long time = world.getTime();
 
         for (ActiveAura aura : list) {
-            if (!aura.directEntity.isAlive()) {
+            if (!aura.source.isAlive()) {
                 continue;
             }
             switch (aura.sourceDef.getMode()) {
@@ -106,9 +106,9 @@ public final class VanguardsBulwarkHandler {
         if (time % 20 != 0) {
             return;
         }
-        List<Mob> allies = getAllies(world, aura.directEntity, aura.sourceDef.getRadius());
+        List<Mob> allies = getAllies(world, aura.source, aura.sourceDef.getRadius());
         for (Mob ally : allies) {
-            if (ally == aura.directEntity) {
+            if (ally == aura.source) {
                 continue;
             }
             applyConfiguredEffects(ally, aura.sourceDef.getActiveEffects());
@@ -117,20 +117,20 @@ public final class VanguardsBulwarkHandler {
 
     private void applyResistanceMode(ServerLevel world, ActiveAura aura, long time) {
         // Apply Resistance I every 4 seconds (80 ticks)
-        Long lastAction = lastActionTick.byString(aura.directEntity);
+        Long lastAction = lastActionTick.byString(aura.source);
         if (lastAction != null && time - lastAction < aura.sourceDef.getIntervalTicks()) {
             return;
         }
 
-        List<Mob> allies = getAllies(world, aura.directEntity, aura.sourceDef.getRadius());
+        List<Mob> allies = getAllies(world, aura.source, aura.sourceDef.getRadius());
         for (Mob ally : allies) {
             applyConfiguredEffects(ally, aura.sourceDef.getActiveEffects());
         }
-        lastActionTick.put(aura.directEntity, time);
+        lastActionTick.put(aura.source, time);
     }
 
     private void applyConditionalMode(ServerLevel world, ActiveAura aura, long time) {
-        LivingEntity source = aura.directEntity;
+        LivingEntity source = aura.source;
         boolean isUndead = source.type().is(EntityTypeTags.UNDEAD);
 
         if (isUndead) {
@@ -180,23 +180,23 @@ public final class VanguardsBulwarkHandler {
         }
 
         for (ActiveAura aura : list) {
-            if (!aura.directEntity.isAlive() || aura.sourceDef.getMode() != VanguardsBulwarkSource.Mode.CONDITIONAL) {
+            if (!aura.source.isAlive() || aura.sourceDef.getMode() != VanguardsBulwarkSource.Mode.CONDITIONAL) {
                 continue;
             }
 
-            if (aura.directEntity.type().is(EntityTypeTags.UNDEAD)) {
+            if (aura.source.type().is(EntityTypeTags.UNDEAD)) {
                 continue;
             }
 
             // Check if the dead entity is an ally and within range
             double radius = aura.sourceDef.getRadius();
-            if (aura.directEntity.distanceToSqr(entity) > radius * radius) {
+            if (aura.source.distanceToSqr(entity) > radius * radius) {
                 continue;
             }
 
-            if (isAlly(aura.directEntity, (Mob) entity)) {
+            if (isAlly(aura.source, (Mob) entity)) {
                 // Heal the vanguard
-                aura.directEntity.heal(aura.sourceDef.getHealAmount());
+                aura.source.heal(aura.sourceDef.getHealAmount());
             }
         }
     }
@@ -273,7 +273,7 @@ public final class VanguardsBulwarkHandler {
         Iterator<ActiveAura> iterator = list.iterator();
         while (iterator.hasNext()) {
             ActiveAura aura = iterator.next();
-            if (!aura.directEntity.isAlive() || time - aura.lastSeenTick > 20L) {
+            if (!aura.source.isAlive() || time - aura.lastSeenTick > 20L) {
                 iterator.remove();
             }
         }
@@ -297,7 +297,7 @@ public final class VanguardsBulwarkHandler {
         private long lastSeenTick;
 
         private ActiveAura(LivingEntity source, VanguardsBulwarkSource sourceDef, long currentTick) {
-            this.directEntity = source;
+            this.source = source;
             this.sourceDef = sourceDef;
             this.lastSeenTick = currentTick;
         }

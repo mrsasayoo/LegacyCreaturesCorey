@@ -12,7 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
@@ -31,11 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class MobTierRuleDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final ResourceLocation RELOAD_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules");
-    private static final ResourceLocation DATA_PATH = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules.json");
+    private static final Identifier RELOAD_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "mob_tier_rules");
+    private static final Identifier DATA_PATH = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "mob_tier_rules.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<ResourceLocation, EnumSet<MobTier>> overrides = Map.of();
+    private static volatile Map<Identifier, EnumSet<MobTier>> overrides = Map.of();
 
     private MobTierRuleDataLoader() {
     }
@@ -47,7 +47,7 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
     }
 
     public static EnumSet<MobTier> getAllowedTiers(EntityType<?> type) {
-        ResourceLocation id = EntityType.getKey(type);
+        Identifier id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
@@ -56,7 +56,7 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
@@ -69,13 +69,13 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
             return;
         }
 
-        Map<ResourceLocation, EnumSet<MobTier>> parsed = new HashMap<>();
+        Map<Identifier, EnumSet<MobTier>> parsed = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.byString().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
                 JsonObject entry = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
-                ResourceLocation entityId = ResourceLocation.of(GsonHelper.getAsString(entry, "id"));
+                Identifier entityId = Identifier.fromNamespaceAndPath(GsonHelper.getAsString(entry, "id"));
                 JsonArray tiersArray = GsonHelper.getAsJsonArray(entry, "tiers");
                 EnumSet<MobTier> tiers = EnumSet.noneOf(MobTier.class);
                 for (int j = 0; j < tiersArray.size(); j++) {

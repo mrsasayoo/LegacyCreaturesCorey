@@ -4,16 +4,16 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.level.effect.MobEffectInstance;
-import net.minecraft.level.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.level.InteractionResult;
-import net.minecraft.level.InteractionHand;
-import net.minecraft.level.phys.BlockHitResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.level.phys.Vec3;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public final class RealityCollapseManager {
     }
 
     private static InteractionResult handleAttackBlock(Player player,
-                                                  net.minecraft.level.level.Level world,
+                                                  net.minecraft.world.level.Level world,
                                                   InteractionHand hand,
                                                   BlockPos pos,
                                                   Direction direction) {
@@ -97,7 +97,7 @@ public final class RealityCollapseManager {
     }
 
     private static InteractionResult handleBlockUse(Player player,
-                                               net.minecraft.level.level.Level world,
+                                               net.minecraft.world.level.Level world,
                                                InteractionHand hand,
                                                BlockHitResult hitResult) {
         if (world.isClientSide()) {
@@ -118,11 +118,11 @@ public final class RealityCollapseManager {
         return InteractionResult.PASS;
     }
 
-    private static boolean handleBlockBreak(net.minecraft.level.level.Level world,
+    private static boolean handleBlockBreak(net.minecraft.world.level.Level world,
                                             Player player,
                                             BlockPos pos,
-                                            net.minecraft.level.level.block.state.BlockState state,
-                                            net.minecraft.level.level.block.entity.BlockEntity blockEntity) {
+                                            net.minecraft.world.level.block.state.BlockState state,
+                                            net.minecraft.world.level.block.entity.BlockEntity blockEntity) {
         if (world.isClientSide()) {
             return false;
         }

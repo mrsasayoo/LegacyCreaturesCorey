@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ public final class TierLootTelemetryEvents {
     public interface TierLootApplied {
         void onTierLootApplied(Mob mob,
                                MobTier tier,
-                               ResourceLocation entityId,
-                               ResourceLocation lootTableId,
+                               Identifier entityId,
+                               Identifier lootTableId,
                                boolean allowLegacyLoot,
                                boolean appliedLegacyLoot,
                                int addedStacks,

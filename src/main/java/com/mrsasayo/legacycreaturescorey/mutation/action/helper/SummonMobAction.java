@@ -3,26 +3,26 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.helper;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.EntityType;
-import net.minecraft.level.entity.LivingEntity;
-import net.minecraft.level.entity.EntitySpawnReason;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.level.phys.AABB;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
 public final class SummonMobAction implements mutation_action {
-    private final ResourceLocation entityId;
+    private final Identifier entityId;
     private final int interval;
     private final int maxCount;
     private final double radius;
 
-    public SummonMobAction(ResourceLocation entityId, int interval, int maxCount, double radius) {
+    public SummonMobAction(Identifier entityId, int interval, int maxCount, double radius) {
         this.entityId = entityId;
         this.interval = Math.max(1, interval);
         this.maxCount = Math.max(1, maxCount);

@@ -9,7 +9,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
@@ -93,7 +93,7 @@ public final class EffectiveDifficultyCalculator {
 
     private static boolean isBoostedBiome(ServerLevel world, BlockPos origin) {
         Holder<Biome> biome = world.getBiome(origin);
-        ResourceLocation biomeId = biome.unwrapKey().map(key -> key.getValue()).orElse(null);
+        Identifier biomeId = biome.unwrapKey().map(key -> key.getValue()).orElse(null);
         if (biomeId == null) {
             return false;
         }

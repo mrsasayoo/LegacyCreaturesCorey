@@ -3,16 +3,16 @@ package com.mrsasayo.legacycreaturescorey.core.command.corey;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.Mob;
-import net.minecraft.level.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.permissionLevel.ServerPlayer;
-import net.minecraft.level.phys.EntityHitResult;
-import net.minecraft.level.phys.AABB;
-import net.minecraft.level.phys.Vec3;
-import net.minecraft.level.permissionLevel.Level;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -41,7 +41,7 @@ public final class CoreyCommandUtil {
         Vec3 end = start.atLowerCornerWithOffset(direction.scale(distance));
         AABB searchBox = player.getBoundingBox().expandTowards(direction.scale(distance)).inflate(1.0D);
         Predicate<Entity> predicate = entity -> entity instanceof Mob mob && mob.isAlive() && !mob.isSpectator();
-        EntityHitResult hit = ProjectileUtil.clip(
+        EntityHitResult hit = ProjectileUtil.pick(
             player,
             start,
             end,

@@ -4,14 +4,14 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Payload enviado al cliente al conectar para indicar el protocolo de red del servidor.
  */
 public record ServerHelloPayload(int protocolVersion) implements CustomPacketPayload {
 
-    public static final Id<ServerHelloPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "server_hello"));
+    public static final Id<ServerHelloPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "server_hello"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerHelloPayload> CODEC = new StreamCodec<>() {
         @Override

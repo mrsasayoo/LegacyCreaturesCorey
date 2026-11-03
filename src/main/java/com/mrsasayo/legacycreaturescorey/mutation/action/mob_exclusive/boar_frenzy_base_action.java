@@ -8,11 +8,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.Zoglin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 abstract class boar_frenzy_base_action implements mutation_action {
-    protected static final ResourceLocation SPEED_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_speed");
-    protected static final ResourceLocation ATTACK_SPEED_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_attack_speed");
+    protected static final Identifier SPEED_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "boar_frenzy_speed");
+    protected static final Identifier ATTACK_SPEED_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "boar_frenzy_attack_speed");
 
     protected boolean isBoar(LivingEntity entity) {
         return entity instanceof Hoglin || entity instanceof Zoglin;

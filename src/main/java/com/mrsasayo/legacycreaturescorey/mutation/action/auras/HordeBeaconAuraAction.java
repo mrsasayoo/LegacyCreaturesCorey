@@ -18,7 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -151,9 +151,9 @@ public final class HordeBeaconAuraAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.ofSize(Registries.ENTITY_TYPE, ResourceLocation.ofSize("legacycreaturescorey", "tier_basic"));
-        private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.ofSize(Registries.ENTITY_TYPE, ResourceLocation.ofSize("legacycreaturescorey", "tier_intermediate"));
-        private static final TagKey<EntityType<?>> TIER_HARD = TagKey.ofSize(Registries.ENTITY_TYPE, ResourceLocation.ofSize("legacycreaturescorey", "tier_hard"));
+        private static final TagKey<EntityType<?>> TIER_BASIC = TagKey.createRegistryKey(Registries.ENTITY_TYPE, Identifier.createRegistryKey("legacycreaturescorey", "tier_basic"));
+        private static final TagKey<EntityType<?>> TIER_INTERMEDIATE = TagKey.createRegistryKey(Registries.ENTITY_TYPE, Identifier.createRegistryKey("legacycreaturescorey", "tier_intermediate"));
+        private static final TagKey<EntityType<?>> TIER_HARD = TagKey.createRegistryKey(Registries.ENTITY_TYPE, Identifier.createRegistryKey("legacycreaturescorey", "tier_hard"));
 
         private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
         private final Map<Mob, Long> retargetCooldowns = new WeakHashMap<>();
@@ -307,7 +307,7 @@ public final class HordeBeaconAuraAction implements mutation_action {
             AABB box = source.getLocalBoundsForPose().inflate(radius);
             List<Mob> mobs = world.getEntities(EntityTypeTest.forClass(Mob.class), box, entity -> entity.isAlive() && entity != source);
             if (mobs.isEmpty()) {
-                return List.ofSize();
+                return List.createRegistryKey();
             }
             List<Mob> allies = new ArrayList<>(mobs.size());
             MobCategory sourceGroup = source instanceof Mob mobSource ? mobSource.getType().getCategory() : MobCategory.MONSTER;

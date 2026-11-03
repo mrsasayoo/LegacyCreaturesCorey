@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Payload sent from the server to the client instructing it to play a custom feedback effect.
@@ -14,7 +14,7 @@ public record ClientEffectPayload(ClientEffectType effect,
                                   int durationTicks,
                                   float intensity) implements CustomPacketPayload {
 
-    public static final Id<ClientEffectPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "client_effect"));
+    public static final Id<ClientEffectPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "client_effect"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientEffectPayload> CODEC = new StreamCodec<>() {
         @Override

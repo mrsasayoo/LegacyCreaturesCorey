@@ -7,7 +7,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_registry;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,14 +63,14 @@ public final class CoreyCommandShared {
         }
     }
 
-    public static List<ResourceLocation> parseMutations(String raw) {
+    public static List<Identifier> parseMutations(String raw) {
         if (raw == null || raw.isBlank()) {
             return List.of();
         }
         String[] split = raw.replace(';', ',').split(",");
-        List<ResourceLocation> ids = new ArrayList<>();
+        List<Identifier> ids = new ArrayList<>();
         for (String entry : split) {
-            ResourceLocation id = ResourceLocation.tryBuild(entry.trim());
+            Identifier id = Identifier.tryBuild(entry.trim());
             if (id != null) {
                 ids.add(id);
             }

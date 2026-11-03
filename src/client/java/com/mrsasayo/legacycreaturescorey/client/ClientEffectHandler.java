@@ -1,11 +1,11 @@
-package com.mrsasayo.legacycreaturescorey.minecraft;
+package com.mrsasayo.legacycreaturescorey.client;
 
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
-import net.fabricmc.fabric.api.minecraft.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.minecraft.networking.v1.ClientPlayNetworking;
-import net.minecraft.minecraft.Minecraft;
-import net.minecraft.minecraft.player.LocalPlayer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 
@@ -25,7 +25,7 @@ public final class ClientEffectHandler {
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(ClientEffectPayload.ID, (payload, context) ->
-            context.minecraft().execute(() -> handlePayload(payload))
+            context.client().execute(() -> handlePayload(payload))
         );
         ClientTickEvents.END_CLIENT_TICK.register(ClientEffectHandler::tickClient); 
     }
@@ -72,8 +72,8 @@ public final class ClientEffectHandler {
         double y = player.getY() + RANDOM.nextDouble() * 2.0D;
         double z = player.getZ() + (RANDOM.nextDouble() - 0.5D) * radius;
         var sound = RANDOM.nextBoolean() ? net.minecraft.sounds.SoundEvents.ZOMBIE_AMBIENT : net.minecraft.sounds.SoundEvents.SKELETON_AMBIENT;
-        if (client.level != null && client.player != null) {
-            client.level.playSound(client.player, x, y, z, sound, SoundSource.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F, RANDOM.nextLong());
+        if (client.world != null && client.player != null) {
+            client.world.playSound(client.player, x, y, z, sound, SoundSource.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F, RANDOM.nextLong());
         }
     }
 

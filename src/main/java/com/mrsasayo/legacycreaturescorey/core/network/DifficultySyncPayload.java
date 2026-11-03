@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Payload enviado al cliente con los valores de dificultad para mostrar en HUD.
@@ -14,7 +14,7 @@ public record DifficultySyncPayload(int globalDifficulty,
                                     int personalDifficulty,
                                     boolean hudEnabled) implements CustomPacketPayload {
 
-    public static final Id<DifficultySyncPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
+    public static final Id<DifficultySyncPayload> ID = new Id<>(Identifier.ofMember(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DifficultySyncPayload> CODEC = new StreamCodec<>() {
         @Override

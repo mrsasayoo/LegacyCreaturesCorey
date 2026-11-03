@@ -10,15 +10,15 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.CoreyServerState;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.permissionLevel.entity.Entity;
-import net.minecraft.permissionLevel.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.permissionLevel.ServerPlayer;
-import net.minecraft.server.permissionLevel.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -115,7 +115,7 @@ final class CoreyStatsCommand {
     private record StatsSnapshot(int globalDifficulty,
                                  int totalTieredMobs,
                                  EnumMap<MobTier, Integer> mobsPerTier,
-                                 Map<ResourceLocation, Integer> mutationUsage,
+                                 Map<Identifier, Integer> mutationUsage,
                                  List<PlayerEntry> playerEntries,
                                  int flaggedChunks) {
         static StatsSnapshot collect(MinecraftServer server) {
@@ -124,7 +124,7 @@ final class CoreyStatsCommand {
             for (MobTier tier : MobTier.values()) {
                 perTier.put(tier, 0);
             }
-            Map<ResourceLocation, Integer> mutationCounter = new HashMap<>();
+            Map<Identifier, Integer> mutationCounter = new HashMap<>();
             int tiered = 0;
             for (ServerLevel world : server.getWorlds()) {
                 for (Entity entity : world.getAllEntities()) {
@@ -136,7 +136,7 @@ final class CoreyStatsCommand {
                     if (data.getTier() != MobTier.NORMAL) {
                         tiered++;
                     }
-                    for (ResourceLocation id : data.getMutations()) {
+                    for (Identifier id : data.getMutations()) {
                         mutationCounter.merge(id, 1, Integer::sum);
                     }
                 }
@@ -177,7 +177,7 @@ final class CoreyStatsCommand {
             }
             StringBuilder builder = new StringBuilder("Mutaciones activas:\n");
             mutationUsage.entrySet().stream()
-                .sorted(Map.Entry.<ResourceLocation, Integer>comparingByValue().reversed())
+                .sorted(Map.Entry.<Identifier, Integer>comparingByValue().reversed())
                 .limit(10)
                 .forEach(entry -> builder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append('\n'));
             return Component.literal(builder.toString());

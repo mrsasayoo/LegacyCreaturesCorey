@@ -17,7 +17,7 @@ import net.minecraft.world.entity.animal.Panda;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 
 import java.util.HashMap;
@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class bamboo_eater_base_action implements mutation_action {
-    private static final ResourceLocation STOP_MOVE_ID = ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "bamboo_stop");
-    private static final ResourceLocation REACH_ID = ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "bamboo_reach");
-    private static final ResourceLocation KNOCKBACK_ID = ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "bamboo_knockback");
+    private static final Identifier STOP_MOVE_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_stop");
+    private static final Identifier REACH_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_reach");
+    private static final Identifier KNOCKBACK_ID = Identifier.direct(Legacycreaturescorey.MOD_ID, "bamboo_knockback");
     
     // Rastrear pandas que ya han sido configurados para ser agresivos
     private static final Map<Panda, Boolean> aggressivePandas = new WeakHashMap<>();
@@ -201,7 +201,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
 
     private static void addModifier(Panda panda,
             Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
-            ResourceLocation id,
+            Identifier id,
             double value,
             AttributeModifier.Operation operation) {
         AttributeInstance instance = panda.getAttribute(attribute);
@@ -223,7 +223,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
 
     private static void removeModifier(Panda panda,
             Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
-            ResourceLocation id) {
+            Identifier id) {
         AttributeInstance instance = panda.getAttribute(attribute);
         if (instance != null && instance.hasModifier(id)) {
             instance.removeModifier(id);

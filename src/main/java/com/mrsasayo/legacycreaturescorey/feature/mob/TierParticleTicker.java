@@ -3,8 +3,8 @@ package com.mrsasayo.legacycreaturescorey.feature.mob;
 import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.server.level.ServerLevel;
 
 /**

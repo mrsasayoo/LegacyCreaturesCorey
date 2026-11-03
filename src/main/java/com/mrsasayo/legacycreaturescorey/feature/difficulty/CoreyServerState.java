@@ -73,7 +73,7 @@ public class CoreyServerState extends SavedData {
 
     public void setGlobalDifficulty(int value) {
         this.globalDifficulty = clampDifficulty(value);
-        this.setDirty();
+        this.blockEntityChanged();
     }
 
     public void increaseGlobalDifficulty(int amount) {
@@ -86,13 +86,13 @@ public class CoreyServerState extends SavedData {
 
     public void setLastDayChecked(long day) {
         this.lastDayChecked = Math.max(0L, day);
-        this.setDirty();
+        this.blockEntityChanged();
     }
 
     public static CoreyServerState get(MinecraftServer server) {
         DimensionDataStorage stateManager = server.getWorld(Level.OVERWORLD).getPersistentStateManager();
         CoreyServerState state = stateManager.computeIfAbsent(TYPE);
-        state.setDirty();
+        state.blockEntityChanged();
         return state;
     }
 
@@ -110,14 +110,14 @@ public class CoreyServerState extends SavedData {
 
     public ChunkActivityData getOrCreateChunkActivity(long chunkKey) {
         return this.chunkActivity.computeIfAbsent(chunkKey, key -> {
-            this.setDirty();
+            this.blockEntityChanged();
             return new ChunkActivityData();
         });
     }
 
     public void setChunkActivity(long chunkKey, ChunkActivityData data) {
         this.chunkActivity.put(chunkKey, data);
-        this.setDirty();
+        this.blockEntityChanged();
     }
 
     public boolean isChunkSpawnBlocked(long chunkKey) {
@@ -130,7 +130,7 @@ public class CoreyServerState extends SavedData {
         if (!data.isSpawnBlocked()) {
             data.markSpawnBlocked(time);
             this.chunkActivity.put(chunkKey, data);
-            this.setDirty();
+            this.blockEntityChanged();
         }
     }
 
@@ -138,13 +138,13 @@ public class CoreyServerState extends SavedData {
         ChunkActivityData data = this.chunkActivity.get(chunkKey);
         if (data != null) {
             data.resetHeat();
-            this.setDirty();
+            this.blockEntityChanged();
         }
     }
 
     public void removeChunkActivity(long chunkKey) {
         if (this.chunkActivity.remove(chunkKey) != null) {
-            this.setDirty();
+            this.blockEntityChanged();
         }
     }
 
@@ -177,7 +177,7 @@ public class CoreyServerState extends SavedData {
         }
 
         if (changed) {
-            this.setDirty();
+            this.blockEntityChanged();
         }
     }
 

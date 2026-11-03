@@ -11,12 +11,12 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.helper.GroundHazardMana
 import com.mrsasayo.legacycreaturescorey.mutation.action.helper.RealityCollapseManager;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.level.entity.Entity;
-import net.minecraft.level.entity.LivingEntity;
-import net.minecraft.level.damagesource.DamageSource;
-import net.minecraft.level.entity.Mob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Ejecuta los hooks de mutaciones activas y pasivas durante los eventos del servidor.
@@ -51,7 +51,7 @@ public final class mutation_runtime {
     }
 
     private static void handleAfterDamage(LivingEntity victim, DamageSource source, float originalAmount, float actualAmount, boolean blocked) {
-        Entity attackerEntity = source.getEntity();
+        Entity attackerEntity = source.getLastHurtByMob();
         if (!(attackerEntity instanceof Mob attacker)) {
             return;
         }
@@ -65,7 +65,7 @@ public final class mutation_runtime {
     }
 
     private static void runActiveMutations(Mob mob, MobLegacyData data) {
-        for (ResourceLocation id : data.getMutations()) {
+        for (Identifier id : data.getMutations()) {
             mutation m = mutation_registry.get(id);
             if (m == null || !m.type().runsEachTick()) {
                 continue;
@@ -83,7 +83,7 @@ public final class mutation_runtime {
                                           boolean blocked) {
         action_context.setHitContext(new action_context.HitContext(attacker, victim, source, originalAmount, actualAmount, blocked));
         try {
-            for (ResourceLocation id : data.getMutations()) {
+            for (Identifier id : data.getMutations()) {
                 mutation m = mutation_registry.get(id);
                 if (m == null || !m.type().triggersOnHit()) {
                     continue;
@@ -108,7 +108,7 @@ public final class mutation_runtime {
         }
 
         LivingEntity killer = null;
-        Entity attacker = source.getEntity();
+        Entity attacker = source.getLastHurtByMob();
         if (attacker instanceof LivingEntity living) {
             killer = living;
         }
@@ -120,7 +120,7 @@ public final class mutation_runtime {
                                             MobLegacyData data,
                                             DamageSource source,
                                             LivingEntity killer) {
-        for (ResourceLocation id : data.getMutations()) {
+        for (Identifier id : data.getMutations()) {
             mutation m = mutation_registry.get(id);
             if (m == null) {
                 continue;

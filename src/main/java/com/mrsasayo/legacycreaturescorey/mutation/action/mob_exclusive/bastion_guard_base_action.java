@@ -12,7 +12,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class bastion_guard_base_action implements mutation_action {
-    private static final ResourceLocation STANCE_SPEED_ID = ResourceLocation.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
+    private static final Identifier STANCE_SPEED_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
             "bastion_guard_speed_lock");
-    private static final ResourceLocation STANCE_KNOCKBACK_ID = ResourceLocation.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
+    private static final Identifier STANCE_KNOCKBACK_ID = Identifier.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
             "bastion_guard_knockback");
 
     protected PiglinBrute asServerBrute(LivingEntity entity) {
@@ -132,7 +132,7 @@ abstract class bastion_guard_base_action implements mutation_action {
             if (state == null || state.remainingTicks <= 0) {
                 return;
             }
-            if (!(source.getEntity() instanceof LivingEntity attacker)) {
+            if (!(source.getLastHurtByMob() instanceof LivingEntity attacker)) {
                 return;
             }
             Vec3 forward = piglin.getRotationVector();

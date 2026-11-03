@@ -106,7 +106,7 @@ public final class ProjectileShroudHandler {
                     double reflectFactor = Math.max(0.0D, aura.sourceDef.getReflectDamageFactor());
                     projectile.setTarget(entity);
                     double baseDamage = getProjectileDamage(projectile);
-                    projectile.setBaseDamage(Math.max(0.0D, baseDamage * reflectFactor));
+                    projectile.setDamageValue(Math.max(0.0D, baseDamage * reflectFactor));
                     projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectFactor)));
                     projectile.velocityDirty = true;
                     projectile.velocityModified = true;

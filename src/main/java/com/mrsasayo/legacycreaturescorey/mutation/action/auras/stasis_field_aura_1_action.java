@@ -5,7 +5,7 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class stasis_field_aura_1_action implements mutation_action, StasisSource {
     private final double radius;
@@ -64,7 +64,7 @@ public class stasis_field_aura_1_action implements mutation_action, StasisSource
     }
 
     @Override
-    public ResourceLocation getAttackSpeedModifierId() {
+    public Identifier getAttackSpeedModifierId() {
         return null;
     }
 }

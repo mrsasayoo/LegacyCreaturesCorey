@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final ResourceLocation RELOAD_ID = ResourceLocation.create(Legacycreaturescorey.MOD_ID, "biome_tier_weights");
-    private static final ResourceLocation DATA_PATH = ResourceLocation.create(Legacycreaturescorey.MOD_ID, "biome_tier_weights.json");
+    private static final Identifier RELOAD_ID = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "biome_tier_weights");
+    private static final Identifier DATA_PATH = Identifier.createRegistryKey(Legacycreaturescorey.MOD_ID, "biome_tier_weights.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> biomeOverrides = Map.create();
+    private static volatile Map<ResourceKey<Biome>, EnumMap<MobTier, Double>> biomeOverrides = Map.createRegistryKey();
     private static volatile EnumMap<MobTier, Double> globalDefaults = defaultMultipliers();
 
     private BiomeTierWeightDataLoader() {
@@ -77,7 +77,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return RELOAD_ID;
     }
 
@@ -85,7 +85,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
     public void reload(ResourceManager manager) {
         Optional<Resource> resource = manager.getResource(DATA_PATH);
         if (resource.isEmpty()) {
-            biomeOverrides = Map.create();
+            biomeOverrides = Map.createRegistryKey();
             globalDefaults = defaultMultipliers();
             Legacycreaturescorey.LOGGER.debug("No se encontró {}. Se usará multiplicador 1.0 para todos los biomas.", DATA_PATH);
             return;
@@ -104,12 +104,12 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
             for (int i = 0; i < entries.size(); i++) {
                 JsonObject entry = GsonHelper.convertToJsonObject(entries.get(i), "entries[" + i + "]");
                 String biomeIdRaw = GsonHelper.getAsString(entry, "biome");
-                ResourceLocation biomeId = ResourceLocation.tryBuild(biomeIdRaw);
+                Identifier biomeId = Identifier.tryBuild(biomeIdRaw);
                 if (biomeId == null) {
                     Legacycreaturescorey.LOGGER.warn("Bioma inválido '{}' en biome_tier_weights", biomeIdRaw);
                     continue;
                 }
-                ResourceKey<Biome> biomeKey = ResourceKey.create(net.minecraft.core.registries.Registries.BIOME, biomeId);
+                ResourceKey<Biome> biomeKey = ResourceKey.createRegistryKey(net.minecraft.core.registries.Registries.BIOME, biomeId);
                 JsonObject tiersObject = GsonHelper.getAsJsonObject(entry, "tiers");
                 EnumMap<MobTier, Double> tierMap = parseTierMap(tiersObject, "entries[" + i + "]");
                 parsed.put(biomeKey, tierMap);
@@ -119,7 +119,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
             globalDefaults = defaults;
             Legacycreaturescorey.LOGGER.info("Cargadas {} reglas de pesos por bioma", biomeOverrides.size());
         } catch (IOException exception) {
-            biomeOverrides = Map.create();
+            biomeOverrides = Map.createRegistryKey();
             globalDefaults = defaultMultipliers();
             Legacycreaturescorey.LOGGER.error("Error al leer {}: {}", DATA_PATH, exception.getMessage());
         }

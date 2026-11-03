@@ -8,10 +8,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Ghast;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class aerial_maneuvers_1_action implements mutation_action {
-    private static final ResourceLocation SPEED_MODIFIER_ID = ResourceLocation.of(
+    private static final Identifier SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath(
             Legacycreaturescorey.MOD_ID,
             "aerial_maneuvers_speed");
 

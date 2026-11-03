@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Locale;
 
@@ -19,17 +19,17 @@ public final class attribute_mutation_action implements mutation_action {
     private final double amount;
     private final Holder<Attribute> attributeEntry;
     private final Attribute attributeType;
-    private final ResourceLocation modifierId;
+    private final Identifier modifierId;
     private final AttributeModifier.Operation operation;
 
-    public attribute_mutation_action(ResourceLocation attributeId, Mode mode, double amount) {
+    public attribute_mutation_action(Identifier attributeId, Mode mode, double amount) {
         this(attributeId, mode, amount, null);
     }
 
-    public attribute_mutation_action(ResourceLocation attributeId,
+    public attribute_mutation_action(Identifier attributeId,
             Mode mode,
             double amount,
-            ResourceLocation preferredId) {
+            Identifier preferredId) {
         this.amount = amount;
         Attribute resolved = null;
         Holder<Attribute> entry = null;
@@ -97,12 +97,12 @@ public final class attribute_mutation_action implements mutation_action {
         }
     }
 
-    private ResourceLocation buildModifierId(ResourceLocation attributeId, Mode mode, double amount) {
+    private Identifier buildModifierId(Identifier attributeId, Mode mode, double amount) {
         String namespace = Legacycreaturescorey.MOD_ID;
         String attrPath = attributeId.getNamespace() + "_" + attributeId.getPath().replace('.', '_');
         String bits = Long.toHexString(Double.doubleToLongBits(amount));
         String suffix = mode.name().toLowerCase(Locale.WRITABLE_REGISTRY) + "_" + bits;
-        return ResourceLocation.direct(namespace, "passive_" + attrPath + "_" + suffix);
+        return Identifier.direct(namespace, "passive_" + attrPath + "_" + suffix);
     }
 
     public enum Mode {
