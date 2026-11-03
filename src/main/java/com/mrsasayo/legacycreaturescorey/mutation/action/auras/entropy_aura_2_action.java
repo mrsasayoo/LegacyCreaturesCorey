@@ -3,11 +3,11 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
 
 public class entropy_aura_2_action implements mutation_action {
     private final double radius;
@@ -27,14 +27,14 @@ public class entropy_aura_2_action implements mutation_action {
         if (intervalTicks > 0 && entity.age % intervalTicks != 0)
             return;
 
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
-        for (PlayerEntity player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
             if (player.squaredDistanceTo(entity) <= radius * radius) {
                 for (EquipmentSlot slot : EquipmentSlot.values()) {
                     if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                        ItemStack stack = player.getEquippedStack(slot);
-                        if (!stack.isEmpty() && stack.isDamageable()) {
-                            stack.damage(durabilityDamage, player, slot);
+                        ItemStack stack = player.getItemBySlot(slot);
+                        if (!stack.isEmpty() && stack.isDamageableItem()) {
+                            stack.hurtAndConvertOnBreak(durabilityDamage, player, slot);
                         }
                     }
                 }

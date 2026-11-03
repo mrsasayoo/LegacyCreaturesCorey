@@ -4,22 +4,22 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.List;
 
 public class oppressive_presence_aura_2_action implements mutation_action, OppressivePresenceSource {
     private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_EFFECTS = List.of(
             new status_effect_config_parser.status_effect_config_entry(
-                    StatusEffects.SLOWNESS,
+                    MobEffects.SLOWNESS,
                     40,
                     0,
                     true,
                     true,
                     true),
             new status_effect_config_parser.status_effect_config_entry(
-                    StatusEffects.WEAKNESS,
+                    MobEffects.WEAKNESS,
                     40,
                     0,
                     true,

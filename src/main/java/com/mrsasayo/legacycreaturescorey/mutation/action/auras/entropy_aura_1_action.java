@@ -4,11 +4,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -18,7 +18,7 @@ public class entropy_aura_1_action implements mutation_action {
     private final double chance;
     private final int cooldownTicks;
 
-    private static final Map<ServerPlayerEntity, Integer> lastSelectedSlot = new WeakHashMap<>();
+    private static final Map<ServerPlayer, Integer> lastSelectedSlot = new WeakHashMap<>();
     private static boolean initialized = false;
 
     public entropy_aura_1_action(mutation_action_config config) {
@@ -47,19 +47,19 @@ public class entropy_aura_1_action implements mutation_action {
         if (!action_context.isServer(entity))
             return;
 
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
-        for (PlayerEntity player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
+        ServerLevel world = (ServerLevel) entity.level();
+        for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
             if (player.squaredDistanceTo(entity) <= radius * radius) {
-                if (player instanceof ServerPlayerEntity serverPlayer) {
+                if (player instanceof ServerPlayer serverPlayer) {
                     int currentSlot = resolveSelectedSlot(serverPlayer);
                     int lastSlot = lastSelectedSlot.getOrDefault(serverPlayer, currentSlot);
 
                     if (currentSlot != lastSlot) {
                         lastSelectedSlot.put(serverPlayer, currentSlot);
                         if (entity.getRandom().nextDouble() <= chance) {
-                            ItemStack stack = serverPlayer.getMainHandStack();
+                            ItemStack stack = serverPlayer.getMainHandItem();
                             if (!stack.isEmpty()) {
-                                serverPlayer.getItemCooldownManager().set(stack, cooldownTicks);
+                                serverPlayer.getCooldowns().set(stack, cooldownTicks);
                             }
                         }
                     } else {
@@ -70,8 +70,8 @@ public class entropy_aura_1_action implements mutation_action {
         }
     }
 
-    private int resolveSelectedSlot(ServerPlayerEntity player) {
-        ItemStack mainHand = player.getMainHandStack();
+    private int resolveSelectedSlot(ServerPlayer player) {
+        ItemStack mainHand = player.getMainHandItem();
         if (!mainHand.isEmpty()) {
             for (int slot = 0; slot < 9; slot++) {
                 if (player.getInventory().getStack(slot) == mainHand) {

@@ -1,12 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.content.item;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Registers the custom items required for bespoke mutation mechanics.
@@ -19,11 +19,11 @@ public final class ModItems {
     }
 
     public static void init() {
-        // Minecraft 1.21+ requiere RegistryKey en Settings antes de la construcción
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "ghost_fragment");
-        RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, id);
+        // Minecraft 1.21+ requiere ResourceKey en Settings antes de la construcción
+        ResourceLocation id = ResourceLocation.registerSimple(Legacycreaturescorey.MOD_ID, "ghost_fragment");
+        ResourceKey<Item> key = ResourceKey.registerSimple(RegistryKeys.ITEM, id);
         GHOST_FRAGMENT = Registry.register(
-                Registries.ITEM,
+                BuiltInRegistries.ITEM,
                 id,
                 new GhostFragmentItem(new Item.Settings().registryKey(key).maxCount(16)));
 

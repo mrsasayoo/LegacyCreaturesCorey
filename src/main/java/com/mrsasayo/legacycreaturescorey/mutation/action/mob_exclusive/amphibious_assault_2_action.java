@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.GuardianEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -27,7 +27,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
     private final double stabilizationFactor;
     
     // Estado para controlar la física de cada guardián
-    private final Map<GuardianEntity, jump_state> states = new WeakHashMap<>();
+    private final Map<Guardian, jump_state> states = new WeakHashMap<>();
 
     public amphibious_assault_2_action(mutation_action_config config) {
         this.hoverHeight = config.getDouble("hover_height", 1.5D); // Altura moderada
@@ -41,7 +41,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
 
     @Override
     public void onTick(LivingEntity entity) {
-        GuardianEntity guardian = asServerGuardian(entity);
+        Guardian guardian = asServerGuardian(entity);
         if (guardian == null) {
             return;
         }
@@ -69,18 +69,18 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         
         // Calcular altura objetivo
         double groundY = findGroundY(guardian);
-        Vec3d currentVel = guardian.getVelocity();
+        Vec3 currentVel = guardian.getVelocity();
         
         if (!Double.isNaN(groundY)) {
             double desiredY = groundY + hoverHeight;
             double deltaY = desiredY - guardian.getY();
             
             // Aplicar ajuste vertical suave y limitado
-            double adjustment = MathHelper.clamp(deltaY * verticalAdjustmentSpeed, -0.05D, 0.05D);
+            double adjustment = Mth.clamp(deltaY * verticalAdjustmentSpeed, -0.05D, 0.05D);
             
             // Estabilización: reducir oscilaciones
             double newVerticalVel = currentVel.y * stabilizationFactor + adjustment;
-            newVerticalVel = MathHelper.clamp(newVerticalVel, -maxJumpVelocity, maxJumpVelocity);
+            newVerticalVel = Mth.clamp(newVerticalVel, -maxJumpVelocity, maxJumpVelocity);
             
             guardian.setVelocity(currentVel.x, newVerticalVel, currentVel.z);
         } else {
@@ -91,18 +91,18 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         }
 
         // Movimiento horizontal hacia objetivo
-        LivingEntity target = guardian.getBeamTarget();
+        LivingEntity target = guardian.getActiveAttackTarget();
         if (target != null && target.isAlive()) {
-            Vec3d offset = new Vec3d(
+            Vec3 offset = new Vec3(
                 target.getX() - guardian.getX(), 
                 0, // Ignorar diferencia vertical para movimiento horizontal
                 target.getZ() - guardian.getZ()
             );
             
-            double distSq = offset.horizontalLengthSquared();
+            double distSq = offset.horizontalDistanceSqr();
             if (distSq > 4.0D) { // Solo moverse si está lejos del objetivo
-                Vec3d direction = offset.normalize().multiply(horizontalSpeed);
-                Vec3d newVel = guardian.getVelocity();
+                Vec3 direction = offset.normalize().scale(horizontalSpeed);
+                Vec3 newVel = guardian.getVelocity();
                 
                 // Aplicar movimiento horizontal estabilizado
                 double newX = newVel.x * 0.85D + direction.x * 0.15D;
@@ -111,12 +111,12 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
                 guardian.setVelocity(newX, newVel.y, newZ);
             } else {
                 // Cerca del objetivo: estabilizar posición para disparar
-                Vec3d damped = guardian.getVelocity().multiply(0.7D, 1.0D, 0.7D);
+                Vec3 damped = guardian.getVelocity().scale(0.7D, 1.0D, 0.7D);
                 guardian.setVelocity(damped);
             }
         } else {
             // Sin objetivo: reducir movimiento horizontal rápidamente
-            Vec3d damped = guardian.getVelocity().multiply(0.6D, 1.0D, 0.6D);
+            Vec3 damped = guardian.getVelocity().scale(0.6D, 1.0D, 0.6D);
             guardian.setVelocity(damped);
         }
         
@@ -126,7 +126,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof GuardianEntity guardian) {
+        if (entity instanceof Guardian guardian) {
             guardian.setNoGravity(false);
             states.remove(guardian);
         }
@@ -135,11 +135,11 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
     /**
      * Aplica un salto controlado al salir del agua
      */
-    private void applyControlledJump(GuardianEntity guardian, jump_state state) {
-        Vec3d currentVel = guardian.getVelocity();
+    private void applyControlledJump(Guardian guardian, jump_state state) {
+        Vec3 currentVel = guardian.getVelocity();
         
         // Limitar velocidad vertical del salto
-        double clampedY = MathHelper.clamp(currentVel.y, 0, maxJumpVelocity);
+        double clampedY = Mth.clamp(currentVel.y, 0, maxJumpVelocity);
         
         // Reducir velocidad horizontal inicial para mayor estabilidad
         double dampedX = currentVel.x * 0.5D;
@@ -149,8 +149,8 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
         state.jumpVelocity = clampedY;
     }
 
-    private double findGroundY(GuardianEntity guardian) {
-        BlockPos.Mutable mutable = guardian.getBlockPos().mutableCopy();
+    private double findGroundY(Guardian guardian) {
+        BlockPos.Mutable mutable = guardian.getBlockPos().mutable();
         for (int i = 0; i < groundSearchDepth; i++) {
             mutable.move(0, -1, 0);
             if (!guardian.getEntityWorld().getBlockState(mutable).isAir()) {

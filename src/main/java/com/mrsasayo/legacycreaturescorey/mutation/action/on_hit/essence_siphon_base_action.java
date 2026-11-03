@@ -3,34 +3,34 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 abstract class essence_siphon_base_action extends proc_on_hit_action {
-    private static final Map<RegistryEntry<StatusEffect>, RegistryEntry<StatusEffect>> CORRUPTION_MAP = Map.ofEntries(
-            Map.entry(StatusEffects.SPEED, StatusEffects.SLOWNESS),
-            Map.entry(StatusEffects.HASTE, StatusEffects.MINING_FATIGUE),
-            Map.entry(StatusEffects.STRENGTH, StatusEffects.WEAKNESS),
-            Map.entry(StatusEffects.REGENERATION, StatusEffects.POISON),
-            Map.entry(StatusEffects.NIGHT_VISION, StatusEffects.DARKNESS),
-            Map.entry(StatusEffects.INVISIBILITY, StatusEffects.GLOWING),
-            Map.entry(StatusEffects.LUCK, StatusEffects.UNLUCK),
-            Map.entry(StatusEffects.SATURATION, StatusEffects.HUNGER),
-            Map.entry(StatusEffects.RESISTANCE, StatusEffects.WEAKNESS),
-            Map.entry(StatusEffects.JUMP_BOOST, StatusEffects.SLOWNESS),
-            Map.entry(StatusEffects.SLOW_FALLING, StatusEffects.LEVITATION),
-            Map.entry(StatusEffects.HEALTH_BOOST, StatusEffects.WITHER),
-            Map.entry(StatusEffects.FIRE_RESISTANCE, StatusEffects.NAUSEA)
+    private static final Map<Holder<MobEffect>, Holder<MobEffect>> CORRUPTION_MAP = Map.ofEntries(
+            Map.entry(MobEffects.SPEED, MobEffects.SLOWNESS),
+            Map.entry(MobEffects.HASTE, MobEffects.MINING_FATIGUE),
+            Map.entry(MobEffects.STRENGTH, MobEffects.WEAKNESS),
+            Map.entry(MobEffects.REGENERATION, MobEffects.POISON),
+            Map.entry(MobEffects.NIGHT_VISION, MobEffects.DARKNESS),
+            Map.entry(MobEffects.INVISIBILITY, MobEffects.GLOWING),
+            Map.entry(MobEffects.LUCK, MobEffects.UNLUCK),
+            Map.entry(MobEffects.SATURATION, MobEffects.HUNGER),
+            Map.entry(MobEffects.RESISTANCE, MobEffects.WEAKNESS),
+            Map.entry(MobEffects.JUMP_BOOST, MobEffects.SLOWNESS),
+            Map.entry(MobEffects.SLOW_FALLING, MobEffects.LEVITATION),
+            Map.entry(MobEffects.HEALTH_BOOST, MobEffects.WITHER),
+            Map.entry(MobEffects.FIRE_RESISTANCE, MobEffects.NAUSEA)
     );
 
     private final Mode mode;
@@ -40,7 +40,7 @@ abstract class essence_siphon_base_action extends proc_on_hit_action {
             double defaultChance,
             Mode defaultMode,
             int defaultDurationTicks) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.mode = resolveMode(config, defaultMode);
         this.durationTicks = resolveDuration(config, defaultDurationTicks);
     }
@@ -70,12 +70,12 @@ abstract class essence_siphon_base_action extends proc_on_hit_action {
         if (!action_context.isServer(attacker)) {
             return;
         }
-        List<StatusEffectInstance> candidates = getPositiveEffects(victim);
+        List<MobEffectInstance> candidates = getPositiveEffects(victim);
         if (candidates.isEmpty()) {
             return;
         }
-        Random random = attacker.getRandom();
-        StatusEffectInstance chosen = candidates.get(random.nextInt(candidates.size()));
+        RandomSource random = attacker.getRandom();
+        MobEffectInstance chosen = candidates.get(random.nextInt(candidates.size()));
 
         switch (mode) {
             case WEAKEN -> applyReduction(victim, chosen, durationTicks);
@@ -84,35 +84,35 @@ abstract class essence_siphon_base_action extends proc_on_hit_action {
         }
     }
 
-    private void applyReduction(LivingEntity victim, StatusEffectInstance effect, int reductionTicks) {
+    private void applyReduction(LivingEntity victim, MobEffectInstance effect, int reductionTicks) {
         int remaining = Math.max(0, effect.getDuration() - reductionTicks);
-        RegistryEntry<StatusEffect> entry = effect.getEffectType();
-        victim.removeStatusEffect(entry);
+        Holder<MobEffect> entry = effect.getEffect();
+        victim.removeEffect(entry);
         if (remaining > 0) {
-            StatusEffectInstance updated = new StatusEffectInstance(entry, remaining, effect.getAmplifier(),
-                    effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon());
-            victim.addStatusEffect(updated);
+            MobEffectInstance updated = new MobEffectInstance(entry, remaining, effect.getAmplifier(),
+                    effect.isAmbient(), effect.isVisible(), effect.showIcon());
+            victim.addEffect(updated);
         }
     }
 
-    private void applySteal(LivingEntity attacker, StatusEffectInstance effect, int duration) {
-        StatusEffectInstance copy = new StatusEffectInstance(effect.getEffectType(), duration, effect.getAmplifier(),
+    private void applySteal(LivingEntity attacker, MobEffectInstance effect, int duration) {
+        MobEffectInstance copy = new MobEffectInstance(effect.getEffect(), duration, effect.getAmplifier(),
                 false, true, true);
-        attacker.addStatusEffect(copy);
+        attacker.addEffect(copy);
     }
 
-    private void applyCorruption(LivingEntity victim, StatusEffectInstance effect, int duration) {
-        RegistryEntry<StatusEffect> entry = effect.getEffectType();
-        RegistryEntry<StatusEffect> replacement = CORRUPTION_MAP.getOrDefault(entry, StatusEffects.POISON);
-        StatusEffectInstance corrupted = new StatusEffectInstance(replacement, duration, Math.max(0, effect.getAmplifier()),
+    private void applyCorruption(LivingEntity victim, MobEffectInstance effect, int duration) {
+        Holder<MobEffect> entry = effect.getEffect();
+        Holder<MobEffect> replacement = CORRUPTION_MAP.getOrDefault(entry, MobEffects.POISON);
+        MobEffectInstance corrupted = new MobEffectInstance(replacement, duration, Math.max(0, effect.getAmplifier()),
                 false, true, true);
-        victim.addStatusEffect(corrupted);
+        victim.addEffect(corrupted);
     }
 
-    private List<StatusEffectInstance> getPositiveEffects(LivingEntity victim) {
-        List<StatusEffectInstance> result = new ArrayList<>();
-        for (StatusEffectInstance instance : victim.getStatusEffects()) {
-            if (instance.getEffectType().value().getCategory() == StatusEffectCategory.BENEFICIAL
+    private List<MobEffectInstance> getPositiveEffects(LivingEntity victim) {
+        List<MobEffectInstance> result = new ArrayList<>();
+        for (MobEffectInstance instance : victim.getActiveEffects()) {
+            if (instance.getEffect().value().getCategory() == MobEffectCategory.BENEFICIAL
                     && instance.getDuration() > 0) {
                 result.add(instance);
             }

@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class horde_beacon_aura_3_action implements mutation_action, HordeBeaconSource {
     private final double radius;
@@ -75,12 +75,12 @@ public class horde_beacon_aura_3_action implements mutation_action, HordeBeaconS
     }
 
     @Override
-    public EntityAttributeModifier getFollowRangeModifier() {
+    public AttributeModifier getFollowRangeModifier() {
         return null;
     }
 
     @Override
-    public Identifier getFollowRangeModifierId() {
+    public ResourceLocation getFollowRangeModifierId() {
         return null;
     }
 }

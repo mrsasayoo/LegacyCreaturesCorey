@@ -3,12 +3,12 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.util.Mth;
 
 abstract class frenzy_base_action extends proc_on_hit_action {
     private final FrenzyProfile profile;
@@ -16,7 +16,7 @@ abstract class frenzy_base_action extends proc_on_hit_action {
     protected frenzy_base_action(mutation_action_config config,
             double defaultChance,
             FrenzyProfile defaults) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.profile = applyOverrides(config, defaults);
     }
 
@@ -52,25 +52,25 @@ abstract class frenzy_base_action extends proc_on_hit_action {
         }
 
         int speedAmplifier = profile.stackable()
-                ? getNextAmplifier(attacker, StatusEffects.SPEED, profile.maxStacks())
+                ? getNextAmplifier(attacker, MobEffects.SPEED, profile.maxStacks())
                 : profile.baseAmplifier();
-        attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, profile.speedDurationTicks(), speedAmplifier));
+        attacker.addEffect(new MobEffectInstance(MobEffects.SPEED, profile.speedDurationTicks(), speedAmplifier));
 
         if (profile.applyHaste()) {
             int hasteAmplifier = profile.stackable()
-                    ? getNextAmplifier(attacker, StatusEffects.HASTE, profile.maxStacks())
+                    ? getNextAmplifier(attacker, MobEffects.HASTE, profile.maxStacks())
                     : profile.baseAmplifier();
-            attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, profile.hasteDurationTicks(), hasteAmplifier));
+            attacker.addEffect(new MobEffectInstance(MobEffects.HASTE, profile.hasteDurationTicks(), hasteAmplifier));
         }
 
         if (profile.playerBuffDurationTicks() > 0) {
-            victim.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+            victim.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                     profile.playerBuffDurationTicks(), profile.playerBuffAmplifier()));
         }
     }
 
-    private int getNextAmplifier(LivingEntity entity, RegistryEntry<StatusEffect> effect, int maxStacks) {
-        StatusEffectInstance current = entity.getStatusEffect(effect);
+    private int getNextAmplifier(LivingEntity entity, Holder<MobEffect> effect, int maxStacks) {
+        MobEffectInstance current = entity.getEffect(effect);
         if (current == null) {
             return profile.baseAmplifier();
         }

@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.core.api;
 import com.mrsasayo.legacycreaturescorey.feature.antifarm.ChunkActivityData;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.CoreyServerState;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public final class AntiFarmDashboardApi {
             return Optional.empty();
         }
         CoreyServerState state = CoreyServerState.get(server);
-        return Optional.ofNullable(state.getChunkActivity(chunkPos.toLong()));
+        return Optional.ofNullable(state.getChunkActivity(chunkPos.asLong()));
     }
 
     public static boolean isChunkBlocked(MinecraftServer server, ChunkPos chunkPos) {
@@ -33,6 +33,6 @@ public final class AntiFarmDashboardApi {
             return false;
         }
         CoreyServerState state = CoreyServerState.get(server);
-        return state.isChunkSpawnBlocked(chunkPos.toLong());
+        return state.isChunkSpawnBlocked(chunkPos.asLong());
     }
 }

@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.PiglinBruteEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 
 public final class bastion_guard_2_action extends bastion_guard_base_action {
     private final double triggerChance;
@@ -20,11 +20,11 @@ public final class bastion_guard_2_action extends bastion_guard_base_action {
 
     @Override
     public void onDamage(LivingEntity entity, DamageSource source, float amount) {
-        PiglinBruteEntity piglin = asServerBrute(entity);
+        PiglinBrute piglin = asServerBrute(entity);
         if (piglin == null) {
             return;
         }
-        if (!(source.getAttacker() instanceof LivingEntity attacker)) {
+        if (!(source.getLastHurtByMob() instanceof LivingEntity attacker)) {
             return;
         }
         handler().tryPommelStrike(piglin, attacker, triggerChance, cooldownTicks, knockbackStrength, verticalBoost);

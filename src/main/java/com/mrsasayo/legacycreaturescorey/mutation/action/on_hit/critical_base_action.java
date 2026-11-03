@@ -8,19 +8,19 @@ import com.mrsasayo.legacycreaturescorey.mixin.accessor.living_entity_hurt_time_
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ abstract class critical_base_action extends proc_on_hit_action {
     protected critical_base_action(mutation_action_config config,
             double defaultChance,
             float defaultBonusDamage) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.bonusDamage = (float) config.getDouble("bonus_damage", defaultBonusDamage);
         if (this.bonusDamage <= 0.0F) {
             throw new IllegalArgumentException("El daño adicional debe ser positivo");
@@ -42,18 +42,18 @@ abstract class critical_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         DamageSource source = resolveSource(world, attacker);
         resetDamageCooldown(victim);
         victim.damage(world, source, bonusDamage);
         float pitch = 0.9F + world.getRandom().nextFloat() * 0.2F;
-        world.playSound(null, victim.getX(), victim.getBodyY(0.5D), victim.getZ(),
-                SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.HOSTILE, 0.9F, pitch);
-        world.spawnParticles(ParticleTypes.CRIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 10,
+        world.makeSound(null, victim.getX(), victim.getBodyY(0.5D), victim.getZ(),
+                SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.HOSTILE, 0.9F, pitch);
+        world.sendParticles(ParticleTypes.CRIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 10,
                 0.35D, 0.2D, 0.35D, 0.15D);
-        world.spawnParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 4,
+        world.sendParticles(ParticleTypes.ENCHANTED_HIT, victim.getX(), victim.getBodyY(0.5D), victim.getZ(), 4,
                 0.2D, 0.1D, 0.2D, 0.02D);
 
         if (!additionalEffects.isEmpty()) {
@@ -62,18 +62,18 @@ abstract class critical_base_action extends proc_on_hit_action {
                 if (!action_context.isServer(target)) {
                     continue;
                 }
-                target.addStatusEffect(new StatusEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
+                target.addEffect(new MobEffectInstance(effect.entry(), effect.duration(), effect.amplifier()));
             }
         }
     }
 
     private static List<extra_effect> parseAdditionalEffects(JsonObject root) {
         if (root == null || !root.has("extra_effects")) {
-            return List.of();
+            return List.direct();
         }
         JsonElement element = root.get("extra_effects");
         if (!element.isJsonArray()) {
-            return List.of();
+            return List.direct();
         }
         JsonArray array = element.getAsJsonArray();
         List<extra_effect> effects = new ArrayList<>();
@@ -82,15 +82,15 @@ abstract class critical_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entry.getAsJsonObject();
-            Identifier id = Identifier.tryParse(obj.has("effect") ? obj.get("effect").getAsString() : "");
+            ResourceLocation id = ResourceLocation.tryBuild(obj.has("effect") ? obj.get("effect").getAsString() : "");
             if (id == null) {
                 continue;
             }
-            StatusEffect effect = Registries.STATUS_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
             if (effect == null) {
                 continue;
             }
-            RegistryEntry<StatusEffect> entryRef = Registries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -99,7 +99,7 @@ abstract class critical_base_action extends proc_on_hit_action {
             boolean applyToSelf = parseApplyToSelf(obj.has("target") ? obj.get("target").getAsString() : null);
             effects.add(new extra_effect(entryRef, duration, amplifier, applyToSelf));
         }
-        return effects.isEmpty() ? List.of() : List.copyOf(effects);
+        return effects.isEmpty() ? List.direct() : List.copyOf(effects);
     }
 
     private static boolean parseApplyToSelf(String raw) {
@@ -112,7 +112,7 @@ abstract class critical_base_action extends proc_on_hit_action {
         };
     }
 
-    private record extra_effect(RegistryEntry<StatusEffect> entry, int duration, int amplifier, boolean applyToSelf) {
+    private record extra_effect(Holder<MobEffect> entry, int duration, int amplifier, boolean applyToSelf) {
     }
 
     private void resetDamageCooldown(LivingEntity victim) {
@@ -124,8 +124,8 @@ abstract class critical_base_action extends proc_on_hit_action {
         }
     }
 
-    private DamageSource resolveSource(ServerWorld world, LivingEntity attacker) {
-        if (attacker instanceof PlayerEntity player) {
+    private DamageSource resolveSource(ServerLevel world, LivingEntity attacker) {
+        if (attacker instanceof Player player) {
             return world.getDamageSources().playerAttack(player);
         }
         if (attacker != null) {

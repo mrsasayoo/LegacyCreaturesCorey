@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.Husk;
 
 public final class ancient_curse_1_action extends ancient_curse_base_action {
     private final double chance;
@@ -19,12 +19,12 @@ public final class ancient_curse_1_action extends ancient_curse_base_action {
 
     @Override
     public void onHit(LivingEntity attacker, LivingEntity target) {
-        HuskEntity husk = asServerHusk(attacker);
+        Husk husk = asServerHusk(attacker);
         if (husk == null) {
             return;
         }
         if (husk.getRandom().nextDouble() <= chance) {
-            target.addStatusEffect(new StatusEffectInstance(StatusEffects.MINING_FATIGUE, durationTicks, amplifier));
+            target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, durationTicks, amplifier));
         }
     }
 }

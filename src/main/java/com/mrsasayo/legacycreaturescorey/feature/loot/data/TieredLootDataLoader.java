@@ -9,16 +9,16 @@ import com.mrsasayo.legacycreaturescorey.core.api.event.TieredLootTableEvents;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -40,26 +40,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("deprecation")
 public final class TieredLootDataLoader implements SimpleSynchronousResourceReloadListener {
     private static final String DIRECTORY = "loot/tiered";
-    private static final Identifier RELOAD_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "tiered_loot");
+    private static final ResourceLocation RELOAD_ID = ResourceLocation.registerSimple(Legacycreaturescorey.MOD_ID, "tiered_loot");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
     private TieredLootDataLoader() {}
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new TieredLootDataLoader());
+            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new TieredLootDataLoader());
         }
     }
 
     @Override
-    public Identifier getFabricId() {
+    public ResourceLocation getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
     public void reload(ResourceManager manager) {
-        EnumMap<MobTier, Map<Identifier, TieredMobLoot>> parsed = new EnumMap<>(MobTier.class);
-        EnumMap<MobTier, Map<Identifier, Identifier>> sources = new EnumMap<>(MobTier.class);
+        EnumMap<MobTier, Map<ResourceLocation, TieredMobLoot>> parsed = new EnumMap<>(MobTier.class);
+        EnumMap<MobTier, Map<ResourceLocation, ResourceLocation>> sources = new EnumMap<>(MobTier.class);
         for (MobTier tier : MobTier.values()) {
             if (tier != MobTier.NORMAL) {
                 parsed.put(tier, new HashMap<>());
@@ -67,18 +67,18 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             }
         }
 
-        Map<Identifier, Resource> resources = manager.findResources(DIRECTORY, identifier -> identifier.getPath().endsWith(".json"));
-        for (Map.Entry<Identifier, Resource> entry : resources.entrySet()) {
-            Identifier resourceId = entry.getKey();
+        Map<ResourceLocation, Resource> resources = manager.listResources(DIRECTORY, identifier -> identifier.elementsDirPath().endsWith(".json"));
+        for (Map.Entry<ResourceLocation, Resource> entry : resources.entrySet()) {
+            ResourceLocation resourceId = entry.getKey();
             MobTier tier = resolveTier(resourceId);
             if (tier == null || tier == MobTier.NORMAL) {
                 continue;
             }
 
-            try (InputStream stream = entry.getValue().getInputStream();
+            try (InputStream stream = entry.getValue().open();
                  BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 JsonElement element = JsonParser.parseReader(reader);
-                JsonObject root = JsonHelper.asObject(element, "tiered_loot");
+                JsonObject root = GsonHelper.convertToJsonObject(element, "tiered_loot");
 
                 TargetSelection targets = parseTargets(resourceId, root);
                 if (targets.entities().isEmpty() && targets.tags().isEmpty()) {
@@ -91,8 +91,8 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
                     continue;
                 }
 
-                Map<Identifier, TieredMobLoot> tierEntries = parsed.get(tier);
-                Map<Identifier, Identifier> tierSources = sources.get(tier);
+                Map<ResourceLocation, TieredMobLoot> tierEntries = parsed.byString(tier);
+                Map<ResourceLocation, ResourceLocation> tierSources = sources.byString(tier);
                 registerTargets(resourceId, tier, targets, lootDefinition, tierEntries, tierSources);
             } catch (Exception exception) {
                 Legacycreaturescorey.LOGGER.error("Failed to load tiered loot {}: {}", resourceId, exception.getMessage());
@@ -104,8 +104,8 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         TieredLootTableEvents.POST_APPLY.invoker().onTieredLootTablesApplied(TieredLootManager.getAll());
     }
 
-    private MobTier resolveTier(Identifier resourceId) {
-        String path = resourceId.getPath();
+    private MobTier resolveTier(ResourceLocation resourceId) {
+        String path = resourceId.elementsDirPath();
         String[] segments = path.split("/");
         if (segments.length < 3) {
             Legacycreaturescorey.LOGGER.warn("Invalid tiered loot path {}, expected loot/tiered/<tier>/...", resourceId);
@@ -113,55 +113,55 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         }
         String tierSegment = segments[2];
         try {
-            return MobTier.valueOf(tierSegment.trim().toUpperCase(Locale.ROOT));
+            return MobTier.valueOf(tierSegment.trim().toUpperCase(Locale.ROOT_REGISTRY_NAME));
         } catch (IllegalArgumentException exception) {
             Legacycreaturescorey.LOGGER.warn("Unknown tier '{}' in tiered loot file {}", tierSegment, resourceId);
             return null;
         }
     }
 
-    private TargetSelection parseTargets(Identifier resourceId, JsonObject root) {
-        Set<Identifier> ids = new HashSet<>();
+    private TargetSelection parseTargets(ResourceLocation resourceId, JsonObject root) {
+        Set<ResourceLocation> ids = new HashSet<>();
         Set<TagKey<EntityType<?>>> tags = new HashSet<>();
 
         if (root.has("entity")) {
-            parseIdentifier(resourceId, JsonHelper.getString(root, "entity"), ids, tags);
+            parseIdentifier(resourceId, GsonHelper.getAsString(root, "entity"), ids, tags);
         }
 
         if (root.has("entities")) {
-            JsonArray array = JsonHelper.getArray(root, "entities");
+            JsonArray array = GsonHelper.getAsJsonArray(root, "entities");
             for (int i = 0; i < array.size(); i++) {
-                parseIdentifier(resourceId, JsonHelper.asString(array.get(i), "entities[" + i + "]"), ids, tags);
+                parseIdentifier(resourceId, GsonHelper.convertToString(array.byString(i), "entities[" + i + "]"), ids, tags);
             }
         }
 
         if (root.has("targets")) {
-            JsonArray array = JsonHelper.getArray(root, "targets");
+            JsonArray array = GsonHelper.getAsJsonArray(root, "targets");
             for (int i = 0; i < array.size(); i++) {
-                parseIdentifier(resourceId, JsonHelper.asString(array.get(i), "targets[" + i + "]"), ids, tags);
+                parseIdentifier(resourceId, GsonHelper.convertToString(array.byString(i), "targets[" + i + "]"), ids, tags);
             }
         }
 
         return new TargetSelection(ids, tags);
     }
 
-    private void parseIdentifier(Identifier resourceId, String raw, Set<Identifier> ids, Set<TagKey<EntityType<?>>> tags) {
+    private void parseIdentifier(ResourceLocation resourceId, String raw, Set<ResourceLocation> ids, Set<TagKey<EntityType<?>>> tags) {
         if (raw == null || raw.isEmpty()) {
             Legacycreaturescorey.LOGGER.warn("Empty entity identifier in tiered loot {}", resourceId);
             return;
         }
         if (raw.startsWith("#")) {
             try {
-                Identifier tagId = Identifier.of(raw.substring(1));
-                tags.add(TagKey.of(RegistryKeys.ENTITY_TYPE, tagId));
+                ResourceLocation tagId = ResourceLocation.registerSimple(raw.substring(1));
+                tags.add(TagKey.registerSimple(RegistryKeys.ENTITY_TYPE, tagId));
             } catch (Exception exception) {
                 Legacycreaturescorey.LOGGER.warn("Invalid entity tag '{}' in tiered loot {}", raw, resourceId);
             }
             return;
         }
         try {
-            Identifier id = Identifier.of(raw);
-            if (!Registries.ENTITY_TYPE.containsId(id)) {
+            ResourceLocation id = ResourceLocation.registerSimple(raw);
+            if (!BuiltInRegistries.ENTITY_TYPE.containsId(id)) {
                 Legacycreaturescorey.LOGGER.warn("Unknown entity '{}' referenced in tiered loot {}", id, resourceId);
                 return;
             }
@@ -171,13 +171,13 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         }
     }
 
-    private void registerTargets(Identifier resourceId,
+    private void registerTargets(ResourceLocation resourceId,
                                  MobTier tier,
                                  TargetSelection selection,
                                  TieredMobLoot definition,
-                                 Map<Identifier, TieredMobLoot> tierEntries,
-                                 Map<Identifier, Identifier> tierSources) {
-        for (Identifier target : selection.entities()) {
+                                 Map<ResourceLocation, TieredMobLoot> tierEntries,
+                                 Map<ResourceLocation, ResourceLocation> tierSources) {
+        for (ResourceLocation target : selection.entities()) {
             addTarget(resourceId, tier, target, definition, tierEntries, tierSources);
         }
         for (TagKey<EntityType<?>> tagKey : selection.tags()) {
@@ -185,18 +185,18 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         }
     }
 
-    private void expandTag(Identifier resourceId,
+    private void expandTag(ResourceLocation resourceId,
                            MobTier tier,
                            TagKey<EntityType<?>> tagKey,
                            TieredMobLoot definition,
-                           Map<Identifier, TieredMobLoot> tierEntries,
-                           Map<Identifier, Identifier> tierSources) {
+                           Map<ResourceLocation, TieredMobLoot> tierEntries,
+                           Map<ResourceLocation, ResourceLocation> tierSources) {
         int added = 0;
-        for (EntityType<?> type : Registries.ENTITY_TYPE) {
-            if (!type.isIn(tagKey)) {
+        for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
+            if (!type.is(tagKey)) {
                 continue;
             }
-            Identifier id = EntityType.getId(type);
+            ResourceLocation id = EntityType.getKey(type);
             if (id == null) {
                 continue;
             }
@@ -205,20 +205,20 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             }
         }
         if (added == 0) {
-            Legacycreaturescorey.LOGGER.warn("Tag {} referenced in {} did not resolve to any entities", tagKey.id(), resourceId);
+            Legacycreaturescorey.LOGGER.warn("Tag {} referenced in {} did not resolve to any entities", tagKey.location(), resourceId);
         }
     }
 
-    private boolean addTarget(Identifier resourceId,
+    private boolean addTarget(ResourceLocation resourceId,
                               MobTier tier,
-                              Identifier target,
+                              ResourceLocation target,
                               TieredMobLoot definition,
-                              Map<Identifier, TieredMobLoot> tierEntries,
-                              Map<Identifier, Identifier> tierSources) {
+                              Map<ResourceLocation, TieredMobLoot> tierEntries,
+                              Map<ResourceLocation, ResourceLocation> tierSources) {
         if (tierEntries.containsKey(target)) {
-            Identifier previous = tierSources.get(target);
+            ResourceLocation previous = tierSources.byString(target);
             Legacycreaturescorey.LOGGER.error("Duplicate tiered loot for {} at tier {}. Entry {} ignored (already defined in {})",
-                target, tier.name(), resourceId, previous == null ? "unknown" : previous);
+                target, tier.description(), resourceId, previous == null ? "unknown" : previous);
             return false;
         }
         tierEntries.put(target, definition);
@@ -226,10 +226,10 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         return true;
     }
 
-    private record TargetSelection(Set<Identifier> entities, Set<TagKey<EntityType<?>>> tags) {}
+    private record TargetSelection(Set<ResourceLocation> entities, Set<TagKey<EntityType<?>>> tags) {}
 
-    private TieredMobLoot parseLoot(Identifier resourceId, JsonObject root) {
-        boolean replaceVanilla = JsonHelper.getBoolean(root, "replace_vanilla", false);
+    private TieredMobLoot parseLoot(ResourceLocation resourceId, JsonObject root) {
+        boolean replaceVanilla = GsonHelper.getAsBoolean(root, "replace_vanilla", false);
 
         List<TieredMobLoot.Drop> guaranteed = parseDropArray(resourceId, root, "guaranteed");
         List<TieredMobLoot.WeightedDrop> weighted = parseWeightedArray(resourceId, root, "weighted");
@@ -248,15 +248,15 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         }
     }
 
-    private List<TieredMobLoot.Drop> parseDropArray(Identifier resourceId, JsonObject root, String key) {
+    private List<TieredMobLoot.Drop> parseDropArray(ResourceLocation resourceId, JsonObject root, String key) {
         if (!root.has(key)) {
-            return List.of();
+            return List.registerSimple();
         }
 
-        JsonArray array = JsonHelper.getArray(root, key);
+        JsonArray array = GsonHelper.getAsJsonArray(root, key);
         List<TieredMobLoot.Drop> drops = new ArrayList<>(array.size());
         for (int i = 0; i < array.size(); i++) {
-            JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
+            JsonObject entry = GsonHelper.convertToJsonObject(array.byString(i), key + "[" + i + "]");
             TieredMobLoot.StackProvider template = parseStack(resourceId, entry, key + "[" + i + "]");
             if (template == null) {
                 continue;
@@ -271,22 +271,22 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         return drops;
     }
 
-    private List<TieredMobLoot.WeightedDrop> parseWeightedArray(Identifier resourceId, JsonObject root, String key) {
+    private List<TieredMobLoot.WeightedDrop> parseWeightedArray(ResourceLocation resourceId, JsonObject root, String key) {
         if (!root.has(key)) {
-            return List.of();
+            return List.registerSimple();
         }
 
-        JsonArray array = JsonHelper.getArray(root, key);
+        JsonArray array = GsonHelper.getAsJsonArray(root, key);
         List<TieredMobLoot.WeightedDrop> drops = new ArrayList<>(array.size());
         for (int i = 0; i < array.size(); i++) {
-            JsonObject entry = JsonHelper.asObject(array.get(i), key + "[" + i + "]");
+            JsonObject entry = GsonHelper.convertToJsonObject(array.byString(i), key + "[" + i + "]");
             TieredMobLoot.StackProvider template = parseStack(resourceId, entry, key + "[" + i + "]");
             if (template == null) {
                 continue;
             }
             try {
                 IntRange count = parseCountRange(entry);
-                int weight = JsonHelper.getInt(entry, "weight", 1);
+                int weight = GsonHelper.getAsInt(entry, "weight", 1);
                 if (weight <= 0) {
                     Legacycreaturescorey.LOGGER.warn("Weight must be positive for {} entry {}", resourceId, key + "[" + i + "]");
                     continue;
@@ -299,53 +299,53 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         return drops;
     }
 
-    private IntRange parseRolls(Identifier resourceId, JsonObject root, boolean hasWeighted) {
+    private IntRange parseRolls(ResourceLocation resourceId, JsonObject root, boolean hasWeighted) {
         if (!root.has("rolls")) {
-            return hasWeighted ? IntRange.of(1) : IntRange.of(0);
+            return hasWeighted ? IntRange.registerSimple(1) : IntRange.registerSimple(0);
         }
 
-        JsonElement element = root.get("rolls");
+        JsonElement element = root.byString("rolls");
         try {
             if (element.isJsonPrimitive()) {
-                int value = JsonHelper.asInt(element, "rolls");
-                return IntRange.of(Math.max(0, value));
+                int value = GsonHelper.convertToInt(element, "rolls");
+                return IntRange.registerSimple(Math.max(0, value));
             }
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                int min = Math.max(0, JsonHelper.getInt(object, "min", object.has("max") ? JsonHelper.getInt(object, "max") : 1));
-                int max = Math.max(0, JsonHelper.getInt(object, "max", min));
+                int min = Math.max(0, GsonHelper.getAsInt(object, "min", object.has("max") ? GsonHelper.getAsInt(object, "max") : 1));
+                int max = Math.max(0, GsonHelper.getAsInt(object, "max", min));
                 return new IntRange(min, max);
             }
         } catch (IllegalArgumentException exception) {
             Legacycreaturescorey.LOGGER.warn("Invalid rolls definition in {}: {}", resourceId, exception.getMessage());
         }
-        return hasWeighted ? IntRange.of(1) : IntRange.of(0);
+        return hasWeighted ? IntRange.registerSimple(1) : IntRange.registerSimple(0);
     }
 
     private IntRange parseCountRange(JsonObject entry) {
         if (entry.has("count")) {
-            JsonElement element = entry.get("count");
+            JsonElement element = entry.byString("count");
             if (element.isJsonPrimitive()) {
-                int value = JsonHelper.asInt(element, "count");
-                return IntRange.of(Math.max(0, value));
+                int value = GsonHelper.convertToInt(element, "count");
+                return IntRange.registerSimple(Math.max(0, value));
             }
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                int min = Math.max(0, JsonHelper.getInt(object, "min", object.has("max") ? JsonHelper.getInt(object, "max") : 1));
-                int max = Math.max(0, JsonHelper.getInt(object, "max", min));
+                int min = Math.max(0, GsonHelper.getAsInt(object, "min", object.has("max") ? GsonHelper.getAsInt(object, "max") : 1));
+                int max = Math.max(0, GsonHelper.getAsInt(object, "max", min));
                 return new IntRange(min, max);
             }
         }
-        int min = Math.max(0, JsonHelper.getInt(entry, "min", JsonHelper.getInt(entry, "min_count", 1)));
-        int max = Math.max(0, JsonHelper.getInt(entry, "max", JsonHelper.getInt(entry, "max_count", min)));
+        int min = Math.max(0, GsonHelper.getAsInt(entry, "min", GsonHelper.getAsInt(entry, "min_count", 1)));
+        int max = Math.max(0, GsonHelper.getAsInt(entry, "max", GsonHelper.getAsInt(entry, "max_count", min)));
         return new IntRange(min, max);
     }
 
-    private TieredMobLoot.StackProvider parseStack(Identifier resourceId, JsonObject entry, String context) {
+    private TieredMobLoot.StackProvider parseStack(ResourceLocation resourceId, JsonObject entry, String context) {
         String sourceDescription = resourceId + " -> " + context;
 
         if (entry.has("stack")) {
-            JsonElement stackElement = entry.get("stack");
+            JsonElement stackElement = entry.byString("stack");
             return TieredMobLoot.StackProvider.fromJson(stackElement, sourceDescription);
         }
 
@@ -354,17 +354,17 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             return null;
         }
 
-        String rawId = JsonHelper.getString(entry, "item");
-        Identifier itemId;
+        String rawId = GsonHelper.getAsString(entry, "item");
+        ResourceLocation itemId;
         try {
-            itemId = Identifier.of(rawId);
+            itemId = ResourceLocation.registerSimple(rawId);
         } catch (Exception exception) {
             Legacycreaturescorey.LOGGER.warn("Invalid item identifier '{}' in {} entry {}", rawId, resourceId, context);
             return null;
         }
 
-        Item item = Registries.ITEM.get(itemId);
-        if (item == null || Registries.ITEM.getRawId(item) == -1) {
+        Item item = BuiltInRegistries.ITEM.byString(itemId);
+        if (item == null || BuiltInRegistries.ITEM.getKey(item) == -1) {
             Legacycreaturescorey.LOGGER.warn("Unknown item '{}' in {} entry {}", rawId, resourceId, context);
             return null;
         }
@@ -373,7 +373,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             try {
                 JsonObject stackObject = new JsonObject();
                 stackObject.addProperty("id", rawId);
-                JsonObject components = JsonHelper.getObject(entry, "components");
+                JsonObject components = GsonHelper.getAsJsonObject(entry, "components");
                 stackObject.add("components", components.deepCopy());
                 return TieredMobLoot.StackProvider.fromJson(stackObject, sourceDescription);
             } catch (IllegalArgumentException exception) {

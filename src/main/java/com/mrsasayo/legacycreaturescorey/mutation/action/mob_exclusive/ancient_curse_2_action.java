@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.monster.Husk;
 
 public final class ancient_curse_2_action extends ancient_curse_base_action {
     private final double cloudRadius;
@@ -20,7 +20,7 @@ public final class ancient_curse_2_action extends ancient_curse_base_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, LivingEntity killer) {
-        HuskEntity husk = asServerHusk(entity);
+        Husk husk = asServerHusk(entity);
         if (husk == null) {
             return;
         }

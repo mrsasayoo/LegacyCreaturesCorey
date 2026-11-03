@@ -8,11 +8,11 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.CoreyServerState;
 import com.mrsasayo.legacycreaturescorey.feature.antifarm.data.AntiFarmExclusionDataLoader;
 import com.mrsasayo.legacycreaturescorey.feature.mob.data.MobTierRuleDataLoader;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 
 /**
  * Gestiona la detección de granjas de mobs y aplica zonas seguras sin categorización.
@@ -28,26 +28,26 @@ public final class AntiFarmManager {
         ServerLivingEntityEvents.AFTER_DEATH.register(AntiFarmManager::onMobDeath);
     }
 
-    private static void onMobDeath(LivingEntity entity, net.minecraft.entity.damage.DamageSource damageSource) {
+    private static void onMobDeath(LivingEntity entity, net.minecraft.world.damagesource.DamageSource damageSource) {
         if (!antifarm_config.isDetectionEnabled()) {
             return;
         }
-        if (!(entity instanceof MobEntity mob)) {
+        if (!(entity instanceof Mob mob)) {
             return;
         }
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
-        if (!isTieredMob(mob.getType())) {
+        if (!isTieredMob(mob.type())) {
             return;
         }
-        ChunkPos chunkPos = new ChunkPos(mob.getBlockPos());
+        ChunkPos chunkPos = new ChunkPos(mob.getBlockAt());
         if (shouldIgnoreForAntiFarm(mob, chunkPos)) {
             return;
         }
 
-        CoreyServerState state = CoreyServerState.get(world.getServer());
-        long chunkKey = chunkPos.toLong();
+        CoreyServerState state = CoreyServerState.byString(world.getServer());
+        long chunkKey = chunkPos.asLong();
 
         if (state.isChunkSpawnBlocked(chunkKey)) {
             return;
@@ -73,27 +73,27 @@ public final class AntiFarmManager {
         }
     }
 
-    public static boolean shouldBlockTieredSpawns(MobEntity mob) {
+    public static boolean shouldBlockTieredSpawns(Mob mob) {
         if (!antifarm_config.isRestrictTieredSpawns()) {
             return false;
         }
-        if (!(mob.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(mob.getEntityWorld() instanceof ServerLevel world)) {
             return false;
         }
-        if (!isTieredMob(mob.getType())) {
+        if (!isTieredMob(mob.type())) {
             return false;
         }
-        CoreyServerState state = CoreyServerState.get(world.getServer());
-        long chunkKey = new ChunkPos(mob.getBlockPos()).toLong();
+        CoreyServerState state = CoreyServerState.byString(world.getServer());
+        long chunkKey = new ChunkPos(mob.getBlockAt()).asLong();
         return state.isChunkSpawnBlocked(chunkKey);
     }
 
-    private static void activateSafeZone(ServerWorld world, CoreyServerState state, ChunkPos center, MobEntity sample, int threshold) {
+    private static void activateSafeZone(ServerLevel world, CoreyServerState state, ChunkPos center, Mob sample, int threshold) {
         int radius = Math.max(0, antifarm_config.getBlockRadiusChunks());
         long tick = world.getTime();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                long chunkKey = ChunkPos.toLong(center.x + dx, center.z + dz);
+                long chunkKey = ChunkPos.asLong(center.x + dx, center.z + dz);
                 state.markChunkSpawnBlocked(chunkKey, tick);
             }
         }
@@ -104,10 +104,10 @@ public final class AntiFarmManager {
                 center.x,
                 center.z,
                 world.getRegistryKey().getValue(),
-                sample.getType().getTranslationKey()
+                sample.type().getDescriptionId()
             );
         }
-        ChunkActivityData centerData = state.getChunkActivity(center.toLong());
+        ChunkActivityData centerData = state.getChunkActivity(center.asLong());
         AntiFarmDashboardEvents.CHUNK_ACTIVITY_UPDATED.invoker().onChunkActivityUpdated(
             world,
             center,
@@ -123,11 +123,11 @@ public final class AntiFarmManager {
         return MobTierRuleDataLoader.getAllowedTiers(type) != null;
     }
 
-    private static boolean shouldIgnoreForAntiFarm(MobEntity mob, ChunkPos chunkPos) {
+    private static boolean shouldIgnoreForAntiFarm(Mob mob, ChunkPos chunkPos) {
         if (mob.getCommandTags().contains(ANTI_FARM_EXEMPT_TAG)) {
             return true;
         }
-        if (AntiFarmExclusionDataLoader.isExcluded(mob.getType())) {
+        if (AntiFarmExclusionDataLoader.isExcluded(mob.type())) {
             return true;
         }
         return AntiFarmEvents.SHOULD_IGNORE.invoker().shouldIgnore(mob, chunkPos);

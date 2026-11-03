@@ -4,10 +4,10 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {}
@@ -72,7 +72,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
             }
             initialized = true;
             ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
-                if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+                if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
                     return;
                 }
                 List<ActiveAura> auras = active.get(world);
@@ -80,17 +80,17 @@ public final class AllyDeathHealAuraAction implements mutation_action {
                     return;
                 }
                 cleanup(world);
-                if (!(entity instanceof MobEntity)) {
+                if (!(entity instanceof Mob)) {
                     return;
                 }
-                Vec3d deathPos = new Vec3d(entity.getX(), entity.getY(), entity.getZ());
+                Vec3 deathPos = new Vec3(entity.getX(), entity.getY(), entity.getZ());
                 for (ActiveAura aura : auras) {
                     LivingEntity bearer = aura.source();
                     if (!bearer.isAlive()) {
                         continue;
                     }
                     double radius = aura.action().getRadius();
-                    if (bearer.squaredDistanceTo(deathPos) > radius * radius) {
+                    if (bearer.distanceToSqr(deathPos) > radius * radius) {
                         continue;
                     }
                     bearer.heal(aura.action().getHealAmount());
@@ -99,7 +99,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, AllyDeathHealAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.getEntityWorld();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (int i = 0; i < list.size(); i++) {
@@ -109,11 +109,11 @@ public final class AllyDeathHealAuraAction implements mutation_action {
                     return;
                 }
             }
-            list.add(new ActiveAura(entity, action, time));
+            list.atLowerCornerWithOffset(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, AllyDeathHealAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.getEntityWorld();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -124,7 +124,7 @@ public final class AllyDeathHealAuraAction implements mutation_action {
             }
         }
 
-        private void cleanup(ServerWorld world) {
+        private void cleanup(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;

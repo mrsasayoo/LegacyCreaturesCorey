@@ -4,8 +4,8 @@ import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.TierManager;
 import com.mrsasayo.legacycreaturescorey.feature.mob.data.MobTierRuleDataLoader;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public final class LegacyCreaturesTierApi {
     /**
      * Retrieves the tier that has already been assigned to the mob, if any.
      */
-    public static Optional<MobTier> getTier(MobEntity mob) {
+    public static Optional<MobTier> getTier(Mob mob) {
         if (mob == null) {
             return Optional.empty();
         }
@@ -55,7 +55,7 @@ public final class LegacyCreaturesTierApi {
     /**
      * Forces a tier on the mob using the same pathway as internal commands.
      */
-    public static void forceTier(MobEntity mob, MobTier tier, boolean assignDefaultMutations) {
+    public static void forceTier(Mob mob, MobTier tier, boolean assignDefaultMutations) {
         TierManager.forceTier(mob, tier, assignDefaultMutations);
     }
 }

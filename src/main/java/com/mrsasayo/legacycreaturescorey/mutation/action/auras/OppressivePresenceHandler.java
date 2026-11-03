@@ -2,10 +2,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ import java.util.WeakHashMap;
 public final class OppressivePresenceHandler {
     public static final OppressivePresenceHandler INSTANCE = new OppressivePresenceHandler();
 
-    private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
+    private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private boolean initialized;
 
     private OppressivePresenceHandler() {
@@ -31,7 +31,7 @@ public final class OppressivePresenceHandler {
     }
 
     public void register(LivingEntity entity, OppressivePresenceSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getTime();
         for (ActiveAura aura : list) {
@@ -44,7 +44,7 @@ public final class OppressivePresenceHandler {
     }
 
     public void unregister(LivingEntity entity, OppressivePresenceSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
@@ -55,7 +55,7 @@ public final class OppressivePresenceHandler {
         }
     }
 
-    private void handleWorldTick(ServerWorld world) {
+    private void handleWorldTick(ServerLevel world) {
         cleanup(world);
         List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
@@ -76,11 +76,11 @@ public final class OppressivePresenceHandler {
         }
     }
 
-    private void applyEffects(ServerWorld world, ActiveAura aura) {
+    private void applyEffects(ServerLevel world, ActiveAura aura) {
         LivingEntity source = aura.source;
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
-        List<ServerPlayerEntity> players = world
+        List<ServerPlayer> players = world
                 .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
 
         if (players.isEmpty()) {
@@ -88,17 +88,17 @@ public final class OppressivePresenceHandler {
         }
 
         List<status_effect_config_parser.status_effect_config_entry> effects = aura.sourceDef.getEffectConfigs();
-        for (ServerPlayerEntity player : players) {
+        for (ServerPlayer player : players) {
             for (status_effect_config_parser.status_effect_config_entry effectConfig : effects) {
-                StatusEffectInstance instance = status_effect_config_parser.buildInstance(effectConfig);
+                MobEffectInstance instance = status_effect_config_parser.buildInstance(effectConfig);
                 if (instance != null) {
-                    player.addStatusEffect(instance);
+                    player.addEffect(instance);
                 }
             }
         }
     }
 
-    private void cleanup(ServerWorld world) {
+    private void cleanup(ServerLevel world) {
         List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;

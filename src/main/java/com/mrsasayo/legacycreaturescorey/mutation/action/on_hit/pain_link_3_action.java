@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.particles.ParticleTypes;
 
 public final class pain_link_3_action extends pain_link_base_action {
     public pain_link_3_action(mutation_action_config config) {
@@ -17,6 +17,6 @@ public final class pain_link_3_action extends pain_link_base_action {
                         2,
                         ParticleTypes.END_ROD,
                         null,
-                        createAura(StatusEffects.RESISTANCE, secondsToTicks(2), 0)));
+                        createAura(MobEffects.RESISTANCE, secondsToTicks(2), 0)));
     }
 }

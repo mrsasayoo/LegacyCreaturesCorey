@@ -2,16 +2,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,7 +45,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                         double offsetX = (world.random.nextDouble() - 0.5) * zone.radius * 2;
                         double offsetY = (world.random.nextDouble()) * 2;
                         double offsetZ = (world.random.nextDouble() - 0.5) * zone.radius * 2;
-                        world.spawnParticles(
+                        world.sendParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 zone.center.x + offsetX,
                                 zone.center.y + offsetY,
@@ -54,7 +54,7 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.CLOUD,
                             zone.center.x, zone.center.y + 1, zone.center.z,
                             3, zone.radius * 0.5, 0.5, zone.radius * 0.5, 0.01
@@ -63,13 +63,13 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
 
                 // Aplicar ceguera a quienes ENTREN en la zona
                 if (zone.ticksRemaining % 10 == 0) {
-                    Box area = new Box(zone.center, zone.center).expand(zone.radius);
-                    List<PlayerEntity> players = world.getEntitiesByClass(PlayerEntity.class, area, p -> true);
-                    for (PlayerEntity player : players) {
+                    AABB area = new AABB(zone.center, zone.center).inflate(zone.radius);
+                    List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
+                    for (Player player : players) {
                         // Solo aplicar si no tienen ya el efecto (para evitar spam)
-                        if (!player.hasStatusEffect(StatusEffects.BLINDNESS)) {
-                            player.addStatusEffect(new StatusEffectInstance(
-                                    StatusEffects.BLINDNESS,
+                        if (!player.hasEffect(MobEffects.BLINDNESS)) {
+                            player.addEffect(new MobEffectInstance(
+                                    MobEffects.BLINDNESS,
                                     zone.blindnessDuration,
                                     0,
                                     false,
@@ -99,12 +99,12 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
     }
 
     @Override
-    public void onSnowballHit(SnowGolemEntity owner, LivingEntity target, SnowballEntity snowball) {
+    public void onSnowballHit(SnowGolem owner, LivingEntity target, Snowball snowball) {
         // Aplicar daño pero NO ceguera directa
         if (!canAffect(target)) {
             return;
         }
-        ServerWorld world = asServerWorld(owner);
+        ServerLevel world = asServerWorld(owner);
         if (world == null) {
             return;
         }
@@ -120,20 +120,20 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
         createBlizzardZone(snowball, world);
     }
 
-    protected void createBlizzardZone(SnowballEntity snowball, ServerWorld world) {
+    protected void createBlizzardZone(Snowball snowball, ServerLevel world) {
         if (blindnessDurationTicks <= 0 || blindnessRadius <= 0.0D) {
             return;
         }
 
-        Vec3d center = new Vec3d(snowball.getX(), snowball.getY(), snowball.getZ());
+        Vec3 center = new Vec3(snowball.getX(), snowball.getY(), snowball.getZ());
 
         // Efecto inicial de impacto
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.SNOWFLAKE,
                 center.x, center.y, center.z,
                 30, blindnessRadius * 0.5, 1, blindnessRadius * 0.5, 0.1
         );
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.CLOUD,
                 center.x, center.y + 0.5, center.z,
                 15, blindnessRadius * 0.3, 0.5, blindnessRadius * 0.3, 0.05
@@ -147,17 +147,17 @@ public class blizzard_orb_2_action extends blizzard_orb_base_action {
                 blizzardDurationTicks,
                 blindnessDurationTicks
         );
-        ACTIVE_ZONES.add(zone);
+        ACTIVE_ZONES.atLowerCornerWithOffset(zone);
     }
 
     private static class BlizzardZone {
-        final ServerWorld world;
-        final Vec3d center;
+        final ServerLevel world;
+        final Vec3 center;
         final double radius;
         int ticksRemaining;
         final int blindnessDuration;
 
-        BlizzardZone(ServerWorld world, Vec3d center, double radius, int duration, int blindnessDuration) {
+        BlizzardZone(ServerLevel world, Vec3 center, double radius, int duration, int blindnessDuration) {
             this.world = world;
             this.center = center;
             this.radius = radius;

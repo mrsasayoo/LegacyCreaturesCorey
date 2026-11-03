@@ -7,17 +7,17 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,21 +28,21 @@ import java.util.Locale;
  */
 abstract class true_damage_base_action extends proc_on_hit_action {
     private final List<SideEffect> sideEffects;
-    private static final RegistryKey<net.minecraft.entity.damage.DamageType> TRUE_DAMAGE_KEY = RegistryKey.of(
+    private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.direct(
             RegistryKeys.DAMAGE_TYPE,
-            Identifier.of(Legacycreaturescorey.MOD_ID, "true_damage"));
+            ResourceLocation.direct(Legacycreaturescorey.MOD_ID, "true_damage"));
 
     protected true_damage_base_action(mutation_action_config config,
             double defaultChance,
             List<SideEffect> defaultSideEffects) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.sideEffects = parseSideEffects(config, defaultSideEffects);
     }
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         action_context.HitContext context = action_context.getHitContext();
-        if (context == null || !(attacker.getEntityWorld() instanceof ServerWorld world)) {
+        if (context == null || !(attacker.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -58,9 +58,9 @@ abstract class true_damage_base_action extends proc_on_hit_action {
         applySideEffects(attacker, victim);
     }
 
-    private DamageSource resolveTrueDamageSource(ServerWorld world, LivingEntity attacker) {
+    private DamageSource resolveTrueDamageSource(ServerLevel world, LivingEntity attacker) {
         try {
-            return world.getDamageSources().create(TRUE_DAMAGE_KEY, attacker);
+            return world.getDamageSources().registerSimple(TRUE_DAMAGE_KEY, attacker);
         } catch (RuntimeException ignored) {
             return world.getDamageSources().magic();
         }
@@ -78,12 +78,12 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             if (effect.effect() == null || effect.duration() <= 0) {
                 continue;
             }
-            receiver.addStatusEffect(new StatusEffectInstance(
+            receiver.addEffect(new MobEffectInstance(
                     effect.effect(),
                     effect.duration(),
                     Math.max(0, effect.amplifier()),
                     effect.ambient(),
-                    effect.showParticles(),
+                    effect.visible(),
                     effect.showIcon()));
         }
     }
@@ -107,18 +107,18 @@ abstract class true_damage_base_action extends proc_on_hit_action {
                 continue;
             }
             JsonObject obj = entryElement.getAsJsonObject();
-            Identifier id = obj.has("id") ? Identifier.tryParse(obj.get("id").getAsString()) : null;
+            ResourceLocation id = obj.has("id") ? ResourceLocation.tryBuild(obj.get("id").getAsString()) : null;
             if (id == null && obj.has("effect")) {
-                id = Identifier.tryParse(obj.get("effect").getAsString());
+                id = ResourceLocation.tryBuild(obj.get("effect").getAsString());
             }
             if (id == null) {
                 continue;
             }
-            StatusEffect effect = Registries.STATUS_EFFECT.get(id);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(id);
             if (effect == null) {
                 continue;
             }
-            RegistryEntry<StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
             if (entry == null) {
                 continue;
             }
@@ -155,7 +155,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        return switch (raw.trim().toUpperCase(Locale.ROOT)) {
+        return switch (raw.trim().toUpperCase(Locale.ROOT_REGISTRY_NAME)) {
             case "SELF", "ATTACKER" -> Target.SELF;
             case "OTHER", "TARGET", "VICTIM" -> Target.OTHER;
             default -> fallback;
@@ -167,7 +167,7 @@ abstract class true_damage_base_action extends proc_on_hit_action {
         OTHER
     }
 
-    protected record SideEffect(RegistryEntry<StatusEffect> effect,
+    protected record SideEffect(Holder<MobEffect> effect,
             int duration,
             int amplifier,
             Target target,

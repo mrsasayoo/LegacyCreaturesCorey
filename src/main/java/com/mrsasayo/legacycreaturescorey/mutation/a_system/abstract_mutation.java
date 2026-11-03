@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -9,22 +9,22 @@ import java.util.Objects;
  * Implementación base con metadata común para cualquier mutación.
  */
 public abstract class abstract_mutation implements mutation {
-    private final Identifier id;
+    private final ResourceLocation id;
     private final mutation_type type;
     private final int cost;
     private final int weight;
-    private final Text displayName;
-    private final Text description;
+    private final Component displayName;
+    private final Component description;
 
-    protected abstract_mutation(Identifier id, mutation_type type, int cost) {
+    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost) {
         this(id, type, cost, 1, createDefaultName(id), createDefaultDescription(id));
     }
 
-    protected abstract_mutation(Identifier id, mutation_type type, int cost, Text displayName, Text description) {
+    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost, Component displayName, Component description) {
         this(id, type, cost, 1, displayName, description);
     }
 
-    protected abstract_mutation(Identifier id, mutation_type type, int cost, int weight, Text displayName, Text description) {
+    protected abstract_mutation(ResourceLocation id, mutation_type type, int cost, int weight, Component displayName, Component description) {
         this.id = Objects.requireNonNull(id, "id");
         this.type = Objects.requireNonNull(type, "type");
         this.cost = Math.max(0, cost);
@@ -34,7 +34,7 @@ public abstract class abstract_mutation implements mutation {
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return id;
     }
 
@@ -49,12 +49,12 @@ public abstract class abstract_mutation implements mutation {
     }
 
     @Override
-    public Text getDisplayName() {
+    public Component getDisplayName() {
         return displayName;
     }
 
     @Override
-    public Text getDescription() {
+    public Component getDescription() {
         return description;
     }
 
@@ -80,11 +80,11 @@ public abstract class abstract_mutation implements mutation {
         return id.equals(m.getId());
     }
 
-    protected static Text createDefaultName(Identifier id) {
-        return Text.translatable("mutation." + id.getNamespace() + "." + id.getPath());
+    protected static Component createDefaultName(ResourceLocation id) {
+        return Component.translatable("mutation." + id.getNamespace() + "." + id.getPath());
     }
 
-    protected static Text createDefaultDescription(Identifier id) {
-        return Text.translatable("mutation." + id.getNamespace() + "." + id.getPath() + ".desc");
+    protected static Component createDefaultDescription(ResourceLocation id) {
+        return Component.translatable("mutation." + id.getNamespace() + "." + id.getPath() + ".desc");
     }
 }

@@ -2,9 +2,9 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 
 import java.util.Collections;
 import java.util.Set;
@@ -14,11 +14,11 @@ abstract class alphas_vengeance_base_action implements mutation_action {
     private static final Set<alphas_vengeance_base_action> ALLY_WATCHERS = Collections.newSetFromMap(new WeakHashMap<>());
     private static boolean deathHookRegistered;
 
-    protected WolfEntity owner;
+    protected Wolf owner;
 
     @Override
     public void onApply(LivingEntity entity) {
-        if (!(entity instanceof WolfEntity wolf) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof Wolf wolf) || entity.getEntityWorld().isClient()) {
             return;
         }
         owner = wolf;
@@ -57,10 +57,10 @@ abstract class alphas_vengeance_base_action implements mutation_action {
         return false;
     }
 
-    protected void onAllyWolfDeath(WolfEntity deceased) {
+    protected void onAllyWolfDeath(Wolf deceased) {
     }
 
-    protected void onOwnerDeath(WolfEntity owner) {
+    protected void onOwnerDeath(Wolf owner) {
     }
 
     private static void ensureDeathHook() {
@@ -69,7 +69,7 @@ abstract class alphas_vengeance_base_action implements mutation_action {
         }
         deathHookRegistered = true;
         ServerLivingEntityEvents.AFTER_DEATH.register((victim, source) -> {
-            if (!(victim instanceof WolfEntity wolf) || victim.getEntityWorld().isClient()) {
+            if (!(victim instanceof Wolf wolf) || victim.getEntityWorld().isClient()) {
                 return;
             }
             synchronized (ALLY_WATCHERS) {
@@ -80,7 +80,7 @@ abstract class alphas_vengeance_base_action implements mutation_action {
         });
     }
 
-    private void handleObservedDeath(WolfEntity deceased) {
+    private void handleObservedDeath(Wolf deceased) {
         if (!handlesAllyDeathEvents()) {
             return;
         }

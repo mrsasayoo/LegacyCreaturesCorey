@@ -2,14 +2,14 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.GuardianEntity;
-import net.minecraft.entity.projectile.ShulkerBulletEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.entity.projectile.ShulkerBullet;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -17,20 +17,20 @@ import java.util.WeakHashMap;
 
 /**
  * Beam Refraction II: El Guardián puede disparar su rayo como un proyectil físico cada 3 segundos.
- * Usa ShulkerBulletEntity para tener un proyectil perseguidor similar al rayo original.
+ * Usa ShulkerBullet para tener un proyectil perseguidor similar al rayo original.
  */
 public final class beam_refraction_2_action extends beam_refraction_base_action {
     private final double projectileDamageRatio;
     private final float projectileDamage;
 
-    private static final Map<GuardianEntity, ProjectileState> GUARDIAN_STATES = new WeakHashMap<>();
+    private static final Map<Guardian, ProjectileState> GUARDIAN_STATES = new WeakHashMap<>();
 
     static {
         ServerTickEvents.END_WORLD_TICK.register(world -> {
-            Iterator<Map.Entry<GuardianEntity, ProjectileState>> iterator = GUARDIAN_STATES.entrySet().iterator();
+            Iterator<Map.Entry<Guardian, ProjectileState>> iterator = GUARDIAN_STATES.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<GuardianEntity, ProjectileState> entry = iterator.next();
-                GuardianEntity guardian = entry.getKey();
+                Map.Entry<Guardian, ProjectileState> entry = iterator.next();
+                Guardian guardian = entry.getKey();
                 if (guardian == null || guardian.isRemoved() || !guardian.isAlive()) {
                     iterator.remove();
                     continue;
@@ -52,10 +52,10 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof GuardianEntity guardian)) {
+        if (!(entity instanceof Guardian guardian)) {
             return;
         }
-        if (!(guardian.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(guardian.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -72,7 +72,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
         }
 
         // Verificar distancia - disparar solo si está en rango de ataque
-        double distance = guardian.squaredDistanceTo(target);
+        double distance = guardian.distanceToSqr(target);
         if (distance > 256.0D) { // 16 bloques máximo
             return;
         }
@@ -82,11 +82,11 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
         state.cooldownRemaining = getCooldownTicks();
     }
 
-    private void fireProjectile(GuardianEntity guardian, LivingEntity target, ServerWorld world) {
-        Vec3d eyePos = guardian.getEyePos();
+    private void fireProjectile(Guardian guardian, LivingEntity target, ServerLevel world) {
+        Vec3 eyePos = guardian.getEyePos();
 
         // Crear ShulkerBullet que persigue al objetivo (similar al rayo del Guardian)
-        ShulkerBulletEntity bullet = new ShulkerBulletEntity(
+        ShulkerBullet bullet = new ShulkerBullet(
                 world,
                 guardian,
                 target,
@@ -99,7 +99,7 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
             double offsetX = (world.random.nextDouble() - 0.5) * 0.5;
             double offsetY = (world.random.nextDouble() - 0.5) * 0.5;
             double offsetZ = (world.random.nextDouble() - 0.5) * 0.5;
-            world.spawnParticles(
+            world.sendParticles(
                     ParticleTypes.BUBBLE_POP,
                     eyePos.x + offsetX,
                     eyePos.y + offsetY,
@@ -107,18 +107,18 @@ public final class beam_refraction_2_action extends beam_refraction_base_action 
                     1, 0, 0, 0, 0.05
             );
         }
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.GLOW,
                 eyePos.x, eyePos.y, eyePos.z,
                 5, 0.2, 0.2, 0.2, 0.1
         );
 
         // Sonido de disparo
-        world.playSound(
+        world.makeSound(
                 null,
                 guardian.getX(), guardian.getY(), guardian.getZ(),
-                SoundEvents.ENTITY_GUARDIAN_ATTACK,
-                SoundCategory.HOSTILE,
+                SoundEvents.GUARDIAN_ATTACK,
+                SoundSource.HOSTILE,
                 1.0f, 1.5f
         );
 

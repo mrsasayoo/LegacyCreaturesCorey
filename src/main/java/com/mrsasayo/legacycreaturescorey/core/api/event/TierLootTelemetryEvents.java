@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.core.api.event;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -28,10 +28,10 @@ public final class TierLootTelemetryEvents {
 
     @FunctionalInterface
     public interface TierLootApplied {
-        void onTierLootApplied(MobEntity mob,
+        void onTierLootApplied(Mob mob,
                                MobTier tier,
-                               Identifier entityId,
-                               Identifier lootTableId,
+                               ResourceLocation entityId,
+                               ResourceLocation lootTableId,
                                boolean allowLegacyLoot,
                                boolean appliedLegacyLoot,
                                int addedStacks,

@@ -1,20 +1,20 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Utilidades compartidas para la serie Bloodlust (Vindicador).
  */
 abstract class bloodlust_base_action implements mutation_action {
     protected boolean isVillageProtector(LivingEntity target) {
-        return target instanceof VillagerEntity || target instanceof IronGolemEntity;
+        return target instanceof Villager || target instanceof IronGolem;
     }
 
     protected boolean isPlayer(LivingEntity target) {
-        return target instanceof PlayerEntity;
+        return target instanceof Player;
     }
 }

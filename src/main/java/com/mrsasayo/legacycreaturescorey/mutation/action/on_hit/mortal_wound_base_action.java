@@ -4,11 +4,11 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -17,21 +17,21 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
 
     protected mortal_wound_base_action(mutation_action_config config,
             double defaultChance,
-            RegistryEntry<net.minecraft.entity.effect.StatusEffect> defaultEffect,
+            Holder<net.minecraft.world.effect.MobEffect> defaultEffect,
             int defaultDurationSeconds) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
-        RegistryEntry<net.minecraft.entity.effect.StatusEffect> fallbackEffect = resolveEffect(config, defaultEffect);
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        Holder<net.minecraft.world.effect.MobEffect> fallbackEffect = resolveEffect(config, defaultEffect);
         int durationTicks = resolveDurationTicks(config, defaultDurationSeconds * 20);
         this.effects = resolveEffects(config, fallbackEffect, durationTicks);
     }
 
-    private RegistryEntry<net.minecraft.entity.effect.StatusEffect> resolveEffect(mutation_action_config config,
-            RegistryEntry<net.minecraft.entity.effect.StatusEffect> fallback) {
-        Identifier override = config.getIdentifier("effect", null);
+    private Holder<net.minecraft.world.effect.MobEffect> resolveEffect(mutation_action_config config,
+            Holder<net.minecraft.world.effect.MobEffect> fallback) {
+        ResourceLocation override = config.getIdentifier("effect", null);
         if (override != null) {
-            net.minecraft.entity.effect.StatusEffect resolved = Registries.STATUS_EFFECT.get(override);
+            net.minecraft.world.effect.MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(override);
             if (resolved != null) {
-                RegistryEntry<net.minecraft.entity.effect.StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(resolved);
+                Holder<net.minecraft.world.effect.MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
                 if (entry != null) {
                     return entry;
                 }
@@ -53,11 +53,11 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
     }
 
     private List<status_effect_config_parser.status_effect_config_entry> resolveEffects(mutation_action_config config,
-            RegistryEntry<net.minecraft.entity.effect.StatusEffect> fallbackEffect,
+            Holder<net.minecraft.world.effect.MobEffect> fallbackEffect,
             int fallbackDurationTicks) {
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
         if (fallbackEffect != null && fallbackDurationTicks > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(fallbackEffect,
+            fallback = List.direct(status_effect_config_parser.createEntry(fallbackEffect,
                     fallbackDurationTicks,
                     0,
                     true,
@@ -75,7 +75,7 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
         status_effect_config_parser.applyEffects(victim, effects);
     }
 
-    protected static RegistryEntry<net.minecraft.entity.effect.StatusEffect> asEntry(net.minecraft.entity.effect.StatusEffect effect) {
-        return Registries.STATUS_EFFECT.getEntry(effect);
+    protected static Holder<net.minecraft.world.effect.MobEffect> asEntry(net.minecraft.world.effect.MobEffect effect) {
+        return BuiltInRegistries.MOB_EFFECT.getEntry(effect);
     }
 }

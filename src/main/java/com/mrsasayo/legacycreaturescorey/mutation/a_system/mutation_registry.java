@@ -1,14 +1,14 @@
 package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +22,8 @@ import java.util.Set;
  * Administración central de mutaciones cargadas desde JSON con un pequeño respaldo en código.
  */
 public final class mutation_registry {
-    private static final Map<Identifier, mutation> MUTATIONS = new LinkedHashMap<>();
-    private static final Set<Identifier> DYNAMIC_MUTATION_IDS = new HashSet<>();
+    private static final Map<ResourceLocation, mutation> MUTATIONS = new LinkedHashMap<>();
+    private static final Set<ResourceLocation> DYNAMIC_MUTATION_IDS = new HashSet<>();
 
     private mutation_registry() {}
 
@@ -31,7 +31,7 @@ public final class mutation_registry {
         Legacycreaturescorey.LOGGER.debug("Mutation registry initialized");
     }
 
-    public static mutation get(Identifier id) {
+    public static mutation get(ResourceLocation id) {
         return MUTATIONS.get(id);
     }
 
@@ -40,7 +40,7 @@ public final class mutation_registry {
     }
 
     public static void registerDynamicMutations(Collection<mutation> mutations) {
-        for (Identifier id : DYNAMIC_MUTATION_IDS) {
+        for (ResourceLocation id : DYNAMIC_MUTATION_IDS) {
             MUTATIONS.remove(id);
         }
         DYNAMIC_MUTATION_IDS.clear();
@@ -58,7 +58,7 @@ public final class mutation_registry {
         }
 
         for (mutation m : source) {
-            Identifier id = m.getId();
+            ResourceLocation id = m.getId();
             if (MUTATIONS.containsKey(id) && !DYNAMIC_MUTATION_IDS.contains(id)) {
                 Legacycreaturescorey.LOGGER.warn("⚠️ Reemplazando mutación existente {} mediante {}", id, loadedFromJson ? "JSON" : "respaldo");
             }
@@ -86,11 +86,11 @@ public final class mutation_registry {
     }
 
     private static mutation createExtraHealthMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "extra_health");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "extra_health");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
                 if (attribute == null) {
                     return;
                 }
@@ -101,7 +101,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MAX_HEALTH);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.35D);
                     entity.setHealth((float) Math.min(entity.getHealth(), entity.getMaxHealth()));
@@ -111,11 +111,11 @@ public final class mutation_registry {
     }
 
     private static mutation createSpeedMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "swiftness");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "swiftness");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 1) {
             @Override
             public void onApply(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute == null) {
                     return;
                 }
@@ -124,7 +124,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+                AttributeInstance attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() / 1.20D);
                 }
@@ -133,11 +133,11 @@ public final class mutation_registry {
     }
 
     private static mutation createKnockbackResistanceMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "fortitude");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "fortitude");
         return new abstract_mutation(id, mutation_type.PASSIVE_ATTRIBUTE, 2) {
             @Override
             public void onApply(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute == null) {
                     return;
                 }
@@ -146,7 +146,7 @@ public final class mutation_registry {
 
             @Override
             public void onRemove(LivingEntity entity) {
-                EntityAttributeInstance attribute = entity.getAttributeInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
+                AttributeInstance attribute = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
                 if (attribute != null) {
                     attribute.setBaseValue(attribute.getBaseValue() - 0.40D);
                 }
@@ -155,36 +155,36 @@ public final class mutation_registry {
     }
 
     private static mutation createVenomStrikeMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "venom_strike");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "venom_strike");
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 2) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
                 if (target.getEntityWorld().isClient()) {
                     return;
                 }
-                if (target.hasStatusEffect(StatusEffects.POISON)) {
+                if (target.hasEffect(MobEffects.POISON)) {
                     return;
                 }
-                target.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 100, 0));
+                target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
             }
         };
     }
 
     private static mutation createCripplingBlowMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "crippling_blow");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "crippling_blow");
         return new abstract_mutation(id, mutation_type.PASSIVE_ON_HIT, 1) {
             @Override
             public void onHit(LivingEntity attacker, LivingEntity target) {
                 if (target.getEntityWorld().isClient()) {
                     return;
                 }
-                target.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 1));
+                target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 1));
             }
         };
     }
 
     private static mutation createRegenerationMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "regrowth");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "regrowth");
         return new abstract_mutation(id, mutation_type.ACTIVE, 2) {
             @Override
             public void onTick(LivingEntity entity) {
@@ -199,7 +199,7 @@ public final class mutation_registry {
     }
 
     private static mutation createDamageAuraMutation() {
-        Identifier id = Identifier.of(Legacycreaturescorey.MOD_ID, "destructive_aura");
+        ResourceLocation id = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "destructive_aura");
         return new abstract_mutation(id, mutation_type.ACTIVE, 3) {
             @Override
             public void onTick(LivingEntity entity) {
@@ -207,9 +207,9 @@ public final class mutation_registry {
                     return;
                 }
 
-                ServerWorld world = (ServerWorld) entity.getEntityWorld();
+                ServerLevel world = (ServerLevel) entity.getEntityWorld();
                 var damageSource = world.getDamageSources().magic();
-                for (PlayerEntity player : world.getPlayers()) {
+                for (Player player : world.getPlayers()) {
                     if (!player.isAlive() || player.isCreative() || player.isSpectator()) {
                         continue;
                     }

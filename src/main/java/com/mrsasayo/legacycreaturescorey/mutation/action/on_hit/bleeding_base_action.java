@@ -4,9 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ abstract class bleeding_base_action extends proc_on_hit_action {
             float[] defaultPulses,
             int defaultIntervalTicks,
             int defaultEffectLevel) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.damagePulses = parsePulses(config, defaultPulses);
         this.intervalTicks = resolveInterval(config, defaultIntervalTicks);
         int configuredLevel = config.getInt("effect_level", defaultEffectLevel);
@@ -71,7 +71,7 @@ abstract class bleeding_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         bleeding_effect_helper.apply(world, attacker, victim, damagePulses, intervalTicks, effectAmplifier);

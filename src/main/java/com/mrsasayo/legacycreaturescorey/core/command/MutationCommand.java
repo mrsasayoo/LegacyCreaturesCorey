@@ -14,13 +14,13 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.text.Text;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.permissionLevel.entity.Entity;
+import net.minecraft.permissionLevel.entity.Mob;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,27 +36,27 @@ public final class MutationCommand {
         });
     }
 
-    private static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
-        LiteralArgumentBuilder<ServerCommandSource> root = CommandManager.literal("mutation")
+    private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("mutation")
             .requires(src -> src.hasPermissionLevel(2)); // only ops
 
         // /mutation <target> assign natural <type> <mutation>
         var targetArg =
-            CommandManager.argument("target", EntityArgumentType.entity())
-                .then(CommandManager.literal("assign")
-                    .then(CommandManager.literal("natural")
-                        .then(CommandManager.argument("type", StringArgumentType.string())
+            Commands.argument("target", EntityArgument.entity())
+                .then(Commands.literal("assign")
+                    .then(Commands.literal("natural")
+                        .then(Commands.argument("type", StringArgumentType.string())
                             .suggests(MutationCommand::suggestTypes)
-                            .then(CommandManager.argument("mutation", StringArgumentType.greedyString())
+                            .then(Commands.argument("mutation", StringArgumentType.greedyString())
                                 .suggests(MutationCommand::suggestMutationsByType)
                                 .executes(ctx -> executeAssign(ctx, false))
                             )
                         )
                     )
-                    .then(CommandManager.literal("force")
-                        .then(CommandManager.argument("type", StringArgumentType.string())
+                    .then(Commands.literal("force")
+                        .then(Commands.argument("type", StringArgumentType.string())
                             .suggests(MutationCommand::suggestTypes)
-                            .then(CommandManager.argument("mutation", StringArgumentType.greedyString())
+                            .then(Commands.argument("mutation", StringArgumentType.greedyString())
                                 .suggests(MutationCommand::suggestMutationsByType)
                                 .executes(ctx -> executeAssign(ctx, true))
                             )
@@ -65,19 +65,19 @@ public final class MutationCommand {
                 );
 
         // /mutation <target> list
-        targetArg = targetArg.then(CommandManager.literal("list")
+        targetArg = targetArg.then(Commands.literal("list")
             .executes(ctx -> executeList(ctx)));
 
         // /mutation <target> remove <mutation>
-        targetArg = targetArg.then(CommandManager.literal("remove")
-            .then(CommandManager.argument("mutation", StringArgumentType.greedyString())
+        targetArg = targetArg.then(Commands.literal("remove")
+            .then(Commands.argument("mutation", StringArgumentType.greedyString())
                 .suggests(MutationCommand::suggestMutationsByType)
                 .executes(ctx -> executeRemove(ctx))
             )
         );
 
         // /mutation <target> clear
-        targetArg = targetArg.then(CommandManager.literal("clear")
+        targetArg = targetArg.then(Commands.literal("clear")
             .executes(ctx -> executeClear(ctx)));
 
         root.then(targetArg);
@@ -85,14 +85,14 @@ public final class MutationCommand {
         dispatcher.register(root);
     }
 
-    private static CompletableFuture<Suggestions> suggestTypes(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestTypes(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         for (mutation_type t : mutation_type.values()) {
-            builder.suggest(t.name());
+            builder.suggest(t.textName());
         }
         return builder.buildFuture();
     }
 
-    private static CompletableFuture<Suggestions> suggestMutationsByType(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestMutationsByType(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         String typeStr;
         try {
             typeStr = StringArgumentType.getString(ctx, "type");
@@ -115,31 +115,31 @@ public final class MutationCommand {
         return builder.buildFuture();
     }
 
-    private static int executeAssign(CommandContext<ServerCommandSource> ctx, boolean force) {
-        ServerCommandSource src = ctx.getSource();
+    private static int executeAssign(CommandContext<CommandSourceStack> ctx, boolean force) {
+        CommandSourceStack src = ctx.getSource();
         Entity targetEntity;
         try {
-            targetEntity = EntityArgumentType.getEntity(ctx, "target");
+            targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendError(Text.literal("Target entity not found."));
+            src.sendFailure(Component.literal("Target entity not found."));
             return 0;
         }
 
-        if (!(targetEntity instanceof MobEntity mob)) {
-            src.sendError(Text.literal("Target is not a mob entity."));
+        if (!(targetEntity instanceof Mob mob)) {
+            src.sendFailure(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        Identifier mid = Identifier.tryParse(mutationIdStr);
+        ResourceLocation mid = ResourceLocation.tryBuild(mutationIdStr);
         if (mid == null) {
-            src.sendError(Text.literal("Invalid mutation id: " + mutationIdStr));
+            src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
         }
 
         mutation mut = mutation_registry.get(mid);
         if (mut == null) {
-            src.sendError(Text.literal("Unknown mutation: " + mid.toString()));
+            src.sendFailure(Component.literal("Unknown mutation: " + mid.toString()));
             return 0;
         }
 
@@ -147,23 +147,23 @@ public final class MutationCommand {
 
         // If not forcing, validate restrictions, compatibility and budget and provide detailed reasons
         if (!force) {
-            List<Identifier> existing = new ArrayList<>(data.getMutations());
+            List<ResourceLocation> existing = new ArrayList<>(data.getMutations());
             String reason = mut.getApplyFailureReason(mob, existing);
             if (reason != null) {
-                src.sendError(Text.literal("Cannot assign mutation: " + reason));
+                src.sendFailure(Component.literal("Cannot assign mutation: " + reason));
                 return 0;
             }
 
             // compute remaining PM
             int budget = getBudgetForTier(data.getTier());
             int used = 0;
-            for (Identifier id : data.getMutations()) {
+            for (ResourceLocation id : data.getMutations()) {
                 mutation m = mutation_registry.get(id);
                 if (m != null) used += m.getCost();
             }
             int remaining = budget - used;
             if (mut.getCost() > remaining) {
-                src.sendError(Text.literal("Not enough mutation points remaining for this mob (remaining=" + remaining + ")"));
+                src.sendFailure(Component.literal("Not enough mutation points remaining for this mob (remaining=" + remaining + ")"));
                 return 0;
             }
         }
@@ -172,39 +172,39 @@ public final class MutationCommand {
         try {
             mut.onApply(mob);
             data.addMutation(mid);
-            src.sendFeedback(() -> Text.literal("Assigned mutation " + mid + " to " + mob.getName().getString()), true);
-            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getName(), mid, mob.getType().getTranslationKey(), force);
+            src.sendSuccess(() -> Component.literal("Assigned mutation " + mid + " to " + mob.getTextName().getString()), true);
+            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getTextName(), mid, mob.getType().getTranslationKey(), force);
             return 1;
         } catch (Exception e) {
-            src.sendError(Text.literal("Failed to apply mutation: " + e.getMessage()));
+            src.sendFailure(Component.literal("Failed to apply mutation: " + e.getMessage()));
             return 0;
         }
     }
 
-    private static int executeList(CommandContext<ServerCommandSource> ctx) {
-        ServerCommandSource src = ctx.getSource();
+    private static int executeList(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack src = ctx.getSource();
         Entity targetEntity;
         try {
-            targetEntity = EntityArgumentType.getEntity(ctx, "target");
+            targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendError(Text.literal("Target entity not found."));
+            src.sendFailure(Component.literal("Target entity not found."));
             return 0;
         }
 
-        if (!(targetEntity instanceof MobEntity mob)) {
-            src.sendError(Text.literal("Target is not a mob entity."));
+        if (!(targetEntity instanceof Mob mob)) {
+            src.sendFailure(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         var list = data.getMutations();
         if (list.isEmpty()) {
-            src.sendFeedback(() -> Text.literal("No mutations assigned."), true);
+            src.sendSuccess(() -> Component.literal("No mutations assigned."), true);
             return 1;
         }
 
         StringBuilder sb = new StringBuilder();
-        for (Identifier id : list) {
+        for (ResourceLocation id : list) {
             mutation m = mutation_registry.get(id);
             sb.append(id.toString());
             if (m != null) {
@@ -217,78 +217,78 @@ public final class MutationCommand {
     String out = sb.toString();
     if (out.endsWith(", ")) out = out.substring(0, out.length() - 2);
     final String outFinal = out;
-    src.sendFeedback(() -> Text.literal("Mutations: " + outFinal), true);
+    src.sendSuccess(() -> Component.literal("Mutations: " + outFinal), true);
         return 1;
     }
 
-    private static int executeRemove(CommandContext<ServerCommandSource> ctx) {
-        ServerCommandSource src = ctx.getSource();
+    private static int executeRemove(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack src = ctx.getSource();
         Entity targetEntity;
         try {
-            targetEntity = EntityArgumentType.getEntity(ctx, "target");
+            targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendError(Text.literal("Target entity not found."));
+            src.sendFailure(Component.literal("Target entity not found."));
             return 0;
         }
 
-        if (!(targetEntity instanceof MobEntity mob)) {
-            src.sendError(Text.literal("Target is not a mob entity."));
+        if (!(targetEntity instanceof Mob mob)) {
+            src.sendFailure(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         String mutationIdStr = StringArgumentType.getString(ctx, "mutation");
-        Identifier mid = Identifier.tryParse(mutationIdStr);
+        ResourceLocation mid = ResourceLocation.tryBuild(mutationIdStr);
         if (mid == null) {
-            src.sendError(Text.literal("Invalid mutation id: " + mutationIdStr));
+            src.sendFailure(Component.literal("Invalid mutation id: " + mutationIdStr));
             return 0;
         }
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         if (!data.getMutations().contains(mid)) {
-            src.sendError(Text.literal("Entity does not have mutation " + mid));
+            src.sendFailure(Component.literal("Entity does not have mutation " + mid));
             return 0;
         }
 
         mutation m = mutation_registry.get(mid);
         try {
-            if (m != null) m.onRemove(mob);
+            if (m != null) m.onRemoval(mob);
         } catch (Exception e) {
             // continue with removal anyway
             Legacycreaturescorey.LOGGER.warn("Error while calling onRemove for {}: {}", mid, e.getMessage());
         }
 
         data.removeMutation(mid);
-        src.sendFeedback(() -> Text.literal("Removed mutation " + mid + " from " + mob.getName().getString()), true);
+        src.sendSuccess(() -> Component.literal("Removed mutation " + mid + " from " + mob.getTextName().getString()), true);
         return 1;
     }
 
-    private static int executeClear(CommandContext<ServerCommandSource> ctx) {
-        ServerCommandSource src = ctx.getSource();
+    private static int executeClear(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack src = ctx.getSource();
         Entity targetEntity;
         try {
-            targetEntity = EntityArgumentType.getEntity(ctx, "target");
+            targetEntity = EntityArgument.getEntity(ctx, "target");
         } catch (Exception e) {
-            src.sendError(Text.literal("Target entity not found."));
+            src.sendFailure(Component.literal("Target entity not found."));
             return 0;
         }
 
-        if (!(targetEntity instanceof MobEntity mob)) {
-            src.sendError(Text.literal("Target is not a mob entity."));
+        if (!(targetEntity instanceof Mob mob)) {
+            src.sendFailure(Component.literal("Target is not a mob entity."));
             return 0;
         }
 
         MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         var list = new ArrayList<>(data.getMutations());
-        for (Identifier id : list) {
+        for (ResourceLocation id : list) {
             mutation m = mutation_registry.get(id);
             try {
-                if (m != null) m.onRemove(mob);
+                if (m != null) m.onRemoval(mob);
             } catch (Exception e) {
                 Legacycreaturescorey.LOGGER.warn("Error while calling onRemove for {}: {}", id, e.getMessage());
             }
         }
         data.clearMutations();
-        src.sendFeedback(() -> Text.literal("Cleared " + list.size() + " mutations from " + mob.getName().getString()), true);
+        src.sendSuccess(() -> Component.literal("Cleared " + list.size() + " mutations from " + mob.getTextName().getString()), true);
         return 1;
     }
 

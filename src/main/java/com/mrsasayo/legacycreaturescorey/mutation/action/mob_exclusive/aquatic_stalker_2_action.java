@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.DrownedEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.phys.Vec3;
 
 public final class aquatic_stalker_2_action extends aquatic_stalker_base_action {
     private final double minDistanceSq;
@@ -20,7 +20,7 @@ public final class aquatic_stalker_2_action extends aquatic_stalker_base_action 
 
     @Override
     public void onTick(LivingEntity entity) {
-        DrownedEntity drowned = asServerDrowned(entity);
+        Drowned drowned = asServerDrowned(entity);
         if (drowned == null || !drowned.isSubmergedInWater()) {
             return;
         }
@@ -32,14 +32,14 @@ public final class aquatic_stalker_2_action extends aquatic_stalker_base_action 
         if (target == null) {
             return;
         }
-        double distanceSq = drowned.squaredDistanceTo(target);
+        double distanceSq = drowned.distanceToSqr(target);
         if (distanceSq < minDistanceSq || distanceSq > maxDistanceSq) {
             return;
         }
-        Vec3d direction = new Vec3d(target.getX() - drowned.getX(),
+        Vec3 direction = new Vec3(target.getX() - drowned.getX(),
                 target.getY() - drowned.getY(),
                 target.getZ() - drowned.getZ()).normalize();
-        drowned.setVelocity(drowned.getVelocity().add(direction.multiply(dashSpeed)));
+        drowned.setVelocity(drowned.getVelocity().atLowerCornerWithOffset(direction.scale(dashSpeed)));
         drowned.velocityModified = true;
         handler.setCooldown(drowned, cooldownTicks);
     }

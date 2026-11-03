@@ -3,10 +3,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerLevel;
 
 public final class DamageAuraAction implements mutation_action {
     private final float amount;
@@ -28,9 +28,9 @@ public final class DamageAuraAction implements mutation_action {
             return;
         }
 
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         DamageSource source = world.getDamageSources().magic();
-        for (PlayerEntity player : world.getPlayers(player -> player.isAlive() && !player.isCreative() && !player.isSpectator())) {
+        for (Player player : world.getPlayers(player -> player.isAlive() && !player.isCreative() && !player.isSpectator())) {
             if (player.squaredDistanceTo(entity) <= range * range) {
                 player.damage(world, source, amount);
             }

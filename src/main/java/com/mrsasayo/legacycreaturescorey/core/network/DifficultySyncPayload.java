@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.core.network;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Payload enviado al cliente con los valores de dificultad para mostrar en HUD.
@@ -12,13 +12,13 @@ import net.minecraft.util.Identifier;
 public record DifficultySyncPayload(int globalDifficulty,
                                     int maxGlobalDifficulty,
                                     int personalDifficulty,
-                                    boolean hudEnabled) implements CustomPayload {
+                                    boolean hudEnabled) implements CustomPacketPayload {
 
-    public static final Id<DifficultySyncPayload> ID = new Id<>(Identifier.of(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
+    public static final Id<DifficultySyncPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "difficulty_sync"));
 
-    public static final PacketCodec<RegistryByteBuf, DifficultySyncPayload> CODEC = new PacketCodec<>() {
+    public static final StreamCodec<RegistryFriendlyByteBuf, DifficultySyncPayload> CODEC = new StreamCodec<>() {
         @Override
-        public DifficultySyncPayload decode(RegistryByteBuf buf) {
+        public DifficultySyncPayload decode(RegistryFriendlyByteBuf buf) {
             int global = buf.readVarInt();
             int maxGlobal = buf.readVarInt();
             int personal = buf.readVarInt();
@@ -27,7 +27,7 @@ public record DifficultySyncPayload(int globalDifficulty,
         }
 
         @Override
-        public void encode(RegistryByteBuf buf, DifficultySyncPayload value) {
+        public void encode(RegistryFriendlyByteBuf buf, DifficultySyncPayload value) {
             buf.writeVarInt(value.globalDifficulty());
             buf.writeVarInt(value.maxGlobalDifficulty());
             buf.writeVarInt(value.personalDifficulty());

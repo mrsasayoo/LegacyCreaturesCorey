@@ -1,14 +1,14 @@
 package com.mrsasayo.legacycreaturescorey.mutation.util;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Locale;
 
@@ -17,33 +17,33 @@ import java.util.Locale;
  */
 public final class attribute_mutation_action implements mutation_action {
     private final double amount;
-    private final RegistryEntry<EntityAttribute> attributeEntry;
-    private final EntityAttribute attributeType;
-    private final Identifier modifierId;
-    private final EntityAttributeModifier.Operation operation;
+    private final Holder<Attribute> attributeEntry;
+    private final Attribute attributeType;
+    private final ResourceLocation modifierId;
+    private final AttributeModifier.Operation operation;
 
-    public attribute_mutation_action(Identifier attributeId, Mode mode, double amount) {
+    public attribute_mutation_action(ResourceLocation attributeId, Mode mode, double amount) {
         this(attributeId, mode, amount, null);
     }
 
-    public attribute_mutation_action(Identifier attributeId,
+    public attribute_mutation_action(ResourceLocation attributeId,
             Mode mode,
             double amount,
-            Identifier preferredId) {
+            ResourceLocation preferredId) {
         this.amount = amount;
-        EntityAttribute resolved = null;
-        RegistryEntry<EntityAttribute> entry = null;
-        if (Registries.ATTRIBUTE.containsId(attributeId)) {
-            resolved = Registries.ATTRIBUTE.get(attributeId);
+        Attribute resolved = null;
+        Holder<Attribute> entry = null;
+        if (BuiltInRegistries.ATTRIBUTE.containsId(attributeId)) {
+            resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId);
             if (resolved != null) {
-                entry = Registries.ATTRIBUTE.getEntry(resolved);
+                entry = BuiltInRegistries.ATTRIBUTE.getEntry(resolved);
             }
         }
         this.attributeEntry = entry;
         this.attributeType = resolved;
         this.operation = mode == Mode.ADD
-                ? EntityAttributeModifier.Operation.ADD_VALUE
-            : EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE;
+                ? AttributeModifier.Operation.ADD_VALUE
+            : AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
         this.modifierId = preferredId != null
             ? preferredId
             : buildModifierId(attributeId, mode, amount);
@@ -51,43 +51,43 @@ public final class attribute_mutation_action implements mutation_action {
 
     @Override
     public void onApply(LivingEntity entity) {
-        EntityAttributeInstance instance = resolveInstance(entity);
+        AttributeInstance instance = resolveInstance(entity);
         if (instance == null) {
             return;
         }
         removeModifier(instance);
         double before = instance.getValue();
-        EntityAttributeModifier modifier = new EntityAttributeModifier(modifierId, amount, operation);
-        instance.addPersistentModifier(modifier);
+        AttributeModifier modifier = new AttributeModifier(modifierId, amount, operation);
+        instance.addPermanentModifier(modifier);
         handleMaxHealthAdjustment(entity, before, instance.getValue());
     }
 
     @Override
     public void onRemove(LivingEntity entity) {
-        EntityAttributeInstance instance = resolveInstance(entity);
+        AttributeInstance instance = resolveInstance(entity);
         if (instance == null) {
             return;
         }
         double before = instance.getValue();
         removeModifier(instance);
         double after = instance.getValue();
-        if (attributeType == EntityAttributes.MAX_HEALTH && after < before) {
+        if (attributeType == Attributes.MAX_HEALTH && after < before) {
             entity.setHealth((float) Math.min(entity.getHealth(), after));
         }
     }
 
-    private EntityAttributeInstance resolveInstance(LivingEntity entity) {
-        return attributeEntry == null ? null : entity.getAttributeInstance(attributeEntry);
+    private AttributeInstance resolveInstance(LivingEntity entity) {
+        return attributeEntry == null ? null : entity.getAttribute(attributeEntry);
     }
 
-    private void removeModifier(EntityAttributeInstance instance) {
+    private void removeModifier(AttributeInstance instance) {
         if (instance.hasModifier(modifierId)) {
             instance.removeModifier(modifierId);
         }
     }
 
     private void handleMaxHealthAdjustment(LivingEntity entity, double before, double after) {
-        if (attributeType != EntityAttributes.MAX_HEALTH) {
+        if (attributeType != Attributes.MAX_HEALTH) {
             return;
         }
         if (after > before) {
@@ -97,12 +97,12 @@ public final class attribute_mutation_action implements mutation_action {
         }
     }
 
-    private Identifier buildModifierId(Identifier attributeId, Mode mode, double amount) {
+    private ResourceLocation buildModifierId(ResourceLocation attributeId, Mode mode, double amount) {
         String namespace = Legacycreaturescorey.MOD_ID;
         String attrPath = attributeId.getNamespace() + "_" + attributeId.getPath().replace('.', '_');
         String bits = Long.toHexString(Double.doubleToLongBits(amount));
-        String suffix = mode.name().toLowerCase(Locale.ROOT) + "_" + bits;
-        return Identifier.of(namespace, "passive_" + attrPath + "_" + suffix);
+        String suffix = mode.name().toLowerCase(Locale.WRITABLE_REGISTRY) + "_" + bits;
+        return ResourceLocation.direct(namespace, "passive_" + attrPath + "_" + suffix);
     }
 
     public enum Mode {
@@ -110,7 +110,7 @@ public final class attribute_mutation_action implements mutation_action {
         MULTIPLY;
 
         public static Mode fromString(String raw) {
-            return valueOf(raw.trim().toUpperCase(Locale.ROOT));
+            return valueOf(raw.trim().toUpperCase(Locale.WRITABLE_REGISTRY));
         }
     }
 }

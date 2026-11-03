@@ -5,14 +5,14 @@ import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.core.component.PlayerDifficultyData;
 import com.mrsasayo.legacycreaturescorey.core.config.domain.antifarm_config;
 import com.mrsasayo.legacycreaturescorey.core.config.domain.difficulty_config;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public final class EffectiveDifficultyCalculator {
     private EffectiveDifficultyCalculator() {
     }
 
-    public static int calculate(ServerWorld world, BlockPos origin) {
+    public static int calculate(ServerLevel world, BlockPos origin) {
         MinecraftServer server = world.getServer();
         if (server == null) {
             return 0;
@@ -30,7 +30,7 @@ public final class EffectiveDifficultyCalculator {
         double centerY = origin.getY() + 0.5D;
         double centerZ = origin.getZ() + 0.5D;
 
-        List<ServerPlayerEntity> dimensionPlayers = world.getPlayers(player -> !player.isSpectator());
+        List<ServerPlayer> dimensionPlayers = world.getPlayers(player -> !player.isSpectator());
 
         CoreyServerState state = CoreyServerState.get(server);
         int globalDifficulty = state.getGlobalDifficulty();
@@ -42,10 +42,10 @@ public final class EffectiveDifficultyCalculator {
         double radius = difficulty_config.getEffectiveDifficultyRadius();
 
 
-        List<ServerPlayerEntity> relevantPlayers;
+        List<ServerPlayer> relevantPlayers;
         if (radius > 0.0D) {
             double radiusSq = radius * radius;
-            relevantPlayers = dimensionPlayers.stream()
+            relevantPlayers = dimensionPlayers.rangeClosed()
                 .filter(player -> player.squaredDistanceTo(centerX, centerY, centerZ) <= radiusSq)
                 .toList();
         } else {
@@ -62,7 +62,7 @@ public final class EffectiveDifficultyCalculator {
     double biomeMultiplier = boostedBiome ? difficulty_config.getBiomeDifficultyMultiplier() : 1.0D;
     double antiFarmMultiplier = resolveAntiFarmMultiplier(state, origin);
 
-        for (ServerPlayerEntity player : relevantPlayers) {
+        for (ServerPlayer player : relevantPlayers) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             double contextualDifficulty = (globalDifficulty + data.getPlayerDifficulty()) * 0.5D;
             contextualDifficulty *= biomeMultiplier;
@@ -91,9 +91,9 @@ public final class EffectiveDifficultyCalculator {
         return (int) Math.ceil(average);
     }
 
-    private static boolean isBoostedBiome(ServerWorld world, BlockPos origin) {
-        RegistryEntry<Biome> biome = world.getBiome(origin);
-        Identifier biomeId = biome.getKey().map(key -> key.getValue()).orElse(null);
+    private static boolean isBoostedBiome(ServerLevel world, BlockPos origin) {
+        Holder<Biome> biome = world.getBiome(origin);
+        ResourceLocation biomeId = biome.unwrapKey().map(key -> key.getValue()).orElse(null);
         if (biomeId == null) {
             return false;
         }
@@ -123,7 +123,7 @@ public final class EffectiveDifficultyCalculator {
         }
 
         ChunkPos chunkPos = new ChunkPos(origin);
-        ChunkActivityData data = state.getChunkActivity(chunkPos.toLong());
+        ChunkActivityData data = state.getChunkActivity(chunkPos.asLong());
         if (data == null) {
             return 1.0D;
         }

@@ -4,18 +4,18 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
+import net.minecraft.level.entity.Entity;
+import net.minecraft.level.entity.LivingEntity;
+import net.minecraft.level.entity.ai.attributes.Attribute;
+import net.minecraft.level.entity.ai.attributes.AttributeInstance;
+import net.minecraft.level.entity.ai.attributes.AttributeModifier;
+import net.minecraft.level.entity.ai.attributes.Attributes;
+import net.minecraft.level.entity.Mob;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.level.phys.AABB;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,9 +29,9 @@ import java.util.Set;
  * Applies an attribute modifier to nearby entities while the aura is active.
  */
 public final class AttributeAuraAction implements mutation_action {
-    private final Identifier attributeId;
-    private RegistryEntry<EntityAttribute> attribute;
-    private EntityAttribute attributeType;
+    private final ResourceLocation attributeId;
+    private Holder<Attribute> attribute;
+    private Attribute attributeType;
     private boolean loggedMissingAttribute;
     private final Operation operation;
     private final double amount;
@@ -39,9 +39,9 @@ public final class AttributeAuraAction implements mutation_action {
     private final Target target;
     private final boolean excludeSelf;
 
-    private final Map<LivingEntity, Identifier> appliedModifiers = new HashMap<>();
+    private final Map<LivingEntity, ResourceLocation> appliedModifiers = new HashMap<>();
 
-    public AttributeAuraAction(Identifier attributeId, Operation operation, double amount, double radius, Target target, boolean excludeSelf) {
+    public AttributeAuraAction(ResourceLocation attributeId, Operation operation, double amount, double radius, Target target, boolean excludeSelf) {
         this.attributeId = attributeId;
         this.operation = operation;
         this.amount = amount;
@@ -58,7 +58,7 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         Set<LivingEntity> currentTargets = findTargets(entity, world);
 
         // Apply modifiers to new targets
@@ -70,11 +70,11 @@ public final class AttributeAuraAction implements mutation_action {
         }
 
         // Remove modifiers from entities that left the aura
-        Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
+        Iterator<Map.Entry<LivingEntity, ResourceLocation>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<LivingEntity, Identifier> entry = iterator.next();
-            LivingEntity target = entry.getKey();
-            if (!currentTargets.contains(target) || !target.isAlive()) {
+            Map.Entry<LivingEntity, ResourceLocation> entry = iterator.next();
+            LivingEntity target = entry.unwrapKey();
+            if (!currentTargets.intersects(target) || !target.isAlive()) {
                 removeModifier(target, entry.getValue());
                 iterator.remove();
             }
@@ -84,10 +84,10 @@ public final class AttributeAuraAction implements mutation_action {
     @Override
     public void onRemove(LivingEntity entity) {
         // Clear any lingering modifiers when the aura is removed
-        Iterator<Map.Entry<LivingEntity, Identifier>> iterator = appliedModifiers.entrySet().iterator();
+        Iterator<Map.Entry<LivingEntity, ResourceLocation>> iterator = appliedModifiers.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<LivingEntity, Identifier> entry = iterator.next();
-            removeModifier(entry.getKey(), entry.getValue());
+            Map.Entry<LivingEntity, ResourceLocation> entry = iterator.next();
+            removeModifier(entry.unwrapKey(), entry.getValue());
             iterator.remove();
         }
     }
@@ -101,7 +101,7 @@ public final class AttributeAuraAction implements mutation_action {
     }
 
     private void resolveAttribute() {
-        EntityAttribute resolved = Registries.ATTRIBUTE.get(attributeId);
+        Attribute resolved = BuiltInRegistries.ATTRIBUTE.get(attributeId);
         if (resolved == null) {
             if (!loggedMissingAttribute) {
                 Legacycreaturescorey.LOGGER.debug("Atributo de aura {} aún no disponible", attributeId);
@@ -109,17 +109,17 @@ public final class AttributeAuraAction implements mutation_action {
             }
             return;
         }
-        this.attribute = Registries.ATTRIBUTE.getEntry(resolved);
+        this.attribute = BuiltInRegistries.ATTRIBUTE.getEntry(resolved);
         this.attributeType = resolved;
         loggedMissingAttribute = false;
     }
 
-    private Set<LivingEntity> findTargets(LivingEntity source, ServerWorld world) {
+    private Set<LivingEntity> findTargets(LivingEntity source, ServerLevel world) {
         double radiusSquared = radius * radius;
-        Box box = source.getBoundingBox().expand(radius);
+        AABB box = source.getLocalBoundsForPose().inflate(radius);
         List<? extends Entity> candidates = switch (target) {
-            case ALLY_MOBS -> world.getEntitiesByClass(MobEntity.class, box, Entity::isAlive);
-            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSquared);
+            case ALLY_MOBS -> world.getEntitiesByClass(Mob.class, box, Entity::isAlive);
+            case PLAYERS -> world.getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSquared);
             case SELF -> Collections.singletonList(source);
         };
 
@@ -135,7 +135,7 @@ public final class AttributeAuraAction implements mutation_action {
             if (excludeSelf && candidate == source) {
                 continue;
             }
-            if (source.squaredDistanceTo(living) > radiusSquared) {
+            if (source.distanceToSqr(living) > radiusSquared) {
                 continue;
             }
             results.add(living);
@@ -147,26 +147,26 @@ public final class AttributeAuraAction implements mutation_action {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        EntityAttributeInstance instance = target.getAttributeInstance(attribute);
+        AttributeInstance instance = target.getAttribute(attribute);
         if (instance == null) {
             return;
         }
-        Identifier modifierId = Identifier.of(
+        ResourceLocation modifierId = ResourceLocation.direct(
             Legacycreaturescorey.MOD_ID,
             "attribute_aura_" + Integer.toHexString(System.identityHashCode(this)) + "_" + target.getId()
         );
-        EntityAttributeModifier.Operation op = switch (operation) {
-            case ADD -> EntityAttributeModifier.Operation.ADD_VALUE;
-            case MULTIPLY_BASE -> EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE;
+        AttributeModifier.Operation op = switch (operation) {
+            case ADD -> AttributeModifier.Operation.ADD_VALUE;
+            case MULTIPLY_BASE -> AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
         };
         if (instance.hasModifier(modifierId)) {
             appliedModifiers.put(target, modifierId);
             return;
         }
-        EntityAttributeModifier modifier = new EntityAttributeModifier(modifierId, amount, op);
-        instance.addPersistentModifier(modifier);
+        AttributeModifier modifier = new AttributeModifier(modifierId, amount, op);
+        instance.addPermanentModifier(modifier);
         appliedModifiers.put(target, modifierId);
-        if (attributeType == EntityAttributes.MAX_HEALTH) {
+        if (attributeType == Attributes.MAX_HEALTH) {
             // Ensure current health is not above the new cap
             float maxHealth = target.getMaxHealth();
             if (target.getHealth() > maxHealth) {
@@ -175,11 +175,11 @@ public final class AttributeAuraAction implements mutation_action {
         }
     }
 
-    private void removeModifier(LivingEntity target, Identifier modifierId) {
+    private void removeModifier(LivingEntity target, ResourceLocation modifierId) {
         if (!ensureAttributeAvailable()) {
             return;
         }
-        EntityAttributeInstance instance = target.getAttributeInstance(attribute);
+        AttributeInstance instance = target.getAttribute(attribute);
         if (instance == null) {
             return;
         }

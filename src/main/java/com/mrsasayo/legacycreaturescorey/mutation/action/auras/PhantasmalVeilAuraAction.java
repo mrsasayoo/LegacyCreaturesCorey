@@ -4,23 +4,23 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 
 import java.util.ArrayList;
@@ -150,7 +150,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         private long lastTriggerTick;
 
         private ActiveAura(LivingEntity source, PhantasmalVeilAuraAction action, long currentTick) {
-            this.source = source;
+            this.directEntity = source;
             this.action = action;
             this.lastSeenTick = currentTick;
             this.lastTriggerTick = currentTick;
@@ -164,10 +164,10 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-        private final Map<ServerWorld, List<IllusionRecord>> clones = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerLevel, List<IllusionRecord>> clones = new WeakHashMap<>();
         private final Map<LivingEntity, IllusionRecord> cloneLookup = new WeakHashMap<>();
-        private final Map<MobEntity, ShroudState> shroudStates = new WeakHashMap<>();
+        private final Map<Mob, ShroudState> shroudStates = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {
@@ -183,31 +183,31 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, PhantasmalVeilAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (aura.source == entity && aura.action == action) {
+                if (aura.directEntity == entity && aura.action == action) {
                     aura.refresh(time);
                     return;
                 }
             }
-            list.add(new ActiveAura(entity, action, time));
+            list.offset(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, PhantasmalVeilAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
             }
-            list.removeIf(aura -> aura.source == entity && aura.action == action);
+            list.removeIf(aura -> aura.directEntity == entity && aura.action == action);
             if (list.isEmpty()) {
                 active.remove(world);
             }
         }
 
-        private void handleWorldTick(ServerWorld world) {
+        private void handleWorldTick(ServerLevel world) {
             cleanup(world);
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
@@ -217,7 +217,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             long time = world.getTime();
             for (ActiveAura aura : list) {
-                if (!aura.source.isAlive()) {
+                if (!aura.directEntity.isAlive()) {
                     continue;
                 }
                 Mode mode = aura.action.getMode();
@@ -231,21 +231,21 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             updateShroudStates(world, time);
         }
 
-        private void runHealthMirage(ServerWorld world, ActiveAura aura, long time) {
+        private void runHealthMirage(ServerLevel world, ActiveAura aura, long time) {
             if (time - aura.lastTriggerTick < aura.action.getIntervalTicks()) {
                 return;
             }
-            LivingEntity source = aura.source;
+            LivingEntity source = aura.directEntity;
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<ServerPlayerEntity> players = world
+            List<ServerPlayer> players = world
                     .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (players.isEmpty()) {
                 aura.lastTriggerTick = time;
                 return;
             }
 
-            Random random = world.random;
+            RandomSource random = world.random;
             double baseX = source.getX();
             double baseY = source.getBodyY(0.5D);
             double baseZ = source.getZ();
@@ -254,27 +254,27 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
                 double offsetX = (random.nextDouble() - 0.5D) * 0.6D;
                 double offsetY = random.nextDouble() * Math.max(0.5D, source.getHeight());
                 double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
-                ParticleEffect effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-                world.spawnParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
+                ParticleOptions effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
+                world.sendParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
                         0.0D);
             }
 
             if (random.nextBoolean()) {
-                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_HURT,
-                        SoundCategory.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
+                world.makeSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_HURT,
+                        SoundSource.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
             } else {
-                world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.ENTITY_PLAYER_LEVELUP,
-                        SoundCategory.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
+                world.makeSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_LEVELUP,
+                        SoundSource.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
             }
 
             aura.lastTriggerTick = time;
         }
 
-        private void runSpectralClones(ServerWorld world, ActiveAura aura, long time) {
+        private void runSpectralClones(ServerLevel world, ActiveAura aura, long time) {
             if (time - aura.lastTriggerTick < aura.action.getIntervalTicks()) {
                 return;
             }
-            if (!(aura.source instanceof MobEntity)) {
+            if (!(aura.directEntity instanceof Mob)) {
                 aura.lastTriggerTick = time;
                 return;
             }
@@ -284,8 +284,8 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
                 return;
             }
             int min = Math.min(aura.action.getCloneMinCount(), max);
-            Random random = world.random;
-            int count = MathHelper.nextBetween(random, min, max);
+            RandomSource random = world.random;
+            int count = Mth.nextIntBetweenInclusive(random, min, max);
             if (count <= 0) {
                 aura.lastTriggerTick = time;
                 return;
@@ -298,31 +298,31 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             aura.lastTriggerTick = time;
         }
 
-        private void runAllyShroud(ServerWorld world, ActiveAura aura, long time) {
-            if (!(aura.source instanceof MobEntity sourceMob)) {
+        private void runAllyShroud(ServerLevel world, ActiveAura aura, long time) {
+            if (!(aura.directEntity instanceof Mob sourceMob)) {
                 return;
             }
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<MobEntity> mobs = world.getEntitiesByClass(MobEntity.class, sourceMob.getBoundingBox().expand(radius),
-                    mob -> mob.isAlive() && mob != sourceMob && mob.getType().getSpawnGroup() == SpawnGroup.MONSTER
+            List<Mob> mobs = world.getEntitiesByClass(Mob.class, sourceMob.getLocalBoundsForPose().expand(radius),
+                    mob -> mob.isAlive() && mob != sourceMob && mob.effect().getSpawnGroup() == MobCategory.MONSTER
                             && sourceMob.squaredDistanceTo(mob) <= radiusSq);
             if (mobs.isEmpty()) {
                 return;
             }
 
-            for (MobEntity mob : mobs) {
+            for (Mob mob : mobs) {
                 applyShroud(world, mob, aura.action, time);
             }
         }
 
-        private void spawnClone(ServerWorld world, ActiveAura aura, long time, Random random) {
-            if (!(aura.source instanceof MobEntity sourceMob)) {
+        private void spawnClone(ServerLevel world, ActiveAura aura, long time, RandomSource random) {
+            if (!(aura.directEntity instanceof Mob sourceMob)) {
                 return;
             }
             BlockPos spawnPos = sourceMob.getBlockPos();
-            var created = sourceMob.getType().create(world, null, spawnPos, SpawnReason.TRIGGERED, false, false);
-            if (!(created instanceof MobEntity clone)) {
+            var created = sourceMob.effect().create(world, null, spawnPos, EntitySpawnReason.TRIGGERED, false, false);
+            if (!(created instanceof Mob clone)) {
                 return;
             }
             double offsetRadius = Math.min(aura.action.getRadius(), 4.0D);
@@ -336,11 +336,11 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             double y = baseY + random.nextDouble() * 0.5D;
 
             clone.refreshPositionAndAngles(x, y, z, sourceMob.getYaw(), sourceMob.getPitch());
-            clone.setAiDisabled(true);
+            clone.setNoAi(true);
             clone.setNoGravity(true);
             clone.setSilent(true);
             clone.setInvisible(false);
-            // clone.setPersistent(); // Removed to prevent categorization/persistence
+            // clone.setPersistenceRequired(); // Removed to prevent categorization/persistence
             // issues
             if (sourceMob.hasCustomName()) {
                 clone.setCustomName(sourceMob.getCustomName());
@@ -348,7 +348,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
             clone.setHealth(Math.max(1.0F, clone.getMaxHealth() * 0.25F));
             if (aura.action.shouldCloneGlow()) {
-                clone.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING,
+                clone.addEffect(new MobEffectInstance(MobEffects.GLOWING,
                         aura.action.getCloneLifetimeTicks(), 0, true, true, true));
             }
 
@@ -357,12 +357,12 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
 
             long expiry = time + aura.action.getCloneLifetimeTicks();
-            IllusionRecord record = new IllusionRecord(clone, aura.source, expiry);
-            clones.computeIfAbsent(world, ignored -> new ArrayList<>()).add(record);
+            IllusionRecord record = new IllusionRecord(clone, aura.directEntity, expiry);
+            clones.computeIfAbsent(world, ignored -> new ArrayList<>()).offset(record);
             cloneLookup.put(clone, record);
         }
 
-        private void cleanupClones(ServerWorld world, long time) {
+        private void cleanupClones(ServerLevel world, long time) {
             List<IllusionRecord> list = clones.get(world);
             if (list == null || list.isEmpty()) {
                 return;
@@ -380,7 +380,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
         }
 
-        private void applyShroud(ServerWorld world, MobEntity mob, PhantasmalVeilAuraAction action, long time) {
+        private void applyShroud(ServerLevel world, Mob mob, PhantasmalVeilAuraAction action, long time) {
             ShroudState state = shroudStates.computeIfAbsent(mob, ignored -> new ShroudState());
             state.activeThisTick = true;
             if (state.nextToggleTick <= 0L) {
@@ -396,21 +396,21 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             }
         }
 
-        private void toggleShroud(MobEntity mob, ShroudState state, long time) {
+        private void toggleShroud(Mob mob, ShroudState state, long time) {
             state.invisible = !state.invisible;
             mob.setInvisible(state.invisible);
             int delay = state.invisible ? state.invisibleTicks : state.visibleTicks;
             state.nextToggleTick = time + Math.max(2, delay);
         }
 
-        private void updateShroudStates(ServerWorld world, long time) {
+        private void updateShroudStates(ServerLevel world, long time) {
             if (shroudStates.isEmpty()) {
                 return;
             }
-            Iterator<Map.Entry<MobEntity, ShroudState>> iterator = shroudStates.entrySet().iterator();
+            Iterator<Map.Entry<Mob, ShroudState>> iterator = shroudStates.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<MobEntity, ShroudState> entry = iterator.next();
-                MobEntity mob = entry.getKey();
+                Map.Entry<Mob, ShroudState> entry = iterator.next();
+                Mob mob = entry.getKey();
                 ShroudState state = entry.getValue();
                 if (mob == null || !mob.isAlive()) {
                     iterator.remove();
@@ -432,13 +432,13 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             if (record == null) {
                 return true;
             }
-            if (entity.getEntityWorld() instanceof ServerWorld world) {
+            if (entity.level() instanceof ServerLevel world) {
                 discardClone(world, record, true, true);
             }
             return false;
         }
 
-        private void discardClone(ServerWorld world, IllusionRecord record, boolean playEffects,
+        private void discardClone(ServerLevel world, IllusionRecord record, boolean playEffects,
                 boolean removeFromRegistry) {
             cloneLookup.remove(record.illusion());
             if (removeFromRegistry) {
@@ -450,19 +450,19 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
                     }
                 }
             }
-            MobEntity clone = record.illusion();
+            Mob clone = record.illusion();
             if (playEffects) {
-                world.spawnParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
+                world.sendParticles(ParticleTypes.CLOUD, clone.getX(), clone.getBodyY(0.5D), clone.getZ(), 8, 0.4D,
                         0.2D, 0.4D, 0.01D);
-                world.playSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.ENTITY_EVOKER_CAST_SPELL,
-                        SoundCategory.HOSTILE, 0.7F, 1.4F);
+                world.makeSound(null, clone.getX(), clone.getY(), clone.getZ(), SoundEvents.EVOKER_CAST_SPELL,
+                        SoundSource.HOSTILE, 0.7F, 1.4F);
             }
             if (clone.isAlive()) {
                 clone.discard();
             }
         }
 
-        private void cleanup(ServerWorld world) {
+        private void cleanup(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;
@@ -471,7 +471,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();
-                LivingEntity source = aura.source;
+                LivingEntity source = aura.directEntity;
                 if (!source.isAlive() || time - aura.lastSeenTick > 20L) {
                     iterator.remove();
                 }
@@ -482,7 +482,7 @@ public final class PhantasmalVeilAuraAction implements mutation_action {
         }
     }
 
-    private record IllusionRecord(MobEntity illusion, LivingEntity owner, long expiryTick) {
+    private record IllusionRecord(Mob illusion, LivingEntity owner, long expiryTick) {
     }
 
     private static final class ShroudState {

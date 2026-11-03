@@ -29,10 +29,10 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-// CORRECCIÓN: usar net.minecraft.server.network.ServerPlayerEntity
+// CORRECCIÓN: usar net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,20 +91,20 @@ public class Legacycreaturescorey implements ModInitializer {
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
             if (!success) {
                 LOGGER.warn("Recarga de datapacks fallida; se conserva la configuración actual.");
-                notifyAdmins(server, Text.literal("⚠️ /reload falló; la configuración no se tocó."));
+                notifyAdmins(server, Component.literal("⚠️ /reload falló; la configuración no se tocó."));
                 return;
             }
             config_manager.reload_result result = config_manager.reload();
             if (result.success()) {
                 LOGGER.info("[Config] {}", result.message());
-                notifyAdmins(server, Text.literal("⚙️ Configuración recargada tras /reload: " + result.message()));
+                notifyAdmins(server, Component.literal("⚙️ Configuración recargada tras /reload: " + result.message()));
             } else {
                 LOGGER.warn("[Config] {}", result.message());
-                notifyAdmins(server, Text.literal("⚠️ /reload no pudo actualizar la configuración: " + result.message()));
+                notifyAdmins(server, Component.literal("⚠️ /reload no pudo actualizar la configuración: " + result.message()));
             }
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
-            if (entity instanceof ServerPlayerEntity player) {
+            if (entity instanceof ServerPlayer player) {
                 DifficultyManager.applyDeathPenalty(player);
             }
         });
@@ -113,10 +113,10 @@ public class Legacycreaturescorey implements ModInitializer {
         });
     }
 
-    private static void notifyAdmins(MinecraftServer server, Text message) {
+    private static void notifyAdmins(MinecraftServer server, Component message) {
         server.getPlayerManager().getPlayerList().forEach(player -> {
             if (player.hasPermissionLevel(2)) {
-                player.sendMessage(message, false);
+                player.sendSystemMessage(message, false);
             }
         });
     }

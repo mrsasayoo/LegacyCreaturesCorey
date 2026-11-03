@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.particles.ParticleTypes;
 
 public final class pain_link_2_action extends pain_link_base_action {
     public pain_link_2_action(mutation_action_config config) {
@@ -16,7 +16,7 @@ public final class pain_link_2_action extends pain_link_base_action {
                         14,
                         2,
                         ParticleTypes.SOUL_FIRE_FLAME,
-                        createBuff(StatusEffects.STRENGTH, secondsToTicks(5), 0),
+                        createBuff(MobEffects.STRENGTH, secondsToTicks(5), 0),
                         null));
     }
 }

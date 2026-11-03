@@ -1,39 +1,39 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
 
 abstract class ambusher_base_action implements mutation_action {
-    protected CreeperEntity asServerCreeper(LivingEntity entity) {
-        if (entity instanceof CreeperEntity creeper && !entity.getEntityWorld().isClient()) {
+    protected Creeper asServerCreeper(LivingEntity entity) {
+        if (entity instanceof Creeper creeper && !entity.getEntityWorld().isClient()) {
             return creeper;
         }
         return null;
     }
 
-    protected boolean canPlayerSee(CreeperEntity creeper, PlayerEntity player, double fovThreshold) {
-        Vec3d playerLook = player.getRotationVector();
-        Vec3d toCreeper = creeper.getEyePos().subtract(player.getEyePos()).normalize();
-        if (playerLook.dotProduct(toCreeper) < fovThreshold) {
+    protected boolean canPlayerSee(Creeper creeper, Player player, double fovThreshold) {
+        Vec3 playerLook = player.getRotationVector();
+        Vec3 toCreeper = creeper.getEyePos().subtract(player.getEyePos()).normalize();
+        if (playerLook.dot(toCreeper) < fovThreshold) {
             return false;
         }
-        RaycastContext context = new RaycastContext(
+        ClipContext context = new ClipContext(
                 player.getEyePos(),
                 creeper.getEyePos(),
-                RaycastContext.ShapeType.VISUAL,
-                RaycastContext.FluidHandling.NONE,
+                ClipContext.ShapeType.VISUAL,
+                ClipContext.FluidHandling.NONE,
                 player);
         return player.getEntityWorld().raycast(context).getType() == HitResult.Type.MISS;
     }
 
-    protected void stopMovement(CreeperEntity creeper) {
+    protected void stopMovement(Creeper creeper) {
         creeper.getNavigation().stop();
-        Vec3d velocity = creeper.getVelocity();
+        Vec3 velocity = creeper.getVelocity();
         creeper.setVelocity(0.0D, velocity.y, 0.0D);
         creeper.velocityDirty = true;
     }

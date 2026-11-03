@@ -2,17 +2,17 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
  * Partículas moradas/negras convergen hacia el centro.
  */
 public final class abyssal_maneuvers_3_action implements mutation_action {
-    private final Map<WitherEntity, vortex_state> states = new WeakHashMap<>();
+    private final Map<WitherBoss, vortex_state> states = new WeakHashMap<>();
     
     private final int cooldownTicks;
     private final int vortexDurationTicks;
@@ -46,7 +46,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof WitherEntity wither) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
             return;
         }
         
@@ -68,7 +68,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof WitherEntity wither) {
+        if (entity instanceof WitherBoss wither) {
             vortex_state state = states.remove(wither);
             if (state != null) {
                 state.destroyVortexCenter(wither);
@@ -79,18 +79,18 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
     /**
      * Crea el vórtice con un ArmorStand invisible como centro
      */
-    private void createVortex(WitherEntity wither, vortex_state state) {
-        if (!(wither.getEntityWorld() instanceof ServerWorld world)) {
+    private void createVortex(WitherBoss wither, vortex_state state) {
+        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         
         // Posición del vórtice (cerca del Wither, ligeramente adelante)
-        Vec3d witherPos = new Vec3d(wither.getX(), wither.getY(), wither.getZ());
-        Vec3d forward = wither.getRotationVector().normalize().multiply(3.0D);
-        Vec3d vortexPos = witherPos.add(forward);
+        Vec3 witherPos = new Vec3(wither.getX(), wither.getY(), wither.getZ());
+        Vec3 forward = wither.getRotationVector().normalize().scale(3.0D);
+        Vec3 vortexPos = witherPos.atLowerCornerWithOffset(forward);
         
         // Crear ArmorStand invisible como centro de gravedad
-        ArmorStandEntity centerStand = new ArmorStandEntity(EntityType.ARMOR_STAND, world);
+        ArmorStand centerStand = new ArmorStand(EntityType.ARMOR_STAND, world);
         centerStand.setPos(vortexPos.x, vortexPos.y + 1.0D, vortexPos.z);
         centerStand.setInvisible(true);
         centerStand.setNoGravity(true);
@@ -101,18 +101,18 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         
         state.vortexCenterUUID = centerStand.getUuid();
         state.vortexTimer = 0;
-        state.vortexCenter = vortexPos.add(0, 1.0D, 0);
+        state.vortexCenter = vortexPos.atLowerCornerWithOffset(0, 1.0D, 0);
         
         // Sonido de inicio del vórtice
-        world.playSound(null, vortexPos.x, vortexPos.y, vortexPos.z,
-                SoundEvents.ENTITY_WITHER_AMBIENT, SoundCategory.HOSTILE, 1.5F, 0.5F);
+        world.makeSound(null, vortexPos.x, vortexPos.y, vortexPos.z,
+                SoundEvents.WITHER_AMBIENT, SoundSource.HOSTILE, 1.5F, 0.5F);
     }
     
     /**
      * Procesa el vórtice cada tick
      */
-    private void tickVortex(WitherEntity wither, vortex_state state) {
-        if (!(wither.getEntityWorld() instanceof ServerWorld world)) {
+    private void tickVortex(WitherBoss wither, vortex_state state) {
+        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         
@@ -124,7 +124,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             return;
         }
         
-        Vec3d center = state.vortexCenter;
+        Vec3 center = state.vortexCenter;
         if (center == null) {
             state.destroyVortexCenter(wither);
             return;
@@ -138,15 +138,15 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         
         // Sonido ambiental del vórtice (cada 20 ticks)
         if (state.vortexTimer % 20 == 0) {
-            world.playSound(null, center.x, center.y, center.z,
-                    SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.HOSTILE, 0.5F, 0.3F);
+            world.makeSound(null, center.x, center.y, center.z,
+                    SoundEvents.PORTAL_AMBIENT, SoundSource.HOSTILE, 0.5F, 0.3F);
         }
     }
     
     /**
      * Genera partículas moradas/negras convergiendo al centro
      */
-    private void spawnVortexParticles(ServerWorld world, Vec3d center, int timer) {
+    private void spawnVortexParticles(ServerLevel world, Vec3 center, int timer) {
         // Ángulo de rotación basado en el tiempo
         double angle = (timer * 0.2D) % (Math.PI * 2);
         
@@ -160,17 +160,17 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double startY = center.y + (Math.sin(timer * 0.1D + i) * 1.5D);
             
             // Velocidad hacia el centro
-            Vec3d toCenter = center.subtract(startX, startY, startZ).normalize().multiply(0.3D);
+            Vec3 toCenter = center.subtract(startX, startY, startZ).normalize().scale(0.3D);
             
             // Partículas moradas (portal/enderman)
-            world.spawnParticles(ParticleTypes.PORTAL,
+            world.sendParticles(ParticleTypes.PORTAL,
                     startX, startY, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
                     0.5D);
             
             // Partículas negras (humo del alma)
-            world.spawnParticles(ParticleTypes.SOUL,
+            world.sendParticles(ParticleTypes.SOUL,
                     startX, startY + 0.5D, startZ,
                     1,
                     toCenter.x, toCenter.y, toCenter.z,
@@ -178,7 +178,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         }
         
         // Partículas en el centro (columna de energía)
-        world.spawnParticles(ParticleTypes.REVERSE_PORTAL,
+        world.sendParticles(ParticleTypes.REVERSE_PORTAL,
                 center.x, center.y, center.z,
                 5,
                 0.2D, 0.5D, 0.2D,
@@ -189,7 +189,7 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
             double spiralAngle = angle * 2 + (i * Math.PI * 2 / 3);
             double spiralRadius = 0.5D + (timer % 20) * 0.05D;
             
-            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                     center.x + Math.cos(spiralAngle) * spiralRadius,
                     center.y + (timer % 20) * 0.1D - 1.0D,
                     center.z + Math.sin(spiralAngle) * spiralRadius,
@@ -200,40 +200,40 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
     /**
      * Aplica la fuerza de atracción a jugadores cercanos (simula corriente de agua débil)
      */
-    private void applyVortexPull(ServerWorld world, Vec3d center) {
-        Box box = new Box(
+    private void applyVortexPull(ServerLevel world, Vec3 center) {
+        AABB box = new AABB(
                 center.x - pullRadius, center.y - pullRadius, center.z - pullRadius,
                 center.x + pullRadius, center.y + pullRadius, center.z + pullRadius
         );
         
-        List<PlayerEntity> players = world.getEntitiesByClass(PlayerEntity.class, box,
+        List<Player> players = world.getEntitiesByClass(Player.class, box,
                 player -> player.isAlive() && !player.isSpectator() && !player.isCreative());
         
         double radiusSq = pullRadius * pullRadius;
         
-        for (PlayerEntity player : players) {
-            double distSq = player.squaredDistanceTo(center.x, center.y, center.z);
+        for (Player player : players) {
+            double distSq = player.distanceToSqr(center.x, center.y, center.z);
             if (distSq > radiusSq || distSq < 1.0D) {
                 continue;
             }
             
-            Vec3d playerPos = new Vec3d(player.getX(), player.getY() + player.getHeight() / 2, player.getZ());
-            Vec3d toCenter = center.subtract(playerPos);
+            Vec3 playerPos = new Vec3(player.getX(), player.getY() + player.getHeight() / 2, player.getZ());
+            Vec3 toCenter = center.subtract(playerPos);
             double distance = Math.sqrt(distSq);
             
             // Fuerza inversamente proporcional a la distancia (más fuerte cerca del centro)
             double forceFactor = pullStrength * (1.0D - (distance / pullRadius));
             forceFactor = Math.min(forceFactor, maxPullSpeed);
             
-            Vec3d pullVelocity = toCenter.normalize().multiply(forceFactor);
+            Vec3 pullVelocity = toCenter.normalize().scale(forceFactor);
             
             // Aplicar velocidad suave (como corriente de agua)
-            Vec3d currentVel = player.getVelocity();
-            Vec3d newVel = currentVel.add(pullVelocity);
+            Vec3 currentVel = player.getVelocity();
+            Vec3 newVel = currentVel.atLowerCornerWithOffset(pullVelocity);
             
             // Limitar velocidad máxima
             if (newVel.length() > maxPullSpeed * 2) {
-                newVel = newVel.normalize().multiply(maxPullSpeed * 2);
+                newVel = newVel.normalize().scale(maxPullSpeed * 2);
             }
             
             player.setVelocity(newVel);
@@ -248,21 +248,21 @@ public final class abyssal_maneuvers_3_action implements mutation_action {
         private int cooldownTimer = 0;
         private int vortexTimer = 0;
         private UUID vortexCenterUUID = null;
-        private Vec3d vortexCenter = null;
+        private Vec3 vortexCenter = null;
         
         private boolean isVortexActive() {
             return vortexCenterUUID != null;
         }
         
-        private void destroyVortexCenter(WitherEntity wither) {
-            if (vortexCenterUUID != null && wither.getEntityWorld() instanceof ServerWorld world) {
+        private void destroyVortexCenter(WitherBoss wither) {
+            if (vortexCenterUUID != null && wither.getEntityWorld() instanceof ServerLevel world) {
                 // Buscar y eliminar el ArmorStand
-                world.getEntitiesByClass(ArmorStandEntity.class,
-                        wither.getBoundingBox().expand(20.0D),
+                world.getEntitiesByClass(ArmorStand.class,
+                        wither.getLocalBoundsForPose().inflate(20.0D),
                         stand -> stand.getUuid().equals(vortexCenterUUID))
                         .forEach(stand -> {
                             // Partículas de dispersión al terminar
-                            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                                     stand.getX(), stand.getY(), stand.getZ(),
                                     30, 1.0D, 1.0D, 1.0D, 0.1D);
                             stand.discard();

@@ -3,10 +3,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.util.Mth;
 
 public final class blindness_1_action extends proc_on_hit_action {
     private final int blindnessDuration;
@@ -15,7 +15,7 @@ public final class blindness_1_action extends proc_on_hit_action {
     private final int nightVisionAmplifier;
 
     public blindness_1_action(mutation_action_config config) {
-        super(MathHelper.clamp(config.getDouble("chance", 0.10D), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", 0.10D), 0.0D, 1.0D));
         this.blindnessDuration = resolveDuration(config, "blindness_duration_ticks", "blindness_duration_seconds", 80);
         this.blindnessAmplifier = Math.max(0, config.getInt("blindness_amplifier", 0));
         this.nightVisionDuration = resolveDuration(config, "night_vision_duration_ticks", "night_vision_duration_seconds", 80);
@@ -40,10 +40,10 @@ public final class blindness_1_action extends proc_on_hit_action {
             return;
         }
         if (blindnessDuration > 0) {
-            victim.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, blindnessDuration, blindnessAmplifier));
+            victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, blindnessDuration, blindnessAmplifier));
         }
         if (nightVisionDuration > 0) {
-            victim.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, nightVisionDuration, nightVisionAmplifier));
+            victim.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, nightVisionDuration, nightVisionAmplifier));
         }
     }
 }

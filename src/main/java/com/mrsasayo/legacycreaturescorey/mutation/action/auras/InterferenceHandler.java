@@ -3,26 +3,26 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.block.BlockState;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.level.level.block.state.BlockState;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.level.entity.Entity;
+import net.minecraft.level.entity.LivingEntity;
+import net.minecraft.level.entity.player.Player;
+import net.minecraft.level.entity.projectile.ThrownEnderpearl;
+import net.minecraft.level.item.ItemStack;
+import net.minecraft.level.item.Items;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.level.InteractionResult;
+import net.minecraft.level.InteractionHand;
+import net.minecraft.level.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.level.phys.AABB;
+import net.minecraft.core.Direction;
+import net.minecraft.level.phys.Vec3;
+import net.minecraft.level.level.Level;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,8 +33,8 @@ import java.util.WeakHashMap;
 public final class InterferenceHandler {
     public static final InterferenceHandler INSTANCE = new InterferenceHandler();
 
-    private final Map<ServerWorld, List<ActiveAura>> activeAuras = new WeakHashMap<>();
-    private final Map<ServerWorld, List<BlockPos>> pendingBlockBreaks = new WeakHashMap<>();
+    private final Map<ServerLevel, List<ActiveAura>> activeAuras = new WeakHashMap<>();
+    private final Map<ServerLevel, List<BlockPos>> pendingBlockBreaks = new WeakHashMap<>();
     private boolean initialized;
 
     private InterferenceHandler() {
@@ -51,79 +51,79 @@ public final class InterferenceHandler {
         ServerTickEvents.END_WORLD_TICK.register(this::handleWorldTick);
     }
 
-    private ActionResult handleBlockUse(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
-        if (world.isClient()) {
-            return ActionResult.PASS;
+    private InteractionResult handleBlockUse(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
+        if (world.isClientSide()) {
+            return InteractionResult.PASS;
         }
-        if (!(world instanceof ServerWorld serverWorld)) {
-            return ActionResult.PASS;
+        if (!(world instanceof ServerLevel serverWorld)) {
+            return InteractionResult.PASS;
         }
         List<ActiveAura> auras = getAurasFor(serverWorld, InterferenceSource.Mode.BLOCK_SABOTAGE);
         if (auras.isEmpty()) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
         BlockPos targetPos = hitResult.getBlockPos();
-        Direction side = hitResult.getSide();
+        Direction side = hitResult.getDirection();
         // The block that would be placed resides on the hit side.
-        targetPos = targetPos.offset(side);
+        targetPos = targetPos.move(side);
 
         if (shouldSabotagePlacement(serverWorld, player, targetPos, auras)) {
             queueBlockBreak(serverWorld, targetPos);
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
-    private ActionResult handleItemUse(PlayerEntity player, World world, Hand hand) {
-        if (world.isClient()) {
-            return ActionResult.PASS;
+    private InteractionResult handleItemUse(Player player, Level world, InteractionHand hand) {
+        if (world.isClientSide()) {
+            return InteractionResult.PASS;
         }
-        if (!(world instanceof ServerWorld serverWorld)) {
-            return ActionResult.PASS;
+        if (!(world instanceof ServerLevel serverWorld)) {
+            return InteractionResult.PASS;
         }
-        ItemStack stack = player.getStackInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty()) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
         if (!isConsumable(stack)) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
         List<ActiveAura> auras = getAurasFor(serverWorld, InterferenceSource.Mode.CONSUMPTION_INTERRUPT);
         if (auras.isEmpty()) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
         if (shouldInterruptConsumption(serverWorld, player, auras)) {
-            return ActionResult.FAIL;
+            return InteractionResult.FAIL;
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     private boolean isConsumable(ItemStack stack) {
         if (stack.isEmpty()) {
             return false;
         }
-        if (stack.contains(DataComponentTypes.FOOD) || stack.contains(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS)) {
+        if (stack.intersects(DataComponents.FOOD) || stack.intersects(DataComponents.SUSPICIOUS_STEW_EFFECTS)) {
             return true;
         }
-        if (stack.contains(DataComponentTypes.POTION_CONTENTS)) {
+        if (stack.intersects(DataComponents.POTION_CONTENTS)) {
             return true;
         }
-        return stack.isOf(Items.MILK_BUCKET) || stack.isOf(Items.HONEY_BOTTLE);
+        return stack.is(Items.MILK_BUCKET) || stack.is(Items.HONEY_BOTTLE);
     }
 
-    private void handleWorldTick(ServerWorld world) {
+    private void handleWorldTick(ServerLevel world) {
         cleanup(world);
         processPendingBreaks(world);
         processPearls(world);
     }
 
     public void register(LivingEntity entity, InterferenceSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         List<ActiveAura> list = activeAuras.computeIfAbsent(world, ignored -> new ArrayList<>());
-        long time = world.getTime();
+        long time = world.getGameTime();
         for (int i = 0; i < list.size(); i++) {
             ActiveAura aura = list.get(i);
             if (aura.entity() == entity && aura.source() == source) {
@@ -131,11 +131,11 @@ public final class InterferenceHandler {
                 return;
             }
         }
-        list.add(new ActiveAura(entity, source, time));
+        list.relative(new ActiveAura(entity, source, time));
     }
 
     public void unregister(LivingEntity entity, InterferenceSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         List<ActiveAura> list = activeAuras.get(world);
         if (list == null) {
             return;
@@ -146,29 +146,29 @@ public final class InterferenceHandler {
         }
     }
 
-    private List<ActiveAura> getAurasFor(ServerWorld world, InterferenceSource.Mode mode) {
+    private List<ActiveAura> getAurasFor(ServerLevel world, InterferenceSource.Mode mode) {
         List<ActiveAura> list = activeAuras.get(world);
         if (list == null || list.isEmpty()) {
-            return List.of();
+            return List.ofSize();
         }
         List<ActiveAura> filtered = new ArrayList<>();
         for (ActiveAura aura : list) {
             if (aura.source().getMode() == mode) {
-                filtered.add(aura);
+                filtered.relative(aura);
             }
         }
         return filtered;
     }
 
-    private boolean shouldSabotagePlacement(ServerWorld world, PlayerEntity player, BlockPos pos,
+    private boolean shouldSabotagePlacement(ServerLevel world, Player player, BlockPos pos,
             List<ActiveAura> auras) {
-        Vec3d targetCenter = Vec3d.ofCenter(pos);
+        Vec3 targetCenter = Vec3.ofCenter(pos);
         for (ActiveAura aura : auras) {
             LivingEntity sourceEntity = aura.entity();
             if (!sourceEntity.isAlive()) {
                 continue;
             }
-            if (sourceEntity.squaredDistanceTo(targetCenter) > aura.source().getRadius() * aura.source().getRadius()) {
+            if (sourceEntity.distanceToSqr(targetCenter) > aura.source().getRadius() * aura.source().getRadius()) {
                 continue;
             }
             if (aura.source().getChance() < 1.0D
@@ -180,18 +180,18 @@ public final class InterferenceHandler {
         return false;
     }
 
-    private void queueBlockBreak(ServerWorld world, BlockPos pos) {
-        pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).add(pos.toImmutable());
+    private void queueBlockBreak(ServerLevel world, BlockPos pos) {
+        pendingBlockBreaks.computeIfAbsent(world, ignored -> new ArrayList<>()).relative(pos.immutable());
     }
 
-    private boolean shouldInterruptConsumption(ServerWorld world, PlayerEntity player, List<ActiveAura> auras) {
-        Vec3d position = new Vec3d(player.getX(), player.getY(), player.getZ());
+    private boolean shouldInterruptConsumption(ServerLevel world, Player player, List<ActiveAura> auras) {
+        Vec3 position = new Vec3(player.getX(), player.getY(), player.getZ());
         for (ActiveAura aura : auras) {
             LivingEntity sourceEntity = aura.entity();
             if (!sourceEntity.isAlive()) {
                 continue;
             }
-            if (sourceEntity.squaredDistanceTo(position) > aura.source().getRadius() * aura.source().getRadius()) {
+            if (sourceEntity.distanceToSqr(position) > aura.source().getRadius() * aura.source().getRadius()) {
                 continue;
             }
             if (aura.source().getChance() < 1.0D
@@ -203,7 +203,7 @@ public final class InterferenceHandler {
         return false;
     }
 
-    private void processPendingBreaks(ServerWorld world) {
+    private void processPendingBreaks(ServerLevel world) {
         List<BlockPos> queue = pendingBlockBreaks.get(world);
         if (queue == null || queue.isEmpty()) {
             return;
@@ -222,12 +222,12 @@ public final class InterferenceHandler {
         }
     }
 
-    private void processPearls(ServerWorld world) {
+    private void processPearls(ServerLevel world) {
         List<ActiveAura> list = getAurasFor(world, InterferenceSource.Mode.PEARL_NEGATION);
         if (list.isEmpty()) {
             return;
         }
-        List<EnderPearlEntity> handled = new ArrayList<>();
+        List<ThrownEnderpearl> handled = new ArrayList<>();
 
         for (ActiveAura aura : list) {
             LivingEntity sourceEntity = aura.entity();
@@ -235,28 +235,28 @@ public final class InterferenceHandler {
                 continue;
             }
             double radius = aura.source().getRadius();
-            Box box = sourceEntity.getBoundingBox().expand(radius);
-            List<EnderPearlEntity> pearls = world.getEntitiesByClass(EnderPearlEntity.class, box,
-                    pearl -> pearl.isAlive() && pearl.getOwner() instanceof PlayerEntity);
+            AABB box = sourceEntity.getLocalBoundsForPose().inflate(radius);
+            List<ThrownEnderpearl> pearls = world.getEntitiesByClass(ThrownEnderpearl.class, box,
+                    pearl -> pearl.isAlive() && pearl.getOwner() instanceof Player);
             if (pearls.isEmpty()) {
                 continue;
             }
-            for (EnderPearlEntity pearl : pearls) {
-                if (handled.contains(pearl)) {
+            for (ThrownEnderpearl pearl : pearls) {
+                if (handled.intersects(pearl)) {
                     continue;
                 }
-                Vec3d pos = new Vec3d(pearl.getX(), pearl.getY(), pearl.getZ());
-                if (sourceEntity.squaredDistanceTo(pos) > radius * radius) {
+                Vec3 pos = new Vec3(pearl.getX(), pearl.getY(), pearl.getZ());
+                if (sourceEntity.distanceToSqr(pos) > radius * radius) {
                     continue;
                 }
                 if (aura.source().getChance() < 1.0D
                         && sourceEntity.getRandom().nextDouble() >= aura.source().getChance()) {
                     continue;
                 }
-                PlayerEntity owner = (PlayerEntity) pearl.getOwner();
+                Player owner = (Player) pearl.getOwner();
                 if (!pearl.isRemoved()) {
                     pearl.remove(Entity.RemovalReason.KILLED);
-                    world.spawnParticles(ParticleTypes.SMOKE,
+                    world.sendParticles(ParticleTypes.SMOKE,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
@@ -265,29 +265,29 @@ public final class InterferenceHandler {
                             0.1D,
                             0.1D,
                             0.01D);
-                    world.playSound(null,
+                    world.makeSound(null,
                             pearl.getX(),
                             pearl.getY(),
                             pearl.getZ(),
-                            SoundEvents.ENTITY_ENDERMAN_TELEPORT,
-                            SoundCategory.HOSTILE,
+                            SoundEvents.ENDERMAN_TELEPORT,
+                            SoundSource.HOSTILE,
                             0.4F,
-                            1.1F + world.random.nextFloat() * 0.2F);
+                            1.1F + world.getRandom.nextFloat() * 0.2F);
                 }
                 if (owner != null) {
-                    owner.damage(world, world.getDamageSources().magic(), aura.source().getPearlDamage());
+                    owner.hurtAndConvertOnBreak(world, world.damageSources().magic(), aura.source().getPearlDamage());
                 }
-                handled.add(pearl);
+                handled.relative(pearl);
             }
         }
     }
 
-    private void cleanup(ServerWorld world) {
+    private void cleanup(ServerLevel world) {
         List<ActiveAura> list = activeAuras.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
-        long time = world.getTime();
+        long time = world.getGameTime();
         list.removeIf(aura -> !aura.entity().isAlive() || time - aura.lastActiveTick() > 20L);
         if (list.isEmpty()) {
             activeAuras.remove(world);

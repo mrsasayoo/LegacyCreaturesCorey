@@ -2,17 +2,17 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -28,14 +28,14 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
     private static final double DOUBLE_KNOCKBACK = 0.8D; // Doble empuje
     private static final double DOUBLE_VERTICAL = 0.6D; // Doble impulso vertical
 
-    private static final Map<SnowGolemEntity, ChargeState> GOLEM_STATES = new WeakHashMap<>();
+    private static final Map<SnowGolem, ChargeState> GOLEM_STATES = new WeakHashMap<>();
 
     static {
         ServerTickEvents.END_WORLD_TICK.register(world -> {
-            Iterator<Map.Entry<SnowGolemEntity, ChargeState>> iterator = GOLEM_STATES.entrySet().iterator();
+            Iterator<Map.Entry<SnowGolem, ChargeState>> iterator = GOLEM_STATES.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<SnowGolemEntity, ChargeState> entry = iterator.next();
-                SnowGolemEntity golem = entry.getKey();
+                Map.Entry<SnowGolem, ChargeState> entry = iterator.next();
+                SnowGolem golem = entry.getKey();
                 if (golem == null || golem.isRemoved() || !golem.isAlive()) {
                     iterator.remove();
                     continue;
@@ -50,7 +50,7 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
 
                     // Partículas durante la carga
                     if (state.chargeTicks % 5 == 0) {
-                        ((ServerWorld) world).spawnParticles(
+                        ((ServerLevel) world).sendParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 golem.getX(), golem.getY() + 1.5, golem.getZ(),
                                 3, 0.3, 0.3, 0.3, 0.02
@@ -59,7 +59,7 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
 
                     // Al completar la carga, disparar bola grande
                     if (state.chargeTicks >= CHARGE_TIME_TICKS) {
-                        fireChargedSnowball(golem, (ServerWorld) world, state);
+                        fireChargedSnowball(golem, (ServerLevel) world, state);
                         state.isCharging = false;
                         state.chargeTicks = 0;
                     }
@@ -78,10 +78,10 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof SnowGolemEntity golem)) {
+        if (!(entity instanceof SnowGolem golem)) {
             return;
         }
-        if (!(golem.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(golem.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -100,22 +100,22 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
         if (!state.isCharging) {
             state.isCharging = true;
             state.chargeTicks = 0;
-            state.targetPlayer = target instanceof PlayerEntity ? (PlayerEntity) target : null;
+            state.targetPlayer = target instanceof Player ? (Player) target : null;
 
             // Sonido de inicio de carga
-            world.playSound(null, golem.getX(), golem.getY(), golem.getZ(),
-                    SoundEvents.BLOCK_SNOW_BREAK, SoundCategory.HOSTILE, 1.0f, 0.5f);
+            world.makeSound(null, golem.getX(), golem.getY(), golem.getZ(),
+                    SoundEvents.SNOW_BREAK, SoundSource.HOSTILE, 1.0f, 0.5f);
         }
     }
 
     @Override
-    public void onSnowballHit(SnowGolemEntity owner, LivingEntity target, SnowballEntity snowball) {
+    public void onSnowballHit(SnowGolem owner, LivingEntity target, Snowball snowball) {
         // Aplicar daño garantizado y knockback aumentado
         super.onSnowballHit(owner, target, snowball);
     }
 
-    private static void fireChargedSnowball(SnowGolemEntity golem, ServerWorld world, ChargeState state) {
-        PlayerEntity target = state.targetPlayer;
+    private static void fireChargedSnowball(SnowGolem golem, ServerLevel world, ChargeState state) {
+        Player target = state.targetPlayer;
         if (target == null || !target.isAlive()) {
             // Buscar nuevo objetivo cercano
             target = world.getClosestPlayer(golem.getX(), golem.getY(), golem.getZ(), 16.0, false);
@@ -124,11 +124,11 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
             return;
         }
 
-        Vec3d targetPos = new Vec3d(target.getX(), target.getY() + target.getHeight() / 2, target.getZ());
-        Vec3d golemPos = new Vec3d(golem.getX(), golem.getY() + golem.getHeight() * 0.7, golem.getZ());
-        Vec3d direction = targetPos.subtract(golemPos).normalize();
+        Vec3 targetPos = new Vec3(target.getX(), target.getY() + target.getHeight() / 2, target.getZ());
+        Vec3 golemPos = new Vec3(golem.getX(), golem.getY() + golem.getHeight() * 0.7, golem.getZ());
+        Vec3 direction = targetPos.subtract(golemPos).normalize();
 
-        SnowballEntity snowball = EntityType.SNOWBALL.create(world, SpawnReason.MOB_SUMMONED);
+        Snowball snowball = EntityType.SNOWBALL.create(world, EntitySpawnReason.MOB_SUMMONED);
         if (snowball == null) {
             return;
         }
@@ -137,20 +137,20 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
         snowball.setVelocity(direction.x, direction.y + 0.1, direction.z, 1.6f, 0.5f);
 
         // Efecto de disparo grande
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.SNOWFLAKE,
                 golem.getX(), golem.getEyeY(), golem.getZ(),
                 15, 0.5, 0.5, 0.5, 0.1
         );
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.CLOUD,
                 golem.getX(), golem.getEyeY(), golem.getZ(),
                 8, 0.3, 0.3, 0.3, 0.05
         );
 
         // Sonido de disparo potente
-        world.playSound(null, golem.getX(), golem.getY(), golem.getZ(),
-                SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, SoundCategory.HOSTILE, 1.5f, 0.7f);
+        world.makeSound(null, golem.getX(), golem.getY(), golem.getZ(),
+                SoundEvents.SNOW_GOLEM_SHOOT, SoundSource.HOSTILE, 1.5f, 0.7f);
 
         world.spawnEntity(snowball);
     }
@@ -158,6 +158,6 @@ public class blizzard_orb_1_action extends blizzard_orb_base_action {
     private static class ChargeState {
         boolean isCharging = false;
         int chargeTicks = 0;
-        PlayerEntity targetPlayer = null;
+        Player targetPlayer = null;
     }
 }

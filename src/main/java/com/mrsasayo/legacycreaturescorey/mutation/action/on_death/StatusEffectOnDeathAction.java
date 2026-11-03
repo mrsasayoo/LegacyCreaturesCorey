@@ -3,18 +3,18 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_death;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public final class StatusEffectOnDeathAction implements mutation_action {
-    private final RegistryEntry<net.minecraft.entity.effect.StatusEffect> effect;
+    private final Holder<net.minecraft.world.effect.MobEffect> effect;
     private final int duration;
     private final int amplifier;
     private final Target target;
@@ -24,7 +24,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
     private final float damage;
     private final double pullStrength;
 
-    public StatusEffectOnDeathAction(RegistryEntry<net.minecraft.entity.effect.StatusEffect> effect,
+    public StatusEffectOnDeathAction(Holder<net.minecraft.world.effect.MobEffect> effect,
                                      int duration,
                                      int amplifier,
                                      Target target,
@@ -46,7 +46,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.level() instanceof ServerLevel world)) {
             return;
         }
         if (chance < 1.0D && entity.getRandom().nextDouble() > chance) {
@@ -59,7 +59,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
                 private int ticks = delayTicks;
 
                 @Override
-                public boolean tick(ServerWorld currentWorld) {
+                public boolean tick(ServerLevel currentWorld) {
                     if (ticks-- > 0) {
                         return false;
                     }
@@ -72,8 +72,8 @@ public final class StatusEffectOnDeathAction implements mutation_action {
         }
     }
 
-    private void applyEffects(ServerWorld world, LivingEntity sourceEntity, @Nullable LivingEntity killer) {
-        Vec3d origin = new Vec3d(sourceEntity.getX(), sourceEntity.getY(), sourceEntity.getZ());
+    private void applyEffects(ServerLevel world, LivingEntity sourceEntity, @Nullable LivingEntity killer) {
+        Vec3 origin = new Vec3(sourceEntity.getX(), sourceEntity.getY(), sourceEntity.getZ());
         switch (target) {
             case KILLER -> {
                 if (killer != null) {
@@ -82,18 +82,18 @@ public final class StatusEffectOnDeathAction implements mutation_action {
             }
             case PLAYERS_IN_RADIUS -> {
                 double radiusSq = radius * radius;
-                List<net.minecraft.server.network.ServerPlayerEntity> players = world.getPlayers(player -> !player.isSpectator() && player.squaredDistanceTo(origin) <= radiusSq);
+                List<net.minecraft.server.level.ServerPlayer> players = world.getPlayers(player -> !player.isSpectator() && player.distanceToSqr(origin) <= radiusSq);
                 players.forEach(player -> applyToEntity(world, origin, player));
             }
             case ALL_PLAYERS -> world.getPlayers(player -> !player.isSpectator()).forEach(player -> applyToEntity(world, origin, player));
         }
     }
 
-    private void applyToEntity(ServerWorld world, Vec3d origin, LivingEntity targetEntity) {
+    private void applyToEntity(ServerLevel world, Vec3 origin, LivingEntity targetEntity) {
         if (pullStrength > 0.0D) {
-            Vec3d targetPos = new Vec3d(targetEntity.getX(), targetEntity.getY(), targetEntity.getZ());
-            Vec3d delta = origin.subtract(targetPos);
-            Vec3d normalized = delta.normalize().multiply(pullStrength);
+            Vec3 targetPos = new Vec3(targetEntity.getX(), targetEntity.getY(), targetEntity.getZ());
+            Vec3 delta = origin.subtract(targetPos);
+            Vec3 normalized = delta.normalize().scale(pullStrength);
             targetEntity.addVelocity(normalized.x, normalized.y, normalized.z);
             targetEntity.velocityModified = true;
         }
@@ -101,7 +101,7 @@ public final class StatusEffectOnDeathAction implements mutation_action {
             targetEntity.damage(world, world.getDamageSources().magic(), damage);
         }
         if (effect != null) {
-            targetEntity.addStatusEffect(new StatusEffectInstance(effect, duration, amplifier));
+            targetEntity.addEffect(new MobEffectInstance(effect, duration, amplifier));
         }
     }
 

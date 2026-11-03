@@ -2,16 +2,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.DrownedEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Drowned;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class aquatic_stalker_base_action implements mutation_action {
-    protected DrownedEntity asServerDrowned(LivingEntity entity) {
-        if (entity instanceof DrownedEntity drowned && !entity.getEntityWorld().isClient()) {
+    protected Drowned asServerDrowned(LivingEntity entity) {
+        if (entity instanceof Drowned drowned && !entity.getEntityWorld().isClient()) {
             return drowned;
         }
         return null;
@@ -23,17 +23,17 @@ abstract class aquatic_stalker_base_action implements mutation_action {
 
     protected static final class DashHandler {
         private static final DashHandler INSTANCE = new DashHandler();
-        private final Map<DrownedEntity, Integer> cooldowns = new WeakHashMap<>();
+        private final Map<Drowned, Integer> cooldowns = new WeakHashMap<>();
 
         private DashHandler() {
             ServerTickEvents.END_WORLD_TICK.register(world -> {
                 if (cooldowns.isEmpty()) {
                     return;
                 }
-                Iterator<Map.Entry<DrownedEntity, Integer>> iterator = cooldowns.entrySet().iterator();
+                Iterator<Map.Entry<Drowned, Integer>> iterator = cooldowns.entrySet().iterator();
                 while (iterator.hasNext()) {
-                    Map.Entry<DrownedEntity, Integer> entry = iterator.next();
-                    DrownedEntity drowned = entry.getKey();
+                    Map.Entry<Drowned, Integer> entry = iterator.next();
+                    Drowned drowned = entry.getKey();
                     if (drowned == null || drowned.isRemoved()) {
                         iterator.remove();
                         continue;
@@ -51,11 +51,11 @@ abstract class aquatic_stalker_base_action implements mutation_action {
             });
         }
 
-        boolean isOnCooldown(DrownedEntity entity) {
+        boolean isOnCooldown(Drowned entity) {
             return cooldowns.getOrDefault(entity, 0) > 0;
         }
 
-        void setCooldown(DrownedEntity entity, int ticks) {
+        void setCooldown(Drowned entity, int ticks) {
             cooldowns.put(entity, ticks);
         }
     }

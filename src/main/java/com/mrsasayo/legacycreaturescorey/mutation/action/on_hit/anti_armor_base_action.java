@@ -2,10 +2,10 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
     protected anti_armor_base_action(mutation_action_config config,
             double defaultChance,
             int defaultDamage) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.damageAmount = Math.max(1, config.getInt("damage", defaultDamage));
     }
 
@@ -31,8 +31,8 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
         List<EquipmentSlot> candidates = new ArrayList<>(ARMOR_SLOTS.length);
         for (EquipmentSlot slot : ARMOR_SLOTS) {
-            ItemStack stack = victim.getEquippedStack(slot);
-            if (stack.isEmpty() || !stack.isDamageable()) {
+            ItemStack stack = victim.getItemBySlot(slot);
+            if (stack.isEmpty() || !stack.isDamageableItem()) {
                 continue;
             }
             candidates.add(slot);
@@ -43,8 +43,8 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
         }
 
         EquipmentSlot selected = candidates.get(attacker.getRandom().nextInt(candidates.size()));
-        ItemStack stack = victim.getEquippedStack(selected);
-        if (stack.isEmpty() || !stack.isDamageable()) {
+        ItemStack stack = victim.getItemBySlot(selected);
+        if (stack.isEmpty() || !stack.isDamageableItem()) {
             return;
         }
 
@@ -53,11 +53,11 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
             return;
         }
 
-        int newDamage = stack.getDamage() + damageAmount;
+        int newDamage = stack.getDamageValue() + damageAmount;
         if (newDamage >= maxDamage) {
-            victim.equipStack(selected, ItemStack.EMPTY);
+            victim.setItemSlot(selected, ItemStack.EMPTY);
         } else {
-            stack.setDamage(newDamage);
+            stack.setDamageValue(newDamage);
         }
     }
 }

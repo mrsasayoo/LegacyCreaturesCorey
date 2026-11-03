@@ -5,18 +5,18 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.antifarm.ChunkActivityData;
-import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.PersistentStateType;
-import net.minecraft.world.World;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class CoreyServerState extends PersistentState {
+public class CoreyServerState extends SavedData {
 
     private static final int MAX_GLOBAL_DIFFICULTY = 1000;
     private static final String SAVE_ID = Legacycreaturescorey.MOD_ID + "_server_state";
@@ -29,12 +29,12 @@ public class CoreyServerState extends PersistentState {
     public static final Codec<CoreyServerState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.INT.optionalFieldOf("global_difficulty", 0).forGetter(CoreyServerState::getGlobalDifficulty),
         Codec.LONG.optionalFieldOf("last_day_checked", 0L).forGetter(CoreyServerState::getLastDayChecked),
-        Codec.unboundedMap(CHUNK_KEY_CODEC, ChunkActivityData.CODEC)
+        Codec.unboundedMap(CHUNK_KEY_CODEC, ChunkActivityData.RESOURCE_KEY_CODEC)
             .optionalFieldOf("chunk_activity", Map.of())
             .forGetter(CoreyServerState::getChunkActivitySnapshot)
     ).apply(instance, CoreyServerState::fromCodec));
 
-    public static final PersistentStateType<CoreyServerState> TYPE = new PersistentStateType<>(
+    public static final SavedDataType<CoreyServerState> TYPE = new SavedDataType<>(
         SAVE_ID,
         CoreyServerState::new,
         CODEC,
@@ -73,7 +73,7 @@ public class CoreyServerState extends PersistentState {
 
     public void setGlobalDifficulty(int value) {
         this.globalDifficulty = clampDifficulty(value);
-        this.markDirty();
+        this.setDirty();
     }
 
     public void increaseGlobalDifficulty(int amount) {
@@ -86,13 +86,13 @@ public class CoreyServerState extends PersistentState {
 
     public void setLastDayChecked(long day) {
         this.lastDayChecked = Math.max(0L, day);
-        this.markDirty();
+        this.setDirty();
     }
 
     public static CoreyServerState get(MinecraftServer server) {
-        PersistentStateManager stateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
-        CoreyServerState state = stateManager.getOrCreate(TYPE);
-        state.markDirty();
+        DimensionDataStorage stateManager = server.getWorld(Level.OVERWORLD).getPersistentStateManager();
+        CoreyServerState state = stateManager.computeIfAbsent(TYPE);
+        state.setDirty();
         return state;
     }
 
@@ -110,14 +110,14 @@ public class CoreyServerState extends PersistentState {
 
     public ChunkActivityData getOrCreateChunkActivity(long chunkKey) {
         return this.chunkActivity.computeIfAbsent(chunkKey, key -> {
-            this.markDirty();
+            this.setDirty();
             return new ChunkActivityData();
         });
     }
 
     public void setChunkActivity(long chunkKey, ChunkActivityData data) {
         this.chunkActivity.put(chunkKey, data);
-        this.markDirty();
+        this.setDirty();
     }
 
     public boolean isChunkSpawnBlocked(long chunkKey) {
@@ -130,7 +130,7 @@ public class CoreyServerState extends PersistentState {
         if (!data.isSpawnBlocked()) {
             data.markSpawnBlocked(time);
             this.chunkActivity.put(chunkKey, data);
-            this.markDirty();
+            this.setDirty();
         }
     }
 
@@ -138,13 +138,13 @@ public class CoreyServerState extends PersistentState {
         ChunkActivityData data = this.chunkActivity.get(chunkKey);
         if (data != null) {
             data.resetHeat();
-            this.markDirty();
+            this.setDirty();
         }
     }
 
     public void removeChunkActivity(long chunkKey) {
         if (this.chunkActivity.remove(chunkKey) != null) {
-            this.markDirty();
+            this.setDirty();
         }
     }
 
@@ -177,7 +177,7 @@ public class CoreyServerState extends PersistentState {
         }
 
         if (changed) {
-            this.markDirty();
+            this.setDirty();
         }
     }
 

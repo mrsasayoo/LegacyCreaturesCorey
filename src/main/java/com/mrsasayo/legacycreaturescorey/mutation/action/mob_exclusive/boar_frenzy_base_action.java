@@ -2,59 +2,59 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.HoglinEntity;
-import net.minecraft.entity.mob.ZoglinEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
+import net.minecraft.world.entity.monster.Zoglin;
+import net.minecraft.resources.ResourceLocation;
 
 abstract class boar_frenzy_base_action implements mutation_action {
-    protected static final Identifier SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_speed");
-    protected static final Identifier ATTACK_SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_attack_speed");
+    protected static final ResourceLocation SPEED_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_speed");
+    protected static final ResourceLocation ATTACK_SPEED_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "boar_frenzy_attack_speed");
 
     protected boolean isBoar(LivingEntity entity) {
-        return entity instanceof HoglinEntity || entity instanceof ZoglinEntity;
+        return entity instanceof Hoglin || entity instanceof Zoglin;
     }
 
     protected void applySpeedModifier(LivingEntity entity, double value) {
-        EntityAttributeInstance speed = entity.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        AttributeInstance speed = entity.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
         if (speed == null) {
             return;
         }
         speed.removeModifier(SPEED_ID);
         if (value > 0.0D) {
-            speed.addTemporaryModifier(new EntityAttributeModifier(
+            speed.addTransientModifier(new AttributeModifier(
                     SPEED_ID,
                     value,
-                    EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
     }
 
     protected void removeSpeedModifier(LivingEntity entity) {
-        EntityAttributeInstance speed = entity.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        AttributeInstance speed = entity.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
         if (speed != null) {
             speed.removeModifier(SPEED_ID);
         }
     }
 
     protected void applyAttackSpeedModifier(LivingEntity entity, double value) {
-        EntityAttributeInstance attackSpeed = entity.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
+        AttributeInstance attackSpeed = entity.getAttribute(Attributes.ATTACK_SPEED);
         if (attackSpeed == null) {
             return;
         }
         attackSpeed.removeModifier(ATTACK_SPEED_ID);
         if (value > 0.0D) {
-            attackSpeed.addTemporaryModifier(new EntityAttributeModifier(
+            attackSpeed.addTransientModifier(new AttributeModifier(
                     ATTACK_SPEED_ID,
                     value,
-                    EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         }
     }
 
     protected void removeAttackSpeedModifier(LivingEntity entity) {
-        EntityAttributeInstance attackSpeed = entity.getAttributeInstance(EntityAttributes.ATTACK_SPEED);
+        AttributeInstance attackSpeed = entity.getAttribute(Attributes.ATTACK_SPEED);
         if (attackSpeed != null) {
             attackSpeed.removeModifier(ATTACK_SPEED_ID);
         }

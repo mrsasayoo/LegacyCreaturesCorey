@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.feature.mob;
 import com.mrsasayo.legacycreaturescorey.core.component.ModDataAttachments;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.level.entity.Entity;
+import net.minecraft.level.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Reaplica partículas de tier a intervalos regulares para mantenerlas visibles.
@@ -19,13 +19,13 @@ public final class TierParticleTicker {
         ServerTickEvents.END_WORLD_TICK.register(TierParticleTicker::onWorldTick);
     }
 
-    private static void onWorldTick(ServerWorld world) {
+    private static void onWorldTick(ServerLevel world) {
         if (world.getTime() % AMBIENT_INTERVAL_TICKS != 0) {
             return;
         }
 
-        for (Entity entity : world.iterateEntities()) {
-            if (!(entity instanceof MobEntity mob)) {
+        for (Entity entity : world.getAllEntities()) {
+            if (!(entity instanceof Mob mob)) {
                 continue;
             }
 

@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.PandaEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Panda;
 
 /**
  * Bamboo Eater III: Panda Guerrero
@@ -25,7 +25,7 @@ public final class bamboo_eater_3_action extends bamboo_eater_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        PandaEntity panda = asServerPanda(entity);
+        Panda panda = asServerPanda(entity);
         if (panda == null) {
             return;
         }
@@ -39,7 +39,7 @@ public final class bamboo_eater_3_action extends bamboo_eater_base_action {
 
     @Override
     public void onHit(LivingEntity attacker, LivingEntity target) {
-        if (!(attacker instanceof PandaEntity panda) || attacker.getEntityWorld().isClient()) {
+        if (!(attacker instanceof Panda panda) || attacker.getEntityWorld().isClient()) {
             return;
         }
         handleWeaponHit(panda);

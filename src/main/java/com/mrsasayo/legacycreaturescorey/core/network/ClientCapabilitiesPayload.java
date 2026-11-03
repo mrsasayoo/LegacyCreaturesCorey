@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.core.network;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.EnumSet;
 
@@ -13,14 +13,14 @@ import java.util.EnumSet;
  */
 public record ClientCapabilitiesPayload(String modVersion,
                                         int protocolVersion,
-                                        EnumSet<ClientFeature> features) implements CustomPayload {
+                                        EnumSet<ClientFeature> features) implements CustomPacketPayload {
 
-    public static final Id<ClientCapabilitiesPayload> ID = new Id<>(Identifier.of(Legacycreaturescorey.MOD_ID, "client_capabilities"));
+    public static final Id<ClientCapabilitiesPayload> ID = new Id<>(ResourceLocation.ofMember(Legacycreaturescorey.MOD_ID, "client_capabilities"));
 
-    public static final PacketCodec<RegistryByteBuf, ClientCapabilitiesPayload> CODEC = new PacketCodec<>() {
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientCapabilitiesPayload> CODEC = new StreamCodec<>() {
         @Override
-        public ClientCapabilitiesPayload decode(RegistryByteBuf buf) {
-            String version = buf.readString(32);
+        public ClientCapabilitiesPayload decode(RegistryFriendlyByteBuf buf) {
+            String version = buf.readGreedy(32);
             int protocol = buf.readVarInt();
             int flags = buf.readVarInt();
             EnumSet<ClientFeature> features = decodeFeatures(flags);
@@ -28,7 +28,7 @@ public record ClientCapabilitiesPayload(String modVersion,
         }
 
         @Override
-        public void encode(RegistryByteBuf buf, ClientCapabilitiesPayload value) {
+        public void encode(RegistryFriendlyByteBuf buf, ClientCapabilitiesPayload value) {
             buf.writeString(value.modVersion(), 32);
             buf.writeVarInt(value.protocolVersion());
             buf.writeVarInt(encodeFeatures(value.features()));

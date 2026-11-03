@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
 
 import java.util.List;
 
@@ -15,10 +15,10 @@ public final class true_damage_1_action extends true_damage_base_action {
     }
 
     private static List<SideEffect> buildDefaultEffects(int durationTicks) {
-        RegistryEntry<StatusEffect> entry = StatusEffects.MINING_FATIGUE;
+        Holder<MobEffect> entry = MobEffects.MINING_FATIGUE;
         if (entry == null) {
-            return List.of();
+            return List.direct();
         }
-        return List.of(new SideEffect(entry, durationTicks, 3, Target.SELF, true, true, true));
+        return List.direct(new SideEffect(entry, durationTicks, 3, Target.SELF, true, true, true));
     }
 }

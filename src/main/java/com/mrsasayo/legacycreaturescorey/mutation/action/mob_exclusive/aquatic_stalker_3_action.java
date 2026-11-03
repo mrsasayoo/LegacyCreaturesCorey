@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.DrownedEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.Drowned;
 
 public final class aquatic_stalker_3_action extends aquatic_stalker_base_action {
     private final int effectDurationTicks;
@@ -17,11 +17,11 @@ public final class aquatic_stalker_3_action extends aquatic_stalker_base_action 
 
     @Override
     public void onTick(LivingEntity entity) {
-        DrownedEntity drowned = asServerDrowned(entity);
+        Drowned drowned = asServerDrowned(entity);
         if (drowned == null || !drowned.isSubmergedInWater()) {
             return;
         }
-        drowned.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY,
+        drowned.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,
                 effectDurationTicks,
                 effectAmplifier,
                 false,

@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class projectile_shroud_aura_2_action implements mutation_action, ProjectileShroudSource {
     private final double radius;

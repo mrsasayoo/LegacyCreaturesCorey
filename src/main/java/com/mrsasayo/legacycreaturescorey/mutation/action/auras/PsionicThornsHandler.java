@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,7 +43,7 @@ public final class PsionicThornsHandler {
             float originalAmount,
             float actualAmount,
             boolean blocked) {
-        if (victim == null || victim.isDead()) {
+        if (victim == null || victim.isDeadOrDying()) {
             return;
         }
 
@@ -53,14 +53,14 @@ public final class PsionicThornsHandler {
         }
 
         // Check if damage is melee
-        if (source.isIn(net.minecraft.registry.tag.DamageTypeTags.IS_PROJECTILE) ||
-                source.isIn(net.minecraft.registry.tag.DamageTypeTags.IS_EXPLOSION) ||
-                source.isIn(net.minecraft.registry.tag.DamageTypeTags.BYPASSES_ARMOR)) {
+        if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
             return;
         }
 
         // Ensure attacker is present and alive
-        if (!(source.getAttacker() instanceof LivingEntity attacker) || attacker == victim) {
+        if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
             return;
         }
 
@@ -72,7 +72,7 @@ public final class PsionicThornsHandler {
             return;
         }
 
-        if (!(victim.getEntityWorld() instanceof ServerWorld serverWorld)) {
+        if (!(victim.getEntityWorld() instanceof ServerLevel serverWorld)) {
             return;
         }
 
@@ -80,8 +80,8 @@ public final class PsionicThornsHandler {
         if (selfEffects != null && !selfEffects.isEmpty()) {
             for (PsionicThornsSource.ThornsEffect effect : selfEffects) {
                 if (effect.effect() != null) {
-                    victim.addStatusEffect(
-                            new StatusEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
+                    victim.addEffect(
+                            new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }
         }
@@ -91,10 +91,10 @@ public final class PsionicThornsHandler {
 
         List<LivingEntity> nearbyTargets = serverWorld.getEntitiesByClass(
                 LivingEntity.class,
-                victim.getBoundingBox().expand(maxDistance),
+                victim.getLocalBoundsForPose().expand(maxDistance),
                 living -> living.isAlive()
                         && living != victim
-                        && !(living instanceof PlayerEntity));
+                        && !(living instanceof Player));
 
         List<LivingEntity> validTargets = new ArrayList<>();
         for (LivingEntity target : nearbyTargets) {
@@ -121,8 +121,8 @@ public final class PsionicThornsHandler {
             }
             for (PsionicThornsSource.ThornsEffect effect : effects) {
                 if (effect.effect() != null) {
-                    target.addStatusEffect(
-                            new StatusEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
+                    target.addEffect(
+                            new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
                 }
             }
         }

@@ -2,12 +2,12 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Lógica compartida para las mutaciones Blizzard Orb.
@@ -32,11 +32,11 @@ public abstract class blizzard_orb_base_action implements mutation_action {
         this.minimumDamage = config.getFloat("minimum_damage", 1.0f); // Garantiza mínimo 1 de daño
     }
 
-    public void onSnowballHit(SnowGolemEntity owner, LivingEntity target, SnowballEntity snowball) {
+    public void onSnowballHit(SnowGolem owner, LivingEntity target, Snowball snowball) {
         if (!canAffect(target)) {
             return;
         }
-        ServerWorld world = asServerWorld(owner);
+        ServerLevel world = asServerWorld(owner);
         if (world == null) {
             return;
         }
@@ -50,14 +50,14 @@ public abstract class blizzard_orb_base_action implements mutation_action {
     }
 
     protected boolean canAffect(LivingEntity target) {
-        return !playersOnly || target instanceof PlayerEntity;
+        return !playersOnly || target instanceof Player;
     }
 
-    protected ServerWorld asServerWorld(SnowGolemEntity owner) {
-        return owner.getEntityWorld() instanceof ServerWorld serverWorld ? serverWorld : null;
+    protected ServerLevel asServerWorld(SnowGolem owner) {
+        return owner.getEntityWorld() instanceof ServerLevel serverWorld ? serverWorld : null;
     }
 
-    protected void applyKnockback(LivingEntity target, SnowballEntity snowball) {
+    protected void applyKnockback(LivingEntity target, Snowball snowball) {
         if (knockbackStrength <= 0.0D) {
             return;
         }

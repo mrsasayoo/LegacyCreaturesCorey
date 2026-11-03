@@ -2,43 +2,43 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.PolarBearEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.resources.ResourceLocation;
 
 abstract class arctic_fortitude_base_action implements mutation_action {
-    protected PolarBearEntity asServerPolarBear(LivingEntity entity) {
-        if (entity instanceof PolarBearEntity bear && !entity.getEntityWorld().isClient()) {
+    protected PolarBear asServerPolarBear(LivingEntity entity) {
+        if (entity instanceof PolarBear bear && !entity.getEntityWorld().isClient()) {
             return bear;
         }
         return null;
     }
 
-    protected Identifier id(String path) {
-        return Identifier.of(Legacycreaturescorey.MOD_ID, path);
+    protected ResourceLocation id(String path) {
+        return ResourceLocation.direct(Legacycreaturescorey.MOD_ID, path);
     }
 
     protected void applyModifier(LivingEntity entity,
-            net.minecraft.registry.entry.RegistryEntry<net.minecraft.entity.attribute.EntityAttribute> attribute,
-            Identifier identifier,
+            net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
+            ResourceLocation identifier,
             double value,
-            EntityAttributeModifier.Operation operation) {
-        EntityAttributeInstance instance = entity.getAttributeInstance(attribute);
+            AttributeModifier.Operation operation) {
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && !instance.hasModifier(identifier)) {
-            instance.addPersistentModifier(new EntityAttributeModifier(identifier, value, operation));
+            instance.addPermanentModifier(new AttributeModifier(identifier, value, operation));
         }
     }
 
     protected void removeModifier(LivingEntity entity,
-            net.minecraft.registry.entry.RegistryEntry<net.minecraft.entity.attribute.EntityAttribute> attribute,
-            Identifier identifier) {
-        EntityAttributeInstance instance = entity.getAttributeInstance(attribute);
+            net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,
+            ResourceLocation identifier) {
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && instance.hasModifier(identifier)) {
             instance.removeModifier(identifier);
         }
@@ -49,7 +49,7 @@ abstract class arctic_fortitude_base_action implements mutation_action {
                 || state.isOf(Blocks.SNOW_BLOCK) || state.isOf(Blocks.SNOW) || state.isOf(Blocks.POWDER_SNOW);
     }
 
-    protected void applySpeedBuff(PolarBearEntity bear, int durationTicks, int amplifier) {
-        bear.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, durationTicks, amplifier, false, false));
+    protected void applySpeedBuff(PolarBear bear, int durationTicks, int amplifier) {
+        bear.addEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false));
     }
 }

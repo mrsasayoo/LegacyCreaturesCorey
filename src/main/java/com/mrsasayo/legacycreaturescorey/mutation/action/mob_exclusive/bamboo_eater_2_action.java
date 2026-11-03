@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.PandaEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Panda;
 
 /**
  * Bamboo Eater II: Panda Resistente
@@ -28,7 +28,7 @@ public final class bamboo_eater_2_action extends bamboo_eater_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        PandaEntity panda = asServerPanda(entity);
+        Panda panda = asServerPanda(entity);
         if (panda == null) {
             return;
         }

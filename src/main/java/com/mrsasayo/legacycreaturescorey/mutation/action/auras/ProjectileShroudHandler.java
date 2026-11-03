@@ -2,11 +2,11 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
 import com.mrsasayo.legacycreaturescorey.mixin.accessor.persistent_projectile_entity_accessor;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,8 +19,8 @@ import java.util.WeakHashMap;
 public final class ProjectileShroudHandler {
     public static final ProjectileShroudHandler INSTANCE = new ProjectileShroudHandler();
 
-    private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-    private final Map<ServerWorld, Set<PersistentProjectileEntity>> processedProjectiles = new WeakHashMap<>();
+    private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
+    private final Map<ServerLevel, Set<AbstractArrow>> processedProjectiles = new WeakHashMap<>();
     private boolean initialized;
 
     private ProjectileShroudHandler() {
@@ -35,7 +35,7 @@ public final class ProjectileShroudHandler {
     }
 
     public void register(LivingEntity entity, ProjectileShroudSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getTime();
         for (ActiveAura aura : list) {
@@ -48,7 +48,7 @@ public final class ProjectileShroudHandler {
     }
 
     public void unregister(LivingEntity entity, ProjectileShroudSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         List<ActiveAura> list = active.get(world);
         if (list == null) {
             return;
@@ -59,14 +59,14 @@ public final class ProjectileShroudHandler {
         }
     }
 
-    private void handleWorldTick(ServerWorld world) {
+    private void handleWorldTick(ServerLevel world) {
         cleanup(world);
         List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;
         }
 
-        Set<PersistentProjectileEntity> processed = processedProjectiles.computeIfAbsent(world,
+        Set<AbstractArrow> processed = processedProjectiles.computeIfAbsent(world,
                 ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
 
         for (ActiveAura aura : list) {
@@ -79,17 +79,17 @@ public final class ProjectileShroudHandler {
         processed.removeIf(projectile -> projectile == null || !projectile.isAlive());
     }
 
-    private void handleProjectiles(ServerWorld world, ActiveAura aura, Set<PersistentProjectileEntity> processed) {
+    private void handleProjectiles(ServerLevel world, ActiveAura aura, Set<AbstractArrow> processed) {
         LivingEntity entity = aura.source;
         double radius = aura.sourceDef.getRadius();
         double chance = aura.sourceDef.getChance();
 
-        List<PersistentProjectileEntity> projectiles = world.getEntitiesByClass(
-                PersistentProjectileEntity.class,
-                entity.getBoundingBox().expand(radius),
+        List<AbstractArrow> projectiles = world.getEntitiesByClass(
+                AbstractArrow.class,
+                entity.getLocalBoundsForPose().expand(radius),
                 projectile -> projectile.isAlive() && !projectile.isOnGround());
 
-        for (PersistentProjectileEntity projectile : projectiles) {
+        for (AbstractArrow projectile : projectiles) {
             if (entity.squaredDistanceTo(projectile) > radius * radius) {
                 continue;
             }
@@ -104,9 +104,9 @@ public final class ProjectileShroudHandler {
                 case DESTROY -> discardProjectile(world, projectile, aura.sourceDef);
                 case DEFLECT -> {
                     double reflectFactor = Math.max(0.0D, aura.sourceDef.getReflectDamageFactor());
-                    projectile.setOwner(entity);
+                    projectile.setTarget(entity);
                     double baseDamage = getProjectileDamage(projectile);
-                    projectile.setDamage(Math.max(0.0D, baseDamage * reflectFactor));
+                    projectile.setBaseDamage(Math.max(0.0D, baseDamage * reflectFactor));
                     projectile.setVelocity(projectile.getVelocity().multiply(-Math.max(0.2D, reflectFactor)));
                     projectile.velocityDirty = true;
                     projectile.velocityModified = true;
@@ -127,41 +127,41 @@ public final class ProjectileShroudHandler {
         }
     }
 
-    private void discardProjectile(ServerWorld world, PersistentProjectileEntity projectile, ProjectileShroudSource source) {
+    private void discardProjectile(ServerLevel world, AbstractArrow projectile, ProjectileShroudSource source) {
         if (source.shouldDropDestroyedProjectiles()) {
             spawnRecoveredItem(world, projectile);
         }
         projectile.discard();
     }
 
-    private void spawnRecoveredItem(ServerWorld world, PersistentProjectileEntity projectile) {
+    private void spawnRecoveredItem(ServerLevel world, AbstractArrow projectile) {
         ItemStack stack = getProjectileStack(projectile);
         if (stack.isEmpty()) {
             return;
         }
         ItemEntity drop = new ItemEntity(world, projectile.getX(), projectile.getY(), projectile.getZ(), stack);
-        drop.setPickupDelay(5);
+        drop.setPickUpDelay(5);
         world.spawnEntity(drop);
     }
 
-    private ItemStack getProjectileStack(PersistentProjectileEntity projectile) {
+    private ItemStack getProjectileStack(AbstractArrow projectile) {
         if (projectile instanceof persistent_projectile_entity_accessor accessor) {
             ItemStack stack = accessor.legacycreaturescorey$invokeAsItemStack();
             if (!stack.isEmpty()) {
-                return stack.copy();
+                return stack.copyFrom();
             }
         }
         return ItemStack.EMPTY;
     }
 
-    private double getProjectileDamage(PersistentProjectileEntity projectile) {
+    private double getProjectileDamage(AbstractArrow projectile) {
         if (projectile instanceof persistent_projectile_entity_accessor accessor) {
             return accessor.legacycreaturescorey$getBaseDamage();
         }
         return 0.0D;
     }
 
-    private void cleanup(ServerWorld world) {
+    private void cleanup(ServerLevel world) {
         List<ActiveAura> list = active.get(world);
         if (list == null || list.isEmpty()) {
             return;

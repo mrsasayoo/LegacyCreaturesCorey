@@ -3,8 +3,8 @@ package com.mrsasayo.legacycreaturescorey.core.api.event;
 import com.mrsasayo.legacycreaturescorey.feature.antifarm.ChunkActivityData;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 
 /**
  * Telemetry-style events meant for dashboards or analytics that need to observe anti-farm activity.
@@ -30,6 +30,6 @@ public final class AntiFarmDashboardEvents {
 
     @FunctionalInterface
     public interface ChunkActivityUpdated {
-        void onChunkActivityUpdated(ServerWorld world, ChunkPos chunkPos, ChunkActivityData data, UpdateReason reason, int threshold, int radiusChunks);
+        void onChunkActivityUpdated(ServerLevel world, ChunkPos chunkPos, ChunkActivityData data, UpdateReason reason, int threshold, int radiusChunks);
     }
 }

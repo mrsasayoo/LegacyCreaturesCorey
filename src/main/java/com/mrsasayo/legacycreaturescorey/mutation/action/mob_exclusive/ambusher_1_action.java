@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -19,7 +19,7 @@ public final class ambusher_1_action extends ambusher_base_action {
     private final double fovThreshold;
     
     // Rastrear Creepers que ya fueron configurados
-    private final Map<CreeperEntity, Boolean> configuredCreepers = new WeakHashMap<>();
+    private final Map<Creeper, Boolean> configuredCreepers = new WeakHashMap<>();
 
     public ambusher_1_action(mutation_action_config config) {
         double detectionRange = config.getDouble("detection_range", 16.0D);
@@ -29,7 +29,7 @@ public final class ambusher_1_action extends ambusher_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        CreeperEntity creeper = asServerCreeper(entity);
+        Creeper creeper = asServerCreeper(entity);
         if (creeper == null) {
             return;
         }
@@ -41,7 +41,7 @@ public final class ambusher_1_action extends ambusher_base_action {
         }
         
         LivingEntity target = creeper.getTarget();
-        if (!(target instanceof PlayerEntity player)) {
+        if (!(target instanceof Player player)) {
             return;
         }
         if (creeper.squaredDistanceTo(player) > detectionRangeSq) {
@@ -54,7 +54,7 @@ public final class ambusher_1_action extends ambusher_base_action {
     
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof CreeperEntity creeper) {
+        if (entity instanceof Creeper creeper) {
             // Restaurar visibilidad del nombre al quitar la mutación
             restoreNameTag(creeper);
             configuredCreepers.remove(creeper);
@@ -64,7 +64,7 @@ public final class ambusher_1_action extends ambusher_base_action {
     /**
      * Oculta el NameTag del Creeper para mantener el sigilo
      */
-    private void hideNameTag(CreeperEntity creeper) {
+    private void hideNameTag(Creeper creeper) {
         // Hacer que el nombre no sea visible aunque tenga nombre personalizado
         creeper.setCustomNameVisible(false);
         
@@ -75,7 +75,7 @@ public final class ambusher_1_action extends ambusher_base_action {
     /**
      * Restaura la visibilidad del NameTag si la mutación es removida
      */
-    private void restoreNameTag(CreeperEntity creeper) {
+    private void restoreNameTag(Creeper creeper) {
         // Si tiene nombre personalizado, restaurar visibilidad
         if (creeper.hasCustomName()) {
             creeper.setCustomNameVisible(true);

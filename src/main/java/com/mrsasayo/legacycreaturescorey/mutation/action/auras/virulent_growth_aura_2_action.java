@@ -4,8 +4,8 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,14 +91,14 @@ public class virulent_growth_aura_2_action implements mutation_action, VirulentS
         int defaultPoisonAmplifier = Math.max(0, config.getInt("poison_amplifier", 0));
         List<status_effect_config_parser.status_effect_config_entry> fallback = new ArrayList<>();
         if (defaultPoisonDuration > 0) {
-            fallback.add(status_effect_config_parser.createEntry(StatusEffects.POISON,
+            fallback.add(status_effect_config_parser.createEntry(MobEffects.POISON,
                     defaultPoisonDuration,
                     defaultPoisonAmplifier,
                     true,
                     true,
                     true));
         }
-        fallback.add(status_effect_config_parser.createEntry(StatusEffects.SLOWNESS,
+        fallback.add(status_effect_config_parser.createEntry(MobEffects.SLOWNESS,
                 60,
                 0,
                 true,

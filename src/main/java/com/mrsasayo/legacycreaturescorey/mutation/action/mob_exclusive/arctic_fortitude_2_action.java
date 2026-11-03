@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.PolarBearEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.core.BlockPos;
 
 public final class arctic_fortitude_2_action extends arctic_fortitude_base_action {
     private final int speedDurationTicks;
@@ -17,17 +17,17 @@ public final class arctic_fortitude_2_action extends arctic_fortitude_base_actio
 
     @Override
     public void onTick(LivingEntity entity) {
-        PolarBearEntity bear = asServerPolarBear(entity);
+        PolarBear bear = asServerPolarBear(entity);
         if (bear == null) {
             return;
         }
-        if (bear.hasStatusEffect(StatusEffects.SLOWNESS)) {
-            bear.removeStatusEffect(StatusEffects.SLOWNESS);
+        if (bear.hasEffect(MobEffects.SLOWNESS)) {
+            bear.removeEffect(MobEffects.SLOWNESS);
         }
         if (bear.isFrozen()) {
             bear.setFrozenTicks(0);
         }
-        BlockPos below = bear.getBlockPos().down();
+        BlockPos below = bear.getBlockPos().below();
         if (isIceOrSnow(bear.getEntityWorld().getBlockState(below))) {
             applySpeedBuff(bear, speedDurationTicks, speedAmplifier);
         }

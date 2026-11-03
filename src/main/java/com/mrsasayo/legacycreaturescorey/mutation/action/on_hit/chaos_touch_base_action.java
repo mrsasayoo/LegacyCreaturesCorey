@@ -2,14 +2,14 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +24,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             double defaultChance,
             Mode defaultMode,
             int defaultSelfSlownessTicks) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.mode = parseMode(config, defaultMode);
         this.selfSlownessTicks = resolveDuration(config, defaultSelfSlownessTicks);
     }
@@ -51,10 +51,10 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim instanceof ServerPlayerEntity player)) {
+        if (!(victim instanceof ServerPlayer player)) {
             return;
         }
-        PlayerInventory inventory = player.getInventory();
+        Inventory inventory = player.getInventory();
         int selected = resolveSelectedSlot(player);
         switch (mode) {
             case SWAP_RIGHT -> swapWithRight(inventory, selected);
@@ -62,15 +62,15 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             case SHUFFLE -> shuffleHotbar(inventory, attacker.getRandom().nextLong());
         }
         inventory.markDirty();
-        player.setStackInHand(Hand.MAIN_HAND, inventory.getStack(selected));
+        player.setItemInHand(InteractionHand.MAIN_HAND, inventory.getStack(selected));
         player.playerScreenHandler.sendContentUpdates();
 
         if (selfSlownessTicks > 0) {
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, selfSlownessTicks, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, 1));
         }
     }
 
-    private void swapWithRight(PlayerInventory inventory, int selected) {
+    private void swapWithRight(Inventory inventory, int selected) {
         int target = (selected + 1) % 9;
         ItemStack current = inventory.getStack(selected);
         ItemStack next = inventory.getStack(target);
@@ -78,7 +78,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
         inventory.setStack(target, current);
     }
 
-    private void rotateHotbar(PlayerInventory inventory, boolean toRight) {
+    private void rotateHotbar(Inventory inventory, boolean toRight) {
         ItemStack[] snapshot = new ItemStack[9];
         for (int i = 0; i < 9; i++) {
             snapshot[i] = inventory.getStack(i);
@@ -101,7 +101,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
         }
     }
 
-    private void shuffleHotbar(PlayerInventory inventory, long seed) {
+    private void shuffleHotbar(Inventory inventory, long seed) {
         List<Integer> indices = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
             indices.add(i);
@@ -116,9 +116,9 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
         }
     }
 
-    private int resolveSelectedSlot(ServerPlayerEntity player) {
-        ItemStack mainHand = player.getMainHandStack();
-        PlayerInventory inventory = player.getInventory();
+    private int resolveSelectedSlot(ServerPlayer player) {
+        ItemStack mainHand = player.getMainHandItem();
+        Inventory inventory = player.getInventory();
         if (!mainHand.isEmpty()) {
             for (int slot = 0; slot < 9; slot++) {
                 if (inventory.getStack(slot) == mainHand) {

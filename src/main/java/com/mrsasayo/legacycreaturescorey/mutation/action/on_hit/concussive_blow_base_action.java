@@ -8,14 +8,14 @@ import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientFeature;
 import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -30,11 +30,11 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
     protected concussive_blow_base_action(mutation_action_config config,
             double defaultChance,
             Mode defaultMode) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.mode = parseMode(config, defaultMode);
         this.rotationStepTicks = Math.max(1, config.getInt("rotation_step_ticks", 4));
         this.shakeDurationTicks = Math.max(1, config.getInt("shake_duration_ticks", 10));
-        this.shakeIntensity = MathHelper.clamp((float) config.getDouble("shake_intensity", 2.6D), 0.2F, 6.0F);
+        this.shakeIntensity = Mth.clamp((float) config.getDouble("shake_intensity", 2.6D), 0.2F, 6.0F);
         this.playerEffects = status_effect_config_parser.parseList(config, "player_status_effects", defaultPlayerEffects(this.mode));
         this.attackerEffects = status_effect_config_parser.parseList(config, "attacker_status_effects", defaultAttackerEffects(this.mode));
     }
@@ -49,7 +49,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim instanceof ServerPlayerEntity player)) {
+        if (!(victim instanceof ServerPlayer player)) {
             return;
         }
 
@@ -60,7 +60,7 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         }
     }
 
-    private void applyCameraShake(ServerPlayerEntity player) {
+    private void applyCameraShake(ServerPlayer player) {
         boolean delivered = false;
         if (ModNetworking.supportsFeature(player, ClientFeature.CLIENT_EFFECTS)) {
             ModNetworking.sendClientEffect(player,
@@ -74,48 +74,48 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         if (player.getRandom().nextFloat() <= 0.4F) {
             float yawOffset = (player.getRandom().nextFloat() - 0.5F) * 70.0F;
             float pitchOffset = (player.getRandom().nextFloat() - 0.5F) * 24.0F;
-            float newYaw = MathHelper.wrapDegrees(player.getYaw() + yawOffset);
-            float newPitch = MathHelper.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
+            float newYaw = Mth.wrapDegrees(player.getYaw() + yawOffset);
+            float newPitch = Mth.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
             player.setYaw(newYaw);
             player.setHeadYaw(newYaw);
             player.setBodyYaw(newYaw);
-            player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+            player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
         }
     }
 
-    private void scheduleServerShake(ServerPlayerEntity player) {
-        if (!(player.getEntityWorld() instanceof ServerWorld world)) {
+    private void scheduleServerShake(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel world)) {
             return;
         }
         mutation_task_scheduler.schedule(world, new mutation_task_scheduler.TimedTask() {
             private int ticksRemaining = Math.min(shakeDurationTicks, 40);
 
             @Override
-            public boolean tick(ServerWorld currentWorld) {
-                if (!player.isAlive() || player.getEntityWorld() != currentWorld) {
+            public boolean tick(ServerLevel currentWorld) {
+                if (!player.isAlive() || player.level() != currentWorld) {
                     return true;
                 }
                 float yawOffset = (player.getRandom().nextFloat() - 0.5F) * shakeIntensity;
                 float pitchOffset = (player.getRandom().nextFloat() - 0.5F) * shakeIntensity * 0.6F;
-                float newYaw = MathHelper.wrapDegrees(player.getYaw() + yawOffset);
-                float newPitch = MathHelper.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
+                float newYaw = Mth.wrapDegrees(player.getYaw() + yawOffset);
+                float newPitch = Mth.clamp(player.getPitch() + pitchOffset, -90.0F, 90.0F);
                 player.setYaw(newYaw);
                 player.setHeadYaw(newYaw);
                 player.setBodyYaw(newYaw);
-                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
+                player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), newYaw, newPitch);
                 return --ticksRemaining <= 0;
             }
         });
     }
 
-    private void applyLocalizedDarkness(ServerPlayerEntity player) {
+    private void applyLocalizedDarkness(ServerPlayer player) {
         applyConfiguredEffects(player, playerEffects);
     }
 
-    private void applyDisorientation(LivingEntity attacker, ServerPlayerEntity player) {
-        float baseYaw = MathHelper.wrapDegrees(player.getYaw());
+    private void applyDisorientation(LivingEntity attacker, ServerPlayer player) {
+        float baseYaw = Mth.wrapDegrees(player.getYaw());
         float pitch = player.getPitch();
-        ServerWorld world = (ServerWorld) player.getEntityWorld();
+        ServerLevel world = (ServerLevel) player.level();
         if (world == null) {
             return;
         }
@@ -138,38 +138,38 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
             return;
         }
         for (status_effect_config_parser.status_effect_config_entry entry : configs) {
-            StatusEffectInstance instance = status_effect_config_parser.buildInstance(entry);
+            MobEffectInstance instance = status_effect_config_parser.buildInstance(entry);
             if (instance != null) {
-                target.addStatusEffect(instance);
+                target.addEffect(instance);
             }
         }
     }
 
     private static List<status_effect_config_parser.status_effect_config_entry> defaultPlayerEffects(Mode mode) {
         return switch (mode) {
-            case TUNNEL -> List.of(entry(StatusEffects.DARKNESS, 60, 0));
-            case DISORIENT -> List.of(entry(StatusEffects.NAUSEA, 80, 0));
-            default -> List.of();
+            case TUNNEL -> List.direct(entry(MobEffects.DARKNESS, 60, 0));
+            case DISORIENT -> List.direct(entry(MobEffects.NAUSEA, 80, 0));
+            default -> List.direct();
         };
     }
 
     private static List<status_effect_config_parser.status_effect_config_entry> defaultAttackerEffects(Mode mode) {
-        return List.of();
+        return List.direct();
     }
 
-    private static status_effect_config_parser.status_effect_config_entry entry(RegistryEntry<StatusEffect> effect,
+    private static status_effect_config_parser.status_effect_config_entry entry(Holder<MobEffect> effect,
             int duration,
             int amplifier) {
         return new status_effect_config_parser.status_effect_config_entry(effect, duration, amplifier, true, true, true);
     }
 
-    private void queueRotationStep(ServerWorld world, ServerPlayerEntity player, float targetYaw, float targetPitch, int delayTicks) {
+    private void queueRotationStep(ServerLevel world, ServerPlayer player, float targetYaw, float targetPitch, int delayTicks) {
         mutation_task_scheduler.schedule(world, new mutation_task_scheduler.TimedTask() {
             private int ticksRemaining = delayTicks;
 
             @Override
-            public boolean tick(ServerWorld currentWorld) {
-                if (!player.isAlive() || player.getEntityWorld() != currentWorld) {
+            public boolean tick(ServerLevel currentWorld) {
+                if (!player.isAlive() || player.level() != currentWorld) {
                     return true;
                 }
 
@@ -178,12 +178,12 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
                     return false;
                 }
 
-                float wrappedYaw = MathHelper.wrapDegrees(targetYaw);
-                float clampedPitch = MathHelper.clamp(targetPitch, -90.0F, 90.0F);
+                float wrappedYaw = Mth.wrapDegrees(targetYaw);
+                float clampedPitch = Mth.clamp(targetPitch, -90.0F, 90.0F);
                 player.setYaw(wrappedYaw);
                 player.setHeadYaw(wrappedYaw);
                 player.setBodyYaw(wrappedYaw);
-                player.networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
+                player.connection.requestTeleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
                 return true;
             }
         });

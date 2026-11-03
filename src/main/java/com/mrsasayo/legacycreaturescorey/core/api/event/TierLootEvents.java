@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.core.api.event;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContext;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.pickUpItem.LootContext;
 
 import java.util.List;
 
@@ -47,11 +47,11 @@ public final class TierLootEvents {
 
     @FunctionalInterface
     public interface AllowTierLoot {
-        boolean allowTierLoot(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops);
+        boolean allowTierLoot(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops);
     }
 
     @FunctionalInterface
     public interface AfterTierLoot {
-        void onTierLootApplied(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops, boolean appliedLegacyLoot);
+        void onTierLootApplied(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops, boolean appliedLegacyLoot);
     }
 }

@@ -3,11 +3,11 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_death;
 import com.mrsasayo.legacycreaturescorey.mutation.action.helper.LootDropHelper;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public final class LootScatterOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -47,7 +47,7 @@ public final class LootScatterOnDeathAction implements mutation_action {
             double vx = Math.cos(angle) * speed;
             double vz = Math.sin(angle) * speed;
             double vy = verticalVelocity * (0.6D + random.nextDouble() * 0.4D);
-            drop.setVelocity(new Vec3d(vx, vy, vz));
+            drop.setVelocity(new Vec3(vx, vy, vz));
             drop.velocityDirty = true;
         }
     }

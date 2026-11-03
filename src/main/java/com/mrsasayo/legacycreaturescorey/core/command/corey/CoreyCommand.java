@@ -4,8 +4,8 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mrsasayo.legacycreaturescorey.content.health.CoreyHealthMonitor;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
 public final class CoreyCommand {
     private CoreyCommand() {
@@ -15,8 +15,8 @@ public final class CoreyCommand {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(buildRoot()));
     }
 
-    private static LiteralArgumentBuilder<ServerCommandSource> buildRoot() {
-        LiteralArgumentBuilder<ServerCommandSource> root = CommandManager.literal("corey")
+    private static LiteralArgumentBuilder<CommandSourceStack> buildRoot() {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("corey")
             .requires(CoreyCommandPermissions.SUPPORT::test);
 
         root.then(CoreyDebugCommands.createNode());
@@ -29,8 +29,8 @@ public final class CoreyCommand {
         return root;
     }
 
-    private static ArgumentBuilder<ServerCommandSource, ?> buildHealthNode() {
-        return CommandManager.literal("health")
+    private static ArgumentBuilder<CommandSourceStack, ?> buildHealthNode() {
+        return Commands.literal("health")
             .requires(CoreyCommandPermissions.SUPPORT::test)
             .executes(ctx -> CoreyHealthMonitor.runCommand(ctx.getSource()));
     }

@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.VindicatorEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Vindicator;
 
 public final class axe_mastery_3_action extends axe_mastery_base_action {
     private final double maxDistance;
@@ -19,7 +19,7 @@ public final class axe_mastery_3_action extends axe_mastery_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        VindicatorEntity vindicator = asServerVindicator(entity);
+        Vindicator vindicator = asServerVindicator(entity);
         if (vindicator == null) {
             return;
         }

@@ -4,18 +4,18 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.block.BlockState;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.LightType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.LightLayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
     private final double radius;
     private final int intervalTicks;
     private final int darknessDuration;
-    private final RegistryEntry<StatusEffect> statusEffect;
+    private final Holder<MobEffect> statusEffect;
     private final boolean removeNightVision;
     private final int lightBreakDelayTicks;
     private final int lightThreshold;
@@ -42,7 +42,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
             radius,
             intervalTicks,
             darknessDuration,
-            StatusEffects.DARKNESS,
+            MobEffects.DARKNESS,
             removeNightVision,
             0,
             7);
@@ -52,7 +52,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
                                   double radius,
                                   int intervalTicks,
                                   int darknessDuration,
-                                  RegistryEntry<StatusEffect> statusEffect,
+                                  Holder<MobEffect> statusEffect,
                                   boolean removeNightVision,
                                   int lightBreakDelayTicks,
                                   int lightThreshold) {
@@ -60,7 +60,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
         this.radius = Math.max(0.5D, radius);
         this.intervalTicks = Math.max(1, intervalTicks);
         this.darknessDuration = Math.max(1, darknessDuration);
-    this.statusEffect = statusEffect != null ? statusEffect : StatusEffects.DARKNESS;
+    this.statusEffect = statusEffect != null ? statusEffect : MobEffects.DARKNESS;
         this.removeNightVision = removeNightVision;
         this.lightBreakDelayTicks = Math.max(0, lightBreakDelayTicks);
         this.lightThreshold = Math.max(0, lightThreshold);
@@ -99,7 +99,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
         return darknessDuration;
     }
 
-    RegistryEntry<StatusEffect> getStatusEffect() {
+    Holder<MobEffect> getStatusEffect() {
         return statusEffect;
     }
 
@@ -150,8 +150,8 @@ public final class DeepDarknessAuraAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-        private final Map<ServerWorld, Map<BlockPos, ScheduledLight>> scheduledLights = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerLevel, Map<BlockPos, ScheduledLight>> scheduledLights = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {}
@@ -165,7 +165,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, DeepDarknessAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (ActiveAura aura : list) {
@@ -174,11 +174,11 @@ public final class DeepDarknessAuraAction implements mutation_action {
                     return;
                 }
             }
-            list.add(new ActiveAura(entity, action, time));
+            list.offset(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, DeepDarknessAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -189,7 +189,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
             }
         }
 
-        private void handleWorldTick(ServerWorld world) {
+        private void handleWorldTick(ServerLevel world) {
             cleanup(world);
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
@@ -213,23 +213,23 @@ public final class DeepDarknessAuraAction implements mutation_action {
             processScheduledLights(world, time);
         }
 
-        private void applyDarkness(ServerWorld world, ActiveAura aura) {
+        private void applyDarkness(ServerLevel world, ActiveAura aura) {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+            List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (players.isEmpty()) {
                 return;
             }
 
-            for (ServerPlayerEntity player : players) {
+            for (ServerPlayer player : players) {
                 if (aura.action.shouldRemoveNightVision()) {
-                    player.removeStatusEffect(StatusEffects.NIGHT_VISION);
+                    player.removeEffect(MobEffects.NIGHT_VISION);
                 }
                 applyStatusEffect(player, aura.action);
             }
 
-            world.spawnParticles(ParticleTypes.ASH,
+            world.sendParticles(ParticleTypes.ASH,
                 source.getX(),
                 source.getBodyY(0.5D),
                 source.getZ(),
@@ -240,18 +240,18 @@ public final class DeepDarknessAuraAction implements mutation_action {
                 0.03D);
         }
 
-        private void applyConditionalDarkness(ServerWorld world, ActiveAura aura) {
+        private void applyConditionalDarkness(ServerLevel world, ActiveAura aura) {
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
             double radiusSq = radius * radius;
-            List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
+            List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
             if (players.isEmpty()) {
                 return;
             }
 
-            for (ServerPlayerEntity player : players) {
+            for (ServerPlayer player : players) {
                 if (aura.action.shouldRemoveNightVision()) {
-                    player.removeStatusEffect(StatusEffects.NIGHT_VISION);
+                    player.removeEffect(MobEffects.NIGHT_VISION);
                 }
                 if (!isNearLight(world, player.getBlockPos(), aura.action.getLightThreshold())) {
                     applyStatusEffect(player, aura.action);
@@ -259,23 +259,23 @@ public final class DeepDarknessAuraAction implements mutation_action {
             }
         }
 
-        private void runLightBreak(ServerWorld world, ActiveAura aura, long time) {
+        private void runLightBreak(ServerLevel world, ActiveAura aura, long time) {
             LivingEntity source = aura.source;
-            int radius = MathHelper.ceil(aura.action.getRadius());
+            int radius = Mth.ceil(aura.action.getRadius());
             BlockPos origin = source.getBlockPos();
             Map<BlockPos, ScheduledLight> registry = scheduledLights.computeIfAbsent(world, ignored -> new HashMap<>());
 
-            BlockPos.iterate(origin.add(-radius, -1, -radius), origin.add(radius, 1, radius)).forEach(pos -> {
+            BlockPos.betweenClosed(origin.offset(-radius, -1, -radius), origin.offset(radius, 1, radius)).forEach(pos -> {
                 BlockState state = world.getBlockState(pos);
                 if (state.getLuminance() <= aura.action.getLightThreshold()) {
                     return;
                 }
-                BlockPos immutable = pos.toImmutable();
+                BlockPos immutable = pos.immutable();
                 registry.computeIfAbsent(immutable, key -> new ScheduledLight(immutable, time + aura.action.getLightBreakDelayTicks(), aura.source));
             });
         }
 
-        private void processScheduledLights(ServerWorld world, long time) {
+        private void processScheduledLights(ServerLevel world, long time) {
             Map<BlockPos, ScheduledLight> registry = scheduledLights.get(world);
             if (registry == null || registry.isEmpty()) {
                 return;
@@ -290,7 +290,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
                 BlockState state = world.getBlockState(scheduled.pos);
                 if (state.getLuminance() > 0) {
                     world.breakBlock(scheduled.pos, true, scheduled.source);
-                    world.spawnParticles(ParticleTypes.SMOKE,
+                    world.sendParticles(ParticleTypes.SMOKE,
                         scheduled.pos.getX() + 0.5D,
                         scheduled.pos.getY() + 0.5D,
                         scheduled.pos.getZ() + 0.5D,
@@ -307,9 +307,9 @@ public final class DeepDarknessAuraAction implements mutation_action {
             }
         }
 
-        private boolean isNearLight(ServerWorld world, BlockPos origin, int threshold) {
-            for (BlockPos pos : BlockPos.iterate(origin.add(-1, -1, -1), origin.add(1, 1, 1))) {
-                int light = world.getLightLevel(LightType.BLOCK, pos);
+        private boolean isNearLight(ServerLevel world, BlockPos origin, int threshold) {
+            for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(1, 1, 1))) {
+                int light = world.getLightLevel(LightLayer.BLOCK, pos);
                 if (light > threshold) {
                     return true;
                 }
@@ -320,12 +320,12 @@ public final class DeepDarknessAuraAction implements mutation_action {
             return false;
         }
 
-        private void applyStatusEffect(ServerPlayerEntity player, DeepDarknessAuraAction action) {
-            RegistryEntry<StatusEffect> entry = action.getStatusEffect();
+        private void applyStatusEffect(ServerPlayer player, DeepDarknessAuraAction action) {
+            Holder<MobEffect> entry = action.getStatusEffect();
             if (entry == null) {
                 return;
             }
-            player.addStatusEffect(new StatusEffectInstance(entry,
+            player.addEffect(new MobEffectInstance(entry,
                 action.getDarknessDuration(),
                 0,
                 true,
@@ -333,7 +333,7 @@ public final class DeepDarknessAuraAction implements mutation_action {
                 true));
         }
 
-        private void cleanup(ServerWorld world) {
+        private void cleanup(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;

@@ -4,12 +4,12 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
 
     protected deafening_strike_base_action(mutation_action_config config,
             double defaultChance,
-            StatusEffect defaultEffect,
+            MobEffect defaultEffect,
             int defaultDurationTicks,
             int defaultAmplifier) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
-        RegistryEntry<StatusEffect> fallbackEffect = resolveEffect(config, defaultEffect);
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        Holder<MobEffect> fallbackEffect = resolveEffect(config, defaultEffect);
         int durationTicks = resolveDuration(config, defaultDurationTicks);
         int amplifier = Math.max(0, config.getInt("amplifier", defaultAmplifier));
         this.effects = resolveEffects(config, fallbackEffect, durationTicks, amplifier);
@@ -30,12 +30,12 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
 
     private List<status_effect_config_parser.status_effect_config_entry> resolveEffects(
             mutation_action_config config,
-            RegistryEntry<StatusEffect> fallbackEffect,
+            Holder<MobEffect> fallbackEffect,
             int fallbackDuration,
             int fallbackAmplifier) {
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
         if (fallbackEffect != null && fallbackDuration > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(fallbackEffect,
+            fallback = List.direct(status_effect_config_parser.createEntry(fallbackEffect,
                     fallbackDuration,
                     fallbackAmplifier,
                     true,
@@ -45,18 +45,18 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
         return status_effect_config_parser.parseList(config, "effects", fallback);
     }
 
-    private RegistryEntry<StatusEffect> resolveEffect(mutation_action_config config, StatusEffect fallback) {
-        Identifier configured = config.getIdentifier("effect", null);
+    private Holder<MobEffect> resolveEffect(mutation_action_config config, MobEffect fallback) {
+        ResourceLocation configured = config.getIdentifier("effect", null);
         if (configured != null) {
-            StatusEffect custom = Registries.STATUS_EFFECT.get(configured);
+            MobEffect custom = BuiltInRegistries.MOB_EFFECT.get(configured);
             if (custom != null) {
-                RegistryEntry<StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(custom);
+                Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(custom);
                 if (entry != null) {
                     return entry;
                 }
             }
         }
-        RegistryEntry<StatusEffect> fallbackEntry = Registries.STATUS_EFFECT.getEntry(fallback);
+        Holder<MobEffect> fallbackEntry = BuiltInRegistries.MOB_EFFECT.getEntry(fallback);
         if (fallbackEntry == null) {
             throw new IllegalStateException("No se pudo encontrar un efecto válido para deafening_strike");
         }

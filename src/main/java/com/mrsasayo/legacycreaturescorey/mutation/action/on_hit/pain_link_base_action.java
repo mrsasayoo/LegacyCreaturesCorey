@@ -4,23 +4,23 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     protected pain_link_base_action(mutation_action_config config,
             double defaultChance,
             LinkProfile defaultProfile) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.profile = overrideProfile(config, defaultProfile);
         Handler.INSTANCE.ensureRegistered();
     }
@@ -43,14 +43,14 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         LinkMode mode = LinkMode.fromString(config.getString("mode", null), base.mode());
         float reflected = config.getFloat("reflected_damage",
                 config.getFloat("retaliation_damage", base.flatDamagePerHit()));
-        float splitRatio = MathHelper.clamp(
+        float splitRatio = Mth.clamp(
                 config.getFloat("split_ratio", config.getFloat("redirect_ratio", base.splitShareRatio())),
                 0.0F,
                 1.0F);
         int particleInterval = Math.max(1, config.getInt("particle_interval_ticks", base.particleIntervalTicks()));
         int particleSegments = Math.max(2, config.getInt("particle_segments", base.particleSegments()));
         int particlesPerSegment = Math.max(1, config.getInt("particles_per_segment", base.particlesPerSegment()));
-        ParticleEffect particleEffect = resolveParticleEffect(config, base.particleEffect());
+        ParticleOptions particleEffect = resolveParticleEffect(config, base.particleEffect());
         PlayerBuff buff = overrideBuff(config.getObject("player_buff"), base.playerBuff());
         LinkAuraEffect aura = overrideAura(config.getObject("link_aura"), base.auraEffect());
         if (mode == LinkMode.SPLIT_SHARE) {
@@ -68,11 +68,11 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 aura);
     }
 
-    private ParticleEffect resolveParticleEffect(mutation_action_config config, ParticleEffect fallback) {
-        Identifier id = config.getIdentifier("particle_effect", null);
+    private ParticleOptions resolveParticleEffect(mutation_action_config config, ParticleOptions fallback) {
+        ResourceLocation id = config.getIdentifier("particle_effect", null);
         if (id != null) {
-            ParticleType<?> type = Registries.PARTICLE_TYPE.get(id);
-            if (type instanceof ParticleEffect effect) {
+            ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(id);
+            if (type instanceof ParticleOptions effect) {
                 return effect;
             }
         }
@@ -83,12 +83,12 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (config == null || config.raw().size() == 0) {
             return fallback;
         }
-        Identifier id = config.getIdentifier("id", null);
-        RegistryEntry<StatusEffect> effect = fallback != null ? fallback.effect() : null;
+        ResourceLocation id = config.getIdentifier("id", null);
+        Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            StatusEffect resolved = Registries.STATUS_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);
             if (resolved != null) {
-                effect = Registries.STATUS_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
             }
         }
         if (effect == null) {
@@ -103,12 +103,12 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         if (config == null || config.raw().size() == 0) {
             return fallback;
         }
-        Identifier id = config.getIdentifier("id", null);
-        RegistryEntry<StatusEffect> effect = fallback != null ? fallback.effect() : null;
+        ResourceLocation id = config.getIdentifier("id", null);
+        Holder<MobEffect> effect = fallback != null ? fallback.effect() : null;
         if (id != null) {
-            StatusEffect resolved = Registries.STATUS_EFFECT.get(id);
+            MobEffect resolved = BuiltInRegistries.MOB_EFFECT.get(id);
             if (resolved != null) {
-                effect = Registries.STATUS_EFFECT.getEntry(resolved);
+                effect = BuiltInRegistries.MOB_EFFECT.getEntry(resolved);
             }
         }
         if (effect == null) {
@@ -133,13 +133,13 @@ abstract class pain_link_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim instanceof ServerPlayerEntity player) || !(attacker.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(victim instanceof ServerPlayer player) || !(attacker.level() instanceof ServerLevel world)) {
             return;
         }
         Handler.INSTANCE.registerLink(world, attacker, player, profile);
         PlayerBuff buff = profile.playerBuff();
         if (buff != null && buff.durationTicks() > 0 && buff.effect() != null) {
-            player.addStatusEffect(new StatusEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
+            player.addEffect(new MobEffectInstance(buff.effect(), buff.durationTicks(), buff.amplifier()));
         }
     }
 
@@ -166,51 +166,51 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             int particleIntervalTicks,
             int particleSegments,
             int particlesPerSegment,
-            ParticleEffect particleEffect,
+            ParticleOptions particleEffect,
             PlayerBuff playerBuff,
             LinkAuraEffect auraEffect) {
     }
 
-    protected record PlayerBuff(RegistryEntry<net.minecraft.entity.effect.StatusEffect> effect, int durationTicks, int amplifier) {
+    protected record PlayerBuff(Holder<net.minecraft.world.effect.MobEffect> effect, int durationTicks, int amplifier) {
     }
 
-    protected record LinkAuraEffect(RegistryEntry<net.minecraft.entity.effect.StatusEffect> effect, int durationTicks, int amplifier) {
+    protected record LinkAuraEffect(Holder<net.minecraft.world.effect.MobEffect> effect, int durationTicks, int amplifier) {
     }
 
     protected static int secondsToTicks(int seconds) {
         return Math.max(0, seconds * 20);
     }
 
-    protected static PlayerBuff createBuff(RegistryEntry<StatusEffect> effect, int durationTicks, int amplifier) {
+    protected static PlayerBuff createBuff(Holder<MobEffect> effect, int durationTicks, int amplifier) {
         if (effect == null) {
             return null;
         }
         return new PlayerBuff(effect, Math.max(0, durationTicks), Math.max(0, amplifier));
     }
 
-    protected static PlayerBuff createBuff(StatusEffect effect, int durationTicks, int amplifier) {
+    protected static PlayerBuff createBuff(MobEffect effect, int durationTicks, int amplifier) {
         if (effect == null) {
             return null;
         }
-        RegistryEntry<StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
         if (entry == null) {
             return null;
         }
         return createBuff(entry, durationTicks, amplifier);
     }
 
-    protected static LinkAuraEffect createAura(StatusEffect effect, int durationTicks, int amplifier) {
+    protected static LinkAuraEffect createAura(MobEffect effect, int durationTicks, int amplifier) {
         if (effect == null) {
             return null;
         }
-        RegistryEntry<StatusEffect> entry = Registries.STATUS_EFFECT.getEntry(effect);
+        Holder<MobEffect> entry = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
         if (entry == null) {
             return null;
         }
         return createAura(entry, durationTicks, amplifier);
     }
 
-    protected static LinkAuraEffect createAura(RegistryEntry<StatusEffect> effect, int durationTicks, int amplifier) {
+    protected static LinkAuraEffect createAura(Holder<MobEffect> effect, int durationTicks, int amplifier) {
         if (effect == null) {
             return null;
         }
@@ -220,7 +220,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerPlayerEntity, ActiveLink> linksByPlayer = new WeakHashMap<>();
+        private final Map<ServerPlayer, ActiveLink> linksByPlayer = new WeakHashMap<>();
         private final Map<LivingEntity, List<ActiveLink>> linksByMob = new WeakHashMap<>();
         private boolean registered;
 
@@ -237,22 +237,22 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             ServerLivingEntityEvents.AFTER_DAMAGE.register(this::afterDamage);
         }
 
-        void registerLink(ServerWorld world, LivingEntity mob, ServerPlayerEntity player, LinkProfile profile) {
+        void registerLink(ServerLevel world, LivingEntity mob, ServerPlayer player, LinkProfile profile) {
             ActiveLink existing = linksByPlayer.remove(player);
             if (existing != null) {
                 removeFromMob(existing);
             }
             ActiveLink link = new ActiveLink(world.getTime() + profile.durationTicks(), mob, player, profile);
             linksByPlayer.put(player, link);
-            linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).add(link);
+            linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).atLowerCornerWithOffset(link);
             link.playActivation(world);
         }
 
-        private void tickWorld(ServerWorld world) {
+        private void tickWorld(ServerLevel world) {
             long time = world.getTime();
             var iterator = linksByPlayer.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<ServerPlayerEntity, ActiveLink> entry = iterator.next();
+                Map.Entry<ServerPlayer, ActiveLink> entry = iterator.next();
                 ActiveLink link = entry.getValue();
                 if (!link.tick(world, time)) {
                     iterator.remove();
@@ -266,10 +266,10 @@ abstract class pain_link_base_action extends proc_on_hit_action {
                 float originalAmount,
                 float actualAmount,
                 boolean blocked) {
-            if (actualAmount <= 0.0F || !(victim.getEntityWorld() instanceof ServerWorld world)) {
+            if (actualAmount <= 0.0F || !(victim.level() instanceof ServerLevel world)) {
                 return;
             }
-            if (victim instanceof ServerPlayerEntity player) {
+            if (victim instanceof ServerPlayer player) {
                 ActiveLink link = linksByPlayer.get(player);
                 if (link != null) {
                     link.onPlayerDamaged(world, actualAmount);
@@ -301,7 +301,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
 
         private final long expiryTick;
         private final LivingEntity mob;
-        private final ServerPlayerEntity player;
+        private final ServerPlayer player;
         private final LinkProfile profile;
         private boolean skipPlayerDamage;
         private boolean skipMobDamage;
@@ -309,7 +309,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         private long nextGlowRefresh;
         private long nextAuraRefresh;
 
-        private ActiveLink(long expiryTick, LivingEntity mob, ServerPlayerEntity player, LinkProfile profile) {
+        private ActiveLink(long expiryTick, LivingEntity mob, ServerPlayer player, LinkProfile profile) {
             this.expiryTick = expiryTick;
             this.mob = mob;
             this.player = player;
@@ -319,7 +319,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             this.nextAuraRefresh = Long.MIN_VALUE;
         }
 
-        void playActivation(ServerWorld world) {
+        void playActivation(ServerLevel world) {
             if (!player.isAlive() || !mob.isAlive()) {
                 return;
             }
@@ -330,10 +330,10 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             double playerY = player.getY() + player.getStandingEyeHeight() * 0.4D;
             double playerZ = player.getZ();
             float basePitch = 0.85F + world.getRandom().nextFloat() * 0.15F;
-            world.playSound(null, mobX, mobY, mobZ, SoundEvents.BLOCK_RESPAWN_ANCHOR_CHARGE, SoundCategory.HOSTILE, 0.6F, basePitch);
-            world.playSound(null, playerX, playerY, playerZ, SoundEvents.ENTITY_ENDERMAN_AMBIENT, SoundCategory.PLAYERS, 0.4F, 1.2F);
-            spawnBurst(world, new Vec3d(mobX, mobY, mobZ));
-            spawnBurst(world, new Vec3d(playerX, playerY, playerZ));
+            world.makeSound(null, mobX, mobY, mobZ, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.HOSTILE, 0.6F, basePitch);
+            world.makeSound(null, playerX, playerY, playerZ, SoundEvents.ENDERMAN_AMBIENT, SoundSource.PLAYERS, 0.4F, 1.2F);
+            spawnBurst(world, new Vec3(mobX, mobY, mobZ));
+            spawnBurst(world, new Vec3(playerX, playerY, playerZ));
             applyGlow();
             refreshAura(world);
             long time = world.getTime();
@@ -342,7 +342,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             nextAuraRefresh = time;
         }
 
-        boolean tick(ServerWorld world, long time) {
+        boolean tick(ServerLevel world, long time) {
             if (!isActive(world, time)) {
                 return false;
             }
@@ -361,14 +361,14 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             return true;
         }
 
-        private boolean isActive(ServerWorld world, long time) {
+        private boolean isActive(ServerLevel world, long time) {
             if (!player.isAlive() || !mob.isAlive() || time > expiryTick) {
                 return false;
             }
-            return player.getEntityWorld() == world && mob.getEntityWorld() == world;
+            return player.level() == world && mob.level() == world;
         }
 
-        void onMobDamaged(ServerWorld world, float damage) {
+        void onMobDamaged(ServerLevel world, float damage) {
             if (skipMobDamage) {
                 skipMobDamage = false;
                 return;
@@ -383,7 +383,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             transferFlatDamageToPlayer(world);
         }
 
-        void onPlayerDamaged(ServerWorld world, float damage) {
+        void onPlayerDamaged(ServerLevel world, float damage) {
             if (skipPlayerDamage) {
                 skipPlayerDamage = false;
                 return;
@@ -398,7 +398,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             transferFlatDamageToMob(world);
         }
 
-        private void transferFlatDamageToPlayer(ServerWorld world) {
+        private void transferFlatDamageToPlayer(ServerLevel world) {
             float amount = profile.flatDamagePerHit();
             if (amount <= 0.0F) {
                 return;
@@ -407,7 +407,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             player.damage(world, world.getDamageSources().magic(), amount);
         }
 
-        private void transferFlatDamageToMob(ServerWorld world) {
+        private void transferFlatDamageToMob(ServerLevel world) {
             float amount = profile.flatDamagePerHit();
             if (amount <= 0.0F) {
                 return;
@@ -416,7 +416,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             mob.damage(world, world.getDamageSources().magic(), amount);
         }
 
-        private void shareDamage(ServerWorld world, LivingEntity damaged, LivingEntity partner, float damage) {
+        private void shareDamage(ServerLevel world, LivingEntity damaged, LivingEntity partner, float damage) {
             if (damage <= 0.0F || !damaged.isAlive() || !partner.isAlive()) {
                 return;
             }
@@ -435,7 +435,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             entity.heal(amount);
         }
 
-        private void applySharedDamage(ServerWorld world, LivingEntity target, float amount) {
+        private void applySharedDamage(ServerLevel world, LivingEntity target, float amount) {
             if (amount <= 0.0F || !target.isAlive()) {
                 return;
             }
@@ -449,45 +449,45 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         }
 
         private void applyGlow() {
-            StatusEffectInstance marker = new StatusEffectInstance(StatusEffects.GLOWING, 12, 0, true, false, false);
-            player.addStatusEffect(marker);
+            MobEffectInstance marker = new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false);
+            player.addEffect(marker);
             if (mob.isAlive()) {
-                mob.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 12, 0, true, false, false));
+                mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
             }
         }
 
-        private void refreshAura(ServerWorld world) {
+        private void refreshAura(ServerLevel world) {
             LinkAuraEffect aura = profile.auraEffect();
             if (aura == null || aura.effect() == null || aura.durationTicks() <= 0) {
                 return;
             }
-            StatusEffectInstance instance = new StatusEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier());
-            player.addStatusEffect(instance);
+            MobEffectInstance instance = new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier());
+            player.addEffect(instance);
             if (mob.isAlive()) {
-                mob.addStatusEffect(new StatusEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
+                mob.addEffect(new MobEffectInstance(aura.effect(), aura.durationTicks(), aura.amplifier()));
             }
         }
 
-        private void spawnLinkParticles(ServerWorld world) {
-            Vec3d from = new Vec3d(mob.getX(), mob.getY() + mob.getStandingEyeHeight() * 0.6D, mob.getZ());
-            Vec3d to = new Vec3d(player.getX(), player.getY() + player.getStandingEyeHeight() * 0.4D, player.getZ());
-            Vec3d delta = to.subtract(from);
+        private void spawnLinkParticles(ServerLevel world) {
+            Vec3 from = new Vec3(mob.getX(), mob.getY() + mob.getStandingEyeHeight() * 0.6D, mob.getZ());
+            Vec3 to = new Vec3(player.getX(), player.getY() + player.getStandingEyeHeight() * 0.4D, player.getZ());
+            Vec3 delta = to.subtract(from);
             int segments = Math.max(2, profile.particleSegments());
             int perSegment = Math.max(1, profile.particlesPerSegment());
-            ParticleEffect effect = profile.particleEffect() != null ? profile.particleEffect() : ParticleTypes.ELECTRIC_SPARK;
+            ParticleOptions effect = profile.particleEffect() != null ? profile.particleEffect() : ParticleTypes.ELECTRIC_SPARK;
             for (int i = 0; i <= segments; i++) {
                 double t = i / (double) segments;
-                Vec3d point = from.add(delta.multiply(t));
-                world.spawnParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
+                Vec3 point = from.atLowerCornerWithOffset(delta.scale(t));
+                world.sendParticles(effect, point.x, point.y, point.z, perSegment, 0.0D, 0.0D, 0.0D, 0.0D);
                 if (profile.mode() == LinkMode.SPLIT_SHARE) {
-                    world.spawnParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                    world.sendParticles(ParticleTypes.ENCHANTED_HIT, point.x, point.y, point.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
                 }
             }
         }
 
-        private void spawnBurst(ServerWorld world, Vec3d origin) {
-            world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
-            world.spawnParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
+        private void spawnBurst(ServerLevel world, Vec3 origin) {
+            world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, origin.x, origin.y, origin.z, 10, 0.28D, 0.25D, 0.28D, 0.01D);
+            world.sendParticles(ParticleTypes.ENCHANTED_HIT, origin.x, origin.y, origin.z, 6, 0.25D, 0.2D, 0.25D, 0.0D);
         }
     }
 }

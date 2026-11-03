@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.WeakHashMap;
  * Manipulates incoming projectiles around the aura bearer.
  */
 public final class ProjectileShroudAuraAction implements mutation_action {
-    private static final Map<ServerWorld, Set<PersistentProjectileEntity>> PROCESSED_PROJECTILES = new WeakHashMap<>();
+    private static final Map<ServerLevel, Set<AbstractArrow>> PROCESSED_PROJECTILES = new WeakHashMap<>();
 
     private final double radius;
     private final double chance;
@@ -43,15 +43,15 @@ public final class ProjectileShroudAuraAction implements mutation_action {
         if (!action_context.isServer(entity)) {
             return;
         }
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
-        Set<PersistentProjectileEntity> processed = PROCESSED_PROJECTILES.computeIfAbsent(world, ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
-        List<PersistentProjectileEntity> projectiles = world.getEntitiesByClass(
-            PersistentProjectileEntity.class,
-            entity.getBoundingBox().expand(radius),
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
+        Set<AbstractArrow> processed = PROCESSED_PROJECTILES.computeIfAbsent(world, ignored -> Collections.newSetFromMap(new WeakHashMap<>()));
+        List<AbstractArrow> projectiles = world.getEntitiesByClass(
+            AbstractArrow.class,
+            entity.getLocalBoundsForPose().expand(radius),
             projectile -> projectile.isAlive() && projectile.isOnGround() == false
         );
 
-        for (PersistentProjectileEntity projectile : projectiles) {
+        for (AbstractArrow projectile : projectiles) {
             if (entity.squaredDistanceTo(projectile) > radius * radius) {
                 continue;
             }

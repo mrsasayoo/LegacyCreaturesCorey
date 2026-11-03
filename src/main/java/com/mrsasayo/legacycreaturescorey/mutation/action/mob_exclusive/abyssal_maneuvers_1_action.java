@@ -3,15 +3,15 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.resources.ResourceLocation;
 
 public final class abyssal_maneuvers_1_action implements mutation_action {
-    private static final Identifier SPEED_MODIFIER_ID = Identifier.of(
+    private static final ResourceLocation SPEED_MODIFIER_ID = ResourceLocation.of(
             Legacycreaturescorey.MOD_ID,
             "abyssal_maneuvers_speed");
 
@@ -23,10 +23,10 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof WitherEntity wither) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
             return;
         }
-        EntityAttributeInstance speed = wither.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        AttributeInstance speed = wither.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
         }
@@ -34,11 +34,11 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
         boolean hasModifier = speed.hasModifier(SPEED_MODIFIER_ID);
 
         if (hasTarget && !hasModifier) {
-            EntityAttributeModifier modifier = new EntityAttributeModifier(
+            AttributeModifier modifier = new AttributeModifier(
                     SPEED_MODIFIER_ID,
                     speedBonus,
-                    EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-            speed.addPersistentModifier(modifier);
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            speed.addPermanentModifier(modifier);
         } else if (!hasTarget && hasModifier) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }
@@ -46,10 +46,10 @@ public final class abyssal_maneuvers_1_action implements mutation_action {
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (!(entity instanceof WitherEntity wither)) {
+        if (!(entity instanceof WitherBoss wither)) {
             return;
         }
-        EntityAttributeInstance speed = wither.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        AttributeInstance speed = wither.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed != null && speed.hasModifier(SPEED_MODIFIER_ID)) {
             speed.removeModifier(SPEED_MODIFIER_ID);
         }

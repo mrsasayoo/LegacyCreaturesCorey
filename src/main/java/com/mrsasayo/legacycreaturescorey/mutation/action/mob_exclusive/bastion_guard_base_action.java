@@ -3,30 +3,30 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.PiglinBruteEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class bastion_guard_base_action implements mutation_action {
-    private static final Identifier STANCE_SPEED_ID = Identifier.of(Legacycreaturescorey.MOD_ID,
+    private static final ResourceLocation STANCE_SPEED_ID = ResourceLocation.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
             "bastion_guard_speed_lock");
-    private static final Identifier STANCE_KNOCKBACK_ID = Identifier.of(Legacycreaturescorey.MOD_ID,
+    private static final ResourceLocation STANCE_KNOCKBACK_ID = ResourceLocation.atLowerCornerOf(Legacycreaturescorey.MOD_ID,
             "bastion_guard_knockback");
 
-    protected PiglinBruteEntity asServerBrute(LivingEntity entity) {
-        if (entity instanceof PiglinBruteEntity piglin && !piglin.getEntityWorld().isClient()) {
+    protected PiglinBrute asServerBrute(LivingEntity entity) {
+        if (entity instanceof PiglinBrute piglin && !piglin.getEntityWorld().isClient()) {
             return piglin;
         }
         return null;
@@ -38,15 +38,15 @@ abstract class bastion_guard_base_action implements mutation_action {
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof PiglinBruteEntity piglin) {
+        if (entity instanceof PiglinBrute piglin) {
             handler().clear(piglin);
         }
     }
 
     protected static final class Handler {
         private static final Handler INSTANCE = new Handler();
-        private final Map<PiglinBruteEntity, Integer> pommelCooldowns = new WeakHashMap<>();
-        private final Map<PiglinBruteEntity, StanceState> stanceStates = new WeakHashMap<>();
+        private final Map<PiglinBrute, Integer> pommelCooldowns = new WeakHashMap<>();
+        private final Map<PiglinBrute, StanceState> stanceStates = new WeakHashMap<>();
 
         private Handler() {
             ServerTickEvents.END_WORLD_TICK.register(world -> {
@@ -55,11 +55,11 @@ abstract class bastion_guard_base_action implements mutation_action {
             });
         }
 
-        private void tickPommelCooldowns(ServerWorld world) {
-            Iterator<Map.Entry<PiglinBruteEntity, Integer>> iterator = pommelCooldowns.entrySet().iterator();
+        private void tickPommelCooldowns(ServerLevel world) {
+            Iterator<Map.Entry<PiglinBrute, Integer>> iterator = pommelCooldowns.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<PiglinBruteEntity, Integer> entry = iterator.next();
-                PiglinBruteEntity piglin = entry.getKey();
+                Map.Entry<PiglinBrute, Integer> entry = iterator.next();
+                PiglinBrute piglin = entry.getKey();
                 if (piglin == null || piglin.isRemoved()) {
                     iterator.remove();
                     continue;
@@ -76,11 +76,11 @@ abstract class bastion_guard_base_action implements mutation_action {
             }
         }
 
-        private void tickStanceStates(ServerWorld world) {
-            Iterator<Map.Entry<PiglinBruteEntity, StanceState>> iterator = stanceStates.entrySet().iterator();
+        private void tickStanceStates(ServerLevel world) {
+            Iterator<Map.Entry<PiglinBrute, StanceState>> iterator = stanceStates.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<PiglinBruteEntity, StanceState> entry = iterator.next();
-                PiglinBruteEntity piglin = entry.getKey();
+                Map.Entry<PiglinBrute, StanceState> entry = iterator.next();
+                PiglinBrute piglin = entry.getKey();
                 StanceState state = entry.getValue();
                 if (piglin == null || piglin.isRemoved()) {
                     clearStanceModifiers(piglin);
@@ -102,7 +102,7 @@ abstract class bastion_guard_base_action implements mutation_action {
             }
         }
 
-        void tickDefensiveStance(PiglinBruteEntity piglin,
+        void tickDefensiveStance(PiglinBrute piglin,
                 int durationTicks,
                 int cooldownTicks,
                 float activationThreshold,
@@ -127,28 +127,28 @@ abstract class bastion_guard_base_action implements mutation_action {
             }
         }
 
-        void handleDefensiveDamage(PiglinBruteEntity piglin, DamageSource source, float amount) {
+        void handleDefensiveDamage(PiglinBrute piglin, DamageSource source, float amount) {
             StanceState state = stanceStates.get(piglin);
             if (state == null || state.remainingTicks <= 0) {
                 return;
             }
-            if (!(source.getAttacker() instanceof LivingEntity attacker)) {
+            if (!(source.getEntity() instanceof LivingEntity attacker)) {
                 return;
             }
-            Vec3d forward = piglin.getRotationVector();
-            Vec3d direction = new Vec3d(attacker.getX() - piglin.getX(),
+            Vec3 forward = piglin.getRotationVector();
+            Vec3 direction = new Vec3(attacker.getX() - piglin.getX(),
                     attacker.getEyeY() - piglin.getEyeY(),
                     attacker.getZ() - piglin.getZ());
-            if (direction.lengthSquared() < 1.0E-4D) {
+            if (direction.lengthSqr() < 1.0E-4D) {
                 return;
             }
             direction = direction.normalize();
-            if (forward.dotProduct(direction) >= state.forwardDotThreshold) {
+            if (forward.dot(direction) >= state.forwardDotThreshold) {
                 piglin.heal(amount * (float) state.damageReduction);
             }
         }
 
-        boolean tryPommelStrike(PiglinBruteEntity piglin,
+        boolean tryPommelStrike(PiglinBrute piglin,
                 LivingEntity attacker,
                 double chance,
                 int cooldownTicks,
@@ -163,7 +163,7 @@ abstract class bastion_guard_base_action implements mutation_action {
             if (piglin.getRandom().nextDouble() > chance) {
                 return false;
             }
-            Vec3d direction = new Vec3d(attacker.getX() - piglin.getX(), 0.0D, attacker.getZ() - piglin.getZ());
+            Vec3 direction = new Vec3(attacker.getX() - piglin.getX(), 0.0D, attacker.getZ() - piglin.getZ());
             double horizontalLength = direction.length();
             if (horizontalLength < 1.0E-4D) {
                 return false;
@@ -177,7 +177,7 @@ abstract class bastion_guard_base_action implements mutation_action {
             return true;
         }
 
-        void clear(PiglinBruteEntity piglin) {
+        void clear(PiglinBrute piglin) {
             pommelCooldowns.remove(piglin);
             StanceState state = stanceStates.remove(piglin);
             if (state != null) {
@@ -185,37 +185,37 @@ abstract class bastion_guard_base_action implements mutation_action {
             }
         }
 
-        private void applyStanceEffects(PiglinBruteEntity piglin) {
-            piglin.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 10, 1, false, false, true));
-            piglin.setAttacking(false);
+        private void applyStanceEffects(PiglinBrute piglin) {
+            piglin.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 10, 1, false, false, true));
+            piglin.setLastHurtByPlayer(false);
             piglin.getNavigation().stop();
             applyStanceModifiers(piglin);
         }
 
-        private static void applyStanceModifiers(PiglinBruteEntity piglin) {
-            EntityAttributeInstance speed = piglin.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        private static void applyStanceModifiers(PiglinBrute piglin) {
+            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
             if (speed != null && !speed.hasModifier(STANCE_SPEED_ID)) {
-                speed.addPersistentModifier(new EntityAttributeModifier(STANCE_SPEED_ID,
+                speed.addPermanentModifier(new AttributeModifier(STANCE_SPEED_ID,
                         -1.0D,
-                        EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
-            EntityAttributeInstance knockback = piglin.getAttributeInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && !knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
-                knockback.addPersistentModifier(new EntityAttributeModifier(STANCE_KNOCKBACK_ID,
+                knockback.addPermanentModifier(new AttributeModifier(STANCE_KNOCKBACK_ID,
                         1.0D,
-                        EntityAttributeModifier.Operation.ADD_VALUE));
+                        AttributeModifier.Operation.ADD_VALUE));
             }
         }
 
-        private static void clearStanceModifiers(PiglinBruteEntity piglin) {
+        private static void clearStanceModifiers(PiglinBrute piglin) {
             if (piglin == null) {
                 return;
             }
-            EntityAttributeInstance speed = piglin.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+            AttributeInstance speed = piglin.getAttribute(Attributes.MOVEMENT_SPEED_WHEN_FIGHTING);
             if (speed != null && speed.hasModifier(STANCE_SPEED_ID)) {
                 speed.removeModifier(STANCE_SPEED_ID);
             }
-            EntityAttributeInstance knockback = piglin.getAttributeInstance(EntityAttributes.KNOCKBACK_RESISTANCE);
+            AttributeInstance knockback = piglin.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             if (knockback != null && knockback.hasModifier(STANCE_KNOCKBACK_ID)) {
                 knockback.removeModifier(STANCE_KNOCKBACK_ID);
             }

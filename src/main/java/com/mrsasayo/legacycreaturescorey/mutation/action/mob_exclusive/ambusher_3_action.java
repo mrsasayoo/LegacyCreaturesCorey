@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.level.Level;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -21,11 +21,11 @@ public final class ambusher_3_action extends ambusher_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        CreeperEntity creeper = asServerCreeper(entity);
+        Creeper creeper = asServerCreeper(entity);
         if (creeper == null) {
             return;
         }
-        boolean fuseActive = creeper.isIgnited() || creeper.getFuseSpeed() > 0;
+        boolean fuseActive = creeper.isIgnited() || creeper.getSwellDir() > 0;
         int elapsed = Handler.INSTANCE.advance(creeper, fuseActive);
         if (elapsed <= 0) {
             return;
@@ -37,37 +37,37 @@ public final class ambusher_3_action extends ambusher_base_action {
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof CreeperEntity creeper) {
+        if (entity instanceof Creeper creeper) {
             Handler.INSTANCE.reset(creeper);
         }
     }
 
-    private void explode(CreeperEntity creeper) {
+    private void explode(Creeper creeper) {
         Handler.INSTANCE.reset(creeper);
-        World world = creeper.getEntityWorld();
-        world.createExplosion(
+        Level world = creeper.getEntityWorld();
+        world.explode(
                 creeper,
                 creeper.getX(),
                 creeper.getY(),
                 creeper.getZ(),
                 explosionPower,
                 createsFire,
-                World.ExplosionSourceType.MOB);
+                Level.ExplosionSourceType.MOB);
         creeper.remove(LivingEntity.RemovalReason.KILLED);
     }
 
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
-        private final Map<CreeperEntity, Integer> fuseTimers = new WeakHashMap<>();
+        private final Map<Creeper, Integer> fuseTimers = new WeakHashMap<>();
 
-        int advance(CreeperEntity creeper, boolean fuseActive) {
+        int advance(Creeper creeper, boolean fuseActive) {
             if (!fuseActive && !fuseTimers.containsKey(creeper)) {
                 return 0;
             }
             return fuseTimers.merge(creeper, 1, Integer::sum);
         }
 
-        void reset(CreeperEntity creeper) {
+        void reset(Creeper creeper) {
             fuseTimers.remove(creeper);
         }
     }

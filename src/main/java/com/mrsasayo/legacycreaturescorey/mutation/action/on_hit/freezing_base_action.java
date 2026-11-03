@@ -4,10 +4,10 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ abstract class freezing_base_action extends proc_on_hit_action {
             int defaultFreezeSeconds,
             int defaultSelfSlownessTicks,
             int defaultSelfSlownessAmplifier) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.freezeTicks = resolveFreezeTicks(config, defaultFreezeSeconds);
         this.selfSlownessTicks = resolveSelfSlownessTicks(config, defaultSelfSlownessTicks);
         this.selfSlownessAmplifier = Math.max(0, config.getInt("self_slowness_amplifier", defaultSelfSlownessAmplifier));
@@ -58,7 +58,7 @@ abstract class freezing_base_action extends proc_on_hit_action {
             int fallbackDurationTicks) {
         List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackDurationTicks > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(StatusEffects.SLOWNESS,
+            fallback = List.of(status_effect_config_parser.createEntry(MobEffects.SLOWNESS,
                     fallbackDurationTicks,
                     0,
                     true,
@@ -75,7 +75,7 @@ abstract class freezing_base_action extends proc_on_hit_action {
         }
         status_effect_config_parser.applyEffects(victim, victimEffects);
         if (selfSlownessTicks > 0 && action_context.isServer(attacker)) {
-            attacker.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
+            attacker.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, selfSlownessTicks, selfSlownessAmplifier));
         }
     }
 }

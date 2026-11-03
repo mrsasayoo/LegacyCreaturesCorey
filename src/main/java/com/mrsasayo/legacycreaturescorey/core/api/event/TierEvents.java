@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.core.api.event;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.Mob;
 
 /**
  * Fabric-style hooks that fire whenever a mob obtains a Legacy Creatures tier.
@@ -28,6 +28,6 @@ public final class TierEvents {
 
     @FunctionalInterface
     public interface TierApplied {
-        void onTierApplied(MobEntity mob, MobTier tier, boolean forced);
+        void onTierApplied(Mob mob, MobTier tier, boolean forced);
     }
 }

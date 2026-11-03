@@ -2,17 +2,17 @@ package com.mrsasayo.legacycreaturescorey.core.command.corey;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.argument.Vec3ArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.level.entity.Entity;
+import net.minecraft.level.entity.Mob;
+import net.minecraft.level.entity.projectile.ProjectileUtil;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissionLevel.ServerPlayer;
+import net.minecraft.level.phys.EntityHitResult;
+import net.minecraft.level.phys.AABB;
+import net.minecraft.level.phys.Vec3;
+import net.minecraft.level.permissionLevel.Level;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -23,25 +23,25 @@ import java.util.function.Predicate;
 public final class CoreyCommandUtil {
     private CoreyCommandUtil() {}
 
-    public static ServerPlayerEntity requirePlayer(ServerCommandSource source) throws CommandSyntaxException {
-        return source.getPlayerOrThrow();
+    public static ServerPlayer requirePlayer(CommandSourceStack source) throws CommandSyntaxException {
+        return source.getPlayerOrException();
     }
 
-    public static Vec3d resolvePosition(CommandContext<ServerCommandSource> ctx, String name) {
+    public static Vec3 resolvePosition(CommandContext<CommandSourceStack> ctx, String name) {
         try {
-            return Vec3ArgumentType.getVec3(ctx, name);
+            return Vec3Argument.getVec3(ctx, name);
         } catch (IllegalArgumentException ignored) {
             return ctx.getSource().getPosition();
         }
     }
 
-    public static MobEntity raycastMob(ServerPlayerEntity player, double distance) {
-        Vec3d start = player.getCameraPosVec(1.0F);
-        Vec3d direction = player.getRotationVec(1.0F);
-        Vec3d end = start.add(direction.multiply(distance));
-        Box searchBox = player.getBoundingBox().stretch(direction.multiply(distance)).expand(1.0D);
-        Predicate<Entity> predicate = entity -> entity instanceof MobEntity mob && mob.isAlive() && !mob.isSpectator();
-        EntityHitResult hit = ProjectileUtil.raycast(
+    public static Mob raycastMob(ServerPlayer player, double distance) {
+        Vec3 start = player.getEyePosition(1.0F);
+        Vec3 direction = player.getViewVector(1.0F);
+        Vec3 end = start.atLowerCornerWithOffset(direction.scale(distance));
+        AABB searchBox = player.getBoundingBox().expandTowards(direction.scale(distance)).inflate(1.0D);
+        Predicate<Entity> predicate = entity -> entity instanceof Mob mob && mob.isAlive() && !mob.isSpectator();
+        EntityHitResult hit = ProjectileUtil.clip(
             player,
             start,
             end,
@@ -49,24 +49,24 @@ public final class CoreyCommandUtil {
             predicate,
             distance * distance
         );
-        if (hit != null && hit.getEntity() instanceof MobEntity mob) {
+        if (hit != null && hit.getEntity() instanceof Mob mob) {
             return mob;
         }
         return null;
     }
 
-    public static MobEntity findNearestMob(ServerPlayerEntity player, double radius) {
-        Box box = player.getBoundingBox().expand(radius);
-        return player.getEntityWorld().getEntitiesByClass(MobEntity.class, box, Entity::isAlive)
+    public static Mob findNearestMob(ServerPlayer player, double radius) {
+        AABB box = player.getBoundingBox().inflate(radius);
+        return player.level().getEntitiesByClass(Mob.class, box, Entity::isAlive)
             .stream()
-            .min((a, b) -> Double.compare(a.squaredDistanceTo(player), b.squaredDistanceTo(player)))
+            .min((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)))
             .orElse(null);
     }
 
-    public static MobEntity findMobByUuid(MinecraftServer server, UUID uuid) {
-        for (World world : server.getWorlds()) {
+    public static Mob findMobByUuid(MinecraftServer server, UUID uuid) {
+        for (Level world : server.getWorlds()) {
             Entity entity = world.getEntity(uuid);
-            if (entity instanceof MobEntity mob) {
+            if (entity instanceof Mob mob) {
                 return mob;
             }
         }

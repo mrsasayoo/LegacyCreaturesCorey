@@ -1,8 +1,8 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerLevel;
 
 public final class concussive_blow_1_action extends concussive_blow_base_action {
     private static final float[] DEFAULT_BLEEDING_PULSES = new float[] {0.75F, 0.75F};
@@ -24,7 +24,7 @@ public final class concussive_blow_1_action extends concussive_blow_base_action 
 
     @Override
     protected void afterProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(attacker.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(attacker.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         bleeding_effect_helper.apply(world, attacker, victim, bleedingPulses, bleedingIntervalTicks, bleedingAmplifier);

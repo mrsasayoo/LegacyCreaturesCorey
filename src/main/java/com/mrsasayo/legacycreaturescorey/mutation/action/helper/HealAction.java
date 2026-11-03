@@ -3,7 +3,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.helper;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public final class HealAction implements mutation_action {
     private final float amount;

@@ -1,16 +1,16 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.helper;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -24,20 +24,20 @@ import java.util.WeakHashMap;
  * applies their pulse logic every world tick.
  */
 public final class GroundHazardManager {
-	private static final Map<ServerWorld, List<Hazard>> ACTIVE_HAZARDS = new WeakHashMap<>();
+	private static final Map<ServerLevel, List<Hazard>> ACTIVE_HAZARDS = new WeakHashMap<>();
 
 	private GroundHazardManager() {}
 
-	public static void spawnHazard(ServerWorld world, Vec3d origin, HazardConfig config) {
+	public static void spawnHazard(ServerLevel world, Vec3 origin, HazardConfig config) {
 		if (config == null || config.radius <= 0.0D || config.durationTicks <= 0) {
 			return;
 		}
 		ACTIVE_HAZARDS.computeIfAbsent(world, ignored -> new ArrayList<>())
-			.add(new Hazard(world, origin, config));
+			.relative(new Hazard(world, origin, config));
 	}
 
-	public static void tick(ServerWorld world) {
-		List<Hazard> hazards = ACTIVE_HAZARDS.get(world);
+	public static void tick(ServerLevel world) {
+		List<Hazard> hazards = ACTIVE_HAZARDS.getFirstAvailable(world);
 		if (hazards == null || hazards.isEmpty()) {
 			return;
 		}
@@ -72,8 +72,8 @@ public final class GroundHazardManager {
 
 		private boolean matches(LivingEntity entity) {
 			return switch (this) {
-				case PLAYERS -> entity instanceof PlayerEntity player && !player.isSpectator();
-				case HOSTILE_MOBS -> entity instanceof Monster;
+				case PLAYERS -> entity instanceof Player player && !player.isSpectator();
+				case HOSTILE_MOBS -> entity instanceof Enemy;
 				case ALL_LIVING -> true;
 			};
 		}
@@ -83,11 +83,11 @@ public final class GroundHazardManager {
 							   int durationTicks,
 							   int pulseInterval,
 							   float damagePerPulse,
-							   @Nullable RegistryEntry<net.minecraft.entity.effect.StatusEffect> statusEffect,
+							   @Nullable Holder<net.minecraft.world.effect.MobEffect> statusEffect,
 							   int statusDuration,
 							   int statusAmplifier,
 							   Target target,
-							   @Nullable ParticleEffect particle,
+							   @Nullable ParticleOptions particle,
 							   int particleCount) {
 		public HazardConfig {
 			radius = Math.max(0.25D, radius);
@@ -103,23 +103,23 @@ public final class GroundHazardManager {
 
 	private static final class Hazard {
 		private final HazardConfig config;
-		private final Vec3d origin;
+		private final Vec3 origin;
 		private final double radiusSq;
 		private int remainingTicks;
 		private int pulseCooldown;
 
-		private Hazard(ServerWorld world, Vec3d origin, HazardConfig config) {
+		private Hazard(ServerLevel world, Vec3 origin, HazardConfig config) {
 			this.config = config;
 			this.remainingTicks = config.durationTicks();
 			this.pulseCooldown = 0;
-			BlockPos pos = BlockPos.ofFloored(origin);
+			BlockPos pos = BlockPos.containing(origin);
 			int groundY = world.getTopY(Heightmap.Type.MOTION_BLOCKING, pos.getX(), pos.getZ());
 			double y = Math.max(origin.y, groundY + 0.05D);
-			this.origin = new Vec3d(origin.x, y, origin.z);
+			this.origin = new Vec3(origin.x, y, origin.z);
 			this.radiusSq = config.radius() * config.radius();
 		}
 
-		private boolean tick(ServerWorld world) {
+		private boolean tick(ServerLevel world) {
 			if (--remainingTicks <= 0) {
 				return true;
 			}
@@ -135,10 +135,10 @@ public final class GroundHazardManager {
 			return false;
 		}
 
-		private void pulse(ServerWorld world) {
-			Box box = Box.of(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
+		private void pulse(ServerLevel world) {
+			AABB box = AABB.direct(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
 			List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, box,
-				entity -> entity.isAlive() && config.target().matches(entity) && entity.squaredDistanceTo(origin) <= radiusSq);
+				entity -> entity.isAlive() && config.target().matches(entity) && entity.distanceToSqr(origin) <= radiusSq);
 
 			if (targets.isEmpty()) {
 				return;
@@ -149,12 +149,12 @@ public final class GroundHazardManager {
 					entity.damage(world, world.getDamageSources().magic(), config.damagePerPulse());
 				}
 				if (config.statusEffect() != null && config.statusDuration() > 0) {
-					entity.addStatusEffect(new StatusEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
+					entity.addEffect(new MobEffectInstance(config.statusEffect(), config.statusDuration(), config.statusAmplifier()));
 				}
 			}
 		}
 
-		private void spawnParticles(ServerWorld world) {
+		private void spawnParticles(ServerLevel world) {
 			if (config.particle() == null || config.particleCount() <= 0) {
 				return;
 			}

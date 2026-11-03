@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 
 public final class alphas_vengeance_1_action extends alphas_vengeance_base_action {
     private final double radius;
@@ -22,12 +22,12 @@ public final class alphas_vengeance_1_action extends alphas_vengeance_base_actio
     }
 
     @Override
-    protected void onAllyWolfDeath(WolfEntity deceased) {
+    protected void onAllyWolfDeath(Wolf deceased) {
         if (owner == null) {
             return;
         }
         if (owner.squaredDistanceTo(deceased) <= radius * radius) {
-            owner.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, speedDuration, speedAmplifier));
+            owner.addStatusEffect(new MobEffectInstance(MobEffects.SPEED, speedDuration, speedAmplifier));
         }
     }
 }

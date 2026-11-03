@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.ElderGuardianEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraft.server.level.ServerLevel;
 
 public final class abyssal_armor_2_action extends abyssal_armor_base_action {
     private final int durationTicks;
@@ -22,7 +22,7 @@ public final class abyssal_armor_2_action extends abyssal_armor_base_action {
     }
 
     @Override
-    protected void onThornsRetaliation(ElderGuardianEntity owner, LivingEntity victim, ServerWorld world) {
-        victim.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, durationTicks, amplifier));
+    protected void onThornsRetaliation(ElderGuardian owner, LivingEntity victim, ServerLevel world) {
+        victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, durationTicks, amplifier));
     }
 }

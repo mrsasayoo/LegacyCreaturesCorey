@@ -3,13 +3,13 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_death;
 import com.mrsasayo.legacycreaturescorey.mutation.action.helper.RealityCollapseManager;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,10 +32,10 @@ public final class FinalGambitOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
-    Vec3d origin = new Vec3d(entity.getX(), entity.getY(), entity.getZ());
+    Vec3 origin = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         switch (mode) {
             case PROJECTILE_PURGE -> purgeProjectiles(world, origin);
             case WEAPON_COOLDOWN -> applyWeaponCooldown(killer);
@@ -43,34 +43,34 @@ public final class FinalGambitOnDeathAction implements mutation_action {
         }
     }
 
-    private void purgeProjectiles(ServerWorld world, Vec3d origin) {
-        Box box = Box.of(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
-        List<ProjectileEntity> projectiles = world.getEntitiesByClass(ProjectileEntity.class, box,
-            projectile -> projectile.isAlive() && projectile.squaredDistanceTo(origin) <= radius * radius);
-        for (ProjectileEntity projectile : projectiles) {
+    private void purgeProjectiles(ServerLevel world, Vec3 origin) {
+        AABB box = AABB.ofSize(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
+        List<Projectile> projectiles = world.getEntitiesByClass(Projectile.class, box,
+            projectile -> projectile.isAlive() && projectile.distanceToSqr(origin) <= radius * radius);
+        for (Projectile projectile : projectiles) {
             projectile.discard();
         }
     }
 
     private void applyWeaponCooldown(@Nullable LivingEntity killer) {
-        if (!(killer instanceof PlayerEntity player)) {
+        if (!(killer instanceof Player player)) {
             return;
         }
         if (cooldownTicks <= 0) {
             return;
         }
-        var cooldownManager = player.getItemCooldownManager();
+        var cooldownManager = player.getCooldowns();
         if (cooldownManager == null) {
             return;
         }
-        var stack = player.getMainHandStack();
+        var stack = player.getMainHandItem();
         if (stack.isEmpty()) {
             return;
         }
     cooldownManager.set(stack, cooldownTicks);
     }
 
-    private void spawnCollapse(ServerWorld world, Vec3d origin) {
+    private void spawnCollapse(ServerLevel world, Vec3 origin) {
         if (collapseDuration <= 0) {
             return;
         }

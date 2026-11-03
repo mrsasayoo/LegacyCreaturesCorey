@@ -4,15 +4,15 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.List;
 
 public class vanguards_bulwark_aura_2_action implements mutation_action, VanguardsBulwarkSource {
     private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_EFFECTS = List.of(
             new status_effect_config_parser.status_effect_config_entry(
-                    StatusEffects.RESISTANCE,
+                    MobEffects.RESISTANCE,
                     40,
                     0,
                     true,

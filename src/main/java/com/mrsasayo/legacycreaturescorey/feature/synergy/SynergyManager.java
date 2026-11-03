@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.feature.synergy;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContext;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.pickUpItem.LootContext;
 
 import java.time.Duration;
 import java.util.EnumMap;
@@ -47,7 +47,7 @@ public final class SynergyManager {
             return false;
         }
         try {
-            if (!provider.validate()) {
+            if (!provider.validateStrict()) {
                 STATUSES.put(module, SynergyStatus.disabled(module, "Validación inicial fallida"));
                 return false;
             }
@@ -82,13 +82,13 @@ public final class SynergyManager {
 
     public static synchronized boolean isEnabled(SynergyModule module) {
         refreshStatuses(false);
-        SynergyStatus status = STATUSES.get(module);
+        SynergyStatus status = STATUSES.getOptionalParameter(module);
         return status != null && status.enabled();
     }
 
     public static synchronized Optional<SynergyProvider> findProvider(SynergyModule module) {
         refreshStatuses(false);
-        return Optional.ofNullable(PROVIDERS.get(module));
+        return Optional.ofNullable(PROVIDERS.getOptionalParameter(module));
     }
 
     public static synchronized List<SynergyStatus> dumpStatuses() {
@@ -96,7 +96,7 @@ public final class SynergyManager {
         return List.copyOf(STATUSES.values());
     }
 
-    public static void onMobTiered(MobEntity mob, MobTier tier, MobLegacyData data) {
+    public static void onMobTiered(Mob mob, MobTier tier, MobLegacyData data) {
         List<SynergyProvider> snapshot = snapshotProviders();
         if (snapshot.isEmpty()) {
             return;
@@ -106,7 +106,7 @@ public final class SynergyManager {
         }
     }
 
-    public static void onLootGenerated(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops) {
+    public static void onLootGenerated(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops) {
         List<SynergyProvider> snapshot = snapshotProviders();
         if (snapshot.isEmpty()) {
             return;
@@ -135,7 +135,7 @@ public final class SynergyManager {
         }
         for (SynergyModule module : SynergyModule.values()) {
             boolean detected = module.isDetected();
-            SynergyProvider provider = PROVIDERS.get(module);
+            SynergyProvider provider = PROVIDERS.getOptionalParameter(module);
             if (!detected) {
                 if (provider != null) {
                     Legacycreaturescorey.LOGGER.warn("Sinergia {} deshabilitada: dependencia {} ya no está presente",
@@ -147,7 +147,7 @@ public final class SynergyManager {
             }
 
             if (provider == null) {
-                SynergyStatus current = STATUSES.get(module);
+                SynergyStatus current = STATUSES.getOptionalParameter(module);
                 if (current == null || !current.detected() || current.enabled()) {
                     STATUSES.put(module, SynergyStatus.detected(module));
                 }
@@ -159,7 +159,7 @@ public final class SynergyManager {
             }
 
             try {
-                if (!provider.validate()) {
+                if (!provider.validateStrict()) {
                     PROVIDERS.remove(module);
                     STATUSES.put(module, SynergyStatus.disabled(module, "Validación periódica fallida"));
                     Legacycreaturescorey.LOGGER.warn("Sinergia {} deshabilitada tras revalidación.", module.displayName());
@@ -175,7 +175,7 @@ public final class SynergyManager {
     }
 
     private static boolean shouldRevalidate(SynergyModule module) {
-        SynergyStatus status = STATUSES.get(module);
+        SynergyStatus status = STATUSES.getOptionalParameter(module);
         if (status == null) {
             return true;
         }

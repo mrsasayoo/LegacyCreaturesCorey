@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
 
 public interface StasisSource {
     Mode getMode();
@@ -14,9 +14,9 @@ public interface StasisSource {
 
     int getShieldCooldownTicks();
 
-    EntityAttributeModifier getAttackSpeedModifier();
+    AttributeModifier getAttackSpeedModifier();
 
-    Identifier getAttackSpeedModifierId();
+    ResourceLocation getAttackSpeedModifierId();
 
     enum Mode {
         PROJECTILE_DAMPEN,

@@ -8,12 +8,12 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.entity.EntityType;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,32 +31,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class MobTierRuleDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final Identifier RELOAD_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules");
-    private static final Identifier DATA_PATH = Identifier.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules.json");
+    private static final ResourceLocation RELOAD_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules");
+    private static final ResourceLocation DATA_PATH = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_tier_rules.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<Identifier, EnumSet<MobTier>> overrides = Map.of();
+    private static volatile Map<ResourceLocation, EnumSet<MobTier>> overrides = Map.of();
 
     private MobTierRuleDataLoader() {
     }
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MobTierRuleDataLoader());
+            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new MobTierRuleDataLoader());
         }
     }
 
     public static EnumSet<MobTier> getAllowedTiers(EntityType<?> type) {
-        Identifier id = EntityType.getId(type);
+        ResourceLocation id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
-        EnumSet<MobTier> tiers = overrides.get(id);
+        EnumSet<MobTier> tiers = overrides.byString(id);
         return tiers == null ? null : EnumSet.copyOf(tiers);
     }
 
     @Override
-    public Identifier getFabricId() {
+    public ResourceLocation getFabricId() {
         return RELOAD_ID;
     }
 
@@ -69,17 +69,17 @@ public final class MobTierRuleDataLoader implements SimpleSynchronousResourceRel
             return;
         }
 
-        Map<Identifier, EnumSet<MobTier>> parsed = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.get().getInputStream(), StandardCharsets.UTF_8))) {
+        Map<ResourceLocation, EnumSet<MobTier>> parsed = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.byString().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-            JsonArray entries = JsonHelper.getArray(root, "entries");
+            JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entry = JsonHelper.asObject(entries.get(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.of(JsonHelper.getString(entry, "id"));
-                JsonArray tiersArray = JsonHelper.getArray(entry, "tiers");
+                JsonObject entry = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
+                ResourceLocation entityId = ResourceLocation.of(GsonHelper.getAsString(entry, "id"));
+                JsonArray tiersArray = GsonHelper.getAsJsonArray(entry, "tiers");
                 EnumSet<MobTier> tiers = EnumSet.noneOf(MobTier.class);
                 for (int j = 0; j < tiersArray.size(); j++) {
-                    JsonElement element = tiersArray.get(j);
+                    JsonElement element = tiersArray.byString(j);
                     MobTier tier = parseTier(element.getAsString());
                     if (tier == null) {
                         Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en mob_tier_rules para {}", element.getAsString(), entityId);

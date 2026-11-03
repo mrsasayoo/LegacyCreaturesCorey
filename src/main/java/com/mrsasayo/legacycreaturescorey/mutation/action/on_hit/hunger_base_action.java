@@ -4,10 +4,10 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Holder;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ abstract class hunger_base_action extends proc_on_hit_action {
     protected hunger_base_action(mutation_action_config config,
             double defaultChance,
             int defaultDurationSeconds) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         int durationTicks = resolveDurationTicks(config, defaultDurationSeconds);
         int amplifier = Math.max(0, config.getInt("amplifier", 0));
         this.effects = resolveEffects(config, durationTicks, amplifier);
@@ -38,10 +38,10 @@ abstract class hunger_base_action extends proc_on_hit_action {
     private List<status_effect_config_parser.status_effect_config_entry> resolveEffects(mutation_action_config config,
             int fallbackDurationTicks,
             int fallbackAmplifier) {
-        RegistryEntry<net.minecraft.entity.effect.StatusEffect> hunger = StatusEffects.HUNGER;
-        List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
+        Holder<net.minecraft.world.effect.MobEffect> hunger = MobEffects.HUNGER;
+        List<status_effect_config_parser.status_effect_config_entry> fallback = List.direct();
         if (hunger != null && fallbackDurationTicks > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(hunger,
+            fallback = List.direct(status_effect_config_parser.createEntry(hunger,
                     fallbackDurationTicks,
                     fallbackAmplifier,
                     true,

@@ -1,15 +1,15 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.GuardianEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Guardian;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public final class amphibious_assault_1_action extends amphibious_assault_base_action {
     private final int extendedBreathTicks;
-    private final Map<GuardianEntity, Integer> exposureTicks = new WeakHashMap<>();
+    private final Map<Guardian, Integer> exposureTicks = new WeakHashMap<>();
 
     public amphibious_assault_1_action(mutation_action_config config) {
         this.extendedBreathTicks = config.getInt("extended_breath_ticks", 1200);
@@ -17,7 +17,7 @@ public final class amphibious_assault_1_action extends amphibious_assault_base_a
 
     @Override
     public void onTick(LivingEntity entity) {
-        GuardianEntity guardian = asServerGuardian(entity);
+        Guardian guardian = asServerGuardian(entity);
         if (guardian == null) {
             return;
         }
@@ -33,7 +33,7 @@ public final class amphibious_assault_1_action extends amphibious_assault_base_a
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof GuardianEntity guardian) {
+        if (entity instanceof Guardian guardian) {
             exposureTicks.remove(guardian);
         }
     }

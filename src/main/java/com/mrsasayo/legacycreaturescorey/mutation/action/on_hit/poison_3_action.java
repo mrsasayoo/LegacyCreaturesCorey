@@ -2,16 +2,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 public final class poison_3_action extends status_effect_single_target_base_action {
     private final int saturationDurationTicks;
     private final int saturationAmplifier;
 
     public poison_3_action(mutation_action_config config) {
-        super(config, StatusEffects.POISON, secondsToTicks(15), 0, Target.OTHER, 0.05D);
+        super(config, MobEffects.POISON, secondsToTicks(15), 0, Target.OTHER, 0.05D);
         mutation_action_config saturation = config.getObject("saturation");
         this.saturationDurationTicks = resolveDuration(saturation, secondsToTicks(1));
         this.saturationAmplifier = Math.max(0, saturation.getInt("amplifier", 0));
@@ -22,7 +22,7 @@ public final class poison_3_action extends status_effect_single_target_base_acti
         if (saturationDurationTicks <= 0 || !action_context.isServer(victim)) {
             return;
         }
-        victim.addStatusEffect(new StatusEffectInstance(StatusEffects.SATURATION, saturationDurationTicks, saturationAmplifier));
+        victim.addEffect(new MobEffectInstance(MobEffects.SATURATION, saturationDurationTicks, saturationAmplifier));
     }
 
     private static int resolveDuration(mutation_action_config config, int fallbackTicks) {

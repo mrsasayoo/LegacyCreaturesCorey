@@ -4,14 +4,14 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.List;
  * Runtime representation of a tiered loot definition for a specific entity.
  */
 public final class TieredMobLoot {
-    private static final RegistryWrapper.WrapperLookup BUILTIN_LOOKUP = BuiltinRegistries.createWrapperLookup();
+    private static final HolderLookup.WrapperLookup BUILTIN_LOOKUP = VanillaRegistries.createLookup();
 
     private final boolean replaceVanillaDrops;
     private final IntRange rolls;
@@ -39,7 +39,7 @@ public final class TieredMobLoot {
     }
 
     public void apply(LootContext context, List<ItemStack> drops) {
-        Random random = context.getRandom();
+        RandomSource random = context.getRandom();
         RegistryOps<JsonElement> registryOps = resolveRegistryOps(context);
 
         if (replaceVanillaDrops) {
@@ -63,14 +63,14 @@ public final class TieredMobLoot {
             if (selected == null) {
                 continue;
             }
-            ItemStack stack = selected.drop().createStack(random, registryOps);
+            ItemStack stack = selected.addDynamicDrops().createStack(random, registryOps);
             if (!stack.isEmpty()) {
                 drops.add(stack);
             }
         }
     }
 
-    private @Nullable WeightedDrop pickWeighted(Random random) {
+    private @Nullable WeightedDrop pickWeighted(RandomSource random) {
         if (totalWeight <= 0) {
             return null;
         }
@@ -86,13 +86,13 @@ public final class TieredMobLoot {
     }
 
     private static RegistryOps<JsonElement> resolveRegistryOps(LootContext context) {
-        ServerWorld world = context.getWorld();
-        RegistryWrapper.WrapperLookup lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
-        return RegistryOps.of(JsonOps.INSTANCE, lookup);
+        ServerLevel world = context.getLevel();
+        HolderLookup.WrapperLookup lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
+        return RegistryOps.create(JsonOps.INSTANCE, lookup);
     }
 
     public record Drop(StackProvider template, IntRange countRange) {
-        public ItemStack createStack(Random random, RegistryOps<JsonElement> registryOps) {
+        public ItemStack createStack(RandomSource random, RegistryOps<JsonElement> registryOps) {
             ItemStack base = template.instantiate(registryOps);
             if (base.isEmpty()) {
                 return ItemStack.EMPTY;
@@ -101,7 +101,7 @@ public final class TieredMobLoot {
             if (count <= 0) {
                 return ItemStack.EMPTY;
             }
-            ItemStack stack = base.copy();
+            ItemStack stack = base.copyFrom();
             stack.setCount(count);
             return stack;
         }

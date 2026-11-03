@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.feature.mob;
 
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.particle.DragonBreathParticleEffect;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.core.particles.PowerParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Utilidad para mantener consistentes las partículas asociadas a los tiers.
@@ -13,25 +13,25 @@ import net.minecraft.server.world.ServerWorld;
 final class TierParticleHelper {
     private TierParticleHelper() {}
 
-    static void spawnInitialBurst(ServerWorld world, MobEntity mob, MobTier tier) {
-        ParticleEffect effect = resolveEffect(tier);
+    static void spawnInitialBurst(ServerLevel world, Mob mob, MobTier tier) {
+        ParticleOptions effect = resolveEffect(tier);
         if (effect != null) {
             spawnParticles(world, mob, effect, initialCountFor(tier), 0.01D);
         }
     }
 
-    static void spawnAmbient(ServerWorld world, MobEntity mob, MobTier tier) {
-        ParticleEffect effect = resolveEffect(tier);
+    static void spawnAmbient(ServerLevel world, Mob mob, MobTier tier) {
+        ParticleOptions effect = resolveEffect(tier);
         if (effect != null) {
             spawnParticles(world, mob, effect, ambientCountFor(tier), 0.004D);
         }
     }
 
-    private static ParticleEffect resolveEffect(MobTier tier) {
+    private static ParticleOptions resolveEffect(MobTier tier) {
         return switch (tier) {
             case EPIC -> ParticleTypes.SOUL;
             case LEGENDARY -> ParticleTypes.FALLING_DRIPSTONE_LAVA;
-            case MYTHIC -> DragonBreathParticleEffect.of(ParticleTypes.DRAGON_BREATH, 0.5F);
+            case MYTHIC -> PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 0.5F);
             case DEFINITIVE -> ParticleTypes.TOTEM_OF_UNDYING;
             default -> null;
         };
@@ -57,7 +57,7 @@ final class TierParticleHelper {
         };
     }
 
-    private static void spawnParticles(ServerWorld world, MobEntity mob, ParticleEffect effect, int count, double speed) {
+    private static void spawnParticles(ServerLevel world, Mob mob, ParticleOptions effect, int count, double speed) {
         if (count <= 0) {
             return;
         }

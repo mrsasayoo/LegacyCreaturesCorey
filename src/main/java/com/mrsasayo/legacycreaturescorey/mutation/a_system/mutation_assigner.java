@@ -3,9 +3,9 @@ package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.Set;
 public final class mutation_assigner {
     private mutation_assigner() {}
 
-    public static void assignMutations(MobEntity mob, MobTier tier, MobLegacyData data) {
+    public static void assignMutations(Mob mob, MobTier tier, MobLegacyData data) {
         if (!data.getMutations().isEmpty()) {
             return; // Ya fueron asignadas anteriormente.
         }
@@ -33,20 +33,20 @@ public final class mutation_assigner {
             return;
         }
 
-        Random random = mob.getRandom();
+        RandomSource random = mob.getRandom();
         int remaining = budget;
         int spent = 0;
-        List<Identifier> applied = new ArrayList<>();
-        List<Identifier> existing = new ArrayList<>(data.getMutations());
-        Set<Identifier> alreadyApplied = new HashSet<>(existing);
+        List<ResourceLocation> applied = new ArrayList<>();
+        List<ResourceLocation> existing = new ArrayList<>(data.getMutations());
+        Set<ResourceLocation> alreadyApplied = new HashSet<>(existing);
 
         while (remaining > 0) {
             List<mutation> candidates = new ArrayList<>();
-            List<Identifier> compatibilityContext = new ArrayList<>(existing);
+            List<ResourceLocation> compatibilityContext = new ArrayList<>(existing);
             compatibilityContext.addAll(applied);
 
             for (mutation m : pool) {
-                Identifier mutationId = m.getId();
+                ResourceLocation mutationId = m.getId();
                 if (alreadyApplied.contains(mutationId)) {
                     continue;
                 }
@@ -67,7 +67,7 @@ public final class mutation_assigner {
             }
 
             mutation selected = pickByWeight(candidates, random);
-            Identifier selectedId = selected.getId();
+            ResourceLocation selectedId = selected.getId();
 
             selected.onApply(mob);
             data.addMutation(selectedId);
@@ -97,7 +97,7 @@ public final class mutation_assigner {
         };
     }
 
-    private static mutation pickByWeight(List<mutation> candidates, Random random) {
+    private static mutation pickByWeight(List<mutation> candidates, RandomSource random) {
         int totalWeight = 0;
         for (mutation m : candidates) {
             totalWeight += Math.max(1, m.getWeight());

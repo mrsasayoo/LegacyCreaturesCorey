@@ -1,4 +1,4 @@
-package com.mrsasayo.legacycreaturescorey.content.health;
+package com.mrsasayo.legacycreaturescorey.contents.health;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.core.config.config_manager;
@@ -8,9 +8,9 @@ import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyManager;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyStatus;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,23 +44,23 @@ public final class CoreyHealthMonitor {
         return results;
     }
 
-    public static int runCommand(ServerCommandSource source) {
+    public static int runCommand(CommandSourceStack source) {
         List<HealthCheckResult> results = run(source.getServer());
         long failed = results.stream().filter(result -> !result.passed()).count();
         boolean healthy = failed == 0;
 
-        MutableText header = Text.literal(healthy
+        MutableComponent header = Component.literal(healthy
             ? "✅ Todos los checks pasaron"
             : "⚠️ " + failed + " check(s) con problemas");
-        source.sendFeedback(() -> header, false);
+        source.sendSuccess(() -> header, false);
 
         StringBuilder builder = new StringBuilder();
         results.forEach(result -> builder
             .append(result.passed() ? "[OK] " : "[FALLA] ")
-            .append(result.name()).append(" — ")
+            .append(result.textName()).append(" — ")
             .append(result.details()).append('\n'));
 
-        source.sendFeedback(() -> Text.literal(builder.toString()), false);
+        source.sendSuccess(() -> Component.literal(builder.toString()), false);
         return healthy ? 1 : 0;
     }
 
@@ -73,7 +73,7 @@ public final class CoreyHealthMonitor {
             results.stream()
                 .filter(result -> !result.passed())
                 .forEach(result -> Legacycreaturescorey.LOGGER.warn("- {}: {}",
-                    result.name(), result.details()));
+                    result.textName(), result.details()));
         }
     }
 

@@ -1,15 +1,15 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.entity.mob.ElderGuardianEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,58 +43,58 @@ public final class abyssal_armor_3_action extends abyssal_armor_base_action {
     }
 
     @Override
-    protected void performActiveAbility(ElderGuardianEntity guardian, ServerWorld world) {
-        Vec3d center = guardian.getEyePos();
-        Vec3d forward = guardian.getRotationVector();
-        if (forward.lengthSquared() == 0.0D) {
-            forward = new Vec3d(0, 0, 1);
+    protected void performActiveAbility(ElderGuardian guardian, ServerLevel world) {
+        Vec3 center = guardian.getEyePos();
+        Vec3 forward = guardian.getRotationVector();
+        if (forward.lengthSqr() == 0.0D) {
+            forward = new Vec3(0, 0, 1);
         }
-        Vec3d up = new Vec3d(0, 1, 0);
-        Vec3d right = forward.crossProduct(up);
-        if (right.lengthSquared() == 0.0D) {
-            right = new Vec3d(1, 0, 0);
+        Vec3 up = new Vec3(0, 1, 0);
+        Vec3 right = forward.cross(up);
+        if (right.lengthSqr() == 0.0D) {
+            right = new Vec3(1, 0, 0);
         }
         right = right.normalize();
-        up = right.crossProduct(forward).normalize();
+        up = right.cross(forward).normalize();
 
-        List<Vec3d> directions = new ArrayList<>();
+        List<Vec3> directions = new ArrayList<>();
         // Cardinals relative to current facing
-        directions.add(forward.normalize());
-        directions.add(forward.multiply(-1).normalize());
-        directions.add(up);
-        directions.add(up.multiply(-1));
-        directions.add(right);
-        directions.add(right.multiply(-1));
+        directions.atLowerCornerWithOffset(forward.normalize());
+        directions.atLowerCornerWithOffset(forward.scale(-1).normalize());
+        directions.atLowerCornerWithOffset(up);
+        directions.atLowerCornerWithOffset(up.scale(-1));
+        directions.atLowerCornerWithOffset(right);
+        directions.atLowerCornerWithOffset(right.scale(-1));
 
         // Diagonals (front-up-right, etc.)
-        directions.add(forward.add(up).add(right).normalize());
-        directions.add(forward.add(up).add(right.multiply(-1)).normalize());
-        directions.add(forward.add(up.multiply(-1)).add(right).normalize());
-        directions.add(forward.add(up.multiply(-1)).add(right.multiply(-1)).normalize());
-        directions.add(forward.multiply(-1).add(up).normalize());
-        directions.add(forward.multiply(-1).add(up.multiply(-1)).normalize());
-        directions.add(right.add(up).normalize());
+        directions.atLowerCornerWithOffset(forward.atLowerCornerWithOffset(up).atLowerCornerWithOffset(right).normalize());
+        directions.atLowerCornerWithOffset(forward.atLowerCornerWithOffset(up).atLowerCornerWithOffset(right.scale(-1)).normalize());
+        directions.atLowerCornerWithOffset(forward.atLowerCornerWithOffset(up.scale(-1)).atLowerCornerWithOffset(right).normalize());
+        directions.atLowerCornerWithOffset(forward.atLowerCornerWithOffset(up.scale(-1)).atLowerCornerWithOffset(right.scale(-1)).normalize());
+        directions.atLowerCornerWithOffset(forward.scale(-1).atLowerCornerWithOffset(up).normalize());
+        directions.atLowerCornerWithOffset(forward.scale(-1).atLowerCornerWithOffset(up.scale(-1)).normalize());
+        directions.atLowerCornerWithOffset(right.atLowerCornerWithOffset(up).normalize());
 
         // Sonido de lanzamiento de tridentes
         world.playSound(null, guardian.getX(), guardian.getY(), guardian.getZ(),
-                SoundEvents.ITEM_TRIDENT_THROW, SoundCategory.HOSTILE, 1.5F, 0.8F);
+                SoundEvents.TRIDENT_THROW, SoundSource.HOSTILE, 1.5F, 0.8F);
         
         // Partículas de agua al disparar
-        world.spawnParticles(ParticleTypes.BUBBLE_COLUMN_UP,
+        world.sendParticles(ParticleTypes.BUBBLE_COLUMN_UP,
                 center.x, center.y, center.z,
                 30, 1.5D, 1.5D, 1.5D, 0.1D);
         
         ItemStack tridentStack = new ItemStack(Items.TRIDENT);
-        for (Vec3d dir : directions) {
+        for (Vec3 dir : directions) {
             // Crear tridente simulado como proyectil
-            TridentEntity trident = new TridentEntity(world, guardian, tridentStack);
+            ThrownTrident trident = new ThrownTrident(world, guardian, tridentStack);
             trident.setPos(center.x, center.y, center.z);
             trident.setVelocity(dir.x, dir.y, dir.z, projectileSpeed, 0.0F);
             // El daño del tridente se establece basándose en el encantamiento, 
             // pero podemos usar reflexión o NBT para modificar el daño base
-            trident.setDamage(projectileDamage);
+            trident.setDamageValue(projectileDamage);
             // Evitar que el tridente sea recogido
-            trident.pickupType = TridentEntity.PickupPermission.DISALLOWED;
+            trident.pickupType = ThrownTrident.PickupPermission.DISALLOWED;
             world.spawnEntity(trident);
         }
     }

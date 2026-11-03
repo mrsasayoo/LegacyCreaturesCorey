@@ -3,12 +3,12 @@ package com.mrsasayo.legacycreaturescorey.mutation.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * Utilidad centralizada para traducir listas de efectos configurables desde JSON hacia instancias concretas.
  */
 public final class status_effect_config_parser {
-    public record status_effect_config_entry(RegistryEntry<StatusEffect> effect,
+    public record status_effect_config_entry(Holder<MobEffect> effect,
                                             int duration,
                                             int amplifier,
                                             boolean ambient,
@@ -48,15 +48,15 @@ public final class status_effect_config_parser {
                 continue;
             }
             JsonObject obj = entry.getAsJsonObject();
-            Identifier identifier = readIdentifier(obj);
+            ResourceLocation identifier = readIdentifier(obj);
             if (identifier == null) {
                 continue;
             }
-            StatusEffect effect = Registries.STATUS_EFFECT.get(identifier);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(identifier);
             if (effect == null) {
                 continue;
             }
-            RegistryEntry<StatusEffect> entryRef = Registries.STATUS_EFFECT.getEntry(effect);
+            Holder<MobEffect> entryRef = BuiltInRegistries.MOB_EFFECT.getEntry(effect);
             if (entryRef == null) {
                 continue;
             }
@@ -70,17 +70,17 @@ public final class status_effect_config_parser {
         return parsed.isEmpty() ? fallback : List.copyOf(parsed);
     }
 
-    public static StatusEffectInstance buildInstance(status_effect_config_entry configEntry) {
+    public static MobEffectInstance buildInstance(status_effect_config_entry configEntry) {
         if (configEntry == null) {
             return null;
         }
         int duration = Math.max(1, configEntry.duration());
-        return new StatusEffectInstance(
+        return new MobEffectInstance(
                 configEntry.effect(),
                 duration,
                 Math.max(0, configEntry.amplifier()),
                 configEntry.ambient(),
-                configEntry.showParticles(),
+                configEntry.visible(),
                 configEntry.showIcon());
     }
 
@@ -89,14 +89,14 @@ public final class status_effect_config_parser {
             return;
         }
         for (status_effect_config_entry entry : configs) {
-            StatusEffectInstance instance = buildInstance(entry);
+            MobEffectInstance instance = buildInstance(entry);
             if (instance != null) {
-                target.addStatusEffect(instance);
+                target.addEffect(instance);
             }
         }
     }
 
-    public static status_effect_config_entry createEntry(RegistryEntry<StatusEffect> effect,
+    public static status_effect_config_entry createEntry(Holder<MobEffect> effect,
             int duration,
             int amplifier,
             boolean ambient,
@@ -110,12 +110,12 @@ public final class status_effect_config_parser {
                 showIcon);
     }
 
-    private static Identifier readIdentifier(JsonObject obj) {
+    private static ResourceLocation readIdentifier(JsonObject obj) {
         if (obj.has("id")) {
-            return Identifier.tryParse(obj.get("id").getAsString());
+            return ResourceLocation.tryBuild(obj.get("id").getAsString());
         }
         if (obj.has("effect")) {
-            return Identifier.tryParse(obj.get("effect").getAsString());
+            return ResourceLocation.tryBuild(obj.get("effect").getAsString());
         }
         return null;
     }

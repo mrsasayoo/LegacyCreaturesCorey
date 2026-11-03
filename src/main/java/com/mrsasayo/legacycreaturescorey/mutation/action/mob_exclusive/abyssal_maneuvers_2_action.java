@@ -2,16 +2,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.projectile.WitherSkullEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.projectile.WitherSkull;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
  * desviados del objetivo principal para crear un patrón de cono.
  */
 public final class abyssal_maneuvers_2_action implements mutation_action {
-    private final Map<WitherEntity, extra_shot_state> states = new WeakHashMap<>();
+    private final Map<WitherBoss, extra_shot_state> states = new WeakHashMap<>();
     
     private final double healthThreshold;
     private final int extraProjectiles;
@@ -42,7 +42,7 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof WitherEntity wither) || entity.getEntityWorld().isClient()) {
+        if (!(entity instanceof WitherBoss wither) || entity.getEntityWorld().isClient()) {
             return;
         }
         
@@ -78,32 +78,32 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
     /**
      * Dispara los proyectiles adicionales hacia el objetivo con spread
      */
-    private void fireExtraProjectiles(WitherEntity wither, LivingEntity target) {
-        if (!(wither.getEntityWorld() instanceof ServerWorld world)) {
+    private void fireExtraProjectiles(WitherBoss wither, LivingEntity target) {
+        if (!(wither.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         
-        Vec3d witherPos = wither.getEyePos();
-        Vec3d targetPos = target.getEyePos();
-        Vec3d baseDirection = targetPos.subtract(witherPos).normalize();
+        Vec3 witherPos = wither.getEyePos();
+        Vec3 targetPos = target.getEyePos();
+        Vec3 baseDirection = targetPos.subtract(witherPos).normalize();
         
         // Calcular vectores perpendiculares para el spread
-        Vec3d up = new Vec3d(0, 1, 0);
-        Vec3d right = baseDirection.crossProduct(up).normalize();
-        if (right.lengthSquared() < 0.01) {
-            right = new Vec3d(1, 0, 0);
+        Vec3 up = new Vec3(0, 1, 0);
+        Vec3 right = baseDirection.cross(up).normalize();
+        if (right.lengthSqr() < 0.01) {
+            right = new Vec3(1, 0, 0);
         }
         
         // Convertir ángulo a radianes
         double spreadRad = Math.toRadians(spreadAngle);
         
         // Efectos visuales al disparar
-        world.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME,
+        world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
                 witherPos.x, witherPos.y, witherPos.z,
                 20, 0.5D, 0.5D, 0.5D, 0.1D);
         
-        world.playSound(null, wither.getX(), wither.getY(), wither.getZ(),
-                SoundEvents.ENTITY_WITHER_SHOOT, SoundCategory.HOSTILE, 1.0F, 0.7F);
+        world.makeSound(null, wither.getX(), wither.getY(), wither.getZ(),
+                SoundEvents.WITHER_SHOOT, SoundSource.HOSTILE, 1.0F, 0.7F);
         
         // Disparar proyectiles con spread uniforme
         for (int i = 0; i < extraProjectiles; i++) {
@@ -111,7 +111,7 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
             double angleOffset = spreadRad * (i - (extraProjectiles - 1) / 2.0D);
             
             // Rotar la dirección base
-            Vec3d spreadDir = rotateVector(baseDirection, right, angleOffset);
+            Vec3 spreadDir = rotateVector(baseDirection, right, angleOffset);
             
             // Crear y configurar el cráneo
             spawnWitherSkull(wither, world, witherPos, spreadDir);
@@ -121,34 +121,34 @@ public final class abyssal_maneuvers_2_action implements mutation_action {
     /**
      * Rota un vector alrededor de un eje
      */
-    private Vec3d rotateVector(Vec3d vector, Vec3d axis, double angleRad) {
+    private Vec3 rotateVector(Vec3 vector, Vec3 axis, double angleRad) {
         double cos = Math.cos(angleRad);
         double sin = Math.sin(angleRad);
         
-        return vector.multiply(cos)
-                .add(axis.crossProduct(vector).multiply(sin))
-                .add(axis.multiply(axis.dotProduct(vector) * (1 - cos)));
+        return vector.scale(cos)
+                .atLowerCornerWithOffset(axis.cross(vector).scale(sin))
+                .atLowerCornerWithOffset(axis.scale(axis.dot(vector) * (1 - cos)));
     }
     
     /**
      * Crea y dispara un cráneo de Wither
      */
-    private void spawnWitherSkull(WitherEntity wither, ServerWorld world, Vec3d pos, Vec3d direction) {
-        WitherSkullEntity skull = EntityType.WITHER_SKULL.create(world, SpawnReason.MOB_SUMMONED);
+    private void spawnWitherSkull(WitherBoss wither, ServerLevel world, Vec3 pos, Vec3 direction) {
+        WitherSkull skull = EntityType.WITHER_SKULL.create(world, EntitySpawnReason.MOB_SUMMONED);
         if (skull == null) {
             return;
         }
         skull.setOwner(wither);
         skull.setPos(pos.x, pos.y, pos.z);
         skull.setVelocity(direction.x * 0.9D, direction.y * 0.9D, direction.z * 0.9D);
-        skull.setCharged(chargedSkulls);
+        skull.setDangerous(chargedSkulls);
         
         world.spawnEntity(skull);
     }
 
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof WitherEntity wither) {
+        if (entity instanceof WitherBoss wither) {
             states.remove(wither);
         }
     }

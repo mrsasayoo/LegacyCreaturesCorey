@@ -4,10 +4,10 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -23,7 +23,7 @@ abstract class glowing_base_action extends proc_on_hit_action {
             int defaultPulses,
             int defaultDurationTicks,
             int defaultIntervalTicks) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.pulses = Math.max(1, config.getInt("pulses", defaultPulses));
         this.pulseDurationTicks = resolveTicks(config, "duration", defaultDurationTicks);
         this.intervalTicks = resolveTicks(config, "interval", defaultIntervalTicks);
@@ -48,7 +48,7 @@ abstract class glowing_base_action extends proc_on_hit_action {
             int fallbackAmplifier) {
         List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackDuration > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(StatusEffects.GLOWING,
+            fallback = List.of(status_effect_config_parser.createEntry(MobEffects.GLOWING,
                     fallbackDuration,
                     fallbackAmplifier,
                     true,
@@ -60,7 +60,7 @@ abstract class glowing_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim.getEntityWorld() instanceof ServerWorld world) || pulseDurationTicks <= 0) {
+        if (!(victim.getEntityWorld() instanceof ServerLevel world) || pulseDurationTicks <= 0) {
             return;
         }
 
@@ -100,7 +100,7 @@ abstract class glowing_base_action extends proc_on_hit_action {
         }
 
         @Override
-        public boolean tick(ServerWorld world) {
+        public boolean tick(ServerLevel world) {
             LivingEntity entity = target.get();
             if (entity == null || !entity.isAlive()) {
                 return true;

@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.PiglinEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public final class boar_frenzy_2_action extends boar_frenzy_base_action {
         if (bonusPerEntity <= 0.0D || radius <= 0.0D) {
             return 0.0D;
         }
-        Box area = entity.getBoundingBox().expand(radius);
+        AABB area = entity.getLocalBoundsForPose().inflate(radius);
         List<LivingEntity> nearby = entity.getEntityWorld().getEntitiesByClass(
                 LivingEntity.class,
                 area,
@@ -55,6 +55,6 @@ public final class boar_frenzy_2_action extends boar_frenzy_base_action {
     }
 
     private boolean isTriggerEntity(LivingEntity target) {
-        return target instanceof PlayerEntity || target instanceof PiglinEntity;
+        return target instanceof Player || target instanceof Piglin;
     }
 }

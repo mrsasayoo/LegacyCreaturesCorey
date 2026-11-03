@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.core.Holder;
 import java.util.List;
 
 public interface PsionicThornsSource {
@@ -13,6 +13,6 @@ public interface PsionicThornsSource {
 
     List<ThornsEffect> getSelfEffects();
 
-    record ThornsEffect(RegistryEntry<StatusEffect> effect, int duration, int amplifier) {
+    record ThornsEffect(Holder<MobEffect> effect, int duration, int amplifier) {
     }
 }

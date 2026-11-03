@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.ElderGuardianEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraft.server.level.ServerLevel;
 
 public final class abyssal_armor_1_action extends abyssal_armor_base_action {
     private final float bonusDamage;
@@ -19,7 +19,7 @@ public final class abyssal_armor_1_action extends abyssal_armor_base_action {
     }
 
     @Override
-    protected void onThornsRetaliation(ElderGuardianEntity owner, LivingEntity victim, ServerWorld world) {
+    protected void onThornsRetaliation(ElderGuardian owner, LivingEntity victim, ServerLevel world) {
         if (bonusDamage <= 0.0F) {
             return;
         }

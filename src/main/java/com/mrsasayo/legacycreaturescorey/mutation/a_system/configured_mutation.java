@@ -1,11 +1,11 @@
 package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -18,17 +18,17 @@ import java.util.Set;
  */
 public final class configured_mutation extends abstract_mutation {
     private final List<mutation_action> actions;
-    private final Set<Identifier> incompatibleIds;
+    private final Set<ResourceLocation> incompatibleIds;
     private final incompatibility_manager restrictions;
 
-    public configured_mutation(Identifier id,
+    public configured_mutation(ResourceLocation id,
                                mutation_type type,
                                int cost,
-                               Text displayName,
-                               Text description,
+                               Component displayName,
+                               Component description,
                                int weight,
                                List<mutation_action> actions,
-                               Set<Identifier> incompatibleIds,
+                               Set<ResourceLocation> incompatibleIds,
                                incompatibility_manager restrictions) {
         super(id,
               type,
@@ -48,12 +48,12 @@ public final class configured_mutation extends abstract_mutation {
     }
 
     @Override
-    public String getApplyFailureReason(MobEntity entity, List<Identifier> existingMutations) {
+    public String getApplyFailureReason(Mob entity, List<ResourceLocation> existingMutations) {
         String r = restrictions.whyCannotApply(entity);
         if (r != null) return r;
 
         if (!incompatibleIds.isEmpty()) {
-            for (Identifier existing : existingMutations) {
+            for (ResourceLocation existing : existingMutations) {
                 if (incompatibleIds.contains(existing)) {
                     return "Incompatible with mutation: " + existing.toString();
                 }
@@ -113,11 +113,11 @@ public final class configured_mutation extends abstract_mutation {
     }
 
     @Override
-    public boolean isCompatibleWith(List<Identifier> existingMutations) {
+    public boolean isCompatibleWith(List<ResourceLocation> existingMutations) {
         if (incompatibleIds.isEmpty()) {
             return true;
         }
-        for (Identifier existing : existingMutations) {
+        for (ResourceLocation existing : existingMutations) {
             if (incompatibleIds.contains(existing)) {
                 return false;
             }
@@ -126,7 +126,7 @@ public final class configured_mutation extends abstract_mutation {
     }
 
     @Override
-    public boolean canApplyTo(MobEntity entity) {
+    public boolean canApplyTo(Mob entity) {
         return restrictions.canApply(entity);
     }
 }

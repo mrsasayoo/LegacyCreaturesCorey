@@ -2,14 +2,14 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
 import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +23,7 @@ final class bleeding_effect_helper {
 
     private bleeding_effect_helper() {}
 
-    static void apply(ServerWorld world,
+    static void apply(ServerLevel world,
             LivingEntity attacker,
             LivingEntity victim,
             float[] pulses,
@@ -36,7 +36,7 @@ final class bleeding_effect_helper {
         int clampedInterval = Math.max(1, intervalTicks);
         int clampedAmplifier = Math.max(0, amplifier);
         int durationTicks = computeDuration(pulses, clampedInterval);
-        StatusEffectInstance instance = new StatusEffectInstance(bleedingEntry(),
+        MobEffectInstance instance = new MobEffectInstance(bleedingEntry(),
             durationTicks,
             clampedAmplifier);
 
@@ -58,7 +58,7 @@ final class bleeding_effect_helper {
         }
 
         if (shouldApplyEffect) {
-            victim.addStatusEffect(instance);
+            victim.addEffect(instance);
         }
     }
 
@@ -72,8 +72,8 @@ final class bleeding_effect_helper {
         }
     }
 
-    private static RegistryEntry<StatusEffect> bleedingEntry() {
-        return Objects.requireNonNull(Registries.STATUS_EFFECT.getEntry(ModStatusEffects.BLEEDING),
+    private static Holder<MobEffect> bleedingEntry() {
+        return Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getEntry(ModStatusEffects.BLEEDING),
             "Missing registry entry for bleeding effect");
     }
 
@@ -91,7 +91,7 @@ final class bleeding_effect_helper {
                 float[] pulses,
                 int interval,
                 int amplifier) {
-            this.attacker = attacker;
+            this.causingEntity = attacker;
             this.victim = victim;
             this.pulses = pulses;
             this.interval = interval;
@@ -108,7 +108,7 @@ final class bleeding_effect_helper {
                 float[] pulses,
                 int interval,
                 int amplifier) {
-            this.attacker = attacker;
+            this.causingEntity = attacker;
             this.pulses = pulses;
             this.interval = interval;
             this.amplifier = amplifier;
@@ -117,13 +117,13 @@ final class bleeding_effect_helper {
         }
 
         @Override
-        public boolean tick(ServerWorld currentWorld) {
+        public boolean tick(ServerLevel currentWorld) {
             if (victim.isRemoved() || !victim.isAlive()) {
-                victim.removeStatusEffect(bleedingEntry());
+                victim.removeEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }
-            if (!victim.hasStatusEffect(bleedingEntry())) {
+            if (!victim.hasEffect(bleedingEntry())) {
                 removeTask(victim, this);
                 return true;
             }
@@ -139,7 +139,7 @@ final class bleeding_effect_helper {
             }
 
             if (index >= pulses.length) {
-                victim.removeStatusEffect(bleedingEntry());
+                victim.removeEffect(bleedingEntry());
                 removeTask(victim, this);
                 return true;
             }
@@ -147,8 +147,8 @@ final class bleeding_effect_helper {
         }
     }
 
-    private static DamageSource resolveSource(ServerWorld world, LivingEntity attacker) {
-        if (attacker instanceof PlayerEntity player) {
+    private static DamageSource resolveSource(ServerLevel world, LivingEntity attacker) {
+        if (attacker instanceof Player player) {
             return world.getDamageSources().playerAttack(player);
         }
         if (attacker != null) {

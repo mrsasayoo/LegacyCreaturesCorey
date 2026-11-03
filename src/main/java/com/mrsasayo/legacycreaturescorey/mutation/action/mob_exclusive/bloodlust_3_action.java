@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 /**
  * Bloodlust III: rugido de victoria tras asesinar jugadores.
@@ -24,10 +24,10 @@ public final class bloodlust_3_action extends bloodlust_base_action {
         if (effectDurationTicks <= 0 || !isPlayer(target)) {
             return;
         }
-        entity.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+        entity.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                 effectDurationTicks,
                 Math.max(0, strengthAmplifier)));
-        entity.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION,
+        entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION,
                 effectDurationTicks,
                 Math.max(0, regenerationAmplifier)));
     }

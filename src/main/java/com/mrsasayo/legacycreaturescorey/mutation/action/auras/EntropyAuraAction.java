@@ -5,16 +5,16 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,9 +126,9 @@ public final class EntropyAuraAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-        private final Map<ServerPlayerEntity, Integer> lastSelectedSlot = new WeakHashMap<>();
-        private final Map<ServerPlayerEntity, Map<Integer, Long>> lockedSlots = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerPlayer, Integer> lastSelectedSlot = new WeakHashMap<>();
+        private final Map<ServerPlayer, Map<Integer, Long>> lockedSlots = new WeakHashMap<>();
         private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[] {
             EquipmentSlot.FEET,
             EquipmentSlot.LEGS,
@@ -149,9 +149,9 @@ public final class EntropyAuraAction implements mutation_action {
         }
 
         void register(LivingEntity entity, EntropyAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
-            long time = world.getTime();
+            long time = world.getGameTime();
             for (ActiveAura aura : list) {
                 if (aura.source == entity && aura.action == action) {
                     aura.refresh(time);
@@ -162,7 +162,7 @@ public final class EntropyAuraAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, EntropyAuraAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -173,13 +173,13 @@ public final class EntropyAuraAction implements mutation_action {
             }
         }
 
-        private void handleWorldTick(ServerWorld world) {
+        private void handleWorldTick(ServerLevel world) {
             cleanup(world);
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
 
             processHotbarSwitch(world, list, time);
             processArmorDecay(world, list, time);
@@ -187,26 +187,26 @@ public final class EntropyAuraAction implements mutation_action {
             cleanupLockedSlots(time);
         }
 
-        private ActionResult handleItemUse(PlayerEntity player, World world, Hand hand) {
-            if (world.isClient()) {
-                return ActionResult.PASS;
+        private InteractionResult handleItemUse(Player player, Level world, InteractionHand hand) {
+            if (world.isClientSide()) {
+                return InteractionResult.PASS;
             }
-            if (!(player instanceof ServerPlayerEntity serverPlayer)) {
-                return ActionResult.PASS;
+            if (!(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResult.PASS;
             }
             Map<Integer, Long> locks = lockedSlots.get(serverPlayer);
             if (locks == null || locks.isEmpty()) {
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             }
-            long time = ((ServerWorld) world).getTime();
+            long time = ((ServerLevel) world).getGameTime();
             int selected = resolveSelectedSlot(serverPlayer);
             if (isSlotLocked(locks, selected, time)) {
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        private void processHotbarSwitch(ServerWorld world, List<ActiveAura> list, long time) {
+        private void processHotbarSwitch(ServerLevel world, List<ActiveAura> list, long time) {
             for (ActiveAura aura : list) {
                 if (aura.action.mode != Mode.HOTBAR_SWITCH) {
                     continue;
@@ -216,11 +216,11 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
-                for (ServerPlayerEntity player : players) {
+                for (ServerPlayer player : players) {
                     int currentSlot = resolveSelectedSlot(player);
                     int lastSlot = lastSelectedSlot.getOrDefault(player, currentSlot);
                     if (currentSlot != lastSlot) {
@@ -239,7 +239,7 @@ public final class EntropyAuraAction implements mutation_action {
             }
         }
 
-        private void processArmorDecay(ServerWorld world, List<ActiveAura> list, long time) {
+        private void processArmorDecay(ServerLevel world, List<ActiveAura> list, long time) {
             for (ActiveAura aura : list) {
                 if (aura.action.mode != Mode.ARMOR_DECAY) {
                     continue;
@@ -252,24 +252,24 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
-                for (ServerPlayerEntity player : players) {
+                for (ServerPlayer player : players) {
                     for (EquipmentSlot slot : ARMOR_SLOTS) {
-                        ItemStack armor = player.getEquippedStack(slot);
+                        ItemStack armor = player.getItemBySlot(slot);
                         if (armor.isEmpty()) {
                             continue;
                         }
-                        armor.damage(aura.action.durabilityDamage, player, slot);
+                        armor.hurtAndConvertOnBreak(aura.action.durabilityDamage, player, slot);
                     }
                 }
                 aura.lastEffectTick = time;
             }
         }
 
-        private void processHotbarLockdown(ServerWorld world, List<ActiveAura> list, long time) {
+        private void processHotbarLockdown(ServerLevel world, List<ActiveAura> list, long time) {
             for (ActiveAura aura : list) {
                 if (aura.action.mode != Mode.HOTBAR_LOCKDOWN) {
                     continue;
@@ -282,11 +282,11 @@ public final class EntropyAuraAction implements mutation_action {
                     continue;
                 }
                 double radius = aura.action.radius;
-                List<ServerPlayerEntity> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
+                List<ServerPlayer> players = world.getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radius * radius);
                 if (players.isEmpty()) {
                     continue;
                 }
-                for (ServerPlayerEntity player : players) {
+                for (ServerPlayer player : players) {
                     int slot = player.getRandom().nextInt(9);
                     if (source.getRandom().nextDouble() > aura.action.chance) {
                         continue;
@@ -300,11 +300,11 @@ public final class EntropyAuraAction implements mutation_action {
                 aura.lastEffectTick = time;
             }
         }
-        private void applyItemCooldown(ServerPlayerEntity player, ItemStack stack, int ticks) {
+        private void applyItemCooldown(ServerPlayer player, ItemStack stack, int ticks) {
             if (stack.isEmpty()) {
                 return;
             }
-            player.getItemCooldownManager().set(new ItemStack(stack.getItem()), ticks);
+            player.getCooldowns().set(new ItemStack(stack.getItem()), ticks);
         }
 
         private boolean isSlotLocked(Map<Integer, Long> locks, int slot, long time) {
@@ -313,10 +313,10 @@ public final class EntropyAuraAction implements mutation_action {
         }
 
         private void cleanupLockedSlots(long time) {
-            Iterator<Map.Entry<ServerPlayerEntity, Map<Integer, Long>>> iterator = lockedSlots.entrySet().iterator();
+            Iterator<Map.Entry<ServerPlayer, Map<Integer, Long>>> iterator = lockedSlots.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<ServerPlayerEntity, Map<Integer, Long>> entry = iterator.next();
-                ServerPlayerEntity player = entry.getKey();
+                Map.Entry<ServerPlayer, Map<Integer, Long>> entry = iterator.next();
+                ServerPlayer player = entry.getKey();
                 if (player == null || !player.isAlive()) {
                     iterator.remove();
                     continue;
@@ -331,8 +331,8 @@ public final class EntropyAuraAction implements mutation_action {
             }
         }
 
-        private int resolveSelectedSlot(ServerPlayerEntity player) {
-            ItemStack mainHand = player.getMainHandStack();
+        private int resolveSelectedSlot(ServerPlayer player) {
+            ItemStack mainHand = player.getMainHandItem();
             if (!mainHand.isEmpty()) {
                 for (int slot = 0; slot < 9; slot++) {
                     if (player.getInventory().getStack(slot) == mainHand) {
@@ -343,7 +343,7 @@ public final class EntropyAuraAction implements mutation_action {
             return lastSelectedSlot.getOrDefault(player, 0);
         }
 
-        private void lockSlot(ServerPlayerEntity player,
+        private void lockSlot(ServerPlayer player,
                                int slot,
                                long currentTime,
                                int lockDurationTicks,
@@ -363,7 +363,7 @@ public final class EntropyAuraAction implements mutation_action {
             }
         }
 
-        private void forceSwitchFromLockedSlot(ServerPlayerEntity player,
+        private void forceSwitchFromLockedSlot(ServerPlayer player,
                                                Map<Integer, Long> locks,
                                                long time) {
             int current = resolveSelectedSlot(player);
@@ -379,21 +379,21 @@ public final class EntropyAuraAction implements mutation_action {
             }
         }
 
-        private void setSelectedHotbarSlot(ServerPlayerEntity player, int slot) {
+        private void setSelectedHotbarSlot(ServerPlayer player, int slot) {
             if (slot < 0 || slot >= 9) {
                 return;
             }
             player.getInventory().setSelectedSlot(slot);
-            player.networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(slot));
+            player.connection.sendPacketToServer(new ClientboundSetHeldSlotPacket(slot));
             lastSelectedSlot.put(player, slot);
         }
 
-        private void cleanup(ServerWorld world) {
+        private void cleanup(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;
             }
-            long time = world.getTime();
+            long time = world.getGameTime();
             Iterator<ActiveAura> iterator = list.iterator();
             while (iterator.hasNext()) {
                 ActiveAura aura = iterator.next();

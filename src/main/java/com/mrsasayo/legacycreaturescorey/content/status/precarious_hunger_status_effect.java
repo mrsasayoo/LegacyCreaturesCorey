@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.content.status;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
 /**
  * Efecto de estado "Hambre Precaria" - Reduce la nutrición de la comida en un porcentaje.
@@ -10,13 +10,13 @@ import net.minecraft.entity.effect.StatusEffectCategory;
  * El modificador se aplica a través del mixin HungerManagerMixin que verifica
  * si el jugador tiene este efecto activo.
  */
-public class precarious_hunger_status_effect extends StatusEffect {
+public class precarious_hunger_status_effect extends MobEffect {
     
     // Porcentaje de reducción de nutrición (0.25 = 25% de reducción)
     public static final float NUTRITION_REDUCTION = 0.25f;
     
     public precarious_hunger_status_effect() {
-        super(StatusEffectCategory.HARMFUL, 0x8B4513); // Color marrón oscuro (hambruna)
+        super(MobEffectCategory.HARMFUL, 0x8B4513); // Color marrón oscuro (hambruna)
     }
     
     @Override

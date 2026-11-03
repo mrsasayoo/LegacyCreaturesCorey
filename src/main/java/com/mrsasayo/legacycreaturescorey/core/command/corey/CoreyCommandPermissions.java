@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.core.command.corey;
 
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.function.Predicate;
 
@@ -15,18 +15,18 @@ public enum CoreyCommandPermissions {
     private final int level;
 
     CoreyCommandPermissions(int level) {
-        this.level = level;
+        this.permissionLevel = level;
     }
 
-    public boolean test(ServerCommandSource source) {
+    public boolean test(CommandSourceStack source) {
         return source.hasPermissionLevel(level);
     }
 
-    public Predicate<ServerCommandSource> predicate() {
+    public Predicate<CommandSourceStack> predicate() {
         return this::test;
     }
 
-    public static Predicate<ServerCommandSource> predicate(CoreyCommandPermissions permission) {
+    public static Predicate<CommandSourceStack> predicate(CoreyCommandPermissions permission) {
         return permission.predicate();
     }
 }

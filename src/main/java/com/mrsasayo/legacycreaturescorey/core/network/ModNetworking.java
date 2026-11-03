@@ -5,7 +5,7 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.DifficultyManager;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -34,7 +34,7 @@ public final class ModNetworking {
         );
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayerEntity player = handler.getPlayer();
+            ServerPlayer player = handler.getPlayer();
             CAPABILITIES.remove(player.getUuid());
             sendServerHello(player);
         });
@@ -43,7 +43,7 @@ public final class ModNetworking {
         );
     }
 
-    public static void sendClientEffect(ServerPlayerEntity player, ClientEffectPayload payload) {
+    public static void sendClientEffect(ServerPlayer player, ClientEffectPayload payload) {
         if (!supportsFeature(player, ClientFeature.CLIENT_EFFECTS)) {
             maybeRemindHandshake(player);
             return;
@@ -51,7 +51,7 @@ public final class ModNetworking {
         ServerPlayNetworking.send(player, payload);
     }
 
-    public static void sendDifficultyUpdate(ServerPlayerEntity player, DifficultySyncPayload payload) {
+    public static void sendDifficultyUpdate(ServerPlayer player, DifficultySyncPayload payload) {
         if (!supportsFeature(player, ClientFeature.DIFFICULTY_HUD)) {
             maybeRemindHandshake(player);
             return;
@@ -59,12 +59,12 @@ public final class ModNetworking {
         ServerPlayNetworking.send(player, payload);
     }
 
-    public static boolean supportsFeature(ServerPlayerEntity player, ClientFeature feature) {
+    public static boolean supportsFeature(ServerPlayer player, ClientFeature feature) {
         ClientCapabilities caps = CAPABILITIES.get(player.getUuid());
         return caps != null && caps.supports(feature);
     }
 
-    private static void handleCapabilities(ServerPlayerEntity player, ClientCapabilitiesPayload payload) {
+    private static void handleCapabilities(ServerPlayer player, ClientCapabilitiesPayload payload) {
         boolean compatible = payload.protocolVersion() == PROTOCOL_VERSION;
         EnumSet<ClientFeature> features = payload.features().isEmpty()
             ? EnumSet.noneOf(ClientFeature.class)
@@ -83,16 +83,16 @@ public final class ModNetworking {
         DifficultyManager.syncPlayer(player);
     }
 
-    private static void sendServerHello(ServerPlayerEntity player) {
+    private static void sendServerHello(ServerPlayer player) {
         ServerPlayNetworking.send(player, new ServerHelloPayload(PROTOCOL_VERSION));
     }
 
-    private static void maybeRemindHandshake(ServerPlayerEntity player) {
+    private static void maybeRemindHandshake(ServerPlayer player) {
         ClientCapabilities caps = CAPABILITIES.get(player.getUuid());
         if (caps != null) {
             return;
         }
-        if (player.getEntityWorld().getTime() % (HANDSHAKE_REMINDER_INTERVAL_MS / 50L) == 0) {
+        if (player.level().getTime() % (HANDSHAKE_REMINDER_INTERVAL_MS / 50L) == 0) {
             Legacycreaturescorey.LOGGER.debug("Esperando handshake de red para {} antes de enviar payloads opcionales.",
                 player.getName().getString());
         }

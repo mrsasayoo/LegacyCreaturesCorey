@@ -2,9 +2,9 @@ package com.mrsasayo.legacycreaturescorey.core.api.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 
 /**
  * Hooks around the anti-farm detection pipeline, allowing datapacks or other mods to tune thresholds
@@ -60,16 +60,16 @@ public final class AntiFarmEvents {
 
     @FunctionalInterface
     public interface ShouldIgnore {
-        boolean shouldIgnore(MobEntity mob, ChunkPos chunkPos);
+        boolean shouldIgnore(Mob mob, ChunkPos chunkPos);
     }
 
     @FunctionalInterface
     public interface ThresholdModifier {
-        int modifyThreshold(MobEntity mob, ChunkPos chunkPos, int currentThreshold);
+        int modifyThreshold(Mob mob, ChunkPos chunkPos, int currentThreshold);
     }
 
     @FunctionalInterface
     public interface ChunkBlocked {
-        void onChunkBlocked(ServerWorld world, ChunkPos center, MobEntity sample, int radius);
+        void onChunkBlocked(ServerLevel world, ChunkPos center, Mob sample, int radius);
     }
 }

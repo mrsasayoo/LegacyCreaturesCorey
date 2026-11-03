@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.helper;
 
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,9 +11,9 @@ import java.util.UUID;
 public final class LootDropHelper {
     private LootDropHelper() {}
 
-    public static List<ItemEntity> findDrops(ServerWorld world, LivingEntity owner, double radius) {
+    public static List<ItemEntity> findDrops(ServerLevel world, LivingEntity owner, double radius) {
         UUID ownerId = owner.getUuid();
-        Box searchBox = owner.getBoundingBox().expand(radius);
+        AABB searchBox = owner.getLocalBoundsForPose().inflate(radius);
         return world.getEntitiesByClass(ItemEntity.class, searchBox,
             item -> item.isAlive() && matchesOwner(item, ownerId));
     }

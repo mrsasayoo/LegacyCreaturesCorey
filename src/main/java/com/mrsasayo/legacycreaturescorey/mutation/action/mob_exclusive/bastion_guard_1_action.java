@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.PiglinBruteEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 
 public final class bastion_guard_1_action extends bastion_guard_base_action {
     private final int effectDurationTicks;
@@ -17,12 +17,12 @@ public final class bastion_guard_1_action extends bastion_guard_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        PiglinBruteEntity piglin = asServerBrute(entity);
+        PiglinBrute piglin = asServerBrute(entity);
         if (piglin == null) {
             return;
         }
         piglin.extinguish();
-        piglin.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE,
+        piglin.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,
                 effectDurationTicks,
                 effectAmplifier,
                 false,

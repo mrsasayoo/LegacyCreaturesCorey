@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public interface mutation {
     /**
      * Identificador único dentro del mod. Se usa para guardado y sincronización.
      */
-    Identifier getId();
+    ResourceLocation getId();
 
     /**
      * Tipo funcional de la mutación (pasiva de atributos, pasiva por golpe o activa
@@ -39,12 +39,12 @@ public interface mutation {
     /**
      * Texto a mostrar en tooltips o UI.
      */
-    Text getDisplayName();
+    Component getDisplayName();
 
     /**
      * Descripción corta del efecto para retroalimentación al jugador.
      */
-    Text getDescription();
+    Component getDescription();
 
     /**
      * Se invoca cuando la mutación se añade a un mob.
@@ -91,14 +91,14 @@ public interface mutation {
     /**
      * Devuelve true si la mutación puede asignarse a la entidad dada.
      */
-    default boolean canApplyTo(MobEntity entity) {
+    default boolean canApplyTo(Mob entity) {
         return true;
     }
 
     /**
      * Permite definir incompatibilidades con otras mutaciones ya asignadas.
      */
-    default boolean isCompatibleWith(List<Identifier> existingMutations) {
+    default boolean isCompatibleWith(List<ResourceLocation> existingMutations) {
         return true;
     }
 
@@ -107,7 +107,7 @@ public interface mutation {
      * human-readable failure reason explaining why it cannot be applied to the 
      * given entity with the provided existing mutations.
      */
-    default String getApplyFailureReason(MobEntity entity, List<Identifier> existingMutations) {
+    default String getApplyFailureReason(Mob entity, List<ResourceLocation> existingMutations) {
         if (!canApplyTo(entity)) {
             return "Entity does not meet mutation restrictions";
         }

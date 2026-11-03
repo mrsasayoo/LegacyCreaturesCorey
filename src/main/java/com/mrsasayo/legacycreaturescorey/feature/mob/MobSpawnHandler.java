@@ -6,10 +6,10 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.EffectiveDifficultyC
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.mutation.action.auras.PhantasmalHandler;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.level.entity.Entity;
+import net.minecraft.level.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
 
 public final class MobSpawnHandler {
 
@@ -19,8 +19,8 @@ public final class MobSpawnHandler {
         ServerEntityEvents.ENTITY_LOAD.register(MobSpawnHandler::onEntityLoad);
     }
 
-    private static void onEntityLoad(Entity entity, ServerWorld world) {
-        if (!(entity instanceof MobEntity mob)) {
+    private static void onEntityLoad(Entity entity, ServerLevel world) {
+        if (!(entity instanceof Mob mob)) {
             return;
         }
 

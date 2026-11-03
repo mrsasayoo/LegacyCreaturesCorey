@@ -3,16 +3,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.VindicatorEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 abstract class axe_mastery_base_action implements mutation_action {
-    protected VindicatorEntity asServerVindicator(LivingEntity entity) {
-        if (entity instanceof VindicatorEntity vindicator && !entity.getEntityWorld().isClient()) {
+    protected Vindicator asServerVindicator(LivingEntity entity) {
+        if (entity instanceof Vindicator vindicator && !entity.getEntityWorld().isClient()) {
             return vindicator;
         }
         return null;
@@ -33,17 +33,17 @@ abstract class axe_mastery_base_action implements mutation_action {
 
     protected static final class Handler {
         private static final Handler INSTANCE = new Handler();
-        private static final Identifier STOP_MOVEMENT_ID = Identifier.of(Legacycreaturescorey.MOD_ID,
+        private static final ResourceLocation STOP_MOVEMENT_ID = ResourceLocation.ofSize(Legacycreaturescorey.MOD_ID,
                 "axe_mastery_stop");
-        private final Map<VindicatorEntity, Map<String, Integer>> cooldowns = new WeakHashMap<>();
-        private final Map<VindicatorEntity, AxeState> axeStates = new WeakHashMap<>();
+        private final Map<Vindicator, Map<String, Integer>> cooldowns = new WeakHashMap<>();
+        private final Map<Vindicator, AxeState> axeStates = new WeakHashMap<>();
 
         private Handler() {
             ServerTickEvents.END_WORLD_TICK.register(world -> {
-                Iterator<Map.Entry<VindicatorEntity, Map<String, Integer>>> iterator = cooldowns.entrySet().iterator();
+                Iterator<Map.Entry<Vindicator, Map<String, Integer>>> iterator = cooldowns.entrySet().iterator();
                 while (iterator.hasNext()) {
-                    Map.Entry<VindicatorEntity, Map<String, Integer>> entry = iterator.next();
-                    VindicatorEntity vindicator = entry.getKey();
+                    Map.Entry<Vindicator, Map<String, Integer>> entry = iterator.next();
+                    Vindicator vindicator = entry.getKey();
                     if (vindicator == null || vindicator.isRemoved()) {
                         iterator.remove();
                         axeStates.remove(vindicator);
@@ -58,16 +58,16 @@ abstract class axe_mastery_base_action implements mutation_action {
             });
         }
 
-        boolean isOnCooldown(VindicatorEntity entity, String ability) {
+        boolean isOnCooldown(Vindicator entity, String ability) {
             return cooldowns.computeIfAbsent(entity, ignored -> new java.util.HashMap<>())
                     .getOrDefault(ability, 0) > 0;
         }
 
-        void setCooldown(VindicatorEntity entity, String ability, int ticks) {
+        void setCooldown(Vindicator entity, String ability, int ticks) {
             cooldowns.computeIfAbsent(entity, ignored -> new java.util.HashMap<>()).put(ability, ticks);
         }
 
-        void tickReturningAxe(VindicatorEntity vindicator,
+        void tickReturningAxe(Vindicator vindicator,
                 double maxDistance,
                 double travelSpeed,
                 int cooldownTicks,
@@ -81,19 +81,19 @@ abstract class axe_mastery_base_action implements mutation_action {
                 if (target == null) {
                     return;
                 }
-                double distanceSq = vindicator.squaredDistanceTo(target);
+                double distanceSq = vindicator.distanceToSqr(target);
                 if (distanceSq < 16.0D || distanceSq > 256.0D) {
                     return;
                 }
-                Vec3d start = vindicator.getEyePos();
-                Vec3d direction = target.getEyePos().subtract(start).normalize();
+                Vec3 start = vindicator.getEyePos();
+                Vec3 direction = target.getEyePos().subtract(start).normalize();
                 axeStates.put(vindicator, new AxeState(start, direction, maxDistance, travelSpeed));
                 setCooldown(vindicator, "returning_axe", cooldownTicks);
                 applyStopMovement(vindicator);
                 return;
             }
 
-            Vec3d currentPos = state.advance();
+            Vec3 currentPos = state.advance();
             dealDamageAlongPath(vindicator, currentPos, hitRadius);
             spawnTrailParticles(vindicator, currentPos);
             if (state.isFinished()) {
@@ -102,21 +102,21 @@ abstract class axe_mastery_base_action implements mutation_action {
             }
         }
 
-        private void dealDamageAlongPath(VindicatorEntity vindicator, Vec3d position, double radius) {
-            if (!(vindicator.getEntityWorld() instanceof ServerWorld world)) {
+        private void dealDamageAlongPath(Vindicator vindicator, Vec3 position, double radius) {
+            if (!(vindicator.getEntityWorld() instanceof ServerLevel world)) {
                 return;
             }
-            Box hitBox = new Box(position.add(-radius, -radius, -radius), position.add(radius, radius, radius));
+            AABB hitBox = new AABB(position.atLowerCornerWithOffset(-radius, -radius, -radius), position.atLowerCornerWithOffset(radius, radius, radius));
             List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, hitBox,
                     entity -> entity != vindicator && entity.isAlive());
             for (LivingEntity target : targets) {
-                vindicator.tryAttack(world, target);
+                vindicator.doHurtTarget(world, target);
             }
         }
 
-        private void spawnTrailParticles(VindicatorEntity vindicator, Vec3d position) {
-            if (vindicator.getEntityWorld() instanceof ServerWorld world) {
-                world.spawnParticles(ParticleTypes.CRIT,
+        private void spawnTrailParticles(Vindicator vindicator, Vec3 position) {
+            if (vindicator.getEntityWorld() instanceof ServerLevel world) {
+                world.sendParticles(ParticleTypes.CRIT,
                         position.x,
                         position.y,
                         position.z,
@@ -128,31 +128,31 @@ abstract class axe_mastery_base_action implements mutation_action {
             }
         }
 
-        private void applyStopMovement(VindicatorEntity vindicator) {
-            EntityAttributeInstance speed = vindicator.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        private void applyStopMovement(Vindicator vindicator) {
+            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && !speed.hasModifier(STOP_MOVEMENT_ID)) {
-                speed.addPersistentModifier(new EntityAttributeModifier(STOP_MOVEMENT_ID,
+                speed.addPermanentModifier(new AttributeModifier(STOP_MOVEMENT_ID,
                         -1.0D,
-                        EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             }
         }
 
-        private void clearStopMovement(VindicatorEntity vindicator) {
-            EntityAttributeInstance speed = vindicator.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        private void clearStopMovement(Vindicator vindicator) {
+            AttributeInstance speed = vindicator.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speed != null && speed.hasModifier(STOP_MOVEMENT_ID)) {
                 speed.removeModifier(STOP_MOVEMENT_ID);
             }
         }
 
         private static final class AxeState {
-            private final Vec3d start;
-            private final Vec3d direction;
+            private final Vec3 start;
+            private final Vec3 direction;
             private final double maxDistance;
             private final double speed;
             private double distance;
             private boolean returning;
 
-            private AxeState(Vec3d start, Vec3d direction, double maxDistance, double speed) {
+            private AxeState(Vec3 start, Vec3 direction, double maxDistance, double speed) {
                 this.start = start;
                 this.direction = direction;
                 this.maxDistance = maxDistance;
@@ -161,7 +161,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                 this.returning = false;
             }
 
-            private Vec3d advance() {
+            private Vec3 advance() {
                 if (!returning) {
                     distance = Math.min(maxDistance, distance + speed);
                     if (distance >= maxDistance) {
@@ -170,7 +170,7 @@ abstract class axe_mastery_base_action implements mutation_action {
                 } else {
                     distance = Math.max(0.0D, distance - speed);
                 }
-                return start.add(direction.multiply(distance));
+                return start.atLowerCornerWithOffset(direction.scale(distance));
             }
 
             private boolean isFinished() {

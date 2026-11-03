@@ -3,13 +3,13 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.core.Holder;
+import net.minecraft.world.phys.Vec3;
 
 public final class unstable_hit_1_action extends status_effect_single_target_base_action {
-    private static final RegistryEntry<StatusEffect> SLIPPERY_EFFECT = asEntry(ModStatusEffects.SLIPPERY_FLOOR);
+    private static final Holder<MobEffect> SLIPPERY_EFFECT = asEntry(ModStatusEffects.SLIPPERY_FLOOR);
 
     public unstable_hit_1_action(mutation_action_config config) {
         super(config, SLIPPERY_EFFECT, secondsToTicks(3), 0, Target.OTHER, 0.15D);
@@ -24,17 +24,17 @@ public final class unstable_hit_1_action extends status_effect_single_target_bas
             return;
         }
 
-        Vec3d offset = new Vec3d(victim.getX() - attacker.getX(), 0.0D, victim.getZ() - attacker.getZ());
-        if (offset.lengthSquared() < 1.0E-4D) {
-            Vec3d facing = attacker.getRotationVector();
-            offset = new Vec3d(facing.x, 0.0D, facing.z);
+        Vec3 offset = new Vec3(victim.getX() - attacker.getX(), 0.0D, victim.getZ() - attacker.getZ());
+        if (offset.lengthSqr() < 1.0E-4D) {
+            Vec3 facing = attacker.getRotationVector();
+            offset = new Vec3(facing.x, 0.0D, facing.z);
         }
-        double magnitudeSq = offset.lengthSquared();
+        double magnitudeSq = offset.lengthSqr();
         if (magnitudeSq < 1.0E-4D) {
             return;
         }
 
-        Vec3d impulse = offset.normalize().multiply(0.35D);
+        Vec3 impulse = offset.normalize().scale(0.35D);
         victim.addVelocity(impulse.x, 0.02D, impulse.z);
         victim.velocityModified = true;
     }

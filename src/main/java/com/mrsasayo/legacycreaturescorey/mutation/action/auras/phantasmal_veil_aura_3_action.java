@@ -4,8 +4,8 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.List;
 
@@ -100,7 +100,7 @@ public class phantasmal_veil_aura_3_action implements mutation_action, Phantasma
             int fallbackDurationTicks) {
         List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackDurationTicks > 0) {
-            fallback = List.of(status_effect_config_parser.createEntry(StatusEffects.INVISIBILITY,
+            fallback = List.of(status_effect_config_parser.createEntry(MobEffects.INVISIBILITY,
                     fallbackDurationTicks,
                     0,
                     true,

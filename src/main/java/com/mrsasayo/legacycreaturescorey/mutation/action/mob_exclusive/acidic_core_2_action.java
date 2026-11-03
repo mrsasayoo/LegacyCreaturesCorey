@@ -2,14 +2,14 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.SlimeEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Acidic Core II: Nube Ácida Persistente
@@ -32,10 +32,10 @@ public final class acidic_core_2_action implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, LivingEntity killer) {
-        if (!(entity instanceof SlimeEntity slime)) {
+        if (!(entity instanceof Slime slime)) {
             return;
         }
-        if (!(slime.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(slime.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         
@@ -44,18 +44,18 @@ public final class acidic_core_2_action implements mutation_action {
         double z = slime.getZ();
         
         // Crear nube de área con partículas de slime (visible y compatible)
-        AreaEffectCloudEntity cloud = new AreaEffectCloudEntity(world, x, y, z);
-        cloud.setParticleType(ParticleTypes.ITEM_SLIME);
+        AreaEffectCloud cloud = new AreaEffectCloud(world, x, y, z);
+        cloud.setCustomParticle(ParticleTypes.ITEM_SLIME);
         cloud.setRadius(radius);
         cloud.setDuration(durationTicks);
         cloud.setWaitTime(0);
         cloud.setRadiusOnUse(-0.1F);
-        cloud.setRadiusGrowth(-radius / (float) (durationTicks * 1.5));
-        cloud.addEffect(new StatusEffectInstance(StatusEffects.POISON, effectDuration, effectAmplifier));
+        cloud.setRadiusPerTick(-radius / (float) (durationTicks * 1.5));
+        cloud.addEffect(new MobEffectInstance(MobEffects.POISON, effectDuration, effectAmplifier));
         world.spawnEntity(cloud);
         
         // Partículas adicionales de explosión inicial
-        world.spawnParticles(ParticleTypes.ITEM_SLIME,
+        world.sendParticles(ParticleTypes.ITEM_SLIME,
                 x, y + 0.5D, z,
                 60,
                 radius * 0.8D,
@@ -64,7 +64,7 @@ public final class acidic_core_2_action implements mutation_action {
                 0.1D);
         
         // Partículas de vapor ácido ascendente
-        world.spawnParticles(ParticleTypes.SNEEZE,
+        world.sendParticles(ParticleTypes.SNEEZE,
                 x, y + 0.2D, z,
                 30,
                 radius * 0.5D,
@@ -73,7 +73,7 @@ public final class acidic_core_2_action implements mutation_action {
                 0.05D);
         
         // Partículas verdes brillantes
-        world.spawnParticles(ParticleTypes.HAPPY_VILLAGER,
+        world.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                 x, y + 0.1D, z,
                 40,
                 radius * 0.7D,
@@ -82,12 +82,12 @@ public final class acidic_core_2_action implements mutation_action {
                 0.02D);
         
         // Crear segunda nube visual con partículas de slime
-        AreaEffectCloudEntity visualCloud = new AreaEffectCloudEntity(world, x, y + 0.1D, z);
-        visualCloud.setParticleType(ParticleTypes.ITEM_SLIME);
+        AreaEffectCloud visualCloud = new AreaEffectCloud(world, x, y + 0.1D, z);
+        visualCloud.setCustomParticle(ParticleTypes.ITEM_SLIME);
         visualCloud.setRadius(radius * 0.8f);
         visualCloud.setDuration(durationTicks / 2);
         visualCloud.setWaitTime(0);
-        visualCloud.setRadiusGrowth(-0.01F);
+        visualCloud.setRadiusPerTick(-0.01F);
         world.spawnEntity(visualCloud);
     }
 }

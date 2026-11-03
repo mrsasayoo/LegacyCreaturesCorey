@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 /**
  * Boar Frenzy III: frenesí sangriento tras abatir a un objetivo.
@@ -28,7 +28,7 @@ public final class boar_frenzy_3_action extends boar_frenzy_base_action {
             entity.heal(entity.getMaxHealth() * healPercent);
         }
         if (effectDurationTicks > 0) {
-            entity.addStatusEffect(new StatusEffectInstance(StatusEffects.STRENGTH,
+            entity.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
                     effectDurationTicks,
                     Math.max(0, strengthAmplifier)));
         }

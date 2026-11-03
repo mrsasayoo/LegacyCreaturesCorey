@@ -1,18 +1,18 @@
 package com.mrsasayo.legacycreaturescorey.content.status;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.util.Mth;
 
 /**
  * Status effect that reduces the amount of healing a target receives while active.
  */
-public class HealingReductionStatusEffect extends StatusEffect {
+public class HealingReductionStatusEffect extends MobEffect {
     private final float healingMultiplier;
 
-    public HealingReductionStatusEffect(StatusEffectCategory category, int color, float healingMultiplier) {
+    public HealingReductionStatusEffect(MobEffectCategory category, int color, float healingMultiplier) {
         super(category, color);
-        this.healingMultiplier = MathHelper.clamp(healingMultiplier, 0.0F, 1.0F);
+        this.healingMultiplier = Mth.clamp(healingMultiplier, 0.0F, 1.0F);
     }
 
     public float getHealingMultiplier(int amplifier) {
@@ -20,6 +20,6 @@ public class HealingReductionStatusEffect extends StatusEffect {
             return healingMultiplier;
         }
         float adjusted = healingMultiplier - amplifier * 0.1F;
-        return MathHelper.clamp(adjusted, 0.0F, 1.0F);
+        return Mth.clamp(adjusted, 0.0F, 1.0F);
     }
 }

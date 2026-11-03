@@ -3,14 +3,14 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.EntityTypeTags;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * Applies a status effect periodically to entities within an aura radius.
  */
 public final class StatusEffectAuraAction implements mutation_action {
-    private final RegistryEntry<StatusEffect> effect;
+    private final Holder<MobEffect> effect;
     private final int duration;
     private final int amplifier;
     private final double radius;
@@ -28,7 +28,7 @@ public final class StatusEffectAuraAction implements mutation_action {
     private final boolean requireUndead;
     private final boolean requireNonUndead;
 
-    public StatusEffectAuraAction(RegistryEntry<StatusEffect> effect,
+    public StatusEffectAuraAction(Holder<MobEffect> effect,
                                   int duration,
                                   int amplifier,
                                   double radius,
@@ -53,21 +53,21 @@ public final class StatusEffectAuraAction implements mutation_action {
         if (effect == null || !action_context.isServer(entity)) {
             return;
         }
-        if (requireUndead && !entity.getType().isIn(EntityTypeTags.UNDEAD)) {
+        if (requireUndead && !entity.kind().is(EntityTypeTags.UNDEAD)) {
             return;
         }
-        if (requireNonUndead && entity.getType().isIn(EntityTypeTags.UNDEAD)) {
+        if (requireNonUndead && entity.kind().is(EntityTypeTags.UNDEAD)) {
             return;
         }
         if (entity.age % interval != 0) {
             return;
         }
 
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.getEntityWorld();
         switch (target) {
             case SELF -> applyEffect(entity);
             case PLAYERS -> {
-                for (PlayerEntity player : world.getPlayers(player -> player.isAlive() && !player.isCreative() && !player.isSpectator())) {
+                for (Player player : world.getPlayers(player -> player.isAlive() && !player.isCreative() && !player.isSpectator())) {
                     if (skipCandidate(entity, player)) {
                         continue;
                     }
@@ -75,11 +75,11 @@ public final class StatusEffectAuraAction implements mutation_action {
                 }
             }
             case ALLY_MOBS -> {
-                if (!(entity instanceof MobEntity mob)) {
+                if (!(entity instanceof Mob mob)) {
                     return;
                 }
-                List<MobEntity> mobs = world.getEntitiesByClass(MobEntity.class, mob.getBoundingBox().expand(radius), other -> other.isAlive());
-                for (MobEntity other : mobs) {
+                List<Mob> mobs = world.getEntitiesByClass(Mob.class, mob.getLocalBoundsForPose().expand(radius), other -> other.isAlive());
+                for (Mob other : mobs) {
                     if (skipCandidate(entity, other)) {
                         continue;
                     }
@@ -97,7 +97,7 @@ public final class StatusEffectAuraAction implements mutation_action {
     }
 
     private void applyEffect(LivingEntity targetEntity) {
-        targetEntity.addStatusEffect(new StatusEffectInstance(effect, duration, amplifier, true, true, true));
+        targetEntity.addEffect(new MobEffectInstance(effect, duration, amplifier, true, true, true));
     }
 
     public enum Target {

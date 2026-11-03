@@ -4,19 +4,19 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.thrown.PotionEntity;
-import net.minecraft.entity.projectile.thrown.SplashPotionEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.EntityTypeTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractThrownPotion;
+import net.minecraft.world.entity.projectile.ThrownSplashPotion;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,11 +29,11 @@ import java.util.WeakHashMap;
  */
 public final class UndeadPotionBurstAction implements mutation_action {
     private final int intervalTicks;
-    private final RegistryEntry<Potion> potion;
+    private final Holder<Potion> potion;
     private final double verticalVelocity;
     private final double spread;
 
-    public UndeadPotionBurstAction(int intervalTicks, RegistryEntry<Potion> potion, double verticalVelocity, double spread) {
+    public UndeadPotionBurstAction(int intervalTicks, Holder<Potion> potion, double verticalVelocity, double spread) {
         this.intervalTicks = Math.max(1, intervalTicks);
         this.potion = potion;
         this.verticalVelocity = verticalVelocity;
@@ -61,7 +61,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
         return intervalTicks;
     }
 
-    RegistryEntry<Potion> getPotion() {
+    Holder<Potion> getPotion() {
         return potion;
     }
 
@@ -94,7 +94,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {}
@@ -108,7 +108,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
         }
 
         void register(LivingEntity entity, UndeadPotionBurstAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.getEntityWorld();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (int i = 0; i < list.size(); i++) {
@@ -122,7 +122,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
         }
 
         void unregister(LivingEntity entity, UndeadPotionBurstAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.getEntityWorld();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -133,7 +133,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
             }
         }
 
-        private void handleWorldTick(ServerWorld world) {
+        private void handleWorldTick(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;
@@ -148,7 +148,7 @@ public final class UndeadPotionBurstAction implements mutation_action {
                     continue;
                 }
                 aura.lastSeenTick = time;
-                if (!source.getType().isIn(EntityTypeTags.UNDEAD)) {
+                if (!source.kind().is(EntityTypeTags.UNDEAD)) {
                     continue;
                 }
                 if (time - aura.lastTriggerTick >= aura.action.intervalTicks) {
@@ -161,16 +161,16 @@ public final class UndeadPotionBurstAction implements mutation_action {
             }
         }
 
-        private void throwPotion(ServerWorld world, LivingEntity source, UndeadPotionBurstAction action) {
-            ItemStack stack = PotionContentsComponent.createStack(Items.SPLASH_POTION, action.potion);
-            PotionEntity potionEntity = new SplashPotionEntity(world, source, stack);
+        private void throwPotion(ServerLevel world, LivingEntity source, UndeadPotionBurstAction action) {
+            ItemStack stack = PotionContents.createItemStack(Items.SPLASH_POTION, action.potion);
+            AbstractThrownPotion potionEntity = new ThrownSplashPotion(world, source, stack);
             potionEntity.setPosition(source.getX(), source.getEyeY(), source.getZ());
             double horizontalSpread = action.getSpread();
             double offsetX = (world.random.nextDouble() - 0.5D) * horizontalSpread;
             double offsetZ = (world.random.nextDouble() - 0.5D) * horizontalSpread;
             potionEntity.setVelocity(offsetX, action.getVerticalVelocity(), offsetZ);
             world.spawnEntity(potionEntity);
-            world.spawnParticles(ParticleTypes.SPLASH,
+            world.sendParticles(ParticleTypes.SPLASH,
                 source.getX(),
                 source.getEyeY(),
                 source.getZ(),
@@ -179,12 +179,12 @@ public final class UndeadPotionBurstAction implements mutation_action {
                 0.2D,
                 0.2D,
                 0.01D);
-            world.playSound(null,
+            world.makeSound(null,
                 source.getX(),
                 source.getY(),
                 source.getZ(),
-                SoundEvents.ENTITY_SPLASH_POTION_THROW,
-                SoundCategory.HOSTILE,
+                SoundEvents.SPLASH_POTION_THROW,
+                SoundSource.HOSTILE,
                 0.6F,
                 0.9F + world.random.nextFloat() * 0.1F);
         }

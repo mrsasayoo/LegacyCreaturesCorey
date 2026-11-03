@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
 
 public interface HordeBeaconSource {
     Mode getMode();
@@ -18,9 +18,9 @@ public interface HordeBeaconSource {
 
     int getRetargetCooldownTicks();
 
-    EntityAttributeModifier getFollowRangeModifier();
+    AttributeModifier getFollowRangeModifier();
 
-    Identifier getFollowRangeModifierId();
+    ResourceLocation getFollowRangeModifierId();
 
     enum Mode {
         FOLLOW_RANGE_BOOST,

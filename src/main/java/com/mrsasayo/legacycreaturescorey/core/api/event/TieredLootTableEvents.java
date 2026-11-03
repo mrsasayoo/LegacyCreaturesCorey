@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.loot.data.TieredMobLoot;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 
@@ -44,11 +44,11 @@ public final class TieredLootTableEvents {
 
     @FunctionalInterface
     public interface ModifyTieredLootTables {
-        void modify(Map<MobTier, Map<Identifier, TieredMobLoot>> definitions);
+        void modify(Map<MobTier, Map<ResourceLocation, TieredMobLoot>> definitions);
     }
 
     @FunctionalInterface
     public interface PostApplyTieredLootTables {
-        void onTieredLootTablesApplied(Map<MobTier, Map<Identifier, TieredMobLoot>> snapshot);
+        void onTieredLootTablesApplied(Map<MobTier, Map<ResourceLocation, TieredMobLoot>> snapshot);
     }
 }

@@ -2,11 +2,11 @@ package com.mrsasayo.legacycreaturescorey.content.status;
 
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * Mirrors status effect lifecycle events from the server to interested clients.
@@ -14,23 +14,23 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public final class StatusEffectSyncHelper {
     private StatusEffectSyncHelper() {}
 
-    public static void handle(LivingEntity entity, StatusEffectInstance effect, boolean start) {
+    public static void handle(LivingEntity entity, MobEffectInstance effect, boolean start) {
         StatusEffectTicker.handleStatusEffectUpdate(entity, effect, start);
 
-        RegistryEntry<StatusEffect> entry = effect.getEffectType();
-        StatusEffect raw = entry.value();
+        Holder<MobEffect> entry = effect.getEffect();
+        MobEffect raw = entry.value();
         if (!(raw instanceof NotifyingStatusEffect notifying)) {
             return;
         }
-        if (!(entity instanceof ServerPlayerEntity player)) {
+        if (!(entity instanceof ServerPlayer player)) {
             return;
         }
-        if (!start && entity.hasStatusEffect(entry)) {
+        if (!start && entity.hasEffect(entry)) {
             return;
         }
 
         int duration = start ? effect.getDuration() : 0;
         float intensity = start ? notifying.computeIntensity(effect.getAmplifier()) : 0.0F;
-        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffectType(), start, duration, intensity));
+        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffect(), start, duration, intensity));
     }
 }

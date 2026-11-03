@@ -3,11 +3,11 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.Holder;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
         this.reflectionPercentage = reflectionPercentage;
         this.maxDistance = maxDistance;
 
-        this.effects = effects == null ? List.of() : List.copyOf(effects);
+        this.effects = effects == null ? List.direct() : List.copyOf(effects);
     }
 
     @Override
@@ -39,10 +39,10 @@ public final class PsionicThornsAuraAction implements mutation_action {
         handler.unregister(entity);
     }
 
-    public record ThornsEffect(RegistryEntry<StatusEffect> effect, int duration, int amplifier) {
+    public record ThornsEffect(Holder<MobEffect> effect, int duration, int amplifier) {
         public void apply(LivingEntity target) {
             if (effect != null) {
-                target.addStatusEffect(new StatusEffectInstance(effect, duration, amplifier));
+                target.addEffect(new MobEffectInstance(effect, duration, amplifier));
             }
         }
     }
@@ -72,19 +72,19 @@ public final class PsionicThornsAuraAction implements mutation_action {
                 float originalAmount,
                 float actualAmount,
                 boolean blocked) {
-            if (owner == null || victim != owner || victim.isDead()) {
+            if (owner == null || victim != owner || victim.isDeadOrDying()) {
                 return;
             }
 
             // Check if damage is melee
-            if (source.isIn(net.minecraft.registry.tag.DamageTypeTags.IS_PROJECTILE) ||
-                    source.isIn(net.minecraft.registry.tag.DamageTypeTags.IS_EXPLOSION) ||
-                    source.isIn(net.minecraft.registry.tag.DamageTypeTags.BYPASSES_ARMOR)) {
+            if (source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE) ||
+                    source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) ||
+                    source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR)) {
                 return;
             }
 
             // Ensure attacker is present and alive
-            if (!(source.getAttacker() instanceof LivingEntity attacker) || attacker == victim) {
+            if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == victim) {
                 return;
             }
 
@@ -98,7 +98,7 @@ public final class PsionicThornsAuraAction implements mutation_action {
 
             // Apply reflected damage
             if (reflectedDamage > 0
-                    && attacker.getEntityWorld() instanceof net.minecraft.server.world.ServerWorld serverWorld) {
+                    && attacker.getEntityWorld() instanceof net.minecraft.server.level.ServerLevel serverWorld) {
                 attacker.damage(serverWorld, victim.getDamageSources().magic(), reflectedDamage);
             }
 

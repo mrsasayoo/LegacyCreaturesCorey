@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.feature.loot.data;
 
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.RandomSource;
 
 /**
  * Simple inclusive range helper for integer sampling.
@@ -19,7 +19,7 @@ public record IntRange(int min, int max) {
         return new IntRange(value, value);
     }
 
-    public int sample(Random random) {
+    public int sample(RandomSource random) {
         if (min == max) {
             return min;
         }

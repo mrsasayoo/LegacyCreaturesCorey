@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.util;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Objects;
 

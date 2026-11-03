@@ -1,6 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.content.item;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 /**
  * Simple marker item used for deceptive demise fragments.

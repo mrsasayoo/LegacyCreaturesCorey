@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 public final class battering_ram_3_action extends battering_ram_base_action {
     private final int weaknessDurationTicks;
@@ -24,10 +24,10 @@ public final class battering_ram_3_action extends battering_ram_base_action {
         if (attacker.getEntityWorld().isClient()) {
             return;
         }
-        target.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS,
+        target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,
                 weaknessDurationTicks,
                 weaknessAmplifier));
-        target.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA,
+        target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,
                 nauseaDurationTicks,
                 nauseaAmplifier));
     }

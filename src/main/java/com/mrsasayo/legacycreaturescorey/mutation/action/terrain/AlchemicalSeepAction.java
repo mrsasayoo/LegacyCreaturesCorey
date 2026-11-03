@@ -3,20 +3,20 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.terrain;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -117,7 +117,7 @@ public final class AlchemicalSeepAction implements mutation_action {
     private static final class Handler {
         private static final Handler INSTANCE = new Handler();
 
-        private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
+        private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
         private boolean initialized;
 
         private Handler() {
@@ -132,7 +132,7 @@ public final class AlchemicalSeepAction implements mutation_action {
         }
 
         void register(LivingEntity entity, AlchemicalSeepAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
             long time = world.getTime();
             for (ActiveAura aura : list) {
@@ -141,11 +141,11 @@ public final class AlchemicalSeepAction implements mutation_action {
                     return;
                 }
             }
-            list.add(new ActiveAura(entity, action, time));
+            list.offset(new ActiveAura(entity, action, time));
         }
 
         void unregister(LivingEntity entity, AlchemicalSeepAction action) {
-            ServerWorld world = (ServerWorld) entity.getEntityWorld();
+            ServerLevel world = (ServerLevel) entity.level();
             List<ActiveAura> list = active.get(world);
             if (list == null) {
                 return;
@@ -156,7 +156,7 @@ public final class AlchemicalSeepAction implements mutation_action {
             }
         }
 
-        private void handleWorldTick(ServerWorld world) {
+        private void handleWorldTick(ServerLevel world) {
             cleanup(world);
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
@@ -201,7 +201,7 @@ public final class AlchemicalSeepAction implements mutation_action {
             }
         }
 
-        private boolean applyCleansingPuddle(ServerWorld world, ActiveAura aura) {
+        private boolean applyCleansingPuddle(ServerLevel world, ActiveAura aura) {
             // Logic: Spawn particles and clear effects of players stepping on it?
             // Or instant effect?
             // "El mob puede dejar un pequeño charco... que limpia al jugador... si lo pisa"
@@ -212,45 +212,45 @@ public final class AlchemicalSeepAction implements mutation_action {
 
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<ServerPlayerEntity> players = world
+            List<ServerPlayer> players = world
                     .getPlayers(p -> p.isAlive() && p.squaredDistanceTo(source) <= radius * radius);
 
             if (players.isEmpty())
                 return false;
 
-            world.spawnParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
+            world.sendParticles(ParticleTypes.SPLASH, source.getX(), source.getY(), source.getZ(), 20, radius / 2, 0.1,
                     radius / 2, 0.1);
 
-            for (ServerPlayerEntity player : players) {
-                if (player.clearStatusEffects()) {
-                    world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_BUCKET_EMPTY,
-                            SoundCategory.PLAYERS, 1.0f, 1.0f);
+            for (ServerPlayer player : players) {
+                if (player.removeAllEffects()) {
+                    world.makeSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUCKET_EMPTY,
+                            SoundSource.PLAYERS, 1.0f, 1.0f);
                 }
             }
             return true;
         }
 
-        private boolean applyStickyGoo(ServerWorld world, ActiveAura aura) {
+        private boolean applyStickyGoo(ServerLevel world, ActiveAura aura) {
             // "Escupir un charco... 3x3... no saltar... -15% velocidad"
             LivingEntity source = aura.source;
             double radius = aura.action.getRadius();
-            List<ServerPlayerEntity> players = world
+            List<ServerPlayer> players = world
                     .getPlayers(p -> p.isAlive() && p.squaredDistanceTo(source) <= radius * radius);
 
             if (players.isEmpty())
                 return false;
 
-            world.spawnParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
+            world.sendParticles(ParticleTypes.DRIPPING_HONEY, source.getX(), source.getY(), source.getZ(), 30,
                     radius / 2, 0.1, radius / 2, 0.1);
 
-            for (ServerPlayerEntity player : players) {
-                player.addStatusEffect(
-                        new StatusEffectInstance(StatusEffects.SLOWNESS, aura.action.getDurationTicks(), 0)); // -15% is
+            for (ServerPlayer player : players) {
+                player.addEffect(
+                        new MobEffectInstance(MobEffects.SLOWNESS, aura.action.getDurationTicks(), 0)); // -15% is
                                                                                                               // roughly
                                                                                                               // Slowness
                                                                                                               // I
-                player.addStatusEffect(
-                        new StatusEffectInstance(StatusEffects.JUMP_BOOST, aura.action.getDurationTicks(), 128)); // Negative
+                player.addEffect(
+                        new MobEffectInstance(MobEffects.JUMP_BOOST, aura.action.getDurationTicks(), 128)); // Negative
                                                                                                                   // jump
                                                                                                                   // boost
                                                                                                                   // prevents
@@ -259,14 +259,14 @@ public final class AlchemicalSeepAction implements mutation_action {
             return true;
         }
 
-        private boolean applyTransmutationZone(ServerWorld world, ActiveAura aura) {
+        private boolean applyTransmutationZone(ServerLevel world, ActiveAura aura) {
             // "Zona de 5x5... piedra->grava, tierra->arena, agua->hielo"
             LivingEntity source = aura.source;
-            BlockPos center = source.getBlockPos().down();
-            int r = MathHelper.ceil(aura.action.getRadius());
+            BlockPos center = source.getBlockPos().below();
+            int r = Mth.ceil(aura.action.getRadius());
 
             boolean changed = false;
-            for (BlockPos pos : BlockPos.iterate(center.add(-r, -1, -r), center.add(r, 1, r))) {
+            for (BlockPos pos : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
                 if (world.random.nextFloat() > 0.3f)
                     continue; // Don't change everything instantly
 
@@ -284,15 +284,15 @@ public final class AlchemicalSeepAction implements mutation_action {
             }
 
             if (changed) {
-                world.spawnParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
+                world.sendParticles(ParticleTypes.ENCHANT, source.getX(), source.getY(), source.getZ(), 50, r, 0.5, r,
                         0.1);
-                world.playSound(null, source.getX(), source.getY(), source.getZ(),
-                        SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.HOSTILE, 1.0f, 0.5f);
+                world.makeSound(null, source.getX(), source.getY(), source.getZ(),
+                        SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.HOSTILE, 1.0f, 0.5f);
             }
             return changed;
         }
 
-        private void cleanup(ServerWorld world) {
+        private void cleanup(ServerLevel world) {
             List<ActiveAura> list = active.get(world);
             if (list == null || list.isEmpty()) {
                 return;

@@ -2,24 +2,24 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import com.mrsasayo.legacycreaturescorey.mutation.util.status_effect_config_parser;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.PlantBlock;
-import net.minecraft.block.TallPlantBlock;
-import net.minecraft.block.VineBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.EvokerFangsEntity;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.Heightmap;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.VegetationBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.EvokerFangs;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,8 +30,8 @@ import java.util.WeakHashMap;
 public final class VirulentHandler {
     public static final VirulentHandler INSTANCE = new VirulentHandler();
 
-    private final Map<ServerWorld, List<ActiveAura>> active = new WeakHashMap<>();
-    private final Map<ServerWorld, List<DecayEntry>> scheduledDecay = new WeakHashMap<>();
+    private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
+    private final Map<ServerLevel, List<DecayEntry>> scheduledDecay = new WeakHashMap<>();
     private static final int FOLIAGE_LIFESPAN_TICKS = 20 * 60;
     private boolean initialized;
 
@@ -47,7 +47,7 @@ public final class VirulentHandler {
     }
 
     public void register(LivingEntity entity, VirulentSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
+        ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.computeIfAbsent(world, ignored -> new ArrayList<>());
         long time = world.getTime();
         for (ActiveAura aura : list) {
@@ -56,12 +56,12 @@ public final class VirulentHandler {
                 return;
             }
         }
-        list.add(new ActiveAura(entity, source, time));
+        list.offset(new ActiveAura(entity, source, time));
     }
 
     public void unregister(LivingEntity entity, VirulentSource source) {
-        ServerWorld world = (ServerWorld) entity.getEntityWorld();
-        List<ActiveAura> list = active.get(world);
+        ServerLevel world = (ServerLevel) entity.level();
+        List<ActiveAura> list = active.getFirstAvailable(world);
         if (list == null) {
             return;
         }
@@ -71,9 +71,9 @@ public final class VirulentHandler {
         }
     }
 
-    private void handleWorldTick(ServerWorld world) {
+    private void handleWorldTick(ServerLevel world) {
         cleanup(world);
-        List<ActiveAura> list = active.get(world);
+        List<ActiveAura> list = active.getFirstAvailable(world);
         if (list == null || list.isEmpty()) {
             processDecay(world, world.getTime());
             return;
@@ -96,9 +96,9 @@ public final class VirulentHandler {
         processDecay(world, time);
     }
 
-    private void attemptGrowth(ServerWorld world, ActiveAura aura) {
+    private void attemptGrowth(ServerLevel world, ActiveAura aura) {
         LivingEntity source = aura.source;
-        Random random = world.random;
+        RandomSource random = world.getRandom;
         double radius = aura.sourceDef.getRadius();
         int attempts = aura.sourceDef.getAttempts();
         boolean success = false;
@@ -120,22 +120,22 @@ public final class VirulentHandler {
         }
     }
 
-    private void applyStationaryPoison(ServerWorld world, ActiveAura aura, long time) {
+    private void applyStationaryPoison(ServerLevel world, ActiveAura aura, long time) {
         LivingEntity source = aura.source;
         double radius = aura.sourceDef.getRadius();
         if (radius <= 0.0D) {
             return;
         }
         double radiusSq = radius * radius;
-        List<ServerPlayerEntity> players = world
+        List<ServerPlayer> players = world
                 .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
         if (players.isEmpty()) {
             return;
         }
-        for (ServerPlayerEntity player : players) {
+        for (ServerPlayer player : players) {
             BlockPos feetPos = player.getBlockPos();
             BlockState feetState = world.getBlockState(feetPos);
-            if (!isTriggerBlock(feetState) && !isTriggerBlock(world.getBlockState(feetPos.down()))) {
+            if (!isTriggerBlock(feetState) && !isTriggerBlock(world.getBlockState(feetPos.below()))) {
                 continue;
             }
             // Expose the configured debuff payload once the target is rooted in place.
@@ -143,29 +143,29 @@ public final class VirulentHandler {
         }
     }
 
-    private void triggerRootSpikes(ServerWorld world, ActiveAura aura) {
+    private void triggerRootSpikes(ServerLevel world, ActiveAura aura) {
         LivingEntity source = aura.source;
         double radius = aura.sourceDef.getRadius();
         double radiusSq = radius * radius;
-        List<ServerPlayerEntity> players = world
+        List<ServerPlayer> players = world
                 .getPlayers(player -> player.isAlive() && source.squaredDistanceTo(player) <= radiusSq);
         if (players.isEmpty()) {
             return;
         }
-        for (ServerPlayerEntity player : players) {
+        for (ServerPlayer player : players) {
             spawnFangsAround(world, player, aura);
         }
-        world.playSound(null,
+        world.makeSound(null,
                 source.getX(),
                 source.getY(),
                 source.getZ(),
-                SoundEvents.ENTITY_EVOKER_PREPARE_ATTACK,
-                SoundCategory.HOSTILE,
+                SoundEvents.EVOKER_PREPARE_ATTACK,
+                SoundSource.HOSTILE,
                 0.6F,
-                0.9F + world.random.nextFloat() * 0.2F);
+                0.9F + world.getRandom.nextFloat() * 0.2F);
     }
 
-    private void spawnFangsAround(ServerWorld world, ServerPlayerEntity player, ActiveAura aura) {
+    private void spawnFangsAround(ServerLevel world, ServerPlayer player, ActiveAura aura) {
         int count = aura.sourceDef.getFangCount();
         double baseY = player.getY();
         for (int i = 0; i < count; i++) {
@@ -173,41 +173,41 @@ public final class VirulentHandler {
             double distance = 0.6D + 0.4D * i;
             double x = player.getX() + Math.cos(angle) * distance;
             double z = player.getZ() + Math.sin(angle) * distance;
-            BlockPos ground = BlockPos.ofFloored(x, baseY, z);
+            BlockPos ground = BlockPos.containing(x, baseY, z);
             BlockPos pos = findGround(world, ground);
-            EvokerFangsEntity fangs = new EvokerFangsEntity(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D,
+            EvokerFangs fangs = new EvokerFangs(world, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D,
                     (float) angle, aura.sourceDef.getFangWarmupTicks(), aura.source);
             world.spawnEntity(fangs);
         }
     }
 
-    private BlockPos findGround(ServerWorld world, BlockPos pos) {
+    private BlockPos findGround(ServerLevel world, BlockPos pos) {
         BlockPos mutable = pos;
         while (mutable.getY() > world.getBottomY() && world.getBlockState(mutable).isAir()) {
-            mutable = mutable.down();
+            mutable = mutable.below();
         }
         if (world.getBlockState(mutable).isAir()) {
             return pos;
         }
-        return mutable.up();
+        return mutable.above();
     }
 
-    private boolean tryGrowFoliage(ServerWorld world, LivingEntity source, double radius, Random random) {
+    private boolean tryGrowFoliage(ServerLevel world, LivingEntity source, double radius, RandomSource random) {
         if (radius <= 0.5D) {
             return false;
         }
-        int maxOffset = Math.max(1, MathHelper.ceil(radius));
-        int offsetX = random.nextBetween(-maxOffset, maxOffset);
-        int offsetZ = random.nextBetween(-maxOffset, maxOffset);
-        BlockPos sample = BlockPos.ofFloored(source.getX() + offsetX, source.getY(), source.getZ() + offsetZ);
+        int maxOffset = Math.max(1, Mth.ceil(radius));
+        int offsetX = random.nextIntBetweenInclusive(-maxOffset, maxOffset);
+        int offsetZ = random.nextIntBetweenInclusive(-maxOffset, maxOffset);
+        BlockPos sample = BlockPos.containing(source.getX() + offsetX, source.getY(), source.getZ() + offsetZ);
         BlockPos topPos = world.getTopPosition(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, sample);
-        BlockPos surface = topPos.down();
+        BlockPos surface = topPos.below();
 
         if (surface.getY() < world.getBottomY() || !world.getWorldBorder().contains(surface)) {
             return false;
         }
 
-        BlockPos placePos = surface.up();
+        BlockPos placePos = surface.above();
 
         if (!world.getBlockState(placePos).isAir()) {
             if (random.nextFloat() < 0.3f) {
@@ -219,47 +219,47 @@ public final class VirulentHandler {
         int choice = random.nextInt(8);
 
         return switch (choice) {
-            case 0 -> tryPlaceBlock(world, placePos, Blocks.PALE_HANGING_MOSS.getDefaultState());
-            case 1 -> tryPlaceBlock(world, placePos, Blocks.MOSS_CARPET.getDefaultState());
-            case 2 -> tryPlaceBlock(world, placePos, Blocks.PALE_MOSS_CARPET.getDefaultState());
-            case 3 -> tryPlaceBlock(world, placePos, Blocks.SHORT_GRASS.getDefaultState());
-            case 4 -> tryPlaceBlock(world, placePos, Blocks.DEAD_BUSH.getDefaultState());
-            case 5 -> tryPlaceTallPlant(world, placePos, Blocks.TALL_GRASS.getDefaultState());
+            case 0 -> tryPlaceBlock(world, placePos, Blocks.PALE_HANGING_MOSS.defaultBlockState());
+            case 1 -> tryPlaceBlock(world, placePos, Blocks.MOSS_CARPET.defaultBlockState());
+            case 2 -> tryPlaceBlock(world, placePos, Blocks.PALE_MOSS_CARPET.defaultBlockState());
+            case 3 -> tryPlaceBlock(world, placePos, Blocks.SHORT_GRASS.defaultBlockState());
+            case 4 -> tryPlaceBlock(world, placePos, Blocks.DEAD_BUSH.defaultBlockState());
+            case 5 -> tryPlaceTallPlant(world, placePos, Blocks.TALL_GRASS.defaultBlockState());
             case 6 -> tryPlaceGlowLichen(world, placePos, random);
             default -> tryPlaceVine(world, surface, random);
         };
     }
 
-    private boolean tryPlaceBlock(ServerWorld world, BlockPos pos, BlockState state) {
+    private boolean tryPlaceBlock(ServerLevel world, BlockPos pos, BlockState state) {
         if (state.canPlaceAt(world, pos)) {
-            world.setBlockState(pos, state, Block.NOTIFY_ALL);
+            world.setBlockState(pos, state, Block.UPDATE_ALL);
             scheduleDecay(world, pos, state);
             return true;
         }
         return false;
     }
 
-    private boolean tryPlaceTallPlant(ServerWorld world, BlockPos pos, BlockState state) {
-        if (state.canPlaceAt(world, pos) && world.getBlockState(pos.up()).isAir()) {
-            TallPlantBlock.placeAt(world, state, pos, Block.NOTIFY_ALL);
+    private boolean tryPlaceTallPlant(ServerLevel world, BlockPos pos, BlockState state) {
+        if (state.canPlaceAt(world, pos) && world.getBlockState(pos.above()).isAir()) {
+            DoublePlantBlock.placeAt(world, state, pos, Block.UPDATE_ALL);
             scheduleDecay(world, pos, state);
-            scheduleDecay(world, pos.up(), world.getBlockState(pos.up()));
+            scheduleDecay(world, pos.above(), world.getBlockState(pos.above()));
             return true;
         }
         return false;
     }
 
-    private boolean tryPlaceVine(ServerWorld world, BlockPos surface, Random random) {
-        for (Direction dir : Direction.Type.HORIZONTAL) {
+    private boolean tryPlaceVine(ServerLevel world, BlockPos surface, RandomSource random) {
+        for (Direction dir : Direction.Type.BY_2D_DATA) {
             if (random.nextBoolean())
                 continue;
 
-            BlockPos vinePos = surface.offset(dir);
+            BlockPos vinePos = surface.relative(dir);
             if (world.getBlockState(vinePos).isAir()) {
-                BlockState vine = Blocks.VINE.getDefaultState().with(VineBlock.getFacingProperty(dir.getOpposite()),
+                BlockState vine = Blocks.VINE.defaultBlockState().with(VineBlock.getPropertyForFace(dir.getOpposite()),
                         true);
                 if (vine.canPlaceAt(world, vinePos)) {
-                    world.setBlockState(vinePos, vine, Block.NOTIFY_ALL);
+                    world.setBlockState(vinePos, vine, Block.UPDATE_ALL);
                     scheduleDecay(world, vinePos, vine);
                     return true;
                 }
@@ -268,15 +268,15 @@ public final class VirulentHandler {
         return false;
     }
 
-    private boolean tryPlaceGlowLichen(ServerWorld world, BlockPos pos, Random random) {
+    private boolean tryPlaceGlowLichen(ServerLevel world, BlockPos pos, RandomSource random) {
         for (Direction dir : Direction.values()) {
             if (random.nextBoolean())
                 continue;
 
-            BlockState state = Blocks.GLOW_LICHEN.getDefaultState()
-                    .with(net.minecraft.block.GlowLichenBlock.getProperty(dir), true);
+            BlockState state = Blocks.GLOW_LICHEN.defaultBlockState()
+                    .with(net.minecraft.world.level.block.GlowLichenBlock.getProperty(dir), true);
             if (state.canPlaceAt(world, pos)) {
-                world.setBlockState(pos, state, Block.NOTIFY_ALL);
+                world.setBlockState(pos, state, Block.UPDATE_ALL);
                 scheduleDecay(world, pos, state);
                 return true;
             }
@@ -284,8 +284,8 @@ public final class VirulentHandler {
         return false;
     }
 
-    private void cleanup(ServerWorld world) {
-        List<ActiveAura> list = active.get(world);
+    private void cleanup(ServerLevel world) {
+        List<ActiveAura> list = active.getFirstAvailable(world);
         if (list == null || list.isEmpty()) {
             return;
         }
@@ -302,14 +302,14 @@ public final class VirulentHandler {
         }
     }
 
-    private void scheduleDecay(ServerWorld world, BlockPos pos, BlockState state) {
-        BlockPos immutablePos = pos.toImmutable();
+    private void scheduleDecay(ServerLevel world, BlockPos pos, BlockState state) {
+        BlockPos immutablePos = pos.immutable();
         List<DecayEntry> entries = scheduledDecay.computeIfAbsent(world, ignored -> new ArrayList<>());
-        entries.add(new DecayEntry(immutablePos, state, world.getTime() + FOLIAGE_LIFESPAN_TICKS));
+        entries.offset(new DecayEntry(immutablePos, state, world.getTime() + FOLIAGE_LIFESPAN_TICKS));
     }
 
-    private void processDecay(ServerWorld world, long currentTick) {
-        List<DecayEntry> entries = scheduledDecay.get(world);
+    private void processDecay(ServerLevel world, long currentTick) {
+        List<DecayEntry> entries = scheduledDecay.getFirstAvailable(world);
         if (entries == null || entries.isEmpty()) {
             return;
         }
@@ -339,7 +339,7 @@ public final class VirulentHandler {
             return true;
         }
         Block block = state.getBlock();
-        if (block instanceof PlantBlock || block instanceof TallPlantBlock) {
+        if (block instanceof VegetationBlock || block instanceof DoublePlantBlock) {
             return true;
         }
         return state.isOf(Blocks.GRASS_BLOCK)

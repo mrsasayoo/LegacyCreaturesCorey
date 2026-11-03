@@ -8,7 +8,7 @@ import com.mrsasayo.legacycreaturescorey.core.config.domain.difficulty_config;
 import com.mrsasayo.legacycreaturescorey.core.network.DifficultySyncPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class DifficultyManager {
 
@@ -74,7 +74,7 @@ public class DifficultyManager {
 
     private static int increaseDifficultyForOnlinePlayers(MinecraftServer server, CoreyServerState state, int amount) {
         int affected = 0;
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerManager().getPlayerList()) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             data.increasePlayerDifficulty(amount);
             affected++;
@@ -83,9 +83,9 @@ public class DifficultyManager {
         return affected;
     }
     
-    public static void applyDeathPenalty(ServerPlayerEntity player) {
+    public static void applyDeathPenalty(ServerPlayer player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        long currentTime = player.getEntityWorld().getTime();
+        long currentTime = player.level().getTime();
         long streakWindow = Math.max(0L, difficulty_config.getDeathPenaltyCooldownTicks());
 
         data.recordDeath(currentTime);
@@ -120,16 +120,16 @@ public class DifficultyManager {
             newDifficulty
         );
 
-    MinecraftServer server = player.getEntityWorld().getServer();
+    MinecraftServer server = player.level().getServer();
         if (server != null) {
             CoreyServerState state = CoreyServerState.get(server);
             sendDifficultySnapshot(player, state, data);
         }
     }
     
-    public static void initializePlayerDifficulty(ServerPlayerEntity player) {
+    public static void initializePlayerDifficulty(ServerPlayer player) {
         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-        MinecraftServer server = player.getEntityWorld().getServer();
+        MinecraftServer server = player.level().getServer();
         if (server == null) {
             return;
         }
@@ -149,13 +149,13 @@ public class DifficultyManager {
     }
 
     private static void broadcastDifficultySnapshot(MinecraftServer server, CoreyServerState state) {
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : server.getPlayerManager().getPlayerList()) {
             PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
             sendDifficultySnapshot(player, state, data);
         }
     }
 
-    private static void sendDifficultySnapshot(ServerPlayerEntity player, CoreyServerState state, PlayerDifficultyData data) {
+    private static void sendDifficultySnapshot(ServerPlayer player, CoreyServerState state, PlayerDifficultyData data) {
         DifficultySyncPayload payload = new DifficultySyncPayload(
             state.getGlobalDifficulty(),
             difficulty_config.getMaxGlobalDifficulty(),
@@ -165,8 +165,8 @@ public class DifficultyManager {
         ModNetworking.sendDifficultyUpdate(player, payload);
     }
 
-    public static void syncPlayer(ServerPlayerEntity player) {
-    MinecraftServer server = player.getEntityWorld().getServer();
+    public static void syncPlayer(ServerPlayer player) {
+    MinecraftServer server = player.level().getServer();
         if (server == null) {
             return;
         }

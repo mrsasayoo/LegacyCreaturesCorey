@@ -4,10 +4,10 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.helper.GroundHazardMana
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class GroundHazardOnDeathAction implements mutation_action {
@@ -25,14 +25,14 @@ public final class GroundHazardOnDeathAction implements mutation_action {
 
 	@Override
 	public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-		if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+		if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
 			return;
 		}
 		if (chance < 1.0D && entity.getRandom().nextDouble() > chance) {
 			return;
 		}
 
-	Vec3d origin = new Vec3d(entity.getX(), entity.getY(), entity.getZ());
+	Vec3 origin = new Vec3(entity.getX(), entity.getY(), entity.getZ());
 		if (delayTicks <= 0) {
 			GroundHazardManager.spawnHazard(world, origin, config);
 			return;
@@ -42,7 +42,7 @@ public final class GroundHazardOnDeathAction implements mutation_action {
 			private int ticks = delayTicks;
 
 			@Override
-			public boolean tick(ServerWorld currentWorld) {
+			public boolean tick(ServerLevel currentWorld) {
 				if (ticks-- > 0) {
 					return false;
 				}

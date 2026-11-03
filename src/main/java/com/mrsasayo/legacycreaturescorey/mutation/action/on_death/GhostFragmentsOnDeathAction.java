@@ -3,12 +3,12 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_death;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
 import com.mrsasayo.legacycreaturescorey.content.item.ModItems;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,7 +25,7 @@ public final class GhostFragmentsOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -40,11 +40,11 @@ public final class GhostFragmentsOnDeathAction implements mutation_action {
                 entity.getBodyY(0.5D),
                 entity.getZ(),
                 stack);
-            fragment.setToDefaultPickupDelay();
+            fragment.setDefaultPickUpDelay();
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = 0.25D + random.nextDouble() * 0.2D;
             double vy = 0.2D + random.nextDouble() * 0.2D;
-            fragment.setVelocity(new Vec3d(Math.cos(angle) * speed, vy, Math.sin(angle) * speed));
+            fragment.setVelocity(new Vec3(Math.cos(angle) * speed, vy, Math.sin(angle) * speed));
             fragment.velocityDirty = true;
             world.spawnEntity(fragment);
         }

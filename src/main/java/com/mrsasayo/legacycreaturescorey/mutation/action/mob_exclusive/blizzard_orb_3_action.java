@@ -2,16 +2,16 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.SnowGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,15 +31,15 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
     private final int blindnessDurationTicks;
 
     private static final List<TrackingBlizzard> ACTIVE_BLIZZARDS = new ArrayList<>();
-    private static final Map<SnowGolemEntity, Integer> COOLDOWNS = new WeakHashMap<>();
+    private static final Map<SnowGolem, Integer> COOLDOWNS = new WeakHashMap<>();
 
     static {
         ServerTickEvents.END_WORLD_TICK.register(world -> {
             // Manejar cooldowns
-            Iterator<Map.Entry<SnowGolemEntity, Integer>> cooldownIterator = COOLDOWNS.entrySet().iterator();
+            Iterator<Map.Entry<SnowGolem, Integer>> cooldownIterator = COOLDOWNS.entrySet().iterator();
             while (cooldownIterator.hasNext()) {
-                Map.Entry<SnowGolemEntity, Integer> entry = cooldownIterator.next();
-                SnowGolemEntity golem = entry.getKey();
+                Map.Entry<SnowGolem, Integer> entry = cooldownIterator.next();
+                SnowGolem golem = entry.getKey();
                 if (golem == null || golem.isRemoved()) {
                     cooldownIterator.remove();
                     continue;
@@ -68,15 +68,15 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                 // Si el objetivo sigue vivo, SEGUIR al jugador
                 if (blizzard.target != null && blizzard.target.isAlive()) {
                     // Mover la posición de la ventisca hacia el objetivo
-                    Vec3d targetPos = new Vec3d(blizzard.target.getX(), blizzard.target.getY(), blizzard.target.getZ());
-                    Vec3d diff = targetPos.subtract(blizzard.currentPosition);
+                    Vec3 targetPos = new Vec3(blizzard.target.getX(), blizzard.target.getY(), blizzard.target.getZ());
+                    Vec3 diff = targetPos.subtract(blizzard.currentPosition);
                     double distance = diff.length();
 
                     if (distance > 0.1) {
                         // Velocidad de seguimiento
                         double speed = Math.min(0.3, distance * 0.1);
-                        Vec3d movement = diff.normalize().multiply(speed);
-                        blizzard.currentPosition = blizzard.currentPosition.add(movement);
+                        Vec3 movement = diff.normalize().scale(speed);
+                        blizzard.currentPosition = blizzard.currentPosition.atLowerCornerWithOffset(movement);
                     }
                 }
 
@@ -92,7 +92,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                         double rotX = Math.cos(angle) * 0.1;
                         double rotZ = Math.sin(angle) * 0.1;
 
-                        world.spawnParticles(
+                        world.sendParticles(
                                 ParticleTypes.SNOWFLAKE,
                                 blizzard.currentPosition.x + offsetX,
                                 blizzard.currentPosition.y + offsetY,
@@ -101,14 +101,14 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                         );
                     }
                     // Partículas de nube/hielo en la base
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.CLOUD,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 0.5,
                             blizzard.currentPosition.z,
                             5, blizzard.radius * 0.4, 0.2, blizzard.radius * 0.4, 0.01
                     );
-                    world.spawnParticles(
+                    world.sendParticles(
                             ParticleTypes.WHITE_ASH,
                             blizzard.currentPosition.x,
                             blizzard.currentPosition.y + 1.5,
@@ -119,20 +119,20 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
 
                 // Aplicar efectos a jugadores en el área 3x3 (continuo)
                 if (blizzard.ticksRemaining % 5 == 0) {
-                    Box area = new Box(blizzard.currentPosition, blizzard.currentPosition).expand(blizzard.radius, 3, blizzard.radius);
-                    List<PlayerEntity> players = world.getEntitiesByClass(PlayerEntity.class, area, p -> true);
-                    for (PlayerEntity player : players) {
+                    AABB area = new AABB(blizzard.currentPosition, blizzard.currentPosition).inflate(blizzard.radius, 3, blizzard.radius);
+                    List<Player> players = world.getEntitiesByClass(Player.class, area, p -> true);
+                    for (Player player : players) {
                         // Aplicar Ceguera CONTINUA mientras estén en la zona
-                        player.addStatusEffect(new StatusEffectInstance(
-                                StatusEffects.BLINDNESS,
+                        player.addEffect(new MobEffectInstance(
+                                MobEffects.BLINDNESS,
                                 blizzard.blindnessDuration,
                                 0,
                                 false,
                                 false
                         ));
                         // Aplicar lentitud también
-                        player.addStatusEffect(new StatusEffectInstance(
-                                StatusEffects.SLOWNESS,
+                        player.addEffect(new MobEffectInstance(
+                                MobEffects.SLOWNESS,
                                 blizzard.blindnessDuration,
                                 blizzard.slownessLevel,
                                 false,
@@ -163,12 +163,12 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
     }
 
     @Override
-    public void onSnowballHit(SnowGolemEntity owner, LivingEntity target, SnowballEntity snowball) {
+    public void onSnowballHit(SnowGolem owner, LivingEntity target, Snowball snowball) {
         // Aplicar daño pero NO efectos directos
         if (!canAffect(target)) {
             return;
         }
-        ServerWorld world = asServerWorld(owner);
+        ServerLevel world = asServerWorld(owner);
         if (world == null) {
             return;
         }
@@ -184,7 +184,7 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
         spawnTrackingBlizzard(owner, snowball, world);
     }
 
-    private void spawnTrackingBlizzard(SnowGolemEntity owner, SnowballEntity snowball, ServerWorld world) {
+    private void spawnTrackingBlizzard(SnowGolem owner, Snowball snowball, ServerLevel world) {
         if (orbDurationTicks <= 0 || orbRadius <= 0.0D) {
             return;
         }
@@ -196,18 +196,18 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
         }
         COOLDOWNS.put(owner, orbCooldownTicks);
 
-        Vec3d impactPos = new Vec3d(snowball.getX(), snowball.getY(), snowball.getZ());
+        Vec3 impactPos = new Vec3(snowball.getX(), snowball.getY(), snowball.getZ());
 
         // Encontrar jugador más cercano para perseguir
-        PlayerEntity closestPlayer = world.getClosestPlayer(impactPos.x, impactPos.y, impactPos.z, 20.0, false);
+        Player closestPlayer = world.getClosestPlayer(impactPos.x, impactPos.y, impactPos.z, 20.0, false);
 
         // Efecto de invocación
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.SNOWFLAKE,
                 impactPos.x, impactPos.y, impactPos.z,
                 50, orbRadius, 2, orbRadius, 0.15
         );
-        world.spawnParticles(
+        world.sendParticles(
                 ParticleTypes.CLOUD,
                 impactPos.x, impactPos.y + 1, impactPos.z,
                 25, orbRadius * 0.5, 1, orbRadius * 0.5, 0.1
@@ -223,20 +223,20 @@ public class blizzard_orb_3_action extends blizzard_orb_base_action {
                 slownessAmplifier,
                 closestPlayer
         );
-        ACTIVE_BLIZZARDS.add(blizzard);
+        ACTIVE_BLIZZARDS.atLowerCornerWithOffset(blizzard);
     }
 
     private static class TrackingBlizzard {
-        final ServerWorld world;
-        Vec3d currentPosition;
+        final ServerLevel world;
+        Vec3 currentPosition;
         final double radius;
         int ticksRemaining;
         final int blindnessDuration;
         final int slownessLevel;
-        PlayerEntity target;
+        Player target;
 
-        TrackingBlizzard(ServerWorld world, Vec3d startPos, double radius, int duration,
-                        int blindnessDuration, int slownessLevel, PlayerEntity target) {
+        TrackingBlizzard(ServerLevel world, Vec3 startPos, double radius, int duration,
+                        int blindnessDuration, int slownessLevel, Player target) {
             this.world = world;
             this.currentPosition = startPos;
             this.radius = radius;

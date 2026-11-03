@@ -2,8 +2,8 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.Mth;
 
 /**
  * Implementa la lógica compartida para los tres niveles de Robo de Vida.
@@ -14,7 +14,7 @@ abstract class theft_of_life_base_action extends proc_on_hit_action {
     protected theft_of_life_base_action(mutation_action_config config,
             double defaultChance,
             float defaultHealAmount) {
-        super(MathHelper.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
         this.healAmount = Math.max(0.0F, config.getFloat("heal_amount", defaultHealAmount));
     }
 

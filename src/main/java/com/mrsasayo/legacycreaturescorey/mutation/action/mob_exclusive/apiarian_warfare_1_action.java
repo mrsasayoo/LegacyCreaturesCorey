@@ -1,12 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.BeeEntity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -23,7 +23,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
     private final int attackCooldownTicks;
     
     // Rastrear cooldown de cada abeja
-    private final Map<BeeEntity, Long> lastAttackTimes = new WeakHashMap<>();
+    private final Map<Bee, Long> lastAttackTimes = new WeakHashMap<>();
 
     public apiarian_warfare_1_action(mutation_action_config config) {
         this.poisonDurationTicks = config.getInt("poison_duration_ticks", 100); // 5 segundos de veneno
@@ -33,7 +33,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
 
     @Override
     public void onHit(LivingEntity attacker, LivingEntity target) {
-        BeeEntity bee = asServerBee(attacker);
+        Bee bee = asServerBee(attacker);
         if (bee == null) {
             return;
         }
@@ -47,8 +47,8 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         }
         
         // Aplicar veneno
-        target.addStatusEffect(new StatusEffectInstance(
-            StatusEffects.POISON, 
+        target.addEffect(new MobEffectInstance(
+            MobEffects.POISON, 
             poisonDurationTicks, 
             poisonAmplifier,
             false,
@@ -60,8 +60,8 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
         lastAttackTimes.put(bee, currentTime);
         
         // Efectos visuales
-        if (bee.getEntityWorld() instanceof ServerWorld world) {
-            world.spawnParticles(ParticleTypes.ITEM_SLIME,
+        if (bee.getEntityWorld() instanceof ServerLevel world) {
+            world.sendParticles(ParticleTypes.ITEM_SLIME,
                     target.getX(),
                     target.getY() + target.getHeight() / 2,
                     target.getZ(),
@@ -74,7 +74,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
     
     @Override
     public void onTick(LivingEntity entity) {
-        BeeEntity bee = asServerBee(entity);
+        Bee bee = asServerBee(entity);
         if (bee == null) {
             return;
         }
@@ -87,7 +87,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
      * Evita que la abeja muera después de picar.
      * Las abejas normalmente mueren porque tienen el estado "has stung" y un contador.
      */
-    private void preventBeeDeath(BeeEntity bee) {
+    private void preventBeeDeath(Bee bee) {
         // Resetear el estado de "ha picado" para evitar la muerte
         // En Minecraft, las abejas mueren porque el flag hasStung + ticksSinceStung > 1200
         // Usamos reflexión o simplemente curamos a la abeja si está por morir
@@ -104,7 +104,7 @@ public final class apiarian_warfare_1_action extends apiarian_warfare_base_actio
     
     @Override
     public void onRemove(LivingEntity entity) {
-        if (entity instanceof BeeEntity bee) {
+        if (entity instanceof Bee bee) {
             lastAttackTimes.remove(bee);
         }
     }

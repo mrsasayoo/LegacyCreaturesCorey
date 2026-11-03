@@ -1,13 +1,13 @@
-package com.mrsasayo.legacycreaturescorey.client;
+package com.mrsasayo.legacycreaturescorey.minecraft;
 
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.MathHelper;
+import net.fabricmc.fabric.api.minecraft.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.minecraft.networking.v1.ClientPlayNetworking;
+import net.minecraft.minecraft.Minecraft;
+import net.minecraft.minecraft.player.LocalPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ public final class ClientEffectHandler {
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(ClientEffectPayload.ID, (payload, context) ->
-            context.client().execute(() -> handlePayload(payload))
+            context.minecraft().execute(() -> handlePayload(payload))
         );
         ClientTickEvents.END_CLIENT_TICK.register(ClientEffectHandler::tickClient); 
     }
@@ -44,7 +44,7 @@ public final class ClientEffectHandler {
         }
     }
 
-    private static void tickClient(MinecraftClient client) {
+    private static void tickClient(Minecraft client) {
         if (ACTIVE.isEmpty()) {
             return;
         }
@@ -62,18 +62,18 @@ public final class ClientEffectHandler {
         }
     }
 
-    private static void maybePlayPhantomSound(MinecraftClient client, float intensity) {
-        ClientPlayerEntity player = client.player;
-        if (player == null || player.age % Math.max(10, (int) (20 / MathHelper.clamp(intensity, 0.2F, 1.0F))) != 0) {
+    private static void maybePlayPhantomSound(Minecraft client, float intensity) {
+        LocalPlayer player = client.player;
+        if (player == null || player.age % Math.max(10, (int) (20 / Mth.clamp(intensity, 0.2F, 1.0F))) != 0) {
             return;
         }
         double radius = 6.0D;
         double x = player.getX() + (RANDOM.nextDouble() - 0.5D) * radius;
         double y = player.getY() + RANDOM.nextDouble() * 2.0D;
         double z = player.getZ() + (RANDOM.nextDouble() - 0.5D) * radius;
-        var sound = RANDOM.nextBoolean() ? net.minecraft.sound.SoundEvents.ENTITY_ZOMBIE_AMBIENT : net.minecraft.sound.SoundEvents.ENTITY_SKELETON_AMBIENT;
-        if (client.world != null && client.player != null) {
-            client.world.playSound(client.player, x, y, z, sound, SoundCategory.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F, RANDOM.nextLong());
+        var sound = RANDOM.nextBoolean() ? net.minecraft.sounds.SoundEvents.ZOMBIE_AMBIENT : net.minecraft.sounds.SoundEvents.SKELETON_AMBIENT;
+        if (client.level != null && client.player != null) {
+            client.level.playSound(client.player, x, y, z, sound, SoundSource.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F, RANDOM.nextLong());
         }
     }
 
@@ -87,32 +87,32 @@ public final class ClientEffectHandler {
     }
 
     private static void updateHostileVolume() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
             return;
         }
         float scale = 1.0F;
         ActiveEffect silence = ACTIVE.get(ClientEffectType.HOSTILE_VOLUME_SCALE);
         if (silence != null) {
-            scale = MathHelper.clamp(silence.intensity, 0.0F, 1.0F);
+            scale = Mth.clamp(silence.intensity, 0.0F, 1.0F);
         }
-        if (MathHelper.approximatelyEquals(scale, 1.0F)) {
+        if (Mth.equal(scale, 1.0F)) {
             restoreHostileVolume();
             return;
         }
         if (storedHostileVolume == null) {
-            storedHostileVolume = (float) client.options.getSoundVolume(SoundCategory.HOSTILE);
+            storedHostileVolume = (float) client.options.getSoundVolume(SoundSource.HOSTILE);
         }
-        client.options.getSoundVolumeOption(SoundCategory.HOSTILE)
-            .setValue((double) MathHelper.clamp(storedHostileVolume * scale, 0.0F, 1.0F));
+        client.options.getSoundVolumeOption(SoundSource.HOSTILE)
+            .setValue((double) Mth.clamp(storedHostileVolume * scale, 0.0F, 1.0F));
     }
 
     private static void restoreHostileVolume() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (storedHostileVolume == null || client.player == null) {
             return;
         }
-    client.options.getSoundVolumeOption(SoundCategory.HOSTILE).setValue((double) storedHostileVolume);
+    client.options.getSoundVolumeOption(SoundSource.HOSTILE).setValue((double) storedHostileVolume);
         storedHostileVolume = null;
     }
 

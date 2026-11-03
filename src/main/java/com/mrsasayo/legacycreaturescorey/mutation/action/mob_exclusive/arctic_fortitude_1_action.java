@@ -1,15 +1,15 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.passive.PolarBearEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.resources.ResourceLocation;
 
 public final class arctic_fortitude_1_action extends arctic_fortitude_base_action {
-    private final Identifier armorId = id("arctic_fortitude_armor");
-    private final Identifier knockbackId = id("arctic_fortitude_knockback");
+    private final ResourceLocation armorId = id("arctic_fortitude_armor");
+    private final ResourceLocation knockbackId = id("arctic_fortitude_knockback");
     private final double armorBonus;
     private final double knockbackBonus;
 
@@ -20,21 +20,21 @@ public final class arctic_fortitude_1_action extends arctic_fortitude_base_actio
 
     @Override
     public void onTick(LivingEntity entity) {
-        PolarBearEntity bear = asServerPolarBear(entity);
+        PolarBear bear = asServerPolarBear(entity);
         if (bear == null) {
             return;
         }
-        applyModifier(bear, EntityAttributes.ARMOR, armorId, armorBonus, EntityAttributeModifier.Operation.ADD_VALUE);
+        applyModifier(bear, Attributes.ARMOR, armorId, armorBonus, AttributeModifier.Operation.ADD_VALUE);
         applyModifier(bear,
-                EntityAttributes.KNOCKBACK_RESISTANCE,
+                Attributes.KNOCKBACK_RESISTANCE,
                 knockbackId,
                 knockbackBonus,
-                EntityAttributeModifier.Operation.ADD_VALUE);
+                AttributeModifier.Operation.ADD_VALUE);
     }
 
     @Override
     public void onRemove(LivingEntity entity) {
-        removeModifier(entity, EntityAttributes.ARMOR, armorId);
-        removeModifier(entity, EntityAttributes.KNOCKBACK_RESISTANCE, knockbackId);
+        removeModifier(entity, Attributes.ARMOR, armorId);
+        removeModifier(entity, Attributes.KNOCKBACK_RESISTANCE, knockbackId);
     }
 }

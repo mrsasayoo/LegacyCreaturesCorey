@@ -1,7 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.util;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
 import org.jetbrains.annotations.Nullable;
 
 /**

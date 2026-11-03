@@ -2,7 +2,7 @@ package com.mrsasayo.legacycreaturescorey.feature.mob;
 
 import com.mrsasayo.legacycreaturescorey.core.config.domain.difficulty_config;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.RandomSource;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -24,7 +24,7 @@ public final class TierProbabilityCalculator {
     public static MobTier chooseTier(
         int effectiveDifficulty,
         EnumSet<MobTier> allowedTiers,
-        Random random,
+        RandomSource random,
         Function<MobTier, Double> extraMultiplierProvider
     ) {
         Objects.requireNonNull(allowedTiers, "allowedTiers");

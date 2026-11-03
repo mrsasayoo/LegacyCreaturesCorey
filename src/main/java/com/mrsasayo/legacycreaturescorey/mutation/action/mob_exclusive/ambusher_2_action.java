@@ -1,10 +1,10 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.Creeper;
 
 public final class ambusher_2_action extends ambusher_base_action {
     private final int maxLightLevel;
@@ -18,24 +18,24 @@ public final class ambusher_2_action extends ambusher_base_action {
         this.invisibilityDuration = config.getInt("invisibility_duration", 40);
         this.invisibilityAmplifier = config.getInt("invisibility_amplifier", 0);
         this.ambient = config.getBoolean("ambient", false);
-        this.showParticles = config.getBoolean("show_particles", false);
+        this.visible = config.getBoolean("show_particles", false);
     }
 
     @Override
     public void onTick(LivingEntity entity) {
-        CreeperEntity creeper = asServerCreeper(entity);
+        Creeper creeper = asServerCreeper(entity);
         if (creeper == null) {
             return;
         }
         int lightLevel = creeper.getEntityWorld().getLightLevel(creeper.getBlockPos());
         if (lightLevel <= maxLightLevel) {
-            StatusEffectInstance invisibility = new StatusEffectInstance(
-                    StatusEffects.INVISIBILITY,
+            MobEffectInstance invisibility = new MobEffectInstance(
+                    MobEffects.INVISIBILITY,
                     invisibilityDuration,
                     invisibilityAmplifier,
                     ambient,
                     showParticles);
-            creeper.addStatusEffect(invisibility);
+            creeper.addEffect(invisibility);
         }
     }
 }

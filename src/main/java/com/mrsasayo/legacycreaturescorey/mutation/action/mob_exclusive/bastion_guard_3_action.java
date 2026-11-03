@@ -1,9 +1,9 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.PiglinBruteEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 
 public final class bastion_guard_3_action extends bastion_guard_base_action {
     private final int durationTicks;
@@ -22,7 +22,7 @@ public final class bastion_guard_3_action extends bastion_guard_base_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        PiglinBruteEntity piglin = asServerBrute(entity);
+        PiglinBrute piglin = asServerBrute(entity);
         if (piglin == null) {
             return;
         }
@@ -36,7 +36,7 @@ public final class bastion_guard_3_action extends bastion_guard_base_action {
 
     @Override
     public void onDamage(LivingEntity entity, DamageSource source, float amount) {
-        PiglinBruteEntity piglin = asServerBrute(entity);
+        PiglinBrute piglin = asServerBrute(entity);
         if (piglin == null) {
             return;
         }

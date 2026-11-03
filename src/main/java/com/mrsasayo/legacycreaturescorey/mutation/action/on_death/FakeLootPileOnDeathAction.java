@@ -4,13 +4,13 @@ import com.mrsasayo.legacycreaturescorey.mutation.action.helper.FakeLootPileMana
 import com.mrsasayo.legacycreaturescorey.mutation.action.helper.LootDropHelper;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
 
@@ -54,11 +54,11 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
         List<ItemStack> captured = new ArrayList<>(drops.size());
         for (ItemEntity drop : drops) {
-            ItemStack stack = drop.getStack();
+            ItemStack stack = drop.getItem();
             if (stack.isEmpty()) {
                 continue;
             }
-            captured.add(stack.copy());
+            captured.atLowerCornerWithOffset(stack.copyFrom());
             drop.discard();
         }
 
@@ -68,15 +68,15 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
 
         ItemEntity placeholder = createPlaceholder(world, entity);
         if (placeholder == null) {
-            scatterImmediately(world, new Vec3d(entity.getX(), entity.getBodyY(0.5D), entity.getZ()), captured);
+            scatterImmediately(world, new Vec3(entity.getX(), entity.getBodyY(0.5D), entity.getZ()), captured);
             return;
         }
 
-        FakeLootPileManager.register(world, placeholder, captured, lifetimeTicks, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
+        FakeLootPileManager.registerItem(world, placeholder, captured, lifetimeTicks, scatterHorizontal, scatterVertical, explosionRadius, explosionDamage);
     }
 
     @Nullable
-    private ItemEntity createPlaceholder(ServerWorld world, LivingEntity source) {
+    private ItemEntity createPlaceholder(ServerLevel world, LivingEntity source) {
         ItemStack display = new ItemStack(Items.CHEST);
         ItemEntity entity = new ItemEntity(world, source.getX(), source.getBodyY(0.1D), source.getZ(), display);
         entity.setVelocity(0.0D, 0.01D, 0.0D);
@@ -86,18 +86,18 @@ public final class FakeLootPileOnDeathAction implements mutation_action {
         return null;
     }
 
-    private void scatterImmediately(ServerWorld world, Vec3d origin, List<ItemStack> loot) {
+    private void scatterImmediately(ServerLevel world, Vec3 origin, List<ItemStack> loot) {
         var random = world.random;
         for (ItemStack stack : loot) {
             if (stack.isEmpty()) {
                 continue;
             }
-            ItemEntity drop = new ItemEntity(world, origin.x, origin.y, origin.z, stack.copy());
+            ItemEntity drop = new ItemEntity(world, origin.x, origin.y, origin.z, stack.copyFrom());
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double speed = scatterHorizontal * (0.4D + random.nextDouble() * 0.6D);
             double vy = scatterVertical * (0.4D + random.nextDouble() * 0.6D);
             drop.setVelocity(Math.cos(angle) * speed, vy, Math.sin(angle) * speed);
-            drop.setToDefaultPickupDelay();
+            drop.setDefaultPickUpDelay();
             drop.velocityDirty = true;
             world.spawnEntity(drop);
         }

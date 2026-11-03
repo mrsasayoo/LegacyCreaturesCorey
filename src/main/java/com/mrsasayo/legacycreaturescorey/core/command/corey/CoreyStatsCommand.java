@@ -9,16 +9,16 @@ import com.mrsasayo.legacycreaturescorey.core.component.PlayerDifficultyData;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.CoreyServerState;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.permissionLevel.entity.Entity;
+import net.minecraft.permissionLevel.entity.Mob;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissionLevel.ServerPlayer;
+import net.minecraft.server.permissionLevel.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,61 +42,61 @@ final class CoreyStatsCommand {
     private CoreyStatsCommand() {
     }
 
-    static ArgumentBuilder<ServerCommandSource, ?> createNode() {
-        LiteralArgumentBuilder<ServerCommandSource> stats = CommandManager.literal("stats")
+    static ArgumentBuilder<CommandSourceStack, ?> createNode() {
+        LiteralArgumentBuilder<CommandSourceStack> stats = Commands.literal("stats")
             .requires(CoreyCommandPermissions.SUPPORT::test);
 
-        stats.then(CommandManager.literal("global").executes(ctx -> {
+        stats.then(Commands.literal("global").executes(ctx -> {
             StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-            ctx.getSource().sendFeedback(snapshot::toGlobalText, false);
+            ctx.getSource().sendSuccess(snapshot::toGlobalText, false);
             return 1;
         }));
 
-        stats.then(CommandManager.literal("mobs")
-            .then(CommandManager.literal("spawned").executes(ctx -> {
+        stats.then(Commands.literal("mobs")
+            .then(Commands.literal("spawned").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toMobSpawnText, false);
+                ctx.getSource().sendSuccess(snapshot::toMobSpawnText, false);
                 return snapshot.totalTieredMobs;
             }))
-            .then(CommandManager.literal("mutations").executes(ctx -> {
+            .then(Commands.literal("mutations").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toMutationText, false);
+                ctx.getSource().sendSuccess(snapshot::toMutationText, false);
                 return snapshot.mutationUsage.values().stream().mapToInt(Integer::intValue).sum();
             }))
         );
 
-        stats.then(CommandManager.literal("players")
-            .then(CommandManager.literal("ranking").executes(ctx -> {
+        stats.then(Commands.literal("players")
+            .then(Commands.literal("ranking").executes(ctx -> {
                 StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-                ctx.getSource().sendFeedback(snapshot::toRankingText, false);
+                ctx.getSource().sendSuccess(snapshot::toRankingText, false);
                 return snapshot.playerEntries.size();
             }))
-            .then(CommandManager.literal("individual")
-                .then(CommandManager.argument("jugador", EntityArgumentType.player())
+            .then(Commands.literal("individual")
+                .then(Commands.argument("jugador", EntityArgument.player())
                     .executes(ctx -> {
-                        ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "jugador");
+                        ServerPlayer player = EntityArgument.getPlayer(ctx, "jugador");
                         PlayerDifficultyData data = player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY);
-                        ctx.getSource().sendFeedback(() -> Text.literal(
-                            "Jugador " + player.getName().getString() + " -> dificultad " + data.getPlayerDifficulty()
+                        ctx.getSource().sendSuccess(() -> Component.literal(
+                            "Jugador " + player.getTextName().getString() + " -> dificultad " + data.getPlayerDifficulty()
                         ), false);
                         return data.getPlayerDifficulty();
                     })))
         );
 
-        stats.then(CommandManager.literal("performance").executes(ctx -> {
-            ctx.getSource().sendFeedback(() -> Text.literal("Consulta /debug perf para métricas detalladas."), false);
+        stats.then(Commands.literal("performance").executes(ctx -> {
+            ctx.getSource().sendSuccess(() -> Component.literal("Consulta /debug perf para métricas detalladas."), false);
             return 0;
         }));
 
-        stats.then(CommandManager.literal("export")
-            .then(CommandManager.literal("json").executes(ctx -> exportStats(ctx, "json")))
-            .then(CommandManager.literal("csv").executes(ctx -> exportStats(ctx, "csv")))
-            .then(CommandManager.literal("html").executes(ctx -> exportStats(ctx, "html"))));
+        stats.then(Commands.literal("export")
+            .then(Commands.literal("json").executes(ctx -> exportStats(ctx, "json")))
+            .then(Commands.literal("csv").executes(ctx -> exportStats(ctx, "csv")))
+            .then(Commands.literal("html").executes(ctx -> exportStats(ctx, "html"))));
 
         return stats;
     }
 
-    private static int exportStats(CommandContext<ServerCommandSource> ctx, String format) {
+    private static int exportStats(CommandContext<CommandSourceStack> ctx, String format) {
         try {
             StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
             Path exportDir = ctx.getSource().getServer().getRunDirectory().resolve("legacycreatures/reports");
@@ -104,10 +104,10 @@ final class CoreyStatsCommand {
             String fileName = "legacy_creatures_report_" + FILE_TIMESTAMP.format(Instant.now()) + "." + format;
             Path file = exportDir.resolve(fileName);
             Files.writeString(file, snapshot.export(format), StandardCharsets.UTF_8);
-            ctx.getSource().sendFeedback(() -> Text.literal("Reporte generado: " + file.toAbsolutePath()), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
             return 1;
         } catch (IOException e) {
-            ctx.getSource().sendError(Text.literal("Error al exportar: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.literal("Error al exportar: " + e.getMessage()));
             return 0;
         }
     }
@@ -115,7 +115,7 @@ final class CoreyStatsCommand {
     private record StatsSnapshot(int globalDifficulty,
                                  int totalTieredMobs,
                                  EnumMap<MobTier, Integer> mobsPerTier,
-                                 Map<Identifier, Integer> mutationUsage,
+                                 Map<ResourceLocation, Integer> mutationUsage,
                                  List<PlayerEntry> playerEntries,
                                  int flaggedChunks) {
         static StatsSnapshot collect(MinecraftServer server) {
@@ -124,11 +124,11 @@ final class CoreyStatsCommand {
             for (MobTier tier : MobTier.values()) {
                 perTier.put(tier, 0);
             }
-            Map<Identifier, Integer> mutationCounter = new HashMap<>();
+            Map<ResourceLocation, Integer> mutationCounter = new HashMap<>();
             int tiered = 0;
-            for (ServerWorld world : server.getWorlds()) {
-                for (Entity entity : world.iterateEntities()) {
-                    if (!(entity instanceof MobEntity mob) || !mob.isAlive()) {
+            for (ServerLevel world : server.getWorlds()) {
+                for (Entity entity : world.getAllEntities()) {
+                    if (!(entity instanceof Mob mob) || !mob.isAlive()) {
                         continue;
                     }
                     MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
@@ -136,13 +136,13 @@ final class CoreyStatsCommand {
                     if (data.getTier() != MobTier.NORMAL) {
                         tiered++;
                     }
-                    for (Identifier id : data.getMutations()) {
+                    for (ResourceLocation id : data.getMutations()) {
                         mutationCounter.merge(id, 1, Integer::sum);
                     }
                 }
             }
             List<PlayerEntry> players = server.getPlayerManager().getPlayerList().stream()
-                .map(player -> new PlayerEntry(player.getName().getString(), player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY).getPlayerDifficulty()))
+                .map(player -> new PlayerEntry(player.getTextName().getString(), player.getAttachedOrCreate(ModDataAttachments.PLAYER_DIFFICULTY).getPlayerDifficulty()))
                 .sorted(Comparator.comparingInt(PlayerEntry::difficulty).reversed())
                 .collect(Collectors.toList());
 
@@ -155,47 +155,47 @@ final class CoreyStatsCommand {
             return new StatsSnapshot(state.getGlobalDifficulty(), tiered, perTier, mutationCounter, players, flagged);
         }
 
-        Text toGlobalText() {
+        Component toGlobalText() {
             StringBuilder builder = new StringBuilder();
             builder.append("Dificultad global: ").append(globalDifficulty).append('\n');
             builder.append("Chunks penalizados: ").append(flaggedChunks).append('\n');
             builder.append("Tiered vivos: ").append(totalTieredMobs).append('\n');
-            return Text.literal(builder.toString());
+            return Component.literal(builder.toString());
         }
 
-        Text toMobSpawnText() {
+        Component toMobSpawnText() {
             StringBuilder builder = new StringBuilder("Distribución de mobs actuales:\n");
             for (Map.Entry<MobTier, Integer> entry : mobsPerTier.entrySet()) {
                 builder.append("- ").append(entry.getKey().getDisplayName()).append(": ").append(entry.getValue()).append('\n');
             }
-            return Text.literal(builder.toString());
+            return Component.literal(builder.toString());
         }
 
-        Text toMutationText() {
+        Component toMutationText() {
             if (mutationUsage.isEmpty()) {
-                return Text.literal("Sin mutaciones activas actualmente.");
+                return Component.literal("Sin mutaciones activas actualmente.");
             }
             StringBuilder builder = new StringBuilder("Mutaciones activas:\n");
             mutationUsage.entrySet().stream()
-                .sorted(Map.Entry.<Identifier, Integer>comparingByValue().reversed())
+                .sorted(Map.Entry.<ResourceLocation, Integer>comparingByValue().reversed())
                 .limit(10)
                 .forEach(entry -> builder.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append('\n'));
-            return Text.literal(builder.toString());
+            return Component.literal(builder.toString());
         }
 
-        Text toRankingText() {
+        Component toRankingText() {
             if (playerEntries.isEmpty()) {
-                return Text.literal("No hay jugadores conectados.");
+                return Component.literal("No hay jugadores conectados.");
             }
             StringBuilder builder = new StringBuilder("Ranking actual de dificultad:\n");
             int rank = 1;
             for (PlayerEntry entry : playerEntries) {
-                builder.append(rank++).append(". ").append(entry.name()).append(" -> ").append(entry.difficulty()).append('\n');
+                builder.append(rank++).append(". ").append(entry.textName()).append(" -> ").append(entry.difficulty()).append('\n');
                 if (rank > 5) {
                     break;
                 }
             }
-            return Text.literal(builder.toString());
+            return Component.literal(builder.toString());
         }
 
         String export(String format) {
@@ -208,10 +208,10 @@ final class CoreyStatsCommand {
 
         private String exportJson() {
             String playersJson = playerEntries.stream()
-                .map(entry -> String.format(Locale.ROOT, "{\"name\":\"%s\",\"difficulty\":%d}", entry.name(), entry.difficulty()))
+                .map(entry -> String.format(Locale.ROOT, "{\"name\":\"%s\",\"difficulty\":%d}", entry.textName(), entry.difficulty()))
                 .collect(Collectors.joining(","));
             String tiersJson = mobsPerTier.entrySet().stream()
-                .map(entry -> String.format(Locale.ROOT, "\"%s\":%d", entry.getKey().name().toLowerCase(Locale.ROOT), entry.getValue()))
+                .map(entry -> String.format(Locale.ROOT, "\"%s\":%d", entry.getKey().textName().toLowerCase(Locale.ROOT), entry.getValue()))
                 .collect(Collectors.joining(","));
             return "{" +
                 "\"globalDifficulty\":" + globalDifficulty + ',' +
@@ -227,10 +227,10 @@ final class CoreyStatsCommand {
             builder.append("global,difficulty,").append(globalDifficulty).append('\n');
             builder.append("global,tiered_mobs,").append(totalTieredMobs).append('\n');
             for (Map.Entry<MobTier, Integer> entry : mobsPerTier.entrySet()) {
-                builder.append("tier,").append(entry.getKey().name().toLowerCase(Locale.ROOT)).append(',').append(entry.getValue()).append('\n');
+                builder.append("tier,").append(entry.getKey().textName().toLowerCase(Locale.ROOT)).append(',').append(entry.getValue()).append('\n');
             }
             for (PlayerEntry entry : playerEntries) {
-                builder.append("player,").append(entry.name()).append(',').append(entry.difficulty()).append('\n');
+                builder.append("player,").append(entry.textName()).append(',').append(entry.difficulty()).append('\n');
             }
             return builder.toString();
         }
@@ -246,7 +246,7 @@ final class CoreyStatsCommand {
             builder.append("</ul>");
             builder.append("<h2>Jugadores</h2><ol>");
             for (PlayerEntry entry : playerEntries) {
-                builder.append("<li>").append(entry.name()).append(" - ").append(entry.difficulty()).append("</li>");
+                builder.append("<li>").append(entry.textName()).append(" - ").append(entry.difficulty()).append("</li>");
             }
             builder.append("</ol></body></html>");
             return builder.toString();

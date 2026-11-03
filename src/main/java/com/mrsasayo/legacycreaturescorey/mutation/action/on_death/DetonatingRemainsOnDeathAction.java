@@ -3,11 +3,11 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_death;
 import com.mrsasayo.legacycreaturescorey.mutation.action.helper.DetonatingRemainsManager;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class DetonatingRemainsOnDeathAction implements mutation_action {
@@ -19,7 +19,7 @@ public final class DetonatingRemainsOnDeathAction implements mutation_action {
     public DetonatingRemainsOnDeathAction(int lingerTicks,
                                           double triggerRadius,
                                           float damage,
-                                          @Nullable RegistryEntry<net.minecraft.entity.effect.StatusEffect> statusEffect,
+                                          @Nullable Holder<net.minecraft.world.effect.MobEffect> statusEffect,
                                           int statusDuration,
                                           int statusAmplifier,
                                           boolean harmless,
@@ -42,13 +42,13 @@ public final class DetonatingRemainsOnDeathAction implements mutation_action {
 
     @Override
     public void onDeath(LivingEntity entity, DamageSource source, @Nullable LivingEntity killer) {
-        if (!(entity.getEntityWorld() instanceof ServerWorld world)) {
+        if (!(entity.getEntityWorld() instanceof ServerLevel world)) {
             return;
         }
         if (chance < 1.0D && entity.getRandom().nextDouble() > chance) {
             return;
         }
-        Vec3d origin = new Vec3d(entity.getX(), entity.getBodyY(0.1D), entity.getZ());
+        Vec3 origin = new Vec3(entity.getX(), entity.getBodyY(0.1D), entity.getZ());
         DetonatingRemainsManager.registerRemnant(world, origin, remnantConfig);
         if (chainRadius > 0.0D && chainDurationTicks > 0) {
             DetonatingRemainsManager.markChainTargets(world, entity, chainRadius, chainDurationTicks, remnantConfig);

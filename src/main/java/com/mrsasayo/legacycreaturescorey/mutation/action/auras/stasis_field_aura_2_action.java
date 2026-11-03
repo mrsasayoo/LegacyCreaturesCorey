@@ -3,26 +3,26 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.auras;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class stasis_field_aura_2_action implements mutation_action, StasisSource {
     private final double radius;
     private final int shieldCooldownTicks;
     private final double attackSpeedMultiplier;
-    private final Identifier attackSpeedModifierId;
-    private final EntityAttributeModifier attackSpeedModifier;
+    private final ResourceLocation attackSpeedModifierId;
+    private final AttributeModifier attackSpeedModifier;
 
     public stasis_field_aura_2_action(mutation_action_config config) {
         this.radius = config.getDouble("radius", 6.0D);
         this.shieldCooldownTicks = Math.max(0, config.getInt("shield_cooldown_ticks", 100));
         this.attackSpeedMultiplier = Math.max(0.0D, config.getDouble("attack_speed_multiplier", 0.8D));
         this.attackSpeedModifierId = resolveModifierId(config, "stasis_field_sprint_suppression");
-        this.attackSpeedModifier = new EntityAttributeModifier(
+        this.attackSpeedModifier = new AttributeModifier(
                 attackSpeedModifierId,
                 attackSpeedMultiplier - 1.0D,
-                EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+                AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         StasisHandler.INSTANCE.ensureInitialized();
     }
 
@@ -68,24 +68,24 @@ public class stasis_field_aura_2_action implements mutation_action, StasisSource
     }
 
     @Override
-    public EntityAttributeModifier getAttackSpeedModifier() {
+    public AttributeModifier getAttackSpeedModifier() {
         return attackSpeedModifier;
     }
 
     @Override
-    public Identifier getAttackSpeedModifierId() {
+    public ResourceLocation getAttackSpeedModifierId() {
         return attackSpeedModifierId;
     }
 
-    private Identifier resolveModifierId(mutation_action_config config, String prefix) {
+    private ResourceLocation resolveModifierId(mutation_action_config config, String prefix) {
         String raw = config.getString("modifier_id", "").trim();
         if (!raw.isEmpty()) {
-            Identifier parsed = Identifier.tryParse(raw);
+            ResourceLocation parsed = ResourceLocation.tryBuild(raw);
             if (parsed != null) {
                 return parsed;
             }
         }
         String key = prefix + "_" + Integer.toHexString(Double.hashCode(radius + attackSpeedMultiplier));
-        return Identifier.of("legacycreaturescorey", key);
+        return ResourceLocation.of("legacycreaturescorey", key);
     }
 }

@@ -1,16 +1,16 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.mob_exclusive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.PolarBearEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.resources.ResourceLocation;
 
 public final class arctic_fortitude_3_action extends arctic_fortitude_base_action {
-    private final Identifier furyId = id("arctic_fortitude_fury");
+    private final ResourceLocation furyId = id("arctic_fortitude_fury");
     private final double healthThreshold;
     private final double knockbackBonus;
     private final int resistanceDurationTicks;
@@ -25,29 +25,29 @@ public final class arctic_fortitude_3_action extends arctic_fortitude_base_actio
 
     @Override
     public void onTick(LivingEntity entity) {
-        PolarBearEntity bear = asServerPolarBear(entity);
+        PolarBear bear = asServerPolarBear(entity);
         if (bear == null) {
             return;
         }
         float healthPercent = bear.getHealth() / bear.getMaxHealth();
         if (healthPercent <= healthThreshold) {
             applyModifier(bear,
-                    EntityAttributes.KNOCKBACK_RESISTANCE,
+                    Attributes.KNOCKBACK_RESISTANCE,
                     furyId,
                     knockbackBonus,
-                    EntityAttributeModifier.Operation.ADD_VALUE);
-            bear.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
+                    AttributeModifier.Operation.ADD_VALUE);
+            bear.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,
                     resistanceDurationTicks,
                     resistanceAmplifier,
                     false,
                     false));
         } else {
-            removeModifier(bear, EntityAttributes.KNOCKBACK_RESISTANCE, furyId);
+            removeModifier(bear, Attributes.KNOCKBACK_RESISTANCE, furyId);
         }
     }
 
     @Override
     public void onRemove(LivingEntity entity) {
-        removeModifier(entity, EntityAttributes.KNOCKBACK_RESISTANCE, furyId);
+        removeModifier(entity, Attributes.KNOCKBACK_RESISTANCE, furyId);
     }
 }

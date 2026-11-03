@@ -7,12 +7,12 @@ import com.mrsasayo.legacycreaturescorey.feature.mob.TierManager;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyManager;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyProvider;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyStatus;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,23 +26,23 @@ public final class CoreyAPI {
     private CoreyAPI() {
     }
 
-    public static Optional<MobEntity> spawnCategorizedMob(ServerWorld world,
+    public static Optional<Mob> spawnCategorizedMob(ServerLevel world,
                                                           BlockPos position,
-                                                          EntityType<? extends MobEntity> entityType,
+                                                          EntityType<? extends Mob> entityType,
                                                           MobTier tier) {
         return spawnCategorizedMob(world, position, entityType, tier, List.of());
     }
 
-    public static Optional<MobEntity> spawnCategorizedMob(ServerWorld world,
+    public static Optional<Mob> spawnCategorizedMob(ServerLevel world,
                                                           BlockPos position,
-                                                          EntityType<? extends MobEntity> entityType,
+                                                          EntityType<? extends Mob> entityType,
                                                           MobTier tier,
-                                                          List<Identifier> forcedMutations) {
+                                                          List<ResourceLocation> forcedMutations) {
         if (world == null || position == null || entityType == null) {
             return Optional.empty();
         }
 
-        MobEntity mob = entityType.create(world, null, position, SpawnReason.COMMAND, true, false);
+        Mob mob = entityType.create(world, null, position, EntitySpawnReason.COMMAND, true, false);
         if (mob == null) {
             return Optional.empty();
         }
@@ -59,7 +59,7 @@ public final class CoreyAPI {
         if (!assignDefaults) {
             MobLegacyData data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
             data.clearMutations();
-            for (Identifier mutationId : forcedMutations) {
+            for (ResourceLocation mutationId : forcedMutations) {
                 data.addMutation(mutationId);
             }
         }
@@ -67,7 +67,7 @@ public final class CoreyAPI {
         return Optional.of(mob);
     }
 
-    public static Optional<MobTier> getTier(MobEntity mob) {
+    public static Optional<MobTier> getTier(Mob mob) {
         if (mob == null) {
             return Optional.empty();
         }
@@ -78,7 +78,7 @@ public final class CoreyAPI {
         return Optional.ofNullable(data.getTier());
     }
 
-    public static List<Identifier> getMutations(MobEntity mob) {
+    public static List<ResourceLocation> getMutations(Mob mob) {
         if (mob == null) {
             return List.of();
         }

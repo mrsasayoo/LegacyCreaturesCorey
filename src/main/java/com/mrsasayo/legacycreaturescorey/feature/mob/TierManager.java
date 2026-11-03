@@ -11,14 +11,14 @@ import com.mrsasayo.legacycreaturescorey.feature.mob.data.MobTierRuleDataLoader;
 import com.mrsasayo.legacycreaturescorey.feature.mob.data.BiomeTierWeightDataLoader;
 import com.mrsasayo.legacycreaturescorey.mutation.a_system.mutation_assigner;
 import com.mrsasayo.legacycreaturescorey.feature.synergy.SynergyManager;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.EntityAttributeInstance;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.EnumSet;
 
@@ -27,7 +27,7 @@ public final class TierManager {
     private TierManager() {
     }
 
-    public static MobTier tryCategorize(MobEntity mob, int effectiveDifficulty) {
+    public static MobTier tryCategorize(Mob mob, int effectiveDifficulty) {
         var data = mob.getAttachedOrCreate(ModDataAttachments.MOB_LEGACY);
         MobTier currentTier = data.getTier();
 
@@ -39,7 +39,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🚧 {} spawn bloqueado por anti-granja en chunk {}|{}",
-                    mob.getType().getTranslationKey(),
+                    mob.getType().getDescriptionId(),
                     mob.getChunkPos().x,
                     mob.getChunkPos().z
                 );
@@ -50,9 +50,9 @@ public final class TierManager {
         EnumSet<MobTier> allowedTiers = determineAllowedTiers(mob.getType());
         if (allowedTiers.isEmpty()) {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
             } else {
-                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getTranslationKey());
+                Legacycreaturescorey.LOGGER.debug("⛔ {} sin tiers permitidos", mob.getType().getDescriptionId());
             }
             return currentTier;
         }
@@ -62,7 +62,7 @@ public final class TierManager {
             if (difficulty_config.isDebugLogProbabilityDetails()) {
                 Legacycreaturescorey.LOGGER.debug(
                     "🎲 {} permaneció Normal | dificultad={} | permitidos={}",
-                    mob.getType().getTranslationKey(),
+                    mob.getType().getDescriptionId(),
                     effectiveDifficulty,
                     allowedTiers
                 );
@@ -79,7 +79,7 @@ public final class TierManager {
         TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, chosen, false);
         Legacycreaturescorey.LOGGER.info(
             "⚔️ {} promovido a tier {} en ({}, {}, {})",
-            mob.getType().getTranslationKey(),
+            mob.getType().getDescriptionId(),
             chosen.getDisplayName(),
             mob.getBlockX(),
             mob.getBlockY(),
@@ -93,7 +93,7 @@ public final class TierManager {
      * efectos visuales y escalados que {@link #tryCategorize}, opcionalmente
      * reasignando mutaciones basadas en el tier solicitado.
      */
-    public static void forceTier(MobEntity mob, MobTier tier, boolean assignDefaultMutations) {
+    public static void forceTier(Mob mob, MobTier tier, boolean assignDefaultMutations) {
         if (tier == null || mob == null) {
             return;
         }
@@ -119,7 +119,7 @@ public final class TierManager {
         TierEvents.TIER_APPLIED.invoker().onTierApplied(mob, tier, true);
     }
 
-    private static MobTier resolveTier(MobEntity mob, int effectiveDifficulty, EnumSet<MobTier> allowedTiers) {
+    private static MobTier resolveTier(Mob mob, int effectiveDifficulty, EnumSet<MobTier> allowedTiers) {
         MobTier forcedExact = difficulty_config.getDebugForceExactTier();
         boolean logDetails = difficulty_config.isDebugLogProbabilityDetails();
 
@@ -129,7 +129,7 @@ public final class TierManager {
         if (forcedExact != null && !allowedTiers.contains(forcedExact) && logDetails) {
             Legacycreaturescorey.LOGGER.debug(
                 "🚫 {} no permite forzar tier {}. Permitidos: {}",
-                mob.getType().getTranslationKey(),
+                mob.getType().getDescriptionId(),
                 forcedExact,
                 allowedTiers
             );
@@ -143,7 +143,7 @@ public final class TierManager {
             if (logDetails) {
                 Legacycreaturescorey.LOGGER.debug(
                     "⚠️ {} no tiene tiers superiores a Normal disponibles",
-                    mob.getType().getTranslationKey()
+                    mob.getType().getDescriptionId()
                 );
             }
         }
@@ -174,8 +174,8 @@ public final class TierManager {
         return datapackTiers != null ? datapackTiers : EnumSet.noneOf(MobTier.class);
     }
 
-    private static void applyBaseScaling(MobEntity mob, MobTier tier) {
-        EntityAttributeInstance health = mob.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+    private static void applyBaseScaling(Mob mob, MobTier tier) {
+        AttributeInstance health = mob.getAttributeInstance(Attributes.MAX_HEALTH);
         if (health != null) {
             Double override = MobAttributeDataLoader.getMaxHealth(mob.getType(), tier);
             double base = health.getBaseValue();
@@ -188,7 +188,7 @@ public final class TierManager {
             }
         }
 
-        EntityAttributeInstance damage = mob.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE);
+        AttributeInstance damage = mob.getAttributeInstance(Attributes.ATTACK_DAMAGE);
         if (damage != null) {
             Double override = MobAttributeDataLoader.getAttackDamage(mob.getType(), tier);
             double base = damage.getBaseValue();
@@ -201,16 +201,16 @@ public final class TierManager {
         }
     }
 
-    private static void applyVisuals(MobEntity mob, MobTier tier) {
-        MutableText baseName = Text.translatable(mob.getType().getTranslationKey());
-        MutableText tierSuffix = Text.literal(" " + tier.getDisplayName());
-        MutableText customName = Text.empty().append(baseName).append(tierSuffix)
-            .styled(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
+    private static void applyVisuals(Mob mob, MobTier tier) {
+        MutableComponent baseName = Component.translatable(mob.getType().getDescriptionId());
+        MutableComponent tierSuffix = Component.literal(" " + tier.getDisplayName());
+        MutableComponent customName = Component.empty().append(baseName).append(tierSuffix)
+            .withStyle(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
 
         mob.setCustomName(customName);
         mob.setCustomNameVisible(true);
 
-        if (mob.getEntityWorld() instanceof ServerWorld serverWorld) {
+        if (mob.getEntityWorld() instanceof ServerLevel serverWorld) {
             TierParticleHelper.spawnInitialBurst(serverWorld, mob, tier);
         }
     }

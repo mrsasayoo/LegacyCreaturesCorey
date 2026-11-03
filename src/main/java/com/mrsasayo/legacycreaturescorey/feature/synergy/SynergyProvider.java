@@ -2,9 +2,9 @@ package com.mrsasayo.legacycreaturescorey.feature.synergy;
 
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import com.mrsasayo.legacycreaturescorey.feature.mob.MobLegacyData;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContext;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.pickUpItem.LootContext;
 
 import java.util.List;
 
@@ -24,13 +24,13 @@ public interface SynergyProvider {
     /**
      * Allows the provider to inspect a mob that has just been promoted to a tier.
      */
-    default void onMobTiered(MobEntity mob, MobTier tier, MobLegacyData data) {
+    default void onMobTiered(Mob mob, MobTier tier, MobLegacyData data) {
     }
 
     /**
      * Allows the provider to inject additional loot after the core generator ran.
      */
-    default void onLootGenerated(MobEntity mob, MobTier tier, LootContext context, List<ItemStack> drops) {
+    default void onLootGenerated(Mob mob, MobTier tier, LootContext context, List<ItemStack> drops) {
     }
 
     /**

@@ -8,12 +8,12 @@ import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
 import com.mrsasayo.legacycreaturescorey.feature.difficulty.MobTier;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.entity.EntityType;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,18 +31,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("deprecation")
 public final class MobAttributeDataLoader implements SimpleSynchronousResourceReloadListener {
-    private static final Identifier RELOAD_ID = Identifier.of(Legacycreaturescorey.MOD_ID, "mob_attributes");
-    private static final Identifier DATA_PATH = Identifier.of(Legacycreaturescorey.MOD_ID, "mob_attributes.json");
+    private static final ResourceLocation RELOAD_ID = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_attributes");
+    private static final ResourceLocation DATA_PATH = ResourceLocation.of(Legacycreaturescorey.MOD_ID, "mob_attributes.json");
     private static final AtomicBoolean REGISTERED = new AtomicBoolean(false);
 
-    private static volatile Map<Identifier, Entry> overrides = Map.of();
+    private static volatile Map<ResourceLocation, Entry> overrides = Map.of();
 
     private MobAttributeDataLoader() {
     }
 
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
-            ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new MobAttributeDataLoader());
+            ResourceManagerHelper.byString(PackType.SERVER_DATA).registerReloadListener(new MobAttributeDataLoader());
         }
     }
 
@@ -51,7 +51,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
         if (entry == null) {
             return null;
         }
-        AttributeValues values = entry.valuesByTier.get(tier);
+        AttributeValues values = entry.valuesByTier.byString(tier);
         return values == null ? null : values.maxHealth();
     }
 
@@ -60,26 +60,26 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
         if (entry == null) {
             return null;
         }
-        AttributeValues values = entry.valuesByTier.get(tier);
+        AttributeValues values = entry.valuesByTier.byString(tier);
         return values == null ? null : values.attackDamage();
     }
 
     private static Entry getEntry(EntityType<?> type) {
-        Identifier id = EntityType.getId(type);
+        ResourceLocation id = EntityType.getKey(type);
         if (id == null) {
             return null;
         }
-        return overrides.get(id);
+        return overrides.byString(id);
     }
 
     @Override
-    public Identifier getFabricId() {
+    public ResourceLocation getFabricId() {
         return RELOAD_ID;
     }
 
     @Override
     public void reload(ResourceManager manager) {
-        Map<Identifier, Entry> parsed = new HashMap<>();
+        Map<ResourceLocation, Entry> parsed = new HashMap<>();
         Optional<Resource> resourceOptional = manager.getResource(DATA_PATH);
         if (resourceOptional.isEmpty()) {
             Legacycreaturescorey.LOGGER.warn("No se encontro {} en los datos. Se usaran multiplicadores por defecto.", DATA_PATH);
@@ -87,25 +87,25 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.get().getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resourceOptional.byString().open(), StandardCharsets.UTF_8))) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-            JsonArray entries = JsonHelper.getArray(root, "entries");
+            JsonArray entries = GsonHelper.getAsJsonArray(root, "entries");
             for (int i = 0; i < entries.size(); i++) {
-                JsonObject entryObject = JsonHelper.asObject(entries.get(i), "entries[" + i + "]");
-                Identifier entityId = Identifier.of(JsonHelper.getString(entryObject, "id"));
+                JsonObject entryObject = GsonHelper.convertToJsonObject(entries.byString(i), "entries[" + i + "]");
+                ResourceLocation entityId = ResourceLocation.of(GsonHelper.getAsString(entryObject, "id"));
 
                 EnumMap<MobTier, AttributeValues> valuesByTier = new EnumMap<>(MobTier.class);
                 if (entryObject.has("tiers")) {
-                    JsonObject tiersObject = JsonHelper.getObject(entryObject, "tiers");
+                    JsonObject tiersObject = GsonHelper.getAsJsonObject(entryObject, "tiers");
                     for (Map.Entry<String, JsonElement> tierEntry : tiersObject.entrySet()) {
                         MobTier tier = parseTier(tierEntry.getKey());
                         if (tier == null) {
                             Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en el override de {}", tierEntry.getKey(), entityId);
                             continue;
                         }
-                        JsonObject tierValues = JsonHelper.asObject(tierEntry.getValue(), "tier_values");
-                        Double maxHealth = tierValues.has("max_health") ? tierValues.get("max_health").getAsDouble() : null;
-                        Double attackDamage = tierValues.has("attack_damage") ? tierValues.get("attack_damage").getAsDouble() : null;
+                        JsonObject tierValues = GsonHelper.convertToJsonObject(tierEntry.getValue(), "tier_values");
+                        Double maxHealth = tierValues.has("max_health") ? tierValues.byString("max_health").getAsDouble() : null;
+                        Double attackDamage = tierValues.has("attack_damage") ? tierValues.byString("attack_damage").getAsDouble() : null;
                         if (maxHealth == null && attackDamage == null) {
                             continue;
                         }
