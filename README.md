@@ -1,7 +1,7 @@
 ## Legacy Creatures - Corey
 
 ## 📖 Descripción
-Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añade una capa de dificultad progresiva, mutaciones modulares y botín escalado para todos los mobs hostiles de Minecraft 1.21.10 (Fabric Loader 0.17.3). El proyecto está escrito en Java 21 usando Fabric API 0.138.3+1.21.10 y sirve como punto de integración para el resto de la suite Legacy.
+Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añade una capa de dificultad progresiva, mutaciones modulares y botín escalado para todos los mobs hostiles de Minecraft 26.3 (Fabric Loader 0.20.1). El proyecto está escrito en Java 25 usando Fabric API 0.165.0+26.3 y sirve como punto de integración para el resto de la suite Legacy.
 
 ## 🎯 Características Principales
 - **Dificultad dual**: una barra global persistente (`CoreyServerState`) que escala con los días del servidor y un componente individual (`PlayerDifficultyData`) con penalizaciones configurables por muerte.
@@ -12,7 +12,7 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 - **Detección de sinergias**: `SynergyModule` identifica Armory, Arcaney, Artifactys y futuros módulos y expone su estado para que otros proyectos Legacy activen integraciones cuando estén listas.
 
 ## 📦 Instalación
-1. Instala [Fabric Loader 0.17.3](https://fabricmc.net/use/) y una versión de Fabric API ≥ 0.138.3.
+1. Instala [Fabric Loader 0.20.1](https://fabricmc.net/use/) y una versión de Fabric API ≥ 0.165.0 para **Minecraft 26.3**.
 2. Compila este repositorio con `./gradlew build` o descarga el artefacto de `build/libs/legacycreaturescorey-<version>.jar`.
 3. Copia el `.jar` resultante dentro de la carpeta `mods/` de tu instancia Fabric (cliente o servidor). Para pruebas locales con los proyectos adjuntos, usa la carpeta `run/mods/`.
 
@@ -24,7 +24,7 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 - Multiplicadores por tier: `epicHealthMultiplier`, `legendaryDamageMultiplier`, etc.
 - Probabilidades relativas: `*_ChanceMultiplier` para cada tier.
 - Botín escalado: `tieredLootEnabled` y `tieredLootStrictEntityTables` controlan cuándo interviene `CoreyLootModifiers`, mientras que `tieredLoot<Epic|Legendary|Mythic|Definitive>Enabled` permite activar/desactivar cada tier sin tocar datapacks.
-- Telemetría de botín: `tieredLootTelemetryEnabled` publica `TieredLootTelemetryEvents.TierLootApplied` con snapshots antes/después de modificar los drops para dashboards y alertas.
+- Telemetría de botín: `tieredLootTelemetryEnabled` publica `TieredLootTelemetryEvents.TIER_LOOT_APPLIED` con snapshots antes/después de modificar los drops para dashboards y alertas.
 - Anti-granjas: `antiFarmKillThreshold`, `antiFarmWindowTicks`, `antiFarmBlockRadiusChunks`, `antiFarmDailyDecayAmount`, `antiFarmHeatPenaltyEnabled`, `antiFarmHeatPenaltyMinMultiplier`, `antiFarmHeatPenaltyExponent`.
 - Exclusiones anti-farm: crea `data/<namespace>/legacycreaturescorey/anti_farm_exclusions.json` con `{"entries": ["minecraft:villager", "#minecraft:bosses"]}` para omitir mobs o tags completos sin depender de command tags.
 - Reglas de tiers por mob: `mob_tier_rules.json` permite definir explícitamente qué tiers puede alcanzar cada entidad (además de los tags heredados). El archivo por defecto se incluye en `data/legacycreaturescorey/mob_tier_rules.json` y se puede sobrescribir en datapacks.
@@ -56,10 +56,12 @@ Legacy Creatures - Corey es el módulo base del ecosistema Legacy Creatures. Añ
 Consulta la guía de sinergias en `docs/GUIA_DESARROLLO.md` para conocer los tags y hooks exactos.
 
 ## 🛠️ Para Desarrolladores
-- La nueva API pública `com.mrsasayo.legacycreaturescorey.api.CoreyAPI` permite spawnear mobs categorizados y consultar/adornar mutaciones desde otros mods.
-- `docs/GUIA_DESARROLLO.md` documenta la arquitectura, el ciclo de vida y las fases de inicialización (bootstrap, carga de mundo, runtime).
+- La API pública `com.mrsasayo.legacycreaturescorey.core.api.CoreyAPI` permite spawnear mobs categorizados y consultar/adornar mutaciones desde otros mods.
+- `docs/GUIA_DESARROLLO.md` documenta la arquitectura, el ciclo de vida y las fases de inicialización (bootstrap, carga de mundo, runtime), además del stack 26.3.
 - `docs/API_REFERENCE.md` describe los métodos expuestos, contratos y ejemplos de integración.
-- Ejecuta `./gradlew build` antes de contribuir y revisa `auditoria.md` para seguir las recomendaciones de arquitectura y refactorización.
+- `docs/PORTING_NOTES.md` recoge el procedimiento del port a 26.3 y la tabla de renames para portar el resto de mods de la suite.
+- `docs/mutaciones.csv` es el catálogo de mutaciones con la columna `implementada_en_el_mod` (SI/NO) que indica qué está ya operativo.
+- Ejecuta `./gradlew build` antes de contribuir. El proyecto usa Java 25 (configurado en `gradle.properties`, no hace falta JAVA_HOME).
 
 ## 📄 Licencia
 Este proyecto se publica bajo **CC0 1.0 Universal** (ver `LICENSE`). Puedes usar, modificar y redistribuir el código sin restricciones, aunque se agradece atribución hacia el proyecto Legacy Creatures.

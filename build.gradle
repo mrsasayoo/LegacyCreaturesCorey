@@ -31,6 +31,12 @@ fabricApi {
 	}
 }
 
+// MC 26.3 usa SDL3 para ventanas/input. Forzamos Wayland nativo (el default cae a
+// XWayland porque el compositor no anuncia fifo-v1, lo que restringe el tamano de ventana).
+tasks.named('runClient') {
+	environment 'SDL_VIDEO_DRIVER', 'wayland'
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"

@@ -2,6 +2,13 @@
 
 **Orden de Implementación según CSV**
 
+> **Estado actualizado (2026-11-03, post-port 26.3):** los **Lotes 1-6 (líneas 2-163) están
+> implementados y verificados en juego**; el Lote 7 (líneas 164-198) está al 51/57 — faltan
+> las clases de acción `aquatic_stalker` y `arctic_fortitude` (líneas 169-174, sus JSON ya
+> existen y el validador los rechaza al cargar). El estado por mutación está en la columna
+> `implementada_en_el_mod` de `docs/mutaciones.csv` (SI=191 / NO=955, verificada contra el
+> validador runtime del mod). A partir del Lote 8 continuar con Último Aliento (líneas 199+).
+
 El orden de refactorización e implementación de mutaciones seguirá **estrictamente** el orden definido en
 
 docs/mutaciones.csv. Este archivo CSV es la
@@ -27,13 +34,13 @@ Las primeras **270 mutaciones** del CSV (líneas 199-...) serán implementadas
 
 | **Lote** | **Líneas CSV** | **Mutaciones** | **Categorías Mixtas** | **Estado** |
 | --- | --- | --- | --- | --- |
-| **Lote 1** | 2-28 | 27 | Auras iniciales (requieren revisión completa) | 🔴 Pendiente |
-| **Lote 2** | 29-55 | 27 | Auras + On-Hit iniciales | 🔴 Pendiente |
-| **Lote 3** | 56-82 | 27 | On-Hit (chaos_touch, concussive_blow, critical, etc.) | 🔴 Pendiente |
-| **Lote 4** | 83-109 | 27 | On-Hit (mining_fatigue, mortal_wound, nausea, etc.) | 🔴 Pendiente |
-| **Lote 5** | 110-136 | 27 | On-Hit finales + Mob-Exclusive iniciales | 🔴 Pendiente |
-| **Lote 6** | 137-163 | 27 | Mob-Exclusive (alphas_vengeance, ambusher, etc.) | 🔴 Pendiente |
-| **Lote 7** | 164-198 | 35 | Mob-Exclusive finales (bastion_guard, etc.) | 🔴 Pendiente |
+| **Lote 1** | 2-28 | 27 | Auras iniciales (requieren revisión completa) | ✅ Completado |
+| **Lote 2** | 29-55 | 27 | Auras + On-Hit iniciales | ✅ Completado |
+| **Lote 3** | 56-82 | 27 | On-Hit (chaos_touch, concussive_blow, critical, etc.) | ✅ Completado |
+| **Lote 4** | 83-109 | 27 | On-Hit (mining_fatigue, mortal_wound, nausea, etc.) | ✅ Completado |
+| **Lote 5** | 110-136 | 27 | On-Hit finales + Mob-Exclusive iniciales | ✅ Completado |
+| **Lote 6** | 137-163 | 27 | Mob-Exclusive (alphas_vengeance, ambusher, etc.) | ✅ Completado |
+| **Lote 7** | 164-198 | 35 | Mob-Exclusive finales (bastion_guard, etc.) | 🔶 51/57 (falta aquatic_stalker ×3 y arctic_fortitude ×3, líneas 169-174) |
 
 ### **Flujo de Trabajo por Lote (Máxima Calidad)**
 
