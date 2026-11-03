@@ -93,7 +93,7 @@ public final class EffectiveDifficultyCalculator {
 
     private static boolean isBoostedBiome(ServerLevel world, BlockPos origin) {
         Holder<Biome> biome = world.getBiome(origin);
-        Identifier biomeId = biome.getKey().map(key -> key.getValue()).orElse(null);
+        Identifier biomeId = biome.unwrapKey().map(key -> key.identifier()).orElse(null);
         if (biomeId == null) {
             return false;
         }
@@ -122,8 +122,8 @@ public final class EffectiveDifficultyCalculator {
             return 1.0D;
         }
 
-        ChunkPos chunkPos = new ChunkPos(origin);
-        ChunkActivityData data = state.getChunkActivity(chunkPos.toLong());
+        ChunkPos chunkPos = ChunkPos.containing(origin);
+        ChunkActivityData data = state.getChunkActivity(chunkPos.pack());
         if (data == null) {
             return 1.0D;
         }

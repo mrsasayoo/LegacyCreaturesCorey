@@ -61,7 +61,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
             return 1.0D;
         }
         BlockPos pos = mob.blockPosition();
-        Optional<ResourceKey<Biome>> biomeKey = world.getBiome(pos).getKey();
+        Optional<ResourceKey<Biome>> biomeKey = world.getBiome(pos).unwrapKey();
         return biomeKey.map(key -> getMultiplier(key, tier)).orElseGet(() -> getDefaultMultiplier(tier));
     }
 
@@ -137,7 +137,7 @@ public final class BiomeTierWeightDataLoader implements SimpleSynchronousResourc
                 Legacycreaturescorey.LOGGER.warn("Tier '{}' inválido en {}", entry.getKey(), context);
                 continue;
             }
-            double value = GsonHelper.asDouble(entry.getValue(), entry.getKey());
+            double value = entry.getValue().getAsDouble();
             multipliers.put(tier, Math.max(0.0D, value));
         }
         return multipliers;

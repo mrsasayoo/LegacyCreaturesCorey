@@ -40,8 +40,8 @@ public final class TierManager {
                 Legacycreaturescorey.LOGGER.debug(
                     "🚧 {} spawn bloqueado por anti-granja en chunk {}|{}",
                     mob.getType().getDescriptionId(),
-                    mob.getChunkPos().x,
-                    mob.getChunkPos().z
+                    mob.chunkPosition().x(),
+                    mob.chunkPosition().z()
                 );
             }
             return MobTier.NORMAL;
@@ -205,7 +205,7 @@ public final class TierManager {
         MutableComponent baseName = Component.translatable(mob.getType().getDescriptionId());
         MutableComponent tierSuffix = Component.literal(" " + tier.getDisplayName());
         MutableComponent customName = Component.empty().append(baseName).append(tierSuffix)
-            .styled(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
+            .withStyle(style -> style.withColor(TextColor.fromRgb(tier.getNameColor())));
 
         mob.setCustomName(customName);
         mob.setCustomNameVisible(true);

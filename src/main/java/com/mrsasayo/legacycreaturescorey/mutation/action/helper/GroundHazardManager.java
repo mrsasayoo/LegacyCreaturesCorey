@@ -113,7 +113,7 @@ public final class GroundHazardManager {
 			this.remainingTicks = config.durationTicks();
 			this.pulseCooldown = 0;
 			BlockPos pos = BlockPos.containing(origin);
-			int groundY = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+			int groundY = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos).getY();
 			double y = Math.max(origin.y, groundY + 0.05D);
 			this.origin = new Vec3(origin.x, y, origin.z);
 			this.radiusSq = config.radius() * config.radius();
@@ -136,7 +136,7 @@ public final class GroundHazardManager {
 		}
 
 		private void pulse(ServerLevel world) {
-			AABB box = AABB.of(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
+			AABB box = AABB.ofSize(origin, config.radius() * 2.0D, 2.5D, config.radius() * 2.0D);
 			List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, box,
 				entity -> entity.isAlive() && config.target().matches(entity) && entity.distanceToSqr(origin) <= radiusSq);
 

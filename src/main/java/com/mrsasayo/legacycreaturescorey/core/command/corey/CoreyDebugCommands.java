@@ -131,8 +131,8 @@ final class CoreyDebugCommands {
             mob.entityTags().forEach(tag -> builder.append("#").append(tag).append('\n'));
         }
 
-        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(mob.getX(), mob.getY(), mob.getZ()));
-        builder.append("Chunk: ").append(chunkPos.x).append(", ").append(chunkPos.z).append('\n');
+        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(mob.getX(), mob.getY(), mob.getZ()));
+        builder.append("Chunk: ").append(chunkPos.x()).append(", ").append(chunkPos.z()).append('\n');
         builder.append("Posición: ")
             .append(String.format(Locale.ROOT, "%.1f, %.1f, %.1f", mob.getX(), mob.getY(), mob.getZ())).append('\n');
 
@@ -190,15 +190,15 @@ final class CoreyDebugCommands {
         chunk.then(Commands.literal("activity").executes(ctx -> {
             ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
             CoreyServerState state = CoreyServerState.get(ctx.getSource().getServer());
-            ChunkPos pos = new ChunkPos(BlockPos.containing(player.getX(), player.getY(), player.getZ()));
-            long key = pos.toLong();
+            ChunkPos pos = ChunkPos.containing(BlockPos.containing(player.getX(), player.getY(), player.getZ()));
+            long key = pos.pack();
             ChunkActivityData data = state.getChunkActivity(key);
             if (data == null) {
-                ctx.getSource().sendSuccess(() -> Component.literal("Sin actividad registrada para el chunk " + pos.x + ", " + pos.z), false);
+                ctx.getSource().sendSuccess(() -> Component.literal("Sin actividad registrada para el chunk " + pos.x() + ", " + pos.z()), false);
                 return 1;
             }
             StringBuilder builder = new StringBuilder();
-            builder.append("Chunk [").append(pos.x).append(", ").append(pos.z).append("]\n");
+            builder.append("Chunk [").append(pos.x()).append(", ").append(pos.z()).append("]\n");
             builder.append("Muertes registradas: ").append(data.getKillCount()).append('\n');
             builder.append("Última muerte: ").append(data.getLastKillTick()).append(" ticks\n");
             builder.append("Spawn bloqueado: ").append(data.isSpawnBlocked() ? "Sí" : "No").append('\n');

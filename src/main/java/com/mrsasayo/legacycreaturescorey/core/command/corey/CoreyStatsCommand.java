@@ -99,11 +99,11 @@ final class CoreyStatsCommand {
     private static int exportStats(CommandContext<CommandSourceStack> ctx, String format) {
         try {
             StatsSnapshot snapshot = StatsSnapshot.collect(ctx.getSource().getServer());
-            Path exportDir = ctx.getSource().getServer().getRunDirectory().resolve("legacycreatures/reports");
+            Path exportDir = ctx.getSource().getServer().getServerDirectory().resolve("legacycreatures/reports");
             Files.createDirectories(exportDir);
             String fileName = "legacy_creatures_report_" + FILE_TIMESTAMP.format(Instant.now()) + "." + format;
             Path file = exportDir.resolve(fileName);
-            Files.writeUtf(file, snapshot.export(format), StandardCharsets.UTF_8);
+            Files.writeString(file, snapshot.export(format), StandardCharsets.UTF_8);
             ctx.getSource().sendSuccess(() -> Component.literal("Reporte generado: " + file.toAbsolutePath()), false);
             return 1;
         } catch (IOException e) {
@@ -126,7 +126,7 @@ final class CoreyStatsCommand {
             }
             Map<Identifier, Integer> mutationCounter = new HashMap<>();
             int tiered = 0;
-            for (ServerLevel world : server.getWorlds()) {
+            for (ServerLevel world : server.getAllLevels()) {
                 for (Entity entity : world.getAllEntities()) {
                     if (!(entity instanceof Mob mob) || !mob.isAlive()) {
                         continue;

@@ -31,7 +31,7 @@ final class TierParticleHelper {
         return switch (tier) {
             case EPIC -> ParticleTypes.SOUL;
             case LEGENDARY -> ParticleTypes.FALLING_DRIPSTONE_LAVA;
-            case MYTHIC -> PowerParticleOption.of(ParticleTypes.DRAGON_BREATH, 0.5F);
+            case MYTHIC -> PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 0.5F);
             case DEFINITIVE -> ParticleTypes.TOTEM_OF_UNDYING;
             default -> null;
         };

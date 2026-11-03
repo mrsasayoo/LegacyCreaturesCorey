@@ -64,7 +64,7 @@ public final class ClientEffectHandler {
 
     private static void maybePlayPhantomSound(Minecraft client, float intensity) {
         LocalPlayer player = client.player;
-        if (player == null || player.age % Math.max(10, (int) (20 / Mth.clamp(intensity, 0.2F, 1.0F))) != 0) {
+        if (player == null || player.tickCount % Math.max(10, (int) (20 / Mth.clamp(intensity, 0.2F, 1.0F))) != 0) {
             return;
         }
         double radius = 6.0D;
@@ -72,8 +72,8 @@ public final class ClientEffectHandler {
         double y = player.getY() + RANDOM.nextDouble() * 2.0D;
         double z = player.getZ() + (RANDOM.nextDouble() - 0.5D) * radius;
         var sound = RANDOM.nextBoolean() ? net.minecraft.sounds.SoundEvents.ZOMBIE_AMBIENT : net.minecraft.sounds.SoundEvents.SKELETON_AMBIENT;
-        if (client.world != null && client.player != null) {
-            client.world.playSound(client.player, x, y, z, sound, SoundSource.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F, RANDOM.nextLong());
+        if (client.level != null && client.player != null) {
+            client.level.playSound(client.player, x, y, z, sound, SoundSource.HOSTILE, 0.5F, 0.8F + RANDOM.nextFloat() * 0.4F);
         }
     }
 
@@ -96,15 +96,15 @@ public final class ClientEffectHandler {
         if (silence != null) {
             scale = Mth.clamp(silence.intensity, 0.0F, 1.0F);
         }
-        if (Mth.approximatelyEquals(scale, 1.0F)) {
+        if (Mth.equal(scale, 1.0F)) {
             restoreHostileVolume();
             return;
         }
         if (storedHostileVolume == null) {
-            storedHostileVolume = (float) client.options.getSoundVolume(SoundSource.HOSTILE);
+            storedHostileVolume = (float) client.options.getSoundSourceVolume(SoundSource.HOSTILE);
         }
-        client.options.getSoundVolumeOption(SoundSource.HOSTILE)
-            .setValue((double) Mth.clamp(storedHostileVolume * scale, 0.0F, 1.0F));
+        client.options.getSoundSourceOptionInstance(SoundSource.HOSTILE)
+            .set((double) Mth.clamp(storedHostileVolume * scale, 0.0F, 1.0F));
     }
 
     private static void restoreHostileVolume() {
@@ -112,7 +112,7 @@ public final class ClientEffectHandler {
         if (storedHostileVolume == null || client.player == null) {
             return;
         }
-    client.options.getSoundVolumeOption(SoundSource.HOSTILE).setValue((double) storedHostileVolume);
+    client.options.getSoundSourceOptionInstance(SoundSource.HOSTILE).set((double) storedHostileVolume);
         storedHostileVolume = null;
     }
 

@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 final class CoreySpawnCommands {
-    private static final List<EntityType<? extends Mob>> DEFAULT_HORDE_TYPES = List.of(
+    private static final List<EntityType<?>> DEFAULT_HORDE_TYPES = List.of(
         BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("zombie")),
         BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("husk")),
         BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("skeleton")),
@@ -154,7 +154,8 @@ final class CoreySpawnCommands {
         MobTier tier = CoreyCommandShared.parseTier(tierName);
         int spawned = 0;
         for (int i = 0; i < count; i++) {
-            EntityType<? extends Mob> type = DEFAULT_HORDE_TYPES.get(world.getRandom().nextInt(DEFAULT_HORDE_TYPES.size()));
+            @SuppressWarnings("unchecked")
+        EntityType<? extends Mob> type = (EntityType<? extends Mob>) DEFAULT_HORDE_TYPES.get(world.getRandom().nextInt(DEFAULT_HORDE_TYPES.size()));
             Vec3 spawnPos = origin.add(world.getRandom().nextIntBetweenInclusive(-8, 8), 0, world.getRandom().nextIntBetweenInclusive(-8, 8));
             Entity created = type.create(world, null, BlockPos.containing(spawnPos), EntitySpawnReason.EVENT, true, false);
             if (!(created instanceof Mob mob)) {
@@ -281,7 +282,7 @@ final class CoreySpawnCommands {
         double offset = 4.0D;
         int spawned = 0;
         for (MobTier tier : MobTier.values()) {
-            Vec3 pos = origin.offset(offset * spawned, 0, 0);
+            Vec3 pos = origin.add(offset * spawned, 0, 0);
             Entity created = type.create(world, null, BlockPos.containing(pos), EntitySpawnReason.EVENT, true, false);
             if (!(created instanceof Mob mob)) {
                 continue;
@@ -301,8 +302,8 @@ final class CoreySpawnCommands {
         ServerPlayer player = CoreyCommandUtil.requirePlayer(ctx.getSource());
         ServerLevel world = (ServerLevel) player.level();
         Vec3 origin = new Vec3(player.getX(), player.getY(), player.getZ());
-        Mob mobA = createBattleMob(world, aTypeId, origin.offset(-5, 0, 0));
-        Mob mobB = createBattleMob(world, bTypeId, origin.offset(5, 0, 0));
+        Mob mobA = createBattleMob(world, aTypeId, origin.add(-5, 0, 0));
+        Mob mobB = createBattleMob(world, bTypeId, origin.add(5, 0, 0));
         if (mobA == null || mobB == null) {
             ctx.getSource().sendFailure(Component.literal("No fue posible crear los combatientes."));
             return 0;

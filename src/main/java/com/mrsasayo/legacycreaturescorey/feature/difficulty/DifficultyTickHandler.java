@@ -22,7 +22,7 @@ public class DifficultyTickHandler {
     
     private static void onServerTick(MinecraftServer server) {
         // CORRECCIÓN: usar getTicks() en lugar de getTickCount()
-        long currentTick = server.getTicks();
+        long currentTick = server.getTickCount();
         
         if (currentTick - lastTickTime >= CHECK_INTERVAL) {
             lastTickTime = currentTick;

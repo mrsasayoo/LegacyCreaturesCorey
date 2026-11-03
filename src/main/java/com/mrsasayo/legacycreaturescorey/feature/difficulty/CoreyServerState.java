@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.feature.difficulty;
 
+import net.minecraft.resources.Identifier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class CoreyServerState extends SavedData {
 
     private static final int MAX_GLOBAL_DIFFICULTY = 1000;
-    private static final String SAVE_ID = Legacycreaturescorey.MOD_ID + "_server_state";
+    private static final Identifier SAVE_ID = Identifier.withDefaultNamespace(Legacycreaturescorey.MOD_ID + "_server_state");
 
     private static final Codec<Long> CHUNK_KEY_CODEC = Codec.STRING.comapFlatMap(
         CoreyServerState::parseChunkKey,
@@ -91,7 +92,7 @@ public class CoreyServerState extends SavedData {
 
     public static CoreyServerState get(MinecraftServer server) {
         SavedDataStorage stateManager = server.getLevel(Level.OVERWORLD).getDataStorage();
-        CoreyServerState state = stateManager.getOrCreate(TYPE);
+        CoreyServerState state = stateManager.computeIfAbsent(TYPE);
         state.setDirty();
         return state;
     }

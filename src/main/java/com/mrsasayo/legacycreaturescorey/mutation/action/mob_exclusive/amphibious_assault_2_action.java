@@ -150,7 +150,7 @@ public final class amphibious_assault_2_action extends amphibious_assault_base_a
     }
 
     private double findGroundY(Guardian guardian) {
-        BlockPos.Mutable mutable = guardian.blockPosition().mutable();
+        BlockPos.MutableBlockPos mutable = guardian.blockPosition().mutable();
         for (int i = 0; i < groundSearchDepth; i++) {
             mutable.move(0, -1, 0);
             if (!guardian.level().getBlockState(mutable).isAir()) {

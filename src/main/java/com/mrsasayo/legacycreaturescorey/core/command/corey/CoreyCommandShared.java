@@ -17,7 +17,7 @@ public final class CoreyCommandShared {
     public static final double DEFAULT_DEBUG_RANGE = 64.0D;
 
     public static final SuggestionProvider<CommandSourceStack> ENTITY_SUGGESTIONS =
-        (context, builder) -> SharedSuggestionProvider.suggestIdentifiers(BuiltInRegistries.ENTITY_TYPE.getIds(), builder);
+        (context, builder) -> SharedSuggestionProvider.suggestResource(BuiltInRegistries.ENTITY_TYPE.keySet(), builder);
 
     public static final SuggestionProvider<CommandSourceStack> TIER_SUGGESTIONS = (context, builder) -> {
         for (MobTier tier : MobTier.values()) {

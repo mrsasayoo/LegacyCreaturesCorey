@@ -25,7 +25,7 @@ public final class CoreyHudCommand {
 
     private static LiteralArgumentBuilder<CommandSourceStack> buildRoot() {
         return Commands.literal("coreyhud")
-            .requires(source -> source.hasPermission(0))
+            .requires(source -> true)
             .then(Commands.literal("on").executes(ctx -> setHud(ctx, true)))
             .then(Commands.literal("off").executes(ctx -> setHud(ctx, false)))
             .then(Commands.literal("toggle").executes(CoreyHudCommand::toggleHud))
@@ -75,7 +75,7 @@ public final class CoreyHudCommand {
     }
 
     private static ServerPlayer requirePlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        return ctx.getSource().getPlayerOrThrow();
+        return ctx.getSource().getPlayerOrException();
     }
 
     private static String statusMessage(boolean enabled) {

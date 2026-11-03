@@ -75,8 +75,3 @@ publishing {
 		// Repositorios de publicación
 	}
 }
-
-// maxerrs alto temporalmente para el port (ver todos los errores de javac)
-tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs << '-Xmaxerrs' << '100000' << '-Xmaxwarns' << '100000'
-}

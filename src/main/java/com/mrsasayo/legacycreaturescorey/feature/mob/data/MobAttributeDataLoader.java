@@ -102,7 +102,7 @@ public final class MobAttributeDataLoader implements SimpleSynchronousResourceRe
                             Legacycreaturescorey.LOGGER.warn("Tier desconocido '{}' en el override de {}", tierEntry.getKey(), entityId);
                             continue;
                         }
-                        JsonObject tierValues = GsonHelper.getAsJsonObject(tierEntry.getValue(), "tier_values");
+                        JsonObject tierValues = GsonHelper.convertToJsonObject(tierEntry.getValue(), "tier_values");
                         Double maxHealth = tierValues.has("max_health") ? tierValues.get("max_health").getAsDouble() : null;
                         Double attackDamage = tierValues.has("attack_damage") ? tierValues.get("attack_damage").getAsDouble() : null;
                         if (maxHealth == null && attackDamage == null) {

@@ -24,7 +24,7 @@ public final class CoreyCommandUtil {
     private CoreyCommandUtil() {}
 
     public static ServerPlayer requirePlayer(CommandSourceStack source) throws CommandSyntaxException {
-        return source.getPlayerOrThrow();
+        return source.getPlayerOrException();
     }
 
     public static Vec3 resolvePosition(CommandContext<CommandSourceStack> ctx, String name) {
@@ -36,12 +36,12 @@ public final class CoreyCommandUtil {
     }
 
     public static Mob raycastMob(ServerPlayer player, double distance) {
-        Vec3 start = player.getCameraPosVec(1.0F);
-        Vec3 direction = player.getRotationVec(1.0F);
+        Vec3 start = player.getEyePosition(1.0F);
+        Vec3 direction = player.getViewVector(1.0F);
         Vec3 end = start.add(direction.scale(distance));
-        AABB searchBox = player.getBoundingBox().stretch(direction.scale(distance)).inflate(1.0D);
+        AABB searchBox = player.getBoundingBox().expandTowards(direction.scale(distance)).inflate(1.0D);
         Predicate<Entity> predicate = entity -> entity instanceof Mob mob && mob.isAlive() && !mob.isSpectator();
-        EntityHitResult hit = ProjectileUtil.clip(
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(
             player,
             start,
             end,
@@ -64,7 +64,7 @@ public final class CoreyCommandUtil {
     }
 
     public static Mob findMobByUuid(MinecraftServer server, UUID uuid) {
-        for (Level world : server.getWorlds()) {
+        for (Level world : server.getAllLevels()) {
             Entity entity = world.getEntity(uuid);
             if (entity instanceof Mob mob) {
                 return mob;

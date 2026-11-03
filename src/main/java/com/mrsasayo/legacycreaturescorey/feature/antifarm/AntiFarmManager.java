@@ -41,13 +41,13 @@ public final class AntiFarmManager {
         if (!isTieredMob(mob.getType())) {
             return;
         }
-        ChunkPos chunkPos = new ChunkPos(mob.blockPosition());
+        ChunkPos chunkPos = ChunkPos.containing(mob.blockPosition());
         if (shouldIgnoreForAntiFarm(mob, chunkPos)) {
             return;
         }
 
         CoreyServerState state = CoreyServerState.get(world.getServer());
-        long chunkKey = chunkPos.toLong();
+        long chunkKey = chunkPos.pack();
 
         if (state.isChunkSpawnBlocked(chunkKey)) {
             return;
@@ -84,7 +84,7 @@ public final class AntiFarmManager {
             return false;
         }
         CoreyServerState state = CoreyServerState.get(world.getServer());
-        long chunkKey = new ChunkPos(mob.blockPosition()).toLong();
+        long chunkKey = ChunkPos.containing(mob.blockPosition()).pack();
         return state.isChunkSpawnBlocked(chunkKey);
     }
 
@@ -93,7 +93,7 @@ public final class AntiFarmManager {
         long tick = world.getGameTime();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                long chunkKey = ChunkPos.toLong(center.x + dx, center.z + dz);
+                long chunkKey = ChunkPos.pack(center.x() + dx, center.z() + dz);
                 state.markChunkSpawnBlocked(chunkKey, tick);
             }
         }
@@ -101,13 +101,13 @@ public final class AntiFarmManager {
             Legacycreaturescorey.LOGGER.warn(
                 "🔥 Zona anti-granja activada ({}) alrededor del chunk {}|{} en {} para {}",
                 (radius * 2) + 1,
-                center.x,
-                center.z,
+                center.x(),
+                center.z(),
                 world.dimension().identifier(),
-                sample.type().getDescriptionId()
+                sample.getType().getDescriptionId()
             );
         }
-        ChunkActivityData centerData = state.getChunkActivity(center.toLong());
+        ChunkActivityData centerData = state.getChunkActivity(center.pack());
         AntiFarmDashboardEvents.CHUNK_ACTIVITY_UPDATED.invoker().onChunkActivityUpdated(
             world,
             center,

@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.network.chat.Component;
@@ -38,15 +38,15 @@ public final class ClientDifficultyHud {
         playerHudEnabled = payload.hudEnabled();
     }
 
-    private static void renderHud(GuiGraphics context, DeltaTracker tickCounter) {
+    private static void renderHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
-        if (!playerHudEnabled || player == null || client.options.hudHidden) {
+        if (!playerHudEnabled || player == null || client.gui.hud.isHidden()) {
             return;
         }
 
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
+        int width = context.guiWidth();
+        int height = context.guiHeight();
         int x = Math.max(6, width - 146);
         int y = height - 48;
 
@@ -59,10 +59,10 @@ public final class ClientDifficultyHud {
         context.fill(barX, barY, barX + barWidth, barY + barHeight, 0x66000000);
         context.fill(barX, barY, barX + (int) (barWidth * globalPct), barY + barHeight, 0xFFEBAA5B);
 
-        var textRenderer = client.textRenderer;
+        var textRenderer = client.font;
         String globalText = String.format("Dificultad Global: %d/%d", globalDifficulty, maxGlobalDifficulty);
         String personalText = String.format("Dificultad Personal: %d", personalDifficulty);
-        context.drawText(textRenderer, Component.literal(globalText), x, y, 0xFFF2E3C6, false);
-        context.drawText(textRenderer, Component.literal(personalText), x, y + 10, 0xFFB2F2E8, false);
+        context.text(textRenderer, Component.literal(globalText), x, y, 0xFFF2E3C6, false);
+        context.text(textRenderer, Component.literal(personalText), x, y + 10, 0xFFB2F2E8, false);
     }
 }

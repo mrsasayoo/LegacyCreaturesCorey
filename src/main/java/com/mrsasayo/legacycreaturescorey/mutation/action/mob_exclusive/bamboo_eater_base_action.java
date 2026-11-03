@@ -59,7 +59,7 @@ abstract class bamboo_eater_base_action implements mutation_action {
         mob_entity_goal_accessor accessor = (mob_entity_goal_accessor) panda;
         
         // Añadir goal de ataque melee con alta prioridad
-        accessor.getGoalSelector().addGoal(1, new MeleeAttackGoal(panda, 1.5D, true));
+        panda.getGoalSelector().addGoal(1, new MeleeAttackGoal(panda, 1.5D, true));
         
         // Añadir goal para targetear jugadores
         accessor.getTargetSelector().addGoal(1, new NearestAttackableTargetGoal<>(panda, Player.class, true));

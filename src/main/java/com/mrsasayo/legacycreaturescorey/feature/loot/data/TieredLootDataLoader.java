@@ -194,7 +194,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
                            Map<Identifier, Identifier> tierSources) {
         int added = 0;
         for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
-            if (!type.is(tagKey)) {
+            if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(tagKey)) {
                 continue;
             }
             Identifier id = EntityType.getKey(type);
@@ -206,7 +206,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
             }
         }
         if (added == 0) {
-            Legacycreaturescorey.LOGGER.warn("Tag {} referenced in {} did not resolve to any entities", tagKey.id(), resourceId);
+            Legacycreaturescorey.LOGGER.warn("Tag {} referenced in {} did not resolve to any entities", tagKey.location(), resourceId);
         }
     }
 
@@ -219,7 +219,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         if (tierEntries.containsKey(target)) {
             Identifier previous = tierSources.get(target);
             Legacycreaturescorey.LOGGER.error("Duplicate tiered loot for {} at tier {}. Entry {} ignored (already defined in {})",
-                target, tier.description(), resourceId, previous == null ? "unknown" : previous);
+                target, tier.getDisplayName(), resourceId, previous == null ? "unknown" : previous);
             return false;
         }
         tierEntries.put(target, definition);
@@ -308,7 +308,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         JsonElement element = root.get("rolls");
         try {
             if (element.isJsonPrimitive()) {
-                int value = GsonHelper.asInt(element, "rolls");
+                int value = element.getAsInt();
                 return IntRange.of(Math.max(0, value));
             }
             if (element.isJsonObject()) {
@@ -327,7 +327,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         if (entry.has("count")) {
             JsonElement element = entry.get("count");
             if (element.isJsonPrimitive()) {
-                int value = GsonHelper.asInt(element, "count");
+                int value = element.getAsInt();
                 return IntRange.of(Math.max(0, value));
             }
             if (element.isJsonObject()) {
@@ -365,7 +365,7 @@ public final class TieredLootDataLoader implements SimpleSynchronousResourceRelo
         }
 
         Item item = BuiltInRegistries.ITEM.get(itemId).map(Holder::value).orElse(null);
-        if (item == null || BuiltInRegistries.ITEM.getRawId(item) == -1) {
+        if (item == null) {
             Legacycreaturescorey.LOGGER.warn("Unknown item '{}' in {} entry {}", rawId, resourceId, context);
             return null;
         }

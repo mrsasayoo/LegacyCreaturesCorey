@@ -38,7 +38,7 @@ public final class MutationCommand {
 
     private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("mutation")
-            .requires(src -> src.hasPermissionLevel(2)); // only ops
+            .requires(src -> src.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet lbps2 && lbps2.level().id() >= 2); // only ops
 
         // /mutation <target> assign natural <type> <mutation>
         var targetArg =
@@ -173,7 +173,7 @@ public final class MutationCommand {
             mut.onApply(mob);
             data.addMutation(mid);
             src.sendSuccess(() -> Component.literal("Assigned mutation " + mid + " to " + mob.getName().getString()), true);
-            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getName(), mid, mob.getType().getDescriptionId(), force);
+            Legacycreaturescorey.LOGGER.info("Command: {} assigned mutation {} to {} (force={})", src.getTextName(), mid, mob.getType().getDescriptionId(), force);
             return 1;
         } catch (Exception e) {
             src.sendFailure(Component.literal("Failed to apply mutation: " + e.getMessage()));

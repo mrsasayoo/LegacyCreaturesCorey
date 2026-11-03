@@ -209,7 +209,7 @@ public final class mutation_registry {
 
                 ServerLevel world = (ServerLevel) entity.level();
                 var damageSource = world.damageSources().magic();
-                for (Player player : world.getPlayers()) {
+                for (Player player : world.players()) {
                     if (!player.isAlive() || player.isCreative() || player.isSpectator()) {
                         continue;
                     }

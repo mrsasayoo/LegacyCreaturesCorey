@@ -25,7 +25,7 @@ final class CoreyReloadCommand {
         }));
 
         reload.then(Commands.literal("mutations").executes(ctx -> {
-            ctx.getSource().getServer().getDataPackManager().scanPacks();
+            ctx.getSource().getServer().getPackRepository().reload();
             ctx.getSource().sendSuccess(() -> Component.literal("Mutaciones marcadas para recarga."), true);
             return 1;
         }));

@@ -15,7 +15,7 @@ public class DifficultyManager {
     private static final int PLAYER_ROLL_INCREMENT = 1;
     
     public static long getCurrentDay(MinecraftServer server) {
-        return server.getOverworld().getGameTime() / 24000L;
+        return server.overworld().getGameTime() / 24000L;
     }
     
     public static void checkDailyIncrease(MinecraftServer server) {
@@ -54,7 +54,7 @@ public class DifficultyManager {
             return;
         }
 
-        double roll = server.getOverworld().random.nextDouble();
+        double roll = server.overworld().getRandom().nextDouble();
         if (roll > chance) {
             return;
         }

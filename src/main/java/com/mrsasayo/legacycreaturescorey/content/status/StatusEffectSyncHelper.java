@@ -31,6 +31,6 @@ public final class StatusEffectSyncHelper {
 
         int duration = start ? effect.getDuration() : 0;
         float intensity = start ? notifying.computeIntensity(effect.getAmplifier()) : 0.0F;
-        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffect(), start, duration, intensity));
+        ModNetworking.sendClientEffect(player, new ClientEffectPayload(notifying.getEffectType(), start, duration, intensity));
     }
 }

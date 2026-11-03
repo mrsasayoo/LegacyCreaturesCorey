@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.feature.loot.data;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.RegistryAccess;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -22,7 +24,7 @@ import java.util.List;
  * Runtime representation of a tiered loot definition for a specific entity.
  */
 public final class TieredMobLoot {
-    private static final HolderLookup.Provider BUILTIN_LOOKUP = BuiltInRegistries.createWorldLookup();
+    private static final HolderLookup.Provider BUILTIN_LOOKUP = net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
     private final boolean replaceVanillaDrops;
     private final IntRange rolls;
@@ -87,8 +89,8 @@ public final class TieredMobLoot {
 
     private static RegistryOps<JsonElement> resolveRegistryOps(LootContext context) {
         ServerLevel world = context.getLevel();
-        HolderLookup.Provider lookup = world != null ? world.getRegistryManager() : BUILTIN_LOOKUP;
-        return RegistryOps.of(JsonOps.INSTANCE, lookup);
+        HolderLookup.Provider lookup = world != null ? world.registryAccess() : BUILTIN_LOOKUP;
+        return lookup.createSerializationContext(JsonOps.INSTANCE);
     }
 
     public record Drop(StackProvider template, IntRange countRange) {

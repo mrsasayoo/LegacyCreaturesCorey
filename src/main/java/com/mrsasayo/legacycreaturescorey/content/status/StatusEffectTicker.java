@@ -118,7 +118,7 @@ public final class StatusEffectTicker {
         SLIPPERY_FLOOR {
             @Override
             void apply(LivingEntity entity, EffectState state) {
-                if (entity.isSneaking() || shouldSkipPlayerAbilities(entity)) {
+                if (entity.isShiftKeyDown() || shouldSkipPlayerAbilities(entity)) {
                     return;
                 }
 

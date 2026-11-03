@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.feature.mob;
 
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.Mob;
@@ -32,8 +33,8 @@ final class FuryHelper {
         mob.setAggressive(true);
 
         if (mob instanceof NeutralMob angerable) {
-            angerable.setAngerTime(600);
-            angerable.setAngryAt(player.getUUID());
+            angerable.setTimeToRemainAngry(600L);
+            angerable.setPersistentAngerTarget(net.minecraft.world.entity.EntityReference.of(player.getUUID()));
         }
     }
 }

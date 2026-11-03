@@ -62,7 +62,7 @@ public final class FinalBurstOnDeathAction implements mutation_action {
 
     private void applyBurst(ServerLevel world, LivingEntity owner, Vec3 origin) {
         double radiusSq = radius * radius;
-        AABB area = AABB.of(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
+        AABB area = AABB.ofSize(origin, radius * 2.0D, radius * 2.0D, radius * 2.0D);
         List<LivingEntity> targets = world.getEntitiesOfClass(LivingEntity.class, area,
             living -> living.isAlive() && living != owner && !living.isSpectator());
         if (targets.isEmpty()) {

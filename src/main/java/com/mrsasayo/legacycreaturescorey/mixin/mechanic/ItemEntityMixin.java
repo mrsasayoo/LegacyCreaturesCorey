@@ -53,8 +53,8 @@ public abstract class ItemEntityMixin extends Entity {
         }
 
         Level world = player.level();
-        if (!world.isClientSide) {
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, GHOST_FRAGMENT_NAUSEA_TICKS, 0, true, true));
+        if (!world.isClientSide()) {
+            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, GHOST_FRAGMENT_NAUSEA_TICKS, 0, true, true));
             world.playSound(null,
                 player.getX(),
                 player.getY(),

@@ -115,8 +115,8 @@ public class Legacycreaturescorey implements ModInitializer {
 
     private static void notifyAdmins(MinecraftServer server, Component message) {
         server.getPlayerList().getPlayers().forEach(player -> {
-            if (player.hasPermissionLevel(2)) {
-                player.sendMessage(message, false);
+            if (player.permissions() instanceof net.minecraft.server.permissions.LevelBasedPermissionSet lbps && lbps.level().id() >= 2) {
+                player.sendSystemMessage(message, false);
             }
         });
     }

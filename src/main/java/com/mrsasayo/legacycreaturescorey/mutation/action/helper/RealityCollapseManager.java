@@ -109,7 +109,7 @@ public final class RealityCollapseManager {
         if (player == null || player.isSpectator()) {
             return InteractionResult.PASS;
         }
-        Field field = findContainingField(serverWorld, hitResult.getBlockPos(), true);
+        Field field = findContainingField(serverWorld, hitResult.getLocation(), true);
         if (field != null) {
             logDebug("Uso de bloque cancelado en (%.1f, %.1f, %.1f) por campo #%d (radio %.1f, restan %d ticks)",
                 hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY(), hitResult.getBlockPos().getZ(), field.id, field.radius, field.remainingTicks);

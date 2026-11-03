@@ -169,7 +169,7 @@ public final class FakeLootPileManager {
             if (explosionRadius <= 0.0D || explosionDamage <= 0.0F) {
                 return;
             }
-            AABB area = AABB.of(origin, explosionRadius * 2.0D, explosionRadius * 2.0D, explosionRadius * 2.0D);
+            AABB area = AABB.ofSize(origin, explosionRadius * 2.0D, explosionRadius * 2.0D, explosionRadius * 2.0D);
             List<LivingEntity> victims = world.getEntitiesOfClass(LivingEntity.class, area,
                 entity -> entity.isAlive() && entity.distanceToSqr(origin) <= explosionRadius * explosionRadius);
             for (LivingEntity victim : victims) {

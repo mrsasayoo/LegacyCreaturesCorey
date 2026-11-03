@@ -1,6 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.core.command.corey;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 
 import java.util.function.Predicate;
 
@@ -19,7 +20,8 @@ public enum CoreyCommandPermissions {
     }
 
     public boolean test(CommandSourceStack source) {
-        return source.hasPermissionLevel(level);
+        return source.permissions() instanceof LevelBasedPermissionSet levelSet
+            && levelSet.level().id() >= level;
     }
 
     public Predicate<CommandSourceStack> predicate() {

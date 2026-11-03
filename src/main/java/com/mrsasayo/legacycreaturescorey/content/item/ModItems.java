@@ -26,7 +26,7 @@ public final class ModItems {
         GHOST_FRAGMENT = Registry.register(
                 BuiltInRegistries.ITEM,
                 id,
-                new GhostFragmentItem(new Item.Properties().registryKey(key).maxCount(16)));
+                new GhostFragmentItem(new Item.Properties().setId(key).stacksTo(16)));
 
         Legacycreaturescorey.LOGGER.debug("Items inicializados para Último Aliento");
     }

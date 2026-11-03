@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.feature.antifarm.data;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,7 +56,7 @@ public final class AntiFarmExclusionDataLoader implements SimpleSynchronousResou
             return true;
         }
         for (TagKey<EntityType<?>> tagKey : EXCLUDED_TAGS) {
-            if (type.is(tagKey)) {
+            if (BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(tagKey)) {
                 return true;
             }
         }
