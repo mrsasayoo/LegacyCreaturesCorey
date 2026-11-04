@@ -2,7 +2,7 @@ categoria_de_la_mutuacion,nombre,dificultad,efecto,costo(PM),probabilidad _de_to
 Auras y Habilidades Pasivas,corruption_aura_1,debil,Inflige 1 punto de daño mágico cada 4 segundos a los jugadores en un radio de 3 bloques.,8,50,,SI
 Auras y Habilidades Pasivas,corruption_aura_2,intermedio,Inflige 2 puntos de daño mágico cada 4 segundos a los jugadores en un radio de 4 bloques.,14,25,,SI
 Auras y Habilidades Pasivas,corruption_aura_3,dificil,Inflige 3 puntos de daño mágico cada 4 segundos y aplica Hambre I (1s) a los jugadores en un radio de 5 bloques.,22,8,,SI
-Auras y Habilidades Pasivas,deep_darkness_aura_1,debil,"Ciega a los jugadores a 7 bloques con oscuridad opaca, sin anular su Visión Nocturna.",6,60,,SI
+Auras y Habilidades Pasivas,deep_darkness_aura_1,debil,"Ciega a los jugadores a 3 bloques con oscuridad opaca, sin anular su Visión Nocturna.",6,60,,SI
 Auras y Habilidades Pasivas,deep_darkness_aura_2,intermedio,"Condiciona a los jugadores a 7 bloques con oscuridad si se alejan de fuentes de luz, sin tocar su Visión Nocturna.",13,30,,SI
 Auras y Habilidades Pasivas,deep_darkness_aura_3,dificil,Aplica el efecto de Oscuridad (como el del Warden) a cualquier jugador en un radio de 10 bloques que no esté directamente adyacente a una fuente de luz,21,10,deep_darkness_aura_3 es incompatible con virulent_growth_aura_3,SI
 Auras y Habilidades Pasivas,entropy_aura_1,debil,"Cada vez que un jugador cambia de objeto en su hotbar dentro del radio de 6 bloques, hay un 10% de probabilidad de que ese slot entre en un cooldown de 1 segundo",4,80,,SI
@@ -166,12 +166,12 @@ Exclusivas de Mob,ancient_curse_3,dificil,"Sus ataques tienen un 10% de probabil
 Exclusivas de Mob,apiarian_warfare_1,debil,"Sus ataques cuerpo a cuerpo (no el aguijón) tienen un 25% de probabilidad de aplicar ""Miel Pegajosa"", un efecto de Lentitud I que dura 3 segundos.",5,65,Restricción de Mob: Abeja.,SI
 Exclusivas de Mob,apiarian_warfare_2,intermedio,"Al ser golpeada, tiene un 20% de probabilidad de dejar caer un bloque de miel temporal en el suelo que ralentiza a las entidades. Desaparece después de 6 segundos.",9,38,Restricción de Mob: Abeja.,SI
 Exclusivas de Mob,apiarian_warfare_3,dificil,"Al morir, explota en una ""Ducha de Miel"" que crea un área de 3x3 de miel pegajosa en el suelo y aplica Lentitud II (4s) a los jugadores en un radio de 4 bloques, esta miel desaparece después de 15 segundos.",15,15,Restricción de Mob: Abeja. Incompatible con swarm_tactics_3,SI
-Exclusivas de Mob,aquatic_stalker_1,debil,Se mueve un 33% más rápido cuando nada.,4,70,Restricción de Mob: Ahogado.,NO
-Exclusivas de Mob,aquatic_stalker_2,intermedio,"Puede realizar un ""Impulso Abisal"", una carga rápida de 6 bloques bajo el agua.",9,38,Restricción de Mob: Ahogado. Tiene un cooldown interno de 7 segundos.,NO
-Exclusivas de Mob,aquatic_stalker_3,dificil,"Mientras está en el agua, se vuelve semi-transparente, haciéndolo mucho más difícil de ver desde la superficie.",15,18,Restricción de Mob: Ahogado.,NO
-Exclusivas de Mob,arctic_fortitude_1,debil,Tiene 6 puntos de armadura natural y un 25% de resistencia al empuje.,6,60,Restricción de Mob: Oso Polar.,NO
-Exclusivas de Mob,arctic_fortitude_2,intermedio,Es inmune a los efectos de Lentitud y Congelación (Freezing) si esta en sobre el bloque de nieve o hielo gana velocidad I,11,30,Restricción de Mob: Oso Polar.,NO
-Exclusivas de Mob,arctic_fortitude_3,dificil,"Cuando su salud baja del 40%, entra en un estado de ""Furia Inquebrantable"", volviéndose inmune al empuje y ganando Resistencia I (20% de reducción de daño) por el resto del combate.",17,12,Restricción de Mob: Oso Polar.,NO
+Exclusivas de Mob,aquatic_stalker_1,debil,Se mueve un 33% más rápido cuando nada.,4,70,Restricción de Mob: Ahogado.,SI
+Exclusivas de Mob,aquatic_stalker_2,intermedio,"Puede realizar un ""Impulso Abisal"", una carga rápida de 6 bloques bajo el agua.",9,38,Restricción de Mob: Ahogado. Tiene un cooldown interno de 7 segundos.,SI
+Exclusivas de Mob,aquatic_stalker_3,dificil,"Mientras está en el agua, se vuelve semi-transparente, haciéndolo mucho más difícil de ver desde la superficie.",15,18,Restricción de Mob: Ahogado.,SI
+Exclusivas de Mob,arctic_fortitude_1,debil,Tiene 6 puntos de armadura natural y un 25% de resistencia al empuje.,6,60,Restricción de Mob: Oso Polar.,SI
+Exclusivas de Mob,arctic_fortitude_2,intermedio,Es inmune a los efectos de Lentitud y Congelación (Freezing) si esta en sobre el bloque de nieve o hielo gana velocidad I,11,30,Restricción de Mob: Oso Polar.,SI
+Exclusivas de Mob,arctic_fortitude_3,dificil,"Cuando su salud baja del 40%, entra en un estado de ""Furia Inquebrantable"", volviéndose inmune al empuje y ganando Resistencia I (20% de reducción de daño) por el resto del combate.",17,12,Restricción de Mob: Oso Polar.,SI
 Exclusivas de Mob,axe_mastery_1,debil,Sus ataques son un 15% más rápidos.,7,55,Restricción de Mob: Vindicador.,SI
 Exclusivas de Mob,axe_mastery_2,intermedio,"Puede realizar un ""Corte Circular"", un ataque de área que golpea a todos los enemigos en un arco frontal.",14,25,Restricción de Mob: Vindicador. Tiene un cooldown interno de 6 segundos.,SI
 Exclusivas de Mob,axe_mastery_3,dificil,"Puede lanzar su hacha en un arco giratorio. El hacha viaja 10 bloques antes de regresar a su mano, infligiendo daño a todo lo que atraviesa, tanto al ir como al volver mientras este ataque esta en curso el mob se queda quieto",22,8,Restricción de Mob: Vindicador. Tiene un cooldown interno de 8 segundos.,SI

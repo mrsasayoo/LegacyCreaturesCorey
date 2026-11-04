@@ -165,6 +165,8 @@ final class mutation_schema_validator {
         register(builder, seenKeys, mutation_schema_validator::validateDisableShieldAction, "disable_shield", "anti_shield");
         register(builder, seenKeys, mutation_schema_validator::validateTrueDamageAction, "true_damage", "true_damage_on_hit");
         register(builder, seenKeys, mutation_schema_validator::validatePhantasmalVeilAuraAction, "phantasmal_veil", "phantasmal_veil_aura", "aura_phantasmal");
+        register(builder, seenKeys, mutation_schema_validator::validateModeOnlyAction, "aquatic_stalker");
+        register(builder, seenKeys, mutation_schema_validator::validateModeOnlyAction, "arctic_fortitude");
         return builder.build();
     }
 
@@ -381,6 +383,10 @@ final class mutation_schema_validator {
     }
 
     private static void validateFrenzyAction(String path, JsonObject action, ValidationCollector collector) {
+        requireString(action, "mode", collector, path + ".mode", false);
+    }
+
+    private static void validateModeOnlyAction(String path, JsonObject action, ValidationCollector collector) {
         requireString(action, "mode", collector, path + ".mode", false);
     }
 
