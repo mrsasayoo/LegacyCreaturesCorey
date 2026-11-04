@@ -4,6 +4,7 @@
 > retomar el desarrollo de este mod y como plantilla de estructura para el resto de la
 > suite Legacy (Arcaney, Armory, ...). Los renames de la generación 26.x están detallados
 > en `docs/PORTING_NOTES.md`.
+> Última verificación: 2026-11-03 (auditoría de memoria).
 
 ## 🧰 Stack de Desarrollo (26.3)
 
@@ -105,10 +106,12 @@ la columna final `implementada_en_el_mod` (SI/NO, verificada contra los JSON + v
 - JSON en `data/legacycreaturescorey/mutations/*.json` (4 categorías activas: auras, on_hit, mob_exclusive, passive).
 - `MutationDataLoader` crea `ConfiguredMutation` con acciones (`mutation.action.*`); `mutation_schema_validator` valida tipos y campos al cargar.
 - `MutationRuntime` ejecuta acciones activas (`onTick`) y pasivas (`onHit`).
-- **Budgets por tier:** EPIC=25, LEG=50, MYTH=75, DEF=100 (ver `MutationAssigner`).
-- **Estado del catálogo:** `docs/mutaciones.csv` marca con `implementada_en_el_mod=SI` las 191
-  operativas; 6 tienen JSON pero acción sin implementar (aquatic_stalker_1-3, arctic_fortitude_1-3
-  → falta crear esas clases de acción), y 949 del catálogo aún no tienen JSON.
+- **Budgets por tier:** EPIC=25, LEG=50, MYTH=75, DEF=100 (ver `mutation/a_system/mutation_assigner.java`).
+- **Estado del catálogo:** `docs/mutaciones.csv` marca con `implementada_en_el_mod=SI` las 197
+  operativas — incluidas las 6 de aquatic_stalker/arctic_fortitude, implementadas el 2026-11-03
+  (clases existentes desde `2590b41` + registro de sus tipos en `mutation_schema_validator`,
+  verificadas en mundo: 0 `Validación fallida`, asignación en vivo en logs) —, y 949
+  del catálogo aún no tienen JSON.
 
 #### Acciones on-death (Último Aliento)
 | Acción | Campos | Notas |
@@ -179,7 +182,7 @@ Ejemplo mínimo para dejar un charco tóxico tras la muerte:
 - Para logs detallados, habilitar `CoreyConfig.debugLogProbabilityDetails`.
 
 ## 📅 Roadmap Sugerido
-1. Implementar las acciones faltantes `aquatic_stalker` y `arctic_fortitude` (los 6 JSON ya existen y el validador los rechaza).
+1. ✅ **Completado 2026-11-03:** clases `aquatic_stalker_*`/`arctic_fortitude_*` auditadas y reutilizadas (decisión: auditar y reutilizar, no reescribir), tipos registrados en `mutation_schema_validator`, 6 mutaciones marcadas SI y verificadas en juego (Lote 7 = 57/57).
 2. Continuar el catálogo: 949 mutaciones pendientes según `docs/mutaciones.csv` (la columna `implementada_en_el_mod` guía el orden; el plan de lotes está en `docs/planes/plan_mutaciones.md`).
 3. TTL anti-farm + thresholds por tag.
 4. Persistencia real de configuración + comandos `/corey config reload`.

@@ -2,12 +2,12 @@
 
 **Orden de Implementación según CSV**
 
-> **Estado actualizado (2026-11-03, post-port 26.3):** los **Lotes 1-6 (líneas 2-163) están
-> implementados y verificados en juego**; el Lote 7 (líneas 164-198) está al 51/57 — faltan
-> las clases de acción `aquatic_stalker` y `arctic_fortitude` (líneas 169-174, sus JSON ya
-> existen y el validador los rechaza al cargar). El estado por mutación está en la columna
-> `implementada_en_el_mod` de `docs/mutaciones.csv` (SI=191 / NO=955, verificada contra el
-> validador runtime del mod). A partir del Lote 8 continuar con Último Aliento (líneas 199+).
+> **Estado actualizado (2026-11-03, post-port 26.3):** los **Lotes 1-7 (líneas 2-198) están
+> implementados y verificados en juego** — el Lote 7 cerró 57/57 al registrarse
+> `aquatic_stalker`/`arctic_fortitude` en el validador (verificado en mundo el 2026-11-03).
+> El estado por mutación está en la columna `implementada_en_el_mod` de `docs/mutaciones.csv`
+> (SI=197 / NO=949, verificada contra el validador runtime del mod). A partir del Lote 8
+> continuar con Último Aliento (líneas 199+).
 
 El orden de refactorización e implementación de mutaciones seguirá **estrictamente** el orden definido en
 
@@ -17,14 +17,14 @@ docs/mutaciones.csv. Este archivo CSV es la
 
 para:
 
-- Orden de prioridad de implementación (líneas 199-...: **270 mutaciones**)
+- Orden de prioridad de implementación (líneas 199-...: **949 mutaciones**)
 - Nombres exactos de mutaciones
 - Categorías y clasificación
 - Descripción detallada de comportamiento
 - Niveles de dificultad y costos PM
 - Restricciones de mob e incompatibilidades
 
-Las primeras **270 mutaciones** del CSV (líneas 199-...) serán implementadas.
+Las primeras **949 mutaciones** del CSV (líneas 199-...) serán implementadas.
 
 ---
 
@@ -40,7 +40,7 @@ Las primeras **270 mutaciones** del CSV (líneas 199-...) serán implementadas
 | **Lote 4** | 83-109 | 27 | On-Hit (mining_fatigue, mortal_wound, nausea, etc.) | ✅ Completado |
 | **Lote 5** | 110-136 | 27 | On-Hit finales + Mob-Exclusive iniciales | ✅ Completado |
 | **Lote 6** | 137-163 | 27 | Mob-Exclusive (alphas_vengeance, ambusher, etc.) | ✅ Completado |
-| **Lote 7** | 164-198 | 35 | Mob-Exclusive finales (bastion_guard, etc.) | 🔶 51/57 (falta aquatic_stalker ×3 y arctic_fortitude ×3, líneas 169-174) |
+| **Lote 7** | 164-198 | 35 | Mob-Exclusive finales (bastion_guard, etc.) | ✅ 57/57 (aquatic_stalker y arctic_fortitude implementadas y verificadas 2026-11-03) |
 
 ### **Flujo de Trabajo por Lote (Máxima Calidad)**
 
@@ -65,7 +65,7 @@ Las primeras **270 mutaciones** del CSV (líneas 199-...) serán implementadas
 
 **Fase 3: Mantenimiento** 
 15. **Commit:** Hacer commit a rama principal con mensaje descriptivo - Formato: `feat(lote-X): implementar mutaciones [nombre_primera] a [nombre_ultima]` 
-16. **Documentar:** Actualizar lista simple de mutaciones funcionando en task.md 
+16. **Documentar:** marcar las mutaciones del lote como `SI` en la columna `implementada_en_el_mod` de `docs/mutaciones.csv` (única fuente de tracking — decisión 2026-11-03) 
 17. **Pasar al siguiente lote**
 
 **IMPORTANT**
@@ -76,26 +76,44 @@ Cada lote debe estar **100% funcional** antes de pasar al siguiente. NO se ava
 
 **Estructura JSON Estandarizada:**
 
-Todos los archivos JSON de mutación DEBEN seguir esta estructura exacta:
+Todos los archivos JSON de mutación DEBEN seguir la estructura real del mod (esquema vigente,
+verificado contra los 197 JSON existentes y el validador al cargar los datapacks):
 
 ```
 {
-  "enabled": true,
-  "id": "legacycreaturescorey:mob_exclusive/abyssal_armor_1",
-  "type": "mob_exclusive",
-  "display_name": "Abyssal Armor I",
-  "cost": 6,
-  "weight": 60,
-  "description": "Sus espinas infligen daño adicional.",
-  "actions": {
-    "damage_bonus": 1.0,
-    "other_parameters": "según la mutación"
-  },
-  "entity_types": ["minecraft:elder_guardian"],
-  "incompatible_with": []
+    "enabled": true,
+    "id": "legacycreaturescorey:mob_exclusive/abyssal_armor_1",
+    "type": "MOB_EXCLUSIVE",
+    "cost": 6,
+    "display_name": {
+        "literal": "Armadura Abisal I"
+    },
+    "description": {
+        "literal": "Sus espinas infligen daño mágico adicional."
+    },
+    "weight": 60,
+    "actions": {
+        "bonus_magic_damage": 1.0
+    },
+    "entity_types": [
+        "minecraft:elder_guardian"
+    ],
+    "incompatible_with": []
 }
-
 ```
+
+**Notas del esquema real (2026-11-03):**
+
+- `display_name` y `description` son objetos `{ "literal": "..." }`, NO strings.
+- El campo `type` aparece en los JSON reales tanto en MAYÚSCULAS (`MOB_EXCLUSIVE`,
+  `PASSIVE_ATTRIBUTE`) como en minúsculas (`on_hit`, `auras`, `passive`) según la carpeta:
+  copiar el valor de un JSON existente de la misma carpeta.
+- `actions` admite DOS formas: objeto simple de parámetros (ejemplo arriba; la clase de acción
+  lo consume vía `mutation_action_config`) o array tipado de 1 elemento con `"type"` de acción
+  (p. ej. `aquatic_stalker_1.json`: `[ { "type": "aquatic_stalker", "mode": "SWIFT_SWIM" } ]`).
+- Un tipo de acción nuevo DEBE registrarse en el validador (`ACTION_VALIDATORS` de
+  `mutation_schema_validator`) y en el switch `loadSpecificAction` de `mutation_data_loader`
+  (además de crear su clase de acción en `mutation/action/`).
 
 **Campos Requeridos:**
 
@@ -103,25 +121,22 @@ Todos los archivos JSON de mutación DEBEN seguir esta estructura exacta:
 | --- | --- | --- |
 | `enabled` | Boolean | `true` o `false` para habilitar/deshabilitar la mutación |
 | `id` | String | Identificador único con ruta: `categoria/nombre_nivel` |
-| `type` | String | Categoría de mutación (ver lista abajo) |
-| `display_name` | String | Nombre visible en el juego |
+| `type` | String | Categoría de mutación, en el formato que usen los JSON de la misma carpeta (ver notas del esquema) |
+| `display_name` | Object | `{ "literal": "Nombre visible" }` — NO string plano |
 | `cost` | Integer | Costo en Puntos de Mutación (PM) |
 | `weight` | Integer | Probabilidad de selección (valor más alto = más probable) |
-| `description` | String | Descripción general (sin valores específicos) |
-| `actions` | Object | Configuración específica de la mutación |
+| `description` | Object | `{ "literal": "Descripción general" }` — NO string plano |
+| `actions` | Object o Array | Objeto de parámetros simple O array tipado de 1 acción con `"type"` (ver notas del esquema) |
 | `entity_types` | Array | Lista de tipos de entidad compatibles |
 | `incompatible_with` | Array | Lista de IDs de mutaciones incompatibles |
 
-**Categorías Válidas (`type`):**
+**Categorías Válidas (`type`) — valores reales observados en los 197 JSON (2026-11-03):**
 
-- `auras`
-- `on_hit`
-- `mob_exclusive`
-- `on_being_hit`
-- `on_death`
-- `passive`
-- `synergy`
-- `terrain`
+- `MOB_EXCLUSIVE` (carpeta `mob_exclusive/`)
+- `on_hit` (carpeta `on_hit/`)
+- `auras` (carpeta `auras/`)
+- `passive` y `PASSIVE_ATTRIBUTE` (carpeta `passive/`)
+- `on_being_hit`, `on_death`, `synergy`, `terrain` — aún sin JSON en el repo (lotes pendientes)
 
 ---
 

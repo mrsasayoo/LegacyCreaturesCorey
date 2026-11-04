@@ -64,4 +64,4 @@ Consulta la guía de sinergias en `docs/GUIA_DESARROLLO.md` para conocer los tag
 - Ejecuta `./gradlew build` antes de contribuir. El proyecto usa Java 25 (configurado en `gradle.properties`, no hace falta JAVA_HOME).
 
 ## 📄 Licencia
-Este proyecto se publica bajo **CC0 1.0 Universal** (ver `LICENSE`). Puedes usar, modificar y redistribuir el código sin restricciones, aunque se agradece atribución hacia el proyecto Legacy Creatures.
+Este proyecto se publica bajo licencia **MIT** (ver `LICENSE`). Puedes usar, modificar y redistribuir el código conforme a esa licencia; se agradece atribución hacia el proyecto Legacy Creatures.
