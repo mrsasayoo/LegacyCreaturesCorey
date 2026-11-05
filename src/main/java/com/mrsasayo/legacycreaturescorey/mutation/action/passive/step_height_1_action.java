@@ -9,6 +9,6 @@ public final class step_height_1_action extends attribute_bonus_passive_action {
     private static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "passive/step_height_1");
 
     public step_height_1_action(mutation_action_config config) {
-        super(config, passive_attribute_ids.STEP_HEIGHT, attribute_mutation_action.Mode.ADD, 0.4D, MODIFIER_ID);
+        super(config, passive_attribute_ids.STEP_HEIGHT, attribute_mutation_action.Mode.ADD, 0.5D, MODIFIER_ID);
     }
 }

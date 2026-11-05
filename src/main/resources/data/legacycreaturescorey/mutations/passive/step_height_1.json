@@ -7,13 +7,13 @@
     "literal": "Zancada I"
   },
   "description": {
-    "literal": "Sube bloques enteros sin saltar (altura de paso +0.4): no hay escalón que te salve."
+    "literal": "Sube bloques enteros y slabs sin saltar (altura de paso +0.5)."
   },
   "weight": 60,
   "actions": {
     "attribute": "minecraft:step_height",
     "mode": "ADD",
-    "amount": 0.4
+    "amount": 0.5
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/step_height_2"

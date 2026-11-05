@@ -7,13 +7,13 @@
     "literal": "Aleta I"
   },
   "description": {
-    "literal": "Se mueve en el agua como con Aletas de Viento I (+0.4 de eficiencia): depredador acuático a velocidad plena."
+    "literal": "Nada visiblemente más rápido (asistencia de nado x1.25, tope 0.25/t): depredador acuático a velocidad plena."
   },
   "weight": 45,
   "actions": {
-    "attribute": "minecraft:water_movement_efficiency",
-    "mode": "ADD",
-    "amount": 0.4
+    "amount": 0.4,
+    "drag_compensation": 1.25,
+    "max_water_speed": 0.25
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/water_movement_efficiency_2"

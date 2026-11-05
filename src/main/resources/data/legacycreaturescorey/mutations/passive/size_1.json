@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/size_1",
+  "type": "passive",
+  "cost": 8,
+  "display_name": {
+    "literal": "Coloso I"
+  },
+  "description": {
+    "literal": "El mob crece físicamente un 10% y gana +5 de vida máxima y +1 de armadura. Compatible con las familias de armadura y vida."
+  },
+  "weight": 35,
+  "actions": {
+    "scale": 0.1,
+    "health_bonus": 5,
+    "armor_bonus": 1
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/size_2",
+    "legacycreaturescorey:passive/size_3"
+  ]
+}

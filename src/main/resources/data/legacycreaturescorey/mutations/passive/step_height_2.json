@@ -7,13 +7,13 @@
     "literal": "Zancada II"
   },
   "description": {
-    "literal": "Supera muros de 1.5 bloques sin saltar (altura de paso +0.9): el perseguidor perfecto."
+    "literal": "Supera muros de 1.5 bloques sin saltar (altura de paso +1.0): casi dos bloques de una zancada."
   },
   "weight": 35,
   "actions": {
     "attribute": "minecraft:step_height",
     "mode": "ADD",
-    "amount": 0.9
+    "amount": 1.0
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/step_height_1"

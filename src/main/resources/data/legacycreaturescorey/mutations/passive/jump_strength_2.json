@@ -7,7 +7,7 @@
     "literal": "Saltarina II"
   },
   "description": {
-    "literal": "Salta el doble de alto (x2.0): ninguna muralla de 2 bloques lo detiene."
+    "literal": "Salta el doble de alto (x2.0) y salta muros automáticamente al chocar de frente (murallas de 2 bloques ya no te salvan)."
   },
   "weight": 20,
   "actions": {

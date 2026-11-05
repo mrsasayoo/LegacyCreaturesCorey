@@ -7,13 +7,13 @@
     "literal": "Velocidad de Ataque I"
   },
   "description": {
-    "literal": "Incrementa la velocidad de ataque en 0.1."
+    "literal": "Aumenta la velocidad de ataque base en 0.025."
   },
   "weight": 40,
   "actions": {
     "attribute": "minecraft:attack_speed",
     "mode": "ADD",
-    "amount": 0.1
+    "amount": 0.025
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/attack_speed_2",

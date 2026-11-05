@@ -368,9 +368,9 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             case "movement_speed_1" -> new movement_speed_1_action(config);
             case "attack_knockback_1" -> new attack_knockback_1_action(config);
             case "attack_knockback_2" -> new attack_knockback_2_action(config);
-            case "scale_1" -> new scale_1_action(config);
-            case "scale_2" -> new scale_2_action(config);
-            case "scale_3" -> new scale_3_action(config);
+            case "size_1" -> new size_1_action(config);
+            case "size_2" -> new size_2_action(config);
+            case "size_3" -> new size_3_action(config);
             case "fall_damage_multiplier_1" -> new fall_damage_multiplier_1_action(config);
             case "fall_damage_multiplier_2" -> new fall_damage_multiplier_2_action(config);
             case "step_height_1" -> new step_height_1_action(config);

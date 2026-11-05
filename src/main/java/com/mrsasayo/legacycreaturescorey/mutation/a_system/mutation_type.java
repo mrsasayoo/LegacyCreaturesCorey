@@ -7,8 +7,9 @@ package com.mrsasayo.legacycreaturescorey.mutation.a_system;
 public enum mutation_type {
     /** Modificaciones pasivas que ajustan atributos base (vida, daño, velocidad, etc.). */
     PASSIVE_ATTRIBUTE(false, false),
-    /** Ajustes pasivos que no modifican atributos directamente. */
-    PASSIVE(false, false),
+    /** Ajustes pasivos: ahora también tickean (onTick) para comportamientos inteligentes
+     *  (gravedad solo en caída, auto-salto con salto potenciado, asistencia de nado). */
+    PASSIVE(true, false),
     /** Efectos que se activan cuando la entidad golpea a un objetivo. */
     PASSIVE_ON_HIT(false, true),
     /** Nuevo on-hit directo descrito en el plan maestro. */

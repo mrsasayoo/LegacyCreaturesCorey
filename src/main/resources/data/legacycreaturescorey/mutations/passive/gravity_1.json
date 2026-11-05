@@ -7,7 +7,7 @@
     "literal": "Peso de Montaña"
   },
   "description": {
-    "literal": "Cae como un saco de plomo (+0.05 de gravedad): los arcos de knockback se aplanan y su salto queda más corto."
+    "literal": "Cae como un saco de plomo: mientras cae acelera extra (+0.04/tick) y los arcos de knockback se aplanan. Su salto NO se ve afectado."
   },
   "weight": 15,
   "actions": {

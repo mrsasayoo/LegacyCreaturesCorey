@@ -7,7 +7,7 @@
     "literal": "Saltarina I"
   },
   "description": {
-    "literal": "Salta un 50% más alto (x1.5): caza vertical, salta tu muralla de 2 bloques."
+    "literal": "Salta un 50% más alto (x1.5) y salta muros automáticamente al chocar de frente."
   },
   "weight": 45,
   "actions": {

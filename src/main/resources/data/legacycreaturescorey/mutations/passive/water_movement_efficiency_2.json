@@ -7,13 +7,13 @@
     "literal": "Aleta II"
   },
   "description": {
-    "literal": "Se mueve en el agua como con Aletas de Viento II (+0.8 de eficiencia), en sinergia con aquatic_stalker."
+    "literal": "Nada mucho más rápido (asistencia de nado x1.45, tope 0.4/t), en sinergia con aquatic_stalker."
   },
   "weight": 20,
   "actions": {
-    "attribute": "minecraft:water_movement_efficiency",
-    "mode": "ADD",
-    "amount": 0.8
+    "amount": 0.8,
+    "drag_compensation": 1.45,
+    "max_water_speed": 0.4
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/water_movement_efficiency_1"

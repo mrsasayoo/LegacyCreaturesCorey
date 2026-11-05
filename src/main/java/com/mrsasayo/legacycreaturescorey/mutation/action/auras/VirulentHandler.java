@@ -208,6 +208,12 @@ public final class VirulentHandler {
             return false;
         }
 
+        // PROHIBIDO crecer sobre agua: la altura MOTION_BLOCKING puede devolver la
+        // superficie del agua y el musgo/hierba quedaba flotando sobre el líquido.
+        if (!world.getFluidState(surface).isEmpty() || !world.getFluidState(topPos).isEmpty()) {
+            return false;
+        }
+
         BlockPos placePos = surface.above();
 
         if (!world.getBlockState(placePos).isAir()) {
