@@ -22,7 +22,7 @@ abstract class bleeding_base_action extends proc_on_hit_action {
             float[] defaultPulses,
             int defaultIntervalTicks,
             int defaultEffectLevel) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.damagePulses = parsePulses(config, defaultPulses);
         this.intervalTicks = resolveInterval(config, defaultIntervalTicks);
         int configuredLevel = config.getInt("effect_level", defaultEffectLevel);

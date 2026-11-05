@@ -20,12 +20,16 @@ public class oppressive_presence_aura_1_action implements mutation_action, Oppre
                     true));
 
     private final double radius;
-    private final int tickInterval;
+    private final int stackCap;
+    private final int stackGainTicks;
+    private final int decayIntervalTicks;
     private final List<status_effect_config_parser.status_effect_config_entry> effects;
 
     public oppressive_presence_aura_1_action(mutation_action_config config) {
         this.radius = config.getDouble("radius", 4.0D);
-        this.tickInterval = Math.max(1, config.getInt("tick_interval", 20));
+        this.stackCap = Math.max(1, config.getInt("stack_cap", 1));
+        this.stackGainTicks = Math.max(1, config.getInt("stack_gain_ticks", 60));
+        this.decayIntervalTicks = Math.max(1, config.getInt("decay_interval_ticks", 100));
         this.effects = status_effect_config_parser.parseList(config, "effects", DEFAULT_EFFECTS);
         OppressivePresenceHandler.INSTANCE.ensureInitialized();
     }
@@ -52,8 +56,18 @@ public class oppressive_presence_aura_1_action implements mutation_action, Oppre
     }
 
     @Override
-    public int getTickInterval() {
-        return tickInterval;
+    public int getStackCap() {
+        return stackCap;
+    }
+
+    @Override
+    public int getStackGainTicks() {
+        return stackGainTicks;
+    }
+
+    @Override
+    public int getDecayIntervalTicks() {
+        return decayIntervalTicks;
     }
 
     @Override

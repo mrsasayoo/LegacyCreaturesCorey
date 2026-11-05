@@ -4,29 +4,11 @@
   "type": "auras",
   "display_name": "Psionic Thorns Aura III",
   "cost": 30,
-  "description": "La corona psiónica devuelve incluso los golpes más devastadores.",
+  "description": "Refleja el 33% de todo el daño cuerpo a cuerpo de vuelta al atacante.",
   "weight": 1,
   "actions": {
-    "reflection_percentage": 0.3,
-    "radius": 5.0,
-    "effects": [
-      {
-        "id": "minecraft:speed",
-        "duration": 40,
-        "amplifier": 0,
-        "ambient": true,
-        "show_particles": true,
-        "show_icon": true
-      },
-      {
-        "id": "minecraft:strength",
-        "duration": 40,
-        "amplifier": 0,
-        "ambient": true,
-        "show_particles": true,
-        "show_icon": true
-      }
-    ]
+    "reflection_percentage": 0.33,
+    "radius": 5.0
   },
   "entity_types": [],
   "incompatible_with": [

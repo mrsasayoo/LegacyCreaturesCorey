@@ -11,21 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class psionic_thorns_aura_3_action implements mutation_action, PsionicThornsSource {
-    private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_SELF_EFFECTS = List.of(
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.SPEED,
-            20,
-            0,
-            true,
-            true,
-            true),
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.STRENGTH,
-            20,
-            0,
-            true,
-            true,
-            true));
     private final double reflectionPercentage;
     private final double maxDistance;
     private final List<ThornsEffect> effects;
@@ -35,7 +20,7 @@ public class psionic_thorns_aura_3_action implements mutation_action, PsionicTho
         this.reflectionPercentage = clampPercent(config.getDouble("reflection_percentage", 0.33D));
         this.maxDistance = Math.max(0.0D, config.getDouble("radius", 5.0D));
         this.effects = convertEffects(status_effect_config_parser.parseList(config, "effects", List.of()));
-        this.selfEffects = convertEffects(status_effect_config_parser.parseList(config, "self_effects", DEFAULT_SELF_EFFECTS));
+        this.selfEffects = convertEffects(status_effect_config_parser.parseList(config, "self_effects", List.of()));
         PsionicThornsHandler.INSTANCE.ensureInitialized();
     }
 

@@ -39,17 +39,17 @@ final class CoreyMutationCommand {
 
         mutations.then(Commands.literal("force")
             .then(Commands.literal("add")
-                .then(Commands.argument("mutacion", IdentifierArgument.id())
-                    .suggests(CoreyCommandShared.MUTATION_SUGGESTIONS)
-                    .then(Commands.argument("objetivo", EntityArgument.entity())
+                .then(Commands.argument("objetivo", EntityArgument.entity())
+                    .then(Commands.argument("mutacion", IdentifierArgument.id())
+                        .suggests(CoreyCommandShared.MUTATION_SUGGESTIONS)
                         .executes(ctx -> forceMutations(ctx,
                             List.of(IdentifierArgument.getId(ctx, "mutacion")),
                             false,
                             true)))))
             .then(Commands.literal("replace")
-                .then(Commands.argument("mutaciones", StringArgumentType.greedyString())
-                    .suggests(CoreyCommandShared.MUTATION_LIST_SUGGESTIONS)
-                    .then(Commands.argument("objetivo", EntityArgument.entity())
+                .then(Commands.argument("objetivo", EntityArgument.entity())
+                    .then(Commands.argument("mutaciones", StringArgumentType.greedyString())
+                        .suggests(CoreyCommandShared.MUTATION_LIST_SUGGESTIONS)
                         .executes(ctx -> forceMutations(ctx,
                             CoreyCommandShared.parseMutations(StringArgumentType.getString(ctx, "mutaciones")),
                             true,

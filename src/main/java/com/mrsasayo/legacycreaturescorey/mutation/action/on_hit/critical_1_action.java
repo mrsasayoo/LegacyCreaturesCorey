@@ -4,6 +4,6 @@ import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 
 public final class critical_1_action extends critical_base_action {
     public critical_1_action(mutation_action_config config) {
-        super(config, 0.20D, 2.0F);
+        super(config, 0.07D, 2.0F, 0);
     }
 }

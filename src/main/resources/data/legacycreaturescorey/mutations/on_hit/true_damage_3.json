@@ -1,0 +1,30 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/true_damage_3",
+  "type": "on_hit",
+  "cost": 28,
+  "display_name": "Herida Verdadera III",
+  "description": "8% de probabilidad de re-infligir el daño prevenido por la armadura como Herida Verdadera (ignora armadura y bloqueo), marcando al jugador con «Expuesto» II (+20% de daño recibido por 3 s). El mob queda 3 s sin atacar tras activarse.",
+  "weight": 5,
+  "actions": {
+    "chance": 0.08,
+    "side_effects": [
+      {
+        "id": "legacycreaturescorey:expuesto",
+        "duration": 60,
+        "amplifier": 1,
+        "target": "OTHER",
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ],
+    "proc_sound": "minecraft:block.deepslate.break",
+    "attack_downtime_ticks": 60
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/true_damage_1",
+    "legacycreaturescorey:on_hit/true_damage_2"
+  ]
+}

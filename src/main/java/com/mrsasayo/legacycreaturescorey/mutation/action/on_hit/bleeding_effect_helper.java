@@ -148,12 +148,8 @@ final class bleeding_effect_helper {
     }
 
     private static DamageSource resolveSource(ServerLevel world, LivingEntity attacker) {
-        if (attacker instanceof Player player) {
-            return world.damageSources().playerAttack(player);
-        }
-        if (attacker != null) {
-            return world.damageSources().mobAttack(attacker);
-        }
+        // Daño EXACTO: los pulsos no pasan por armadura ni por multiplicadores externos,
+        // así X de daño = X/2 corazones tal como dice la descripción.
         return world.damageSources().magic();
     }
 }

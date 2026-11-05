@@ -22,7 +22,7 @@ abstract class freezing_base_action extends proc_on_hit_action {
             int defaultFreezeSeconds,
             int defaultSelfSlownessTicks,
             int defaultSelfSlownessAmplifier) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.freezeTicks = resolveFreezeTicks(config, defaultFreezeSeconds);
         this.selfSlownessTicks = resolveSelfSlownessTicks(config, defaultSelfSlownessTicks);
         this.selfSlownessAmplifier = Math.max(0, config.getInt("self_slowness_amplifier", defaultSelfSlownessAmplifier));
@@ -70,6 +70,11 @@ abstract class freezing_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
+        // "No aplicable a Strays" (CSV): ya son criaturas del frío, congelarlos no tiene sentido.
+        // 26.3: la familia skeleton vive en net.minecraft.world.entity.monster.skeleton.
+        if (victim instanceof net.minecraft.world.entity.monster.skeleton.Stray) {
+            return;
+        }
         if (freezeTicks > 0) {
             victim.setTicksFrozen(Math.max(victim.getTicksFrozen(), freezeTicks));
         }

@@ -1,0 +1,21 @@
+{
+  "effect.legacycreaturescorey.bleeding": "Bleeding",
+  "effect.legacycreaturescorey.tunnel_vision": "Tunnel Vision",
+  "effect.legacycreaturescorey.ringing_ears": "Ringing Ears",
+  "effect.legacycreaturescorey.phantom_noise": "Phantom Sounds",
+  "effect.legacycreaturescorey.phantom_sounds": "Phantom Sounds",
+  "effect.legacycreaturescorey.absolute_silence": "Absolute Silence",
+  "effect.legacycreaturescorey.agobio": "Oppressive Weight",
+  "effect.legacycreaturescorey.expuesto": "Exposed",
+  "effect.legacycreaturescorey.pain_link": "Pain Link",
+  "effect.legacycreaturescorey.slippery_floor": "Slippery Floor",
+  "effect.legacycreaturescorey.heavy_gravity": "Heavy Gravity",
+  "effect.legacycreaturescorey.inverted_controls": "Inverted Controls",
+  "effect.legacycreaturescorey.hostile_muffle": "Muffled Sound",
+  "effect.legacycreaturescorey.hostile_silence": "Hostile Silence",
+  "effect.legacycreaturescorey.camera_shake": "Camera Shake",
+  "effect.legacycreaturescorey.mortal_wound_minor": "Minor Wound",
+  "effect.legacycreaturescorey.mortal_wound_major": "Major Wound",
+  "effect.legacycreaturescorey.mortal_wound_total": "Death's Seal",
+  "effect.legacycreaturescorey.precarious_hunger": "Precarious Hunger"
+}

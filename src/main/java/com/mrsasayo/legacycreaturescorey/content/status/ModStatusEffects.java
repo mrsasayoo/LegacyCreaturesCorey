@@ -28,6 +28,20 @@ public final class ModStatusEffects {
         new NotifyingStatusEffect(MobEffectCategory.HARMFUL, 0xFF3366, ClientEffectType.CAMERA_SHAKE, 0.6F));
     public static final MobEffect BLEEDING = register("bleeding",
         new bleeding_status_effect());
+    public static final MobEffect TUNNEL_VISION = register("tunnel_vision",
+        new tunnel_vision_status_effect());
+    public static final MobEffect RINGING_EARS = register("ringing_ears",
+        new ringing_ears_status_effect());
+    public static final MobEffect PHANTOM_NOISE = register("phantom_noise",
+        new NotifyingStatusEffect(MobEffectCategory.HARMFUL, 0x4E6E8E, ClientEffectType.PHANTOM_SOUNDS, 1.0F));
+    public static final MobEffect ABSOLUTE_SILENCE = register("absolute_silence",
+        new absolute_silence_status_effect());
+    public static final MobEffect AGOBIO = register("agobio",
+        new agobio_status_effect());
+    public static final MobEffect EXPUESTO = register("expuesto",
+        new expuesto_status_effect());
+    public static final MobEffect PAIN_LINK_MARK = register("pain_link",
+        new pain_link_mark_status_effect());
     public static final MobEffect MORTAL_WOUND_MINOR = register("mortal_wound_minor",
         new HealingReductionStatusEffect(MobEffectCategory.HARMFUL, 0x9E3030, 0.67F));
     public static final MobEffect MORTAL_WOUND_MAJOR = register("mortal_wound_major",

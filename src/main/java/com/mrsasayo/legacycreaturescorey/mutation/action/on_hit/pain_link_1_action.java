@@ -11,9 +11,9 @@ public final class pain_link_1_action extends pain_link_base_action {
                         LinkMode.FLAT_TRANSFER,
                         1.0F,
                         0.0F,
-                        20,
-                        10,
-                        1,
+                        1,   // línea PERSISTENTE: se redibuja cada tick mientras dure el vínculo
+                        12,
+                        2,
                         ParticleTypes.ELECTRIC_SPARK,
                         null,
                         null));

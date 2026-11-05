@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.mutation.util.attack_downtime_manager;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
@@ -29,15 +30,18 @@ import java.util.Locale;
  */
 abstract class true_damage_base_action extends proc_on_hit_action {
     private final List<SideEffect> sideEffects;
+    private final int attackDowntimeTicks;
     private static final ResourceKey<net.minecraft.world.damagesource.DamageType> TRUE_DAMAGE_KEY = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "true_damage"));
 
     protected true_damage_base_action(mutation_action_config config,
             double defaultChance,
-            List<SideEffect> defaultSideEffects) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+            List<SideEffect> defaultSideEffects,
+            int defaultDowntimeTicks) {
+        super(config, defaultChance);
         this.sideEffects = parseSideEffects(config, defaultSideEffects);
+        this.attackDowntimeTicks = Math.max(0, config.getInt("attack_downtime_ticks", defaultDowntimeTicks));
     }
 
     @Override
@@ -52,11 +56,26 @@ abstract class true_damage_base_action extends proc_on_hit_action {
             prevented = Math.max(prevented, context.originalDamage());
         }
         if (prevented <= 0.0F) {
-            return;
+            // Sin armadura que prevenir, la Herida Verdadera igual se manifiesta:
+            // re-inflige la mitad del golpe recibido como daño verdadero.
+            prevented = context.finalDamage() * 0.5F;
         }
 
+        // Sin este reset el re-golpe chocaba contra los i-frames del golpe principal
+        // (prevented <= lastHurt -> descartado silenciosamente): por eso no se veía.
+        resetDamageCooldown(victim);
         victim.hurtServer(world, resolveTrueDamageSource(world, attacker), prevented);
         applySideEffects(attacker, victim);
+        attack_downtime_manager.apply(attacker, attackDowntimeTicks);
+    }
+
+    private void resetDamageCooldown(LivingEntity victim) {
+        if (victim instanceof com.mrsasayo.legacycreaturescorey.mixin.accessor.entity_damage_cooldown_accessor cooldownAccessor) {
+            cooldownAccessor.legacycreaturescorey$setTimeUntilRegen(0);
+        }
+        if (victim instanceof com.mrsasayo.legacycreaturescorey.mixin.accessor.living_entity_hurt_time_accessor hurtAccessor) {
+            hurtAccessor.legacycreaturescorey$setHurtTime(0);
+        }
     }
 
     private DamageSource resolveTrueDamageSource(ServerLevel world, LivingEntity attacker) {

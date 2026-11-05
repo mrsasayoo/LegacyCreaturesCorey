@@ -35,7 +35,7 @@ abstract class teleportation_base_action extends proc_on_hit_action {
             double defaultRadius,
             Target defaultTarget,
             List<SideEffect> defaultSideEffects) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.radius = Math.max(0.5D, config.getDouble("radius", defaultRadius));
         this.teleportTarget = parseTarget(config.getString("target", defaultTarget.name()), defaultTarget);
         this.sideEffects = parseSideEffects(config, defaultSideEffects);

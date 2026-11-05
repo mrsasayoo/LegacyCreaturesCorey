@@ -23,7 +23,10 @@
         "show_particles": true,
         "show_icon": true
       }
-    ]
+    ],
+    "proc_sound": "minecraft:block.honey_block.break",
+    "proc_particles": "minecraft:falling_honey",
+    "proc_particle_count": 10
   },
   "incompatible_with": [
     "legacycreaturescorey:on_hit/slowness_1",

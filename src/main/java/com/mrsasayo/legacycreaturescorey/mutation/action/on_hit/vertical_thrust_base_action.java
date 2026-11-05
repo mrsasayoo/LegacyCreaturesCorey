@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
+import com.mrsasayo.legacycreaturescorey.mutation.util.attack_downtime_manager;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,7 +21,7 @@ abstract class vertical_thrust_base_action extends proc_on_hit_action {
             double defaultUpwardVelocity,
             int defaultDowntimeTicks,
             int defaultDowntimeAmplifier) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.upwardVelocity = Math.max(0.0D, config.getDouble("upward_velocity", defaultUpwardVelocity));
         this.selfDowntimeTicks = resolveDowntimeTicks(config, defaultDowntimeTicks);
         this.downtimeAmplifier = Math.max(0, config.getInt("self_downtime_amplifier", defaultDowntimeAmplifier));
@@ -45,9 +46,8 @@ abstract class vertical_thrust_base_action extends proc_on_hit_action {
             victim.syncVelocity = true;
         }
         if (attacker != null && selfDowntimeTicks > 0) {
-            attacker.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,
-                    selfDowntimeTicks,
-                    Math.max(0, downtimeAmplifier)));
+            // Bloqueo de ataque real (la Fatiga de Minero no frena a los mobs).
+            attack_downtime_manager.apply(attacker, selfDowntimeTicks);
         }
     }
 }

@@ -11,37 +11,41 @@ import java.util.List;
 
 public class oppressive_presence_aura_3_action implements mutation_action, OppressivePresenceSource {
     private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_EFFECTS = List.of(
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.SLOWNESS,
-            40,
-            0,
-            true,
-            true,
-            true),
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.WEAKNESS,
-            40,
-            0,
-            true,
-            true,
-            true),
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.MINING_FATIGUE,
-            40,
-            1,
-            true,
-            true,
-            true));
+            new status_effect_config_parser.status_effect_config_entry(
+                    MobEffects.SLOWNESS,
+                    40,
+                    0,
+                    true,
+                    true,
+                    true),
+            new status_effect_config_parser.status_effect_config_entry(
+                    MobEffects.WEAKNESS,
+                    40,
+                    0,
+                    true,
+                    true,
+                    true),
+            new status_effect_config_parser.status_effect_config_entry(
+                    MobEffects.MINING_FATIGUE,
+                    40,
+                    1,
+                    true,
+                    true,
+                    true));
 
     private final double radius;
-    private final int tickInterval;
+    private final int stackCap;
+    private final int stackGainTicks;
+    private final int decayIntervalTicks;
     private final List<status_effect_config_parser.status_effect_config_entry> effects;
 
     public oppressive_presence_aura_3_action(mutation_action_config config) {
-    this.radius = config.getDouble("radius", 4.0D);
-    this.tickInterval = Math.max(1, config.getInt("tick_interval", 20));
-    this.effects = status_effect_config_parser.parseList(config, "effects", DEFAULT_EFFECTS);
-    OppressivePresenceHandler.INSTANCE.ensureInitialized();
+        this.radius = config.getDouble("radius", 6.0D);
+        this.stackCap = Math.max(1, config.getInt("stack_cap", 3));
+        this.stackGainTicks = Math.max(1, config.getInt("stack_gain_ticks", 60));
+        this.decayIntervalTicks = Math.max(1, config.getInt("decay_interval_ticks", 200));
+        this.effects = status_effect_config_parser.parseList(config, "effects", DEFAULT_EFFECTS);
+        OppressivePresenceHandler.INSTANCE.ensureInitialized();
     }
 
     @Override
@@ -66,8 +70,18 @@ public class oppressive_presence_aura_3_action implements mutation_action, Oppre
     }
 
     @Override
-    public int getTickInterval() {
-        return tickInterval;
+    public int getStackCap() {
+        return stackCap;
+    }
+
+    @Override
+    public int getStackGainTicks() {
+        return stackGainTicks;
+    }
+
+    @Override
+    public int getDecayIntervalTicks() {
+        return decayIntervalTicks;
     }
 
     @Override

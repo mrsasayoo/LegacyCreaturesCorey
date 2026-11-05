@@ -1,0 +1,21 @@
+{
+  "effect.legacycreaturescorey.bleeding": "Sangrado",
+  "effect.legacycreaturescorey.tunnel_vision": "Visión de Túnel",
+  "effect.legacycreaturescorey.ringing_ears": "Oídos Zumbando",
+  "effect.legacycreaturescorey.phantom_noise": "Sonidos Fantasma",
+  "effect.legacycreaturescorey.phantom_sounds": "Sonidos Fantasma",
+  "effect.legacycreaturescorey.absolute_silence": "Silencio Absoluto",
+  "effect.legacycreaturescorey.agobio": "Agobio",
+  "effect.legacycreaturescorey.expuesto": "Expuesto",
+  "effect.legacycreaturescorey.pain_link": "Vínculo de Dolor",
+  "effect.legacycreaturescorey.slippery_floor": "Piso Resbaladizo",
+  "effect.legacycreaturescorey.heavy_gravity": "Gravedad Aumentada",
+  "effect.legacycreaturescorey.inverted_controls": "Controles Invertidos",
+  "effect.legacycreaturescorey.hostile_muffle": "Sonido Apagado",
+  "effect.legacycreaturescorey.hostile_silence": "Silencio Hostil",
+  "effect.legacycreaturescorey.camera_shake": "Sacudida",
+  "effect.legacycreaturescorey.mortal_wound_minor": "Herida Leve",
+  "effect.legacycreaturescorey.mortal_wound_major": "Herida Grave",
+  "effect.legacycreaturescorey.mortal_wound_total": "Sello de Muerte",
+  "effect.legacycreaturescorey.precarious_hunger": "Hambre Precaria"
+}

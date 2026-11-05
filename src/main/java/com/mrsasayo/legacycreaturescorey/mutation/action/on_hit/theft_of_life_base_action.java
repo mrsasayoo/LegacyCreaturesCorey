@@ -2,6 +2,8 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
 
@@ -14,7 +16,7 @@ abstract class theft_of_life_base_action extends proc_on_hit_action {
     protected theft_of_life_base_action(mutation_action_config config,
             double defaultChance,
             float defaultHealAmount) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.healAmount = Math.max(0.0F, config.getFloat("heal_amount", defaultHealAmount));
     }
 
@@ -24,5 +26,9 @@ abstract class theft_of_life_base_action extends proc_on_hit_action {
             return;
         }
         attacker.heal(healAmount);
+        // El robo se ve: línea de corazones del jugador al mob.
+        if (attacker.level() instanceof ServerLevel world) {
+            proc_side_effects_helper.drawTheftLine(world, victim, attacker, ParticleTypes.HEART);
+        }
     }
 }

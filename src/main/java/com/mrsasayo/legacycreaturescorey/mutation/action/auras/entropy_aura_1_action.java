@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -19,6 +22,8 @@ public class entropy_aura_1_action implements mutation_action {
     private final int cooldownTicks;
 
     private static final Map<ServerPlayer, Integer> lastSelectedSlot = new WeakHashMap<>();
+    // Registro de auras activas para que el mixin de ataque pueda consultar el bloqueo
+    private static final Map<ServerLevel, List<ActiveLock>> ACTIVE_LOCKS = new WeakHashMap<>();
     private static boolean initialized = false;
 
     public entropy_aura_1_action(mutation_action_config config) {
@@ -48,6 +53,7 @@ public class entropy_aura_1_action implements mutation_action {
             return;
 
         ServerLevel world = (ServerLevel) entity.level();
+        refreshLockRegistry(world, entity, world.getGameTime());
         for (Player player : world.getPlayers(p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
             if (player.distanceToSqr(entity) <= radius * radius) {
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -80,5 +86,69 @@ public class entropy_aura_1_action implements mutation_action {
             }
         }
         return lastSelectedSlot.getOrDefault(player, 0);
+    }
+
+    /**
+     * Mantiene el registro de auras de entropía activas de este mundo (expira a
+     * los 20 ticks sin señal, como el resto de handlers del mod).
+     */
+    private void refreshLockRegistry(ServerLevel world, LivingEntity entity, long time) {
+        List<ActiveLock> locks = ACTIVE_LOCKS.computeIfAbsent(world, ignored -> new ArrayList<>());
+        for (ActiveLock lock : locks) {
+            if (lock.source == entity) {
+                lock.lastSeenTick = time;
+                return;
+            }
+        }
+        locks.add(new ActiveLock(entity, radius * radius, time));
+    }
+
+    /**
+     * Consultada por {@code player_attack_cooldown_lock_mixin} al intentar golpear:
+     * si el jugador está dentro del radio de una entropía activa y su objeto en la
+     * mano está en cooldown (slot bloqueado), el ataque de click izquierdo también
+     * queda anulado, igual que el uso (click derecho).
+     */
+    public static boolean isAttackLocked(Player player) {
+        if (player.level().isClientSide() || player.isCreative() || player.isSpectator()) {
+            return false;
+        }
+        if (!(player.level() instanceof ServerLevel world)) {
+            return false;
+        }
+        ItemStack mainHand = player.getMainHandItem();
+        if (mainHand.isEmpty() || !player.getCooldowns().isOnCooldown(mainHand)) {
+            return false;
+        }
+
+        List<ActiveLock> locks = ACTIVE_LOCKS.get(world);
+        if (locks == null || locks.isEmpty()) {
+            return false;
+        }
+        long time = world.getGameTime();
+        Iterator<ActiveLock> iterator = locks.iterator();
+        while (iterator.hasNext()) {
+            ActiveLock lock = iterator.next();
+            if (!lock.source.isAlive() || time - lock.lastSeenTick > 20L) {
+                iterator.remove();
+                continue;
+            }
+            if (player.distanceToSqr(lock.source) <= lock.radiusSq) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final class ActiveLock {
+        private final LivingEntity source;
+        private final double radiusSq;
+        private long lastSeenTick;
+
+        private ActiveLock(LivingEntity source, double radiusSq, long currentTick) {
+            this.source = source;
+            this.radiusSq = radiusSq;
+            this.lastSeenTick = currentTick;
+        }
     }
 }

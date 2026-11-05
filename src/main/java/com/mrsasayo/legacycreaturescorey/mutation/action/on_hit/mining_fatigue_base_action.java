@@ -18,7 +18,7 @@ abstract class mining_fatigue_base_action extends proc_on_hit_action {
             double defaultChance,
             int defaultDurationSeconds,
             int defaultAmplifier) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         int durationTicks = resolveDurationTicks(config, defaultDurationSeconds);
         int amplifier = Math.max(0, config.getInt("amplifier", defaultAmplifier));
         this.effects = resolveEffects(config, durationTicks, amplifier);

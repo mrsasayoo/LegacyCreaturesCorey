@@ -44,6 +44,11 @@ public final class VanguardsBulwarkHandler {
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<LivingEntity, Long> lastActionTick = new WeakHashMap<>();
+    private final Map<LivingEntity, Long> lastRegenTick = new WeakHashMap<>();
+    // Los aliados no-muertos son inmunes a Regeneración: reciben curación directa equivalente.
+    private final Map<LivingEntity, Long> undeadHealTick = new WeakHashMap<>();
+    private static final int UNDEAD_HEAL_INTERVAL_TICKS = 50; // ≈ pulso de Regeneración I (1 HP/2,5s)
+    private static final float UNDEAD_HEAL_AMOUNT = 1.0F;
     private boolean initialized;
 
     private VanguardsBulwarkHandler() {
@@ -113,22 +118,33 @@ public final class VanguardsBulwarkHandler {
             if (ally == aura.source) {
                 continue;
             }
-            applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
+            applyRegenerationToAlly(ally, aura.sourceDef.getStatusEffects(), time);
         }
     }
 
     private void applyResistanceMode(ServerLevel world, ActiveAura aura, long time) {
-        // Apply Resistance I every 4 seconds (80 ticks)
-        Long lastAction = lastActionTick.get(aura.source);
-        if (lastAction != null && time - lastAction < aura.sourceDef.getIntervalTicks()) {
-            return;
+        List<Mob> allies = getAllies(world, aura.source, aura.sourceDef.getRadius());
+
+        // Regeneración I heredada del nivel 1 (cada intervalTicks, 20t por defecto).
+        Long lastRegen = lastRegenTick.get(aura.source);
+        if (lastRegen == null || time - lastRegen >= aura.sourceDef.getIntervalTicks()) {
+            for (Mob ally : allies) {
+                applyRegenerationToAlly(ally, aura.sourceDef.getStatusEffects(), time);
+            }
+            lastRegenTick.put(aura.source, time);
         }
 
-        List<Mob> allies = getAllies(world, aura.source, aura.sourceDef.getRadius());
-        for (Mob ally : allies) {
-            applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
+        // Pulso de Resistencia I cada pulseIntervalTicks (80t = 4s por defecto).
+        int pulseInterval = aura.sourceDef.getPulseIntervalTicks();
+        if (pulseInterval > 0) {
+            Long lastPulse = lastActionTick.get(aura.source);
+            if (lastPulse == null || time - lastPulse >= pulseInterval) {
+                for (Mob ally : allies) {
+                    applyConfiguredEffects(ally, aura.sourceDef.getPulseEffects());
+                }
+                lastActionTick.put(aura.source, time);
+            }
         }
-        lastActionTick.put(aura.source, time);
     }
 
     private void applyConditionalMode(ServerLevel world, ActiveAura aura, long time) {
@@ -160,9 +176,28 @@ public final class VanguardsBulwarkHandler {
             }
             List<Mob> allies = getAllies(world, source, aura.sourceDef.getRadius());
             for (Mob ally : allies) {
-                applyConfiguredEffects(ally, aura.sourceDef.getStatusEffects());
+                applyRegenerationToAlly(ally, aura.sourceDef.getStatusEffects(), time);
             }
         }
+    }
+
+    /**
+     * Aplica los efectos de regeneración a un aliado. Los no-muertos son inmunes a
+     * Regeneración en vanilla, así que reciben una curación directa equivalente
+     * (1 HP cada 2,5 s ≈ Regeneración I) para que también puedan recuperar vida.
+     */
+    private void applyRegenerationToAlly(Mob ally,
+            List<status_effect_config_parser.status_effect_config_entry> effects,
+            long time) {
+        if (BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(ally.getType()).is(EntityTypeTags.UNDEAD)) {
+            Long lastHeal = undeadHealTick.get(ally);
+            if (lastHeal == null || time - lastHeal >= UNDEAD_HEAL_INTERVAL_TICKS) {
+                ally.heal(UNDEAD_HEAL_AMOUNT);
+                undeadHealTick.put(ally, time);
+            }
+            return;
+        }
+        applyConfiguredEffects(ally, effects);
     }
 
     private void handleEntityDeath(LivingEntity entity, DamageSource damageSource) {
@@ -289,6 +324,22 @@ public final class VanguardsBulwarkHandler {
             Map.Entry<LivingEntity, Long> entry = actionIterator.next();
             if (entry.getKey() == null || !entry.getKey().isAlive()) {
                 actionIterator.remove();
+            }
+        }
+
+        Iterator<Map.Entry<LivingEntity, Long>> regenIterator = lastRegenTick.entrySet().iterator();
+        while (regenIterator.hasNext()) {
+            Map.Entry<LivingEntity, Long> entry = regenIterator.next();
+            if (entry.getKey() == null || !entry.getKey().isAlive()) {
+                regenIterator.remove();
+            }
+        }
+
+        Iterator<Map.Entry<LivingEntity, Long>> undeadIterator = undeadHealTick.entrySet().iterator();
+        while (undeadIterator.hasNext()) {
+            Map.Entry<LivingEntity, Long> entry = undeadIterator.next();
+            if (entry.getKey() == null || !entry.getKey().isAlive()) {
+                undeadIterator.remove();
             }
         }
     }

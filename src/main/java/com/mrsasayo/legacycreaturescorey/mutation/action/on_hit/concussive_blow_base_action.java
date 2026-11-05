@@ -1,5 +1,6 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
+import com.mrsasayo.legacycreaturescorey.mutation.util.attack_downtime_manager;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_task_scheduler;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
@@ -20,21 +21,24 @@ import net.minecraft.util.Mth;
 import java.util.List;
 
 abstract class concussive_blow_base_action extends proc_on_hit_action {
+    private static final int DEFAULT_SPIN_DURATION_TICKS = 8; // ~0,4s: igual de rápido que antes, pero fluido
     private final Mode mode;
-    private final int rotationStepTicks;
     private final int shakeDurationTicks;
     private final float shakeIntensity;
+    private final int spinDurationTicks;
+    private final int attackDowntimeTicks;
     private final List<status_effect_config_parser.status_effect_config_entry> playerEffects;
     private final List<status_effect_config_parser.status_effect_config_entry> attackerEffects;
 
     protected concussive_blow_base_action(mutation_action_config config,
             double defaultChance,
             Mode defaultMode) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.mode = parseMode(config, defaultMode);
-        this.rotationStepTicks = Math.max(1, config.getInt("rotation_step_ticks", 4));
         this.shakeDurationTicks = Math.max(1, config.getInt("shake_duration_ticks", 10));
         this.shakeIntensity = Mth.clamp((float) config.getDouble("shake_intensity", 2.6D), 0.2F, 6.0F);
+        this.spinDurationTicks = Math.max(2, config.getInt("spin_duration_ticks", DEFAULT_SPIN_DURATION_TICKS));
+        this.attackDowntimeTicks = Math.max(0, config.getInt("attack_downtime_ticks", 0));
         this.playerEffects = status_effect_config_parser.parseList(config, "player_status_effects", defaultPlayerEffects(this.mode));
         this.attackerEffects = status_effect_config_parser.parseList(config, "attacker_status_effects", defaultAttackerEffects(this.mode));
     }
@@ -55,9 +59,15 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
 
         switch (mode) {
             case SHAKE -> applyCameraShake(player);
-            case TUNNEL -> applyLocalizedDarkness(player);
+            // Nivel 2 = todo lo del nivel 1 (sacudida) + Visión de Túnel.
+            case TUNNEL -> {
+                applyCameraShake(player);
+                applyConfiguredEffects(player, playerEffects);
+            }
             case DISORIENT -> applyDisorientation(attacker, player);
         }
+        // Bloqueo de ataque real para el mob (concussive_blow_3).
+        attack_downtime_manager.apply(attacker, attackDowntimeTicks);
     }
 
     private void applyCameraShake(ServerPlayer player) {
@@ -108,21 +118,22 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
         });
     }
 
-    private void applyLocalizedDarkness(ServerPlayer player) {
-        applyConfiguredEffects(player, playerEffects);
-    }
-
     private void applyDisorientation(LivingEntity attacker, ServerPlayer player) {
-        float baseYaw = Mth.wrapDegrees(player.getYRot());
-        float pitch = player.getXRot();
-        ServerLevel world = (ServerLevel) player.level();
-        if (world == null) {
-            return;
+        // Giro de 180° fluido: el cliente interpola con easing durante spinDurationTicks.
+        boolean delivered = false;
+        if (ModNetworking.supportsFeature(player, ClientFeature.CLIENT_EFFECTS)) {
+            ModNetworking.sendClientEffect(player,
+                    new ClientEffectPayload(ClientEffectType.DISORIENT_SPIN, true, spinDurationTicks, 1.0F));
+            delivered = true;
         }
-
-        queueRotationStep(world, player, baseYaw + 60.0F, pitch, 0);
-        queueRotationStep(world, player, baseYaw + 120.0F, pitch, rotationStepTicks);
-        queueRotationStep(world, player, baseYaw + 180.0F, pitch, rotationStepTicks * 2);
+        if (!delivered) {
+            // Sin cliente compatible: giro instantáneo de autoridad del servidor.
+            float newYaw = Mth.wrapDegrees(player.getYRot() + 180.0F);
+            player.setYRot(newYaw);
+            player.setYHeadRot(newYaw);
+            player.setYBodyRot(newYaw);
+            player.connection.teleport(player.getX(), player.getY(), player.getZ(), newYaw, player.getXRot());
+        }
 
         applyConfiguredEffects(player, playerEffects);
         applyConfiguredEffects(attacker, attackerEffects);
@@ -147,8 +158,9 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
 
     private static List<status_effect_config_parser.status_effect_config_entry> defaultPlayerEffects(Mode mode) {
         return switch (mode) {
-            case TUNNEL -> List.of(entry(MobEffects.DARKNESS, 60, 0));
-            case DISORIENT -> List.of(entry(MobEffects.NAUSEA, 80, 0));
+            case TUNNEL -> List.of(entry(net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT
+                    .wrapAsHolder(com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects.TUNNEL_VISION), 60, 0));
+            case DISORIENT -> List.of(entry(MobEffects.NAUSEA, 100, 0), entry(MobEffects.HUNGER, 100, 0));
             default -> List.of();
         };
     }
@@ -161,32 +173,6 @@ abstract class concussive_blow_base_action extends proc_on_hit_action {
             int duration,
             int amplifier) {
         return new status_effect_config_parser.status_effect_config_entry(effect, duration, amplifier, true, true, true);
-    }
-
-    private void queueRotationStep(ServerLevel world, ServerPlayer player, float targetYaw, float targetPitch, int delayTicks) {
-        mutation_task_scheduler.schedule(world, new mutation_task_scheduler.TimedTask() {
-            private int ticksRemaining = delayTicks;
-
-            @Override
-            public boolean tick(ServerLevel currentWorld) {
-                if (!player.isAlive() || player.level() != currentWorld) {
-                    return true;
-                }
-
-                if (ticksRemaining > 0) {
-                    ticksRemaining--;
-                    return false;
-                }
-
-                float wrappedYaw = Mth.wrapDegrees(targetYaw);
-                float clampedPitch = Mth.clamp(targetPitch, -90.0F, 90.0F);
-                player.setYRot(wrappedYaw);
-                player.setYHeadRot(wrappedYaw);
-                player.setYBodyRot(wrappedYaw);
-                player.connection.teleport(player.getX(), player.getY(), player.getZ(), wrappedYaw, clampedPitch);
-                return true;
-            }
-        });
     }
 
     enum Mode {

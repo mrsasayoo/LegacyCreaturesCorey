@@ -24,7 +24,7 @@ abstract class chaos_touch_base_action extends proc_on_hit_action {
             double defaultChance,
             Mode defaultMode,
             int defaultSelfSlownessTicks) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.mode = parseMode(config, defaultMode);
         this.selfSlownessTicks = resolveDuration(config, defaultSelfSlownessTicks);
     }

@@ -16,7 +16,7 @@ public final class disarm_1_action extends proc_on_hit_action {
     private final int selfSlownessDuration;
 
     public disarm_1_action(mutation_action_config config) {
-        super(Mth.clamp(config.getDouble("chance", 0.07D), 0.0D, 1.0D));
+        super(config, 0.07D);
         this.selfSlownessDuration = resolveDuration(config, 60);
     }
 

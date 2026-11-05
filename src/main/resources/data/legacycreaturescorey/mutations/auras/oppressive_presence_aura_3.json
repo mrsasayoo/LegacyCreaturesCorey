@@ -4,11 +4,13 @@
   "type": "auras",
   "display_name": "Oppressive Presence Aura III",
   "cost": 20,
-  "description": "La presión ambiental ahoga cualquier intento de contraataque enemigo.",
+  "description": "El Agobio acumulativo: cada 3 s dentro del radio de 6 bloques el jugador acumula 1 stack (tope 3). 1 stack aplica Lentitud I; 2 stacks añaden Debilidad I; 3 stacks añaden Fatiga de Minero II. Fuera del radio pierde 1 stack cada 10 s.",
   "weight": 10,
   "actions": {
-    "radius": 4.0,
-    "tick_interval": 20,
+    "radius": 6.0,
+    "stack_gain_ticks": 60,
+    "stack_cap": 3,
+    "decay_interval_ticks": 200,
     "effects": [
       {
         "id": "minecraft:slowness",

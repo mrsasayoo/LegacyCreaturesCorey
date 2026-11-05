@@ -2,6 +2,8 @@ package com.mrsasayo.legacycreaturescorey;
 
 import com.mrsasayo.legacycreaturescorey.client.ClientDifficultyHud;
 import com.mrsasayo.legacycreaturescorey.client.ClientEffectHandler;
+import com.mrsasayo.legacycreaturescorey.client.FrostVignetteOverlay;
+import com.mrsasayo.legacycreaturescorey.client.TunnelVisionOverlay;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientCapabilitiesPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientFeature;
 import com.mrsasayo.legacycreaturescorey.core.network.ModNetworking;
@@ -17,6 +19,8 @@ public class LegacycreaturescoreyClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ClientEffectHandler.init();
 		ClientDifficultyHud.init();
+		TunnelVisionOverlay.init();
+		FrostVignetteOverlay.init();
 
 		ClientPlayNetworking.registerGlobalReceiver(ServerHelloPayload.ID, (payload, context) ->
 			context.client().execute(() -> sendCapabilities())

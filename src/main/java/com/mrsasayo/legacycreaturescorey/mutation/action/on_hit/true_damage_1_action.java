@@ -11,7 +11,7 @@ public final class true_damage_1_action extends true_damage_base_action {
     private static final List<SideEffect> DEFAULT_EFFECTS = buildDefaultEffects(30);
 
     public true_damage_1_action(mutation_action_config config) {
-        super(config, 0.10D, DEFAULT_EFFECTS);
+        super(config, 0.10D, DEFAULT_EFFECTS, 30);
     }
 
     private static List<SideEffect> buildDefaultEffects(int durationTicks) {

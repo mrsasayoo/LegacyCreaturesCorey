@@ -9,7 +9,8 @@ public enum ClientEffectType {
     INVERT_CONTROLS,
     CAMERA_SHAKE,
     HOSTILE_VOLUME_SCALE,
-    PHANTOM_SOUNDS;
+    PHANTOM_SOUNDS,
+    DISORIENT_SPIN;
 
     public static void write(RegistryFriendlyByteBuf buf, ClientEffectType type) {
         buf.writeEnum(type);

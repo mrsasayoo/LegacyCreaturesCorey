@@ -4,21 +4,31 @@
   "type": "on_hit",
   "cost": 13,
   "display_name": "Golpe Conmocionador III",
-  "description": "10% de probabilidad de desorientar al jugador, girándolo 180° y provocando náusea durante unos segundos.",
+  "description": "10% de probabilidad de desorientar al jugador girando su cámara 180° de forma fluida y rápida, con Náusea y Hambre durante 5 segundos.",
   "weight": 20,
   "actions": {
     "chance": 0.1,
     "mode": "disorient",
+    "spin_duration_ticks": 8,
     "player_status_effects": [
       {
         "id": "minecraft:nausea",
-        "duration": 120,
+        "duration": 100,
         "amplifier": 0,
         "ambient": true,
         "show_particles": true,
         "show_icon": true
+      },
+      {
+        "id": "minecraft:hunger",
+        "duration": 100,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": false,
+        "show_icon": true
       }
-    ]
+    ],
+    "attack_downtime_ticks": 30
   },
   "entity_types": [],
   "incompatible_with": [

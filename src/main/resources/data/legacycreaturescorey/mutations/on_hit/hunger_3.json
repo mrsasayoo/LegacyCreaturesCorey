@@ -11,7 +11,7 @@
   },
   "weight": 35,
   "actions": {
-    "chance": 0.07,
+    "chance": 0.09,
     "duration_seconds": 12,
     "effects": [
       {
@@ -22,7 +22,10 @@
         "show_particles": true,
         "show_icon": true
       }
-    ]
+    ],
+    "proc_sound": "minecraft:entity.player.burp",
+    "proc_particles": "minecraft:ash",
+    "proc_particle_count": 12
   },
   "entity_types": [],
   "incompatible_with": [

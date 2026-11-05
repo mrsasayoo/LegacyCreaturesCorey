@@ -34,6 +34,8 @@ public final class PhantasmalHandler {
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<ServerLevel, List<IllusionRecord>> clones = new WeakHashMap<>();
     private final Map<LivingEntity, IllusionRecord> cloneLookup = new WeakHashMap<>();
+    // Espejo Invertido: entidades que ya gastaron su Última Mentira (1 vez por combate)
+    private final Map<LivingEntity, Boolean> lastLieUsed = new WeakHashMap<>();
     private boolean initialized;
 
     private PhantasmalHandler() {
@@ -46,6 +48,7 @@ public final class PhantasmalHandler {
         initialized = true;
         ServerTickEvents.END_LEVEL_TICK.register(this::handleWorldTick);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::handleAllowDamage);
+        ServerLivingEntityEvents.AFTER_DAMAGE.register(this::handleAfterDamage);
     }
 
     public void register(LivingEntity entity, PhantasmalSource source) {
@@ -71,6 +74,7 @@ public final class PhantasmalHandler {
         if (list.isEmpty()) {
             active.remove(world);
         }
+        lastLieUsed.remove(entity);
     }
 
     private void handleWorldTick(ServerLevel world) {
@@ -96,42 +100,9 @@ public final class PhantasmalHandler {
     }
 
     private void runHealthMirage(ServerLevel world, ActiveAura aura, long time) {
-        if (time - aura.lastTriggerTick < aura.sourceDef.getIntervalTicks()) {
-            return;
-        }
-        LivingEntity source = aura.source;
-        double radius = aura.sourceDef.getRadius();
-        double radiusSq = radius * radius;
-        List<ServerPlayer> players = world
-                .getPlayers(player -> player.isAlive() && source.distanceToSqr(player) <= radiusSq);
-        if (players.isEmpty()) {
-            aura.lastTriggerTick = time;
-            return;
-        }
-
-        RandomSource random = world.getRandom();
-        double baseX = source.getX();
-        double baseY = source.getY(0.5D);
-        double baseZ = source.getZ();
-
-        for (int i = 0; i < aura.sourceDef.getParticleCount(); i++) {
-            double offsetX = (random.nextDouble() - 0.5D) * 0.6D;
-            double offsetY = random.nextDouble() * Math.max(0.5D, source.getBbHeight());
-            double offsetZ = (random.nextDouble() - 0.5D) * 0.6D;
-            ParticleOptions effect = random.nextBoolean() ? ParticleTypes.DAMAGE_INDICATOR : ParticleTypes.HEART;
-            world.sendParticles(effect, baseX + offsetX, baseY + offsetY, baseZ + offsetZ, 1, 0.0D, 0.0D, 0.0D,
-                    0.0D);
-        }
-
-        if (random.nextBoolean()) {
-            world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_HURT,
-                    SoundSource.HOSTILE, 0.25F, 0.8F + random.nextFloat() * 0.4F);
-        } else {
-            world.playSound(null, source.getX(), source.getY(), source.getZ(), SoundEvents.PLAYER_LEVELUP,
-                    SoundSource.HOSTILE, 0.18F, 1.2F + random.nextFloat() * 0.6F);
-        }
-
-        aura.lastTriggerTick = time;
+        // Espejo Invertido: el engaño ya no es ruido periódico de partículas, es una
+        // mentira sistemática sobre el daño real. Se dispara desde handleAfterDamage;
+        // el tick solo mantiene el aura viva en el registro.
     }
 
     private void runSpectralClones(ServerLevel world, ActiveAura aura, long time) {
@@ -284,6 +255,63 @@ public final class PhantasmalHandler {
             return;
         }
         status_effect_config_parser.applyEffects(entity, effects);
+    }
+
+    /**
+     * «Espejo Invertido» (phantasmal_veil_1):
+     * 1. Mentira permanente: cada golpe real de un jugador cercano dispara corazones y
+     *    sonido de mejora sobre el portador ("mi daño lo alimenta").
+     * 2. La Última Mentira: al cruzar el umbral de vida (25% por defecto) hace el
+     *    estallido visual y sonoro del tótem, una sola vez por combate/entidad.
+     */
+    private void handleAfterDamage(LivingEntity victim, DamageSource source, float originalAmount,
+            float actualAmount, boolean blocked) {
+        if (victim == null || victim.isDeadOrDying() || !(victim.level() instanceof ServerLevel world)) {
+            return;
+        }
+        List<ActiveAura> list = active.get(world);
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        PhantasmalSource veil = null;
+        for (ActiveAura aura : list) {
+            if (aura.source == victim
+                    && aura.sourceDef.getMode() == PhantasmalSource.Mode.HEALTH_MIRAGE
+                    && aura.sourceDef.isHealLie()) {
+                veil = aura.sourceDef;
+                break;
+            }
+        }
+        if (veil == null) {
+            return;
+        }
+        if (!(source.getEntity() instanceof LivingEntity attacker)) {
+            return;
+        }
+        double radius = veil.getRadius();
+        if (victim.distanceToSqr(attacker) > radius * radius) {
+            return;
+        }
+
+        // 1. La mentira permanente: parece que mi daño lo cura.
+        world.sendParticles(ParticleTypes.HEART,
+                victim.getX(),
+                victim.getY(0.5D) + victim.getBbHeight() * 0.4D,
+                victim.getZ(),
+                3, 0.3D, 0.2D, 0.3D, 0.0D);
+        world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                SoundEvents.PLAYER_LEVELUP, SoundSource.HOSTILE, 0.35F, 1.4F);
+
+        // 2. La Última Mentira: espectáculo de tótem al borde de la muerte.
+        if (!lastLieUsed.containsKey(victim)
+                && victim.getHealth() <= victim.getMaxHealth() * veil.getLastLieThreshold()) {
+            lastLieUsed.put(victim, Boolean.TRUE);
+            world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                    victim.getX(), victim.getY(0.5D), victim.getZ(),
+                    40, 0.4D, 0.5D, 0.4D, 0.15D);
+            world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                    SoundEvents.TOTEM_USE, SoundSource.HOSTILE, 0.8F, 1.0F);
+        }
     }
 
     private boolean handleAllowDamage(LivingEntity entity, DamageSource source, float amount) {

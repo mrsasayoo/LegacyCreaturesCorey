@@ -4,11 +4,13 @@
   "type": "auras",
   "display_name": "Oppressive Presence Aura II",
   "cost": 13,
-  "description": "Drena la fuerza y movilidad de quienes intentan rodear al mob.",
+  "description": "El Agobio acumulativo: cada 3 s dentro del radio de 5 bloques el jugador acumula 1 stack (tope 2). 1 stack aplica Lentitud I; 2 stacks añaden Debilidad I. Fuera del radio pierde 1 stack cada 5 s.",
   "weight": 30,
   "actions": {
     "radius": 5.0,
-    "tick_interval": 20,
+    "stack_gain_ticks": 60,
+    "stack_cap": 2,
+    "decay_interval_ticks": 100,
     "effects": [
       {
         "id": "minecraft:slowness",

@@ -3,89 +3,84 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.effect.MobEffect;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.core.Holder;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
+/**
+ * «Frenesí»: cada golpe tiene la chance del nivel de acumular 1 stack (máx. según nivel).
+ * Escalera de stacks (sin Prisa: esa subclase no aportaba nada):
+ *   stack 1 = Velocidad I
+ *   stack 2 = Velocidad II
+ *   stack 3 = Velocidad II + Fuerza I
+ *   stack 4 = Velocidad II + Fuerza I + Resistencia I
+ * En el nivel 3, al llegar a 4 stacks la Fuerza sube a II (strength_amplifier_at_max).
+ * Contrapeso: el jugador golpeado recibe Fuerza según el nivel.
+ */
 abstract class frenzy_base_action extends proc_on_hit_action {
-    private final FrenzyProfile profile;
+    private static final Map<LivingEntity, long[]> STACKS = new WeakHashMap<>(); // [stacks, lastProcTick]
+
+    private final int speedDurationTicks;
+    private final int maxStacks;
+    private final int playerBuffDurationTicks;
+    private final int playerBuffAmplifier;
+    private final int strengthAmplifierAtMax;
 
     protected frenzy_base_action(mutation_action_config config,
             double defaultChance,
-            FrenzyProfile defaults) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
-        this.profile = applyOverrides(config, defaults);
+            int defaultSpeedSeconds,
+            int defaultMaxStacks,
+            int defaultPlayerBuffSeconds,
+            int defaultPlayerBuffAmplifier,
+            int defaultStrengthAmplifierAtMax) {
+        super(config, defaultChance);
+        this.speedDurationTicks = resolveSeconds(config, "speed_duration", defaultSpeedSeconds * 20);
+        this.maxStacks = Math.max(1, config.getInt("max_stacks", defaultMaxStacks));
+        this.playerBuffDurationTicks = resolveSeconds(config, "player_buff_duration", defaultPlayerBuffSeconds * 20);
+        this.playerBuffAmplifier = Math.max(0, config.getInt("player_buff_amplifier", defaultPlayerBuffAmplifier));
+        this.strengthAmplifierAtMax = Math.max(0, config.getInt("strength_amplifier_at_max", defaultStrengthAmplifierAtMax));
     }
 
-    private FrenzyProfile applyOverrides(mutation_action_config config, FrenzyProfile base) {
-        int speedDuration = resolveTicks(config, "speed_duration", base.speedDurationTicks());
-        int hasteDuration = resolveTicks(config, "haste_duration", base.hasteDurationTicks());
-        int playerBuffDuration = resolveTicks(config, "player_buff_duration", base.playerBuffDurationTicks());
-        int baseAmplifier = Math.max(0, config.getInt("base_amplifier", base.baseAmplifier()));
-        int playerBuffAmplifier = Math.max(0, config.getInt("player_buff_amplifier", base.playerBuffAmplifier()));
-        int maxStacks = Math.max(1, config.getInt("max_stacks", base.maxStacks()));
-        boolean applyHaste = config.getBoolean("apply_haste", base.applyHaste());
-        boolean stackable = config.getBoolean("stackable", base.stackable());
-        return new FrenzyProfile(speedDuration, hasteDuration, applyHaste, stackable, maxStacks, baseAmplifier,
-                playerBuffDuration, playerBuffAmplifier);
-    }
-
-    private int resolveTicks(mutation_action_config config, String keyPrefix, int fallback) {
-        int ticks = config.getInt(keyPrefix + "_ticks", -1);
+    private static int resolveSeconds(mutation_action_config config, String prefix, int fallbackTicks) {
+        int ticks = config.getInt(prefix + "_ticks", -1);
         if (ticks >= 0) {
             return ticks;
         }
-        int seconds = config.getInt(keyPrefix + "_seconds", -1);
+        int seconds = config.getInt(prefix + "_seconds", -1);
         if (seconds >= 0) {
             return seconds * 20;
         }
-        return Math.max(0, fallback);
+        return Math.max(0, fallbackTicks);
     }
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!action_context.isServer(attacker)) {
+        if (!action_context.isServer(attacker) || !(attacker.level() instanceof ServerLevel world)) {
             return;
         }
+        long time = world.getGameTime();
+        long[] state = STACKS.get(attacker);
+        int previous = (state != null && time - state[1] <= speedDurationTicks + 40L) ? (int) state[0] : 0;
+        int stacks = Math.min(maxStacks, previous + 1);
+        STACKS.put(attacker, new long[]{stacks, time});
 
-        int speedAmplifier = profile.stackable()
-                ? getNextAmplifier(attacker, MobEffects.SPEED, profile.maxStacks())
-                : profile.baseAmplifier();
-        attacker.addEffect(new MobEffectInstance(MobEffects.SPEED, profile.speedDurationTicks(), speedAmplifier));
-
-        if (profile.applyHaste()) {
-            int hasteAmplifier = profile.stackable()
-                    ? getNextAmplifier(attacker, MobEffects.HASTE, profile.maxStacks())
-                    : profile.baseAmplifier();
-            attacker.addEffect(new MobEffectInstance(MobEffects.HASTE, profile.hasteDurationTicks(), hasteAmplifier));
+        int speedAmplifier = Math.min(stacks, 2) - 1;
+        attacker.addEffect(new MobEffectInstance(MobEffects.SPEED, speedDurationTicks, speedAmplifier));
+        if (stacks >= 3) {
+            int strengthAmplifier = (stacks >= maxStacks && strengthAmplifierAtMax > 0) ? strengthAmplifierAtMax : 0;
+            attacker.addEffect(new MobEffectInstance(MobEffects.STRENGTH, speedDurationTicks, strengthAmplifier));
+        }
+        if (stacks >= 4) {
+            attacker.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, speedDurationTicks, 0));
         }
 
-        if (profile.playerBuffDurationTicks() > 0) {
-            victim.addEffect(new MobEffectInstance(MobEffects.STRENGTH,
-                    profile.playerBuffDurationTicks(), profile.playerBuffAmplifier()));
+        // Contrapeso al jugador golpeado.
+        if (playerBuffDurationTicks > 0) {
+            victim.addEffect(new MobEffectInstance(MobEffects.STRENGTH, playerBuffDurationTicks, playerBuffAmplifier));
         }
-    }
-
-    private int getNextAmplifier(LivingEntity entity, Holder<MobEffect> effect, int maxStacks) {
-        MobEffectInstance current = entity.getEffect(effect);
-        if (current == null) {
-            return profile.baseAmplifier();
-        }
-        int next = current.getAmplifier() + 1;
-        int maxAmplifier = Math.max(profile.baseAmplifier(), maxStacks - 1);
-        return Math.min(next, maxAmplifier);
-    }
-
-    protected record FrenzyProfile(int speedDurationTicks,
-                                   int hasteDurationTicks,
-                                   boolean applyHaste,
-                                   boolean stackable,
-                                   int maxStacks,
-                                   int baseAmplifier,
-                                   int playerBuffDurationTicks,
-                                   int playerBuffAmplifier) {
     }
 }

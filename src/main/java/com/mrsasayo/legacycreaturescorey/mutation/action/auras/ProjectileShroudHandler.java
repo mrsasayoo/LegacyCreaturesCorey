@@ -21,6 +21,9 @@ public final class ProjectileShroudHandler {
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<ServerLevel, Set<AbstractArrow>> processedProjectiles = new WeakHashMap<>();
+    // Decisión por (aura, proyectil): el chance se tira UNA vez al entrar en el radio,
+    // no de nuevo cada tick (una flecha que cruza 3 bloques recibía 10-20 tiradas).
+    private final Map<ServerLevel, Map<LivingEntity, Map<AbstractArrow, Boolean>>> chanceDecisions = new WeakHashMap<>();
     private boolean initialized;
 
     private ProjectileShroudHandler() {
@@ -50,12 +53,15 @@ public final class ProjectileShroudHandler {
     public void unregister(LivingEntity entity, ProjectileShroudSource source) {
         ServerLevel world = (ServerLevel) entity.level();
         List<ActiveAura> list = active.get(world);
-        if (list == null) {
-            return;
+        if (list != null) {
+            list.removeIf(aura -> aura.source == entity && aura.sourceDef == source);
+            if (list.isEmpty()) {
+                active.remove(world);
+            }
         }
-        list.removeIf(aura -> aura.source == entity && aura.sourceDef == source);
-        if (list.isEmpty()) {
-            active.remove(world);
+        Map<LivingEntity, Map<AbstractArrow, Boolean>> perSource = chanceDecisions.get(world);
+        if (perSource != null) {
+            perSource.remove(entity);
         }
     }
 
@@ -93,7 +99,7 @@ public final class ProjectileShroudHandler {
             if (entity.distanceToSqr(projectile) > radius * radius) {
                 continue;
             }
-            if (chance < 1.0D && entity.getRandom().nextDouble() >= chance) {
+            if (!hasWonChance(world, aura, projectile, chance)) {
                 continue;
             }
             if (processed.contains(projectile)) {
@@ -125,6 +131,26 @@ public final class ProjectileShroudHandler {
                 }
             }
         }
+    }
+
+    /**
+     * Decide y recuerda si esta aura afecta a este proyectil: el dado se tira una
+     * sola vez por proyectil. Las claves son débiles: al descartarse la flecha o el
+     * mob, la decisión se limpia sola.
+     */
+    private boolean hasWonChance(ServerLevel world, ActiveAura aura, AbstractArrow projectile, double chance) {
+        if (chance >= 1.0D) {
+            return true;
+        }
+        Map<AbstractArrow, Boolean> decided = chanceDecisions
+                .computeIfAbsent(world, ignored -> new WeakHashMap<>())
+                .computeIfAbsent(aura.source, ignored -> new WeakHashMap<>());
+        Boolean won = decided.get(projectile);
+        if (won == null) {
+            won = aura.source.getRandom().nextDouble() < chance;
+            decided.put(projectile, won);
+        }
+        return won;
     }
 
     private void discardProjectile(ServerLevel world, AbstractArrow projectile, ProjectileShroudSource source) {

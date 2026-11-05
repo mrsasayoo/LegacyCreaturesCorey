@@ -40,7 +40,7 @@ abstract class essence_siphon_base_action extends proc_on_hit_action {
             double defaultChance,
             Mode defaultMode,
             int defaultDurationTicks) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.mode = resolveMode(config, defaultMode);
         this.durationTicks = resolveDuration(config, defaultDurationTicks);
     }

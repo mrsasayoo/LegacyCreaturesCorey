@@ -4,21 +4,11 @@
   "type": "auras",
   "display_name": "Psionic Thorns Aura I",
   "cost": 6,
-  "description": "Los ataques cuerpo a cuerpo devuelven una fracción del daño recibido.",
+  "description": "Refleja el 5% del daño recibido por ataques cuerpo a cuerpo de vuelta al atacante como daño mágico.",
   "weight": 65,
   "actions": {
-    "reflection_percentage": 0.1,
-    "radius": 5.0,
-    "effects": [
-      {
-        "id": "minecraft:speed",
-        "duration": 40,
-        "amplifier": 0,
-        "ambient": true,
-        "show_particles": true,
-        "show_icon": true
-      }
-    ]
+    "reflection_percentage": 0.05,
+    "radius": 5.0
   },
   "entity_types": [],
   "incompatible_with": []

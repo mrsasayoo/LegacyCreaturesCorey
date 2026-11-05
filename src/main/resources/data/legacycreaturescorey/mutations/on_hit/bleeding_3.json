@@ -6,17 +6,15 @@
   "display_name": {
     "literal": "Hemorragia III"
   },
-  "description": {
-    "literal": "3% de probabilidad de infligir una cadena letal de daño sangrante."
-  },
+  "description": "3% de probabilidad de una cadena letal de sangrado: 4 pulsos crecientes de 1, 2, 3 y 4 de daño.",
   "weight": 15,
   "actions": {
     "chance": 0.03,
     "damage_pulses": [
+      1.0,
+      2.0,
       3.0,
-      3.0,
-      3.0,
-      3.0
+      4.0
     ],
     "interval_seconds": 4
   },
@@ -24,6 +22,11 @@
   "incompatible_with": [
     "legacycreaturescorey:on_hit/bleeding_1",
     "legacycreaturescorey:on_hit/bleeding_2",
-    "legacycreaturescorey:on_hit/mortal_wound_3"
+    "legacycreaturescorey:on_hit/mortal_wound_1",
+    "legacycreaturescorey:on_hit/mortal_wound_2",
+    "legacycreaturescorey:on_hit/mortal_wound_3",
+    "legacycreaturescorey:on_hit/poison_1",
+    "legacycreaturescorey:on_hit/poison_2",
+    "legacycreaturescorey:on_hit/poison_3"
   ]
 }

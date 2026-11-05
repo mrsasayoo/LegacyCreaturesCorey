@@ -24,6 +24,14 @@ import net.minecraft.resources.Identifier;
 public final class mutation_runtime {
     private mutation_runtime() {}
 
+    /**
+     * Guard de re-entrada: el daño generado DENTRO de un proc on-hit (p. ej. el bonus
+     * del critical) dispara AFTER_DAMAGE de nuevo y volvería a tirar los dados del
+     * on-hit en cascada — de ahí el daño "acumulado" e inconsistente. Un proc nunca
+     * debe engendrar más procs.
+     */
+    private static boolean dispatchingOnHit = false;
+
     public static void register() {
         ServerTickEvents.END_LEVEL_TICK.register(mutation_runtime::handleWorldTick);
         ServerLivingEntityEvents.AFTER_DAMAGE.register(mutation_runtime::handleAfterDamage);
@@ -51,6 +59,9 @@ public final class mutation_runtime {
     }
 
     private static void handleAfterDamage(LivingEntity victim, DamageSource source, float originalAmount, float actualAmount, boolean blocked) {
+        if (dispatchingOnHit) {
+            return;
+        }
         Entity attackerEntity = source.getEntity();
         if (!(attackerEntity instanceof Mob attacker)) {
             return;
@@ -61,7 +72,12 @@ public final class mutation_runtime {
             return;
         }
 
-        runOnHitMutations(attacker, victim, data, source, originalAmount, actualAmount, blocked);
+        dispatchingOnHit = true;
+        try {
+            runOnHitMutations(attacker, victim, data, source, originalAmount, actualAmount, blocked);
+        } finally {
+            dispatchingOnHit = false;
+        }
     }
 
     private static void runActiveMutations(Mob mob, MobLegacyData data) {

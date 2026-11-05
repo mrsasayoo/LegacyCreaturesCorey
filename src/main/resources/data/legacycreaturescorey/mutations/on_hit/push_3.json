@@ -12,7 +12,10 @@
   "weight": 35,
   "actions": {
     "chance": 0.15,
-    "distance": 4.0
+    "distance": 4.0,
+    "proc_sound": "minecraft:entity.player.attack.sweep",
+    "proc_particles": "minecraft:poof",
+    "proc_particle_count": 10
   },
   "incompatible_with": [
     "legacycreaturescorey:on_hit/push_1",

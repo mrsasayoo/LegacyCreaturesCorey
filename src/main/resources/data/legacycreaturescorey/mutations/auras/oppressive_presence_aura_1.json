@@ -4,11 +4,13 @@
   "type": "auras",
   "display_name": "Oppressive Presence Aura I",
   "cost": 7,
-  "description": "La presencia del mob vuelve pesados los pasos de los oponentes.",
+  "description": "Aplica el peso de El Agobio: cada 3 s dentro del radio de 4 bloques el jugador acumula 1 stack (tope 1). El stack activo aplica Lentitud I. Fuera del radio pierde 1 stack cada 5 s.",
   "weight": 60,
   "actions": {
     "radius": 4.0,
-    "tick_interval": 20,
+    "stack_gain_ticks": 60,
+    "stack_cap": 1,
+    "decay_interval_ticks": 100,
     "effects": [
       {
         "id": "minecraft:slowness",

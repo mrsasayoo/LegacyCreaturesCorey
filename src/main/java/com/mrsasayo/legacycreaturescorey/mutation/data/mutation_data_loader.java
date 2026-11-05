@@ -265,6 +265,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             case "anti_armor_3" -> new anti_armor_3_action(config);
             case "anti_shield_1" -> new anti_shield_1_action(config);
             case "anti_shield_2" -> new anti_shield_2_action(config);
+            case "anti_shield_3" -> new anti_shield_3_action(config);
             case "bleeding_1" -> new bleeding_1_action(config);
             case "bleeding_2" -> new bleeding_2_action(config);
             case "bleeding_3" -> new bleeding_3_action(config);
@@ -338,6 +339,7 @@ public final class mutation_data_loader implements SimpleSynchronousResourceRelo
             case "theft_of_life_3" -> new theft_of_life_3_action(config);
             case "true_damage_1" -> new true_damage_1_action(config);
             case "true_damage_2" -> new true_damage_2_action(config);
+            case "true_damage_3" -> new true_damage_3_action(config);
             case "unstable_hit_1" -> new unstable_hit_1_action(config);
             case "unstable_hit_2" -> new unstable_hit_2_action(config);
             case "unstable_hit_3" -> new unstable_hit_3_action(config);

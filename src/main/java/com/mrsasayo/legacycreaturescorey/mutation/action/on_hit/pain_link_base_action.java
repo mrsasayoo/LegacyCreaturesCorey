@@ -1,5 +1,7 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
+import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -7,7 +9,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -33,7 +34,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     protected pain_link_base_action(mutation_action_config config,
             double defaultChance,
             LinkProfile defaultProfile) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.profile = overrideProfile(config, defaultProfile);
         Handler.INSTANCE.ensureRegistered();
     }
@@ -245,6 +246,12 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             ActiveLink link = new ActiveLink(world.getGameTime() + profile.durationTicks(), mob, player, profile);
             linksByPlayer.put(player, link);
             linksByMob.computeIfAbsent(mob, ignored -> new ArrayList<>()).add(link);
+            // Marcador en el HUD del jugador mientras dure el vínculo.
+            player.addEffect(new MobEffectInstance(
+                    BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModStatusEffects.PAIN_LINK_MARK),
+                    profile.durationTicks(), 0, true, false, true));
+            Legacycreaturescorey.LOGGER.info("🔗 Vínculo de Dolor creado ({}↔{}, {} s, línea cada tick)",
+                    mob.getName().getString(), player.getName().getString(), profile.durationTicks() / 20);
             link.playActivation(world);
         }
 
@@ -254,9 +261,17 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             while (iterator.hasNext()) {
                 Map.Entry<ServerPlayer, ActiveLink> entry = iterator.next();
                 ActiveLink link = entry.getValue();
+                // END_LEVEL_TICK dispara por CADA mundo: si este tick no es el mundo del
+                // jugador, saltar SIN remover (antes cualquier otra dimensión borraba el vínculo).
+                if (entry.getKey().level() != world) {
+                    continue;
+                }
                 if (!link.tick(world, time)) {
+                    Legacycreaturescorey.LOGGER.info("🔗 Vínculo de Dolor finalizado ({}↔{})",
+                            link.mob.getName().getString(), entry.getKey().getName().getString());
                     iterator.remove();
                     removeFromMob(link);
+                    entry.getKey().removeEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModStatusEffects.PAIN_LINK_MARK));
                 }
             }
         }
@@ -297,7 +312,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
     }
 
     private static final class ActiveLink {
-        private static final int GLOW_REFRESH_INTERVAL = 10;
+        private static final int MARK_REFRESH_INTERVAL = 1;
 
         private final long expiryTick;
         private final LivingEntity mob;
@@ -306,7 +321,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
         private boolean skipPlayerDamage;
         private boolean skipMobDamage;
         private long nextParticleTick;
-        private long nextGlowRefresh;
+        private long nextMarkRefresh;
         private long nextAuraRefresh;
 
         private ActiveLink(long expiryTick, LivingEntity mob, ServerPlayer player, LinkProfile profile) {
@@ -315,7 +330,7 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             this.player = player;
             this.profile = profile;
             this.nextParticleTick = Long.MIN_VALUE;
-            this.nextGlowRefresh = Long.MIN_VALUE;
+            this.nextMarkRefresh = Long.MIN_VALUE;
             this.nextAuraRefresh = Long.MIN_VALUE;
         }
 
@@ -334,11 +349,11 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             world.playSound(null, playerX, playerY, playerZ, SoundEvents.ENDERMAN_AMBIENT, SoundSource.PLAYERS, 0.4F, 1.2F);
             spawnBurst(world, new Vec3(mobX, mobY, mobZ));
             spawnBurst(world, new Vec3(playerX, playerY, playerZ));
-            applyGlow();
+            applyMark();
             refreshAura(world);
             long time = world.getGameTime();
             nextParticleTick = time;
-            nextGlowRefresh = time;
+            nextMarkRefresh = time;
             nextAuraRefresh = time;
         }
 
@@ -346,9 +361,9 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             if (!isActive(world, time)) {
                 return false;
             }
-            if (time >= nextGlowRefresh) {
-                applyGlow();
-                nextGlowRefresh = time + GLOW_REFRESH_INTERVAL;
+            if (time >= nextMarkRefresh) {
+                applyMark();
+                nextMarkRefresh = time + MARK_REFRESH_INTERVAL;
             }
             if (profile.auraEffect() != null && time >= nextAuraRefresh) {
                 refreshAura(world);
@@ -448,11 +463,13 @@ abstract class pain_link_base_action extends proc_on_hit_action {
             }
         }
 
-        private void applyGlow() {
-            MobEffectInstance marker = new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false);
-            player.addEffect(marker);
+        private void applyMark() {
+            // Efecto PROPIO del vínculo (icono eslabón púrpura), no luminiscencia vanilla.
+            Holder<net.minecraft.world.effect.MobEffect> mark =
+                    BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModStatusEffects.PAIN_LINK_MARK);
+            player.addEffect(new MobEffectInstance(mark, 30, 0, true, false, true));
             if (mob.isAlive()) {
-                mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 12, 0, true, false, false));
+                mob.addEffect(new MobEffectInstance(mark, 30, 0, true, false, true));
             }
         }
 

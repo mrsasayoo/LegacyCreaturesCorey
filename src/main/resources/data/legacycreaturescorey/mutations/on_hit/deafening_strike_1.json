@@ -6,16 +6,14 @@
   "display_name": {
     "literal": "Golpe Ensordecedor I"
   },
-  "description": {
-    "literal": "20% de probabilidad de aplicar Oidos Zumbando durante 4 s, reduciendo los sonidos hostiles en un 50%."
-  },
+  "description": "20% de probabilidad de aplicar Oídos Zumbando durante 6 s: el jugador escucha todas las fuentes de sonido a la mitad y, al terminar, se le restablece su volumen original.",
   "weight": 65,
   "actions": {
     "chance": 0.2,
     "effects": [
       {
-        "id": "legacycreaturescorey:hostile_muffle",
-        "duration": 80,
+        "id": "legacycreaturescorey:ringing_ears",
+        "duration": 120,
         "amplifier": 0,
         "ambient": true,
         "show_particles": true,

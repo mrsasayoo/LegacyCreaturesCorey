@@ -4,27 +4,21 @@
   "type": "on_hit",
   "cost": 8,
   "display_name": "Golpe Conmocionador II",
-  "description": "15% de probabilidad de forzar una visión de túnel (Oscuridad opresiva) durante 3 s.",
+  "description": "15% de probabilidad de aplicar Visión de Túnel (efecto propio del mod: periferia cegada con un túnel de visión al centro) por 3 segundos y, además, la sacudida de cámara del nivel 1.",
   "weight": 45,
   "actions": {
     "chance": 0.15,
     "mode": "tunnel",
+    "shake_duration_ticks": 10,
+    "shake_intensity": 2.6,
     "player_status_effects": [
       {
-        "id": "minecraft:darkness",
-        "duration": 60,
-        "amplifier": 0,
-        "ambient": true,
-        "show_particles": true,
-        "show_icon": true
-      },
-      {
-        "id": "minecraft:night_vision",
+        "id": "legacycreaturescorey:tunnel_vision",
         "duration": 60,
         "amplifier": 0,
         "ambient": true,
         "show_particles": false,
-        "show_icon": false
+        "show_icon": true
       }
     ]
   },

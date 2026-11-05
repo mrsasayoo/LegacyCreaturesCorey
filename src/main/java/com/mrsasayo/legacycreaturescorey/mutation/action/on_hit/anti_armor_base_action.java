@@ -23,7 +23,7 @@ abstract class anti_armor_base_action extends proc_on_hit_action {
     protected anti_armor_base_action(mutation_action_config config,
             double defaultChance,
             int defaultDamage) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.damageAmount = Math.max(1, config.getInt("damage", defaultDamage));
     }
 

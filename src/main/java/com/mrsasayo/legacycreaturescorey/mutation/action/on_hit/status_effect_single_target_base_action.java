@@ -23,7 +23,7 @@ abstract class status_effect_single_target_base_action extends proc_on_hit_actio
             int defaultAmplifier,
             Target defaultTarget,
             double defaultChance) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.effects = resolveEffects(config, defaultEffect, defaultDurationTicks, defaultAmplifier);
         this.target = resolveTarget(config.getString("target", defaultTarget.name()));
     }

@@ -1,32 +1,38 @@
 {
-	"enabled": true,
-	"id": "legacycreaturescorey:on_hit/poison_1",
-	"type": "on_hit",
-	"cost": 3,
-	"display_name": {
-		"literal": "Toque Envenenado I"
-	},
-	"description": {
-		"literal": "15% de probabilidad de aplicar Veneno I durante 5 s."
-	},
-	"weight": 80,
-	"actions": {
-		"chance": 0.15,
-		"duration_seconds": 5,
-		"amplifier": 0,
-		"effects": [
-			{
-				"id": "minecraft:poison",
-				"duration": 100,
-				"amplifier": 0,
-				"ambient": true,
-				"show_particles": true,
-				"show_icon": true
-			}
-		]
-	},
-	"incompatible_with": [
-		"legacycreaturescorey:on_hit/poison_2",
-		"legacycreaturescorey:on_hit/poison_3"
-	]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/poison_1",
+  "type": "on_hit",
+  "cost": 3,
+  "display_name": {
+    "literal": "Toque Envenenado I"
+  },
+  "description": {
+    "literal": "15% de probabilidad de aplicar Veneno I durante 5 s."
+  },
+  "weight": 80,
+  "actions": {
+    "chance": 0.15,
+    "duration_seconds": 5,
+    "amplifier": 0,
+    "effects": [
+      {
+        "id": "minecraft:poison",
+        "duration": 100,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ],
+    "proc_sound": "minecraft:entity.spider.hurt",
+    "proc_particles": "minecraft:happy_villager",
+    "proc_particle_count": 16
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/bleeding_1",
+    "legacycreaturescorey:on_hit/bleeding_2",
+    "legacycreaturescorey:on_hit/bleeding_3",
+    "legacycreaturescorey:on_hit/poison_2",
+    "legacycreaturescorey:on_hit/poison_3"
+  ]
 }

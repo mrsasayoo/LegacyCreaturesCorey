@@ -19,7 +19,7 @@ abstract class mortal_wound_base_action extends proc_on_hit_action {
             double defaultChance,
             Holder<net.minecraft.world.effect.MobEffect> defaultEffect,
             int defaultDurationSeconds) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         Holder<net.minecraft.world.effect.MobEffect> fallbackEffect = resolveEffect(config, defaultEffect);
         int durationTicks = resolveDurationTicks(config, defaultDurationSeconds * 20);
         this.effects = resolveEffects(config, fallbackEffect, durationTicks);

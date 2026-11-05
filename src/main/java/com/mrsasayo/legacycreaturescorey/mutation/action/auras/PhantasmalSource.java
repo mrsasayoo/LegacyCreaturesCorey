@@ -29,6 +29,16 @@ public interface PhantasmalSource {
         return List.of();
     }
 
+    /** Espejo Invertido: simular curación al recibir daño de un jugador cercano. */
+    default boolean isHealLie() {
+        return false;
+    }
+
+    /** Espejo Invertido: umbral de vida (fracción de la máxima) para la Última Mentira. */
+    default float getLastLieThreshold() {
+        return 0.25F;
+    }
+
     enum Mode {
         HEALTH_MIRAGE,
         SPECTRAL_CLONES,

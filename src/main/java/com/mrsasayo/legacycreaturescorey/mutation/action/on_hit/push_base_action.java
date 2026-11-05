@@ -12,7 +12,7 @@ abstract class push_base_action extends proc_on_hit_action {
     protected push_base_action(mutation_action_config config,
             double defaultChance,
             double defaultDistance) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.horizontalDistance = Math.max(0.0D, config.getDouble("distance", defaultDistance));
     }
 

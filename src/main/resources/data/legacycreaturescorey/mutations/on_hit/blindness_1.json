@@ -8,9 +8,9 @@
   "weight": 35,
   "actions": {
     "chance": 0.1,
-    "blindness_duration_ticks": 80,
+    "blindness_duration_ticks": 40,
     "blindness_amplifier": 0,
-    "night_vision_duration_ticks": 80,
+    "night_vision_duration_ticks": 40,
     "night_vision_amplifier": 0
   },
   "entity_types": [],

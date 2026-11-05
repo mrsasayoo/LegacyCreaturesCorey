@@ -23,6 +23,14 @@ public interface VirulentSource {
 
     int getFangWarmupTicks();
 
+    /**
+     * Vida útil del follaje generado por el aura: al expirar se desvanece para
+     * no dejar el mundo cambiado de forma permanente.
+     */
+    default int getFoliageLifetimeTicks() {
+        return 600; // 30 segundos
+    }
+
     enum Mode {
         FOLIAGE_SPREAD,
         STATIONARY_POISON,

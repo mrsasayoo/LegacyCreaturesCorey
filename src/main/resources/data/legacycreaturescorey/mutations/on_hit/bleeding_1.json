@@ -6,9 +6,7 @@
   "display_name": {
     "literal": "Hemorragia I"
   },
-  "description": {
-    "literal": "5% de probabilidad de infligir 4 pulsos de daño sangrante."
-  },
+  "description": "5% de probabilidad de infligir 4 pulsos de daño sangrante (1 de daño cada uno).",
   "weight": 55,
   "actions": {
     "chance": 0.05,
@@ -23,6 +21,12 @@
   "entity_types": [],
   "incompatible_with": [
     "legacycreaturescorey:on_hit/bleeding_2",
-    "legacycreaturescorey:on_hit/bleeding_3"
+    "legacycreaturescorey:on_hit/bleeding_3",
+    "legacycreaturescorey:on_hit/mortal_wound_1",
+    "legacycreaturescorey:on_hit/mortal_wound_2",
+    "legacycreaturescorey:on_hit/mortal_wound_3",
+    "legacycreaturescorey:on_hit/poison_1",
+    "legacycreaturescorey:on_hit/poison_2",
+    "legacycreaturescorey:on_hit/poison_3"
   ]
 }

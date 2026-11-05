@@ -4,12 +4,22 @@
   "type": "auras",
   "display_name": "Vanguard's Bulwark Aura II",
   "cost": 15,
-  "description": "Refuerza la resistencia del escuadrón del mob.",
+  "description": "Regeneración I continua para los aliados dentro de 8 bloques (nivel 1) y, además, Resistencia I durante 2 segundos cada 4 segundos.",
   "weight": 25,
   "actions": {
     "radius": 8.0,
-    "interval_ticks": 80,
+    "interval_ticks": 20,
     "effects": [
+      {
+        "id": "minecraft:regeneration",
+        "duration": 40,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ],
+    "pulse_effects": [
       {
         "id": "minecraft:resistance",
         "duration": 40,
@@ -18,7 +28,8 @@
         "show_particles": true,
         "show_icon": true
       }
-    ]
+    ],
+    "pulse_interval_ticks": 80
   },
   "entity_types": [],
   "incompatible_with": []

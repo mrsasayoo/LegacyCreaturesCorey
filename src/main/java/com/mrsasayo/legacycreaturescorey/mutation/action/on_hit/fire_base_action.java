@@ -2,6 +2,7 @@ package com.mrsasayo.legacycreaturescorey.mutation.action.on_hit;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.proc_on_hit_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
 
@@ -11,7 +12,7 @@ abstract class fire_base_action extends proc_on_hit_action {
     protected fire_base_action(mutation_action_config config,
             double defaultChance,
             int defaultSeconds) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.fireSeconds = Math.max(0, resolveSeconds(config, defaultSeconds));
     }
 
@@ -37,5 +38,9 @@ abstract class fire_base_action extends proc_on_hit_action {
             return;
         }
         victim.setRemainingFireTicks(fireSeconds * 20);
+        // «Llamas Voraces»: estela de fuego bajo el jugador ardiente (1 daño por bloque pisado).
+        if (attacker.level() instanceof ServerLevel world) {
+            proc_side_effects_helper.scheduleFireTrail(world, victim, fireSeconds);
+        }
     }
 }

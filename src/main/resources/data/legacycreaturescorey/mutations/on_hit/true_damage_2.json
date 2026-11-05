@@ -12,14 +12,7 @@
   "weight": 8,
   "actions": {
     "chance": 0.1,
-    "side_effects": [
-      {
-        "id": "minecraft:mining_fatigue",
-        "duration_ticks": 50,
-        "amplifier": 3,
-        "target": "SELF"
-      }
-    ]
+    "attack_downtime_ticks": 50
   },
   "incompatible_with": [
     "legacycreaturescorey:on_hit/true_damage_1",

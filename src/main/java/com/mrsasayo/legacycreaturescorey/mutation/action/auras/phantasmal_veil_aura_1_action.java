@@ -7,11 +7,15 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class phantasmal_veil_aura_1_action implements mutation_action, PhantasmalSource {
     private final double radius;
+    private final boolean healLie;
+    private final float lastLieThreshold;
     private final int intervalTicks;
     private final int particleCount;
 
     public phantasmal_veil_aura_1_action(mutation_action_config config) {
-        this.radius = config.getDouble("radius", 16.0D);
+        this.radius = config.getDouble("radius", 12.0D);
+        this.healLie = config.getBoolean("heal_lie", true);
+        this.lastLieThreshold = (float) Math.min(1.0D, Math.max(0.0D, config.getDouble("last_lie_threshold", 0.25D)));
         this.intervalTicks = Math.max(1, config.getInt("interval_ticks", 20));
         this.particleCount = Math.max(1, config.getInt("particle_count", 5));
         PhantasmalHandler.INSTANCE.ensureInitialized();
@@ -41,6 +45,16 @@ public class phantasmal_veil_aura_1_action implements mutation_action, Phantasma
     @Override
     public double getRadius() {
         return radius;
+    }
+
+    @Override
+    public boolean isHealLie() {
+        return healLie;
+    }
+
+    @Override
+    public float getLastLieThreshold() {
+        return lastLieThreshold;
     }
 
     @Override

@@ -129,15 +129,17 @@ public final class StatusEffectTicker {
                     state.setSlideDirection(horizontal);
                 }
 
-                Vec3 direction = horizontalSq > 1.0E-4D ? horizontal.normalize() : state.getSlideDirection();
-                if (direction == Vec3.ZERO) {
+                if (horizontalSq <= 1.0E-4D) {
+                    // Sin movimiento propio ni momentum: NO se inventa desplazamiento.
                     return;
                 }
-
-                double baseSpeed = Math.sqrt(Math.max(horizontalSq, 0.0D));
-                double inertiaFloor = 0.24D + state.amplifier * 0.05D;
-                double acceleration = 1.12D + state.amplifier * 0.06D;
-                double newSpeed = Math.min(Math.max(baseSpeed, inertiaFloor) * acceleration, 1.35D);
+                Vec3 direction = horizontal.normalize();
+                double baseSpeed = Math.sqrt(horizontalSq);
+                // «Piso Resbaladizo» estilo hielo: deshace la fricción del suelo normal
+                // (0.546 -> 0.98 por tick) para que el momentum resbale, sin acelerar
+                // ni fijar velocidad mínima (eso empujaba al jugador tras el golpe).
+                double frictionRestore = 0.98D / 0.546D;
+                double newSpeed = Math.min(baseSpeed * frictionRestore, Math.max(baseSpeed, 0.35D));
                 Vec3 newHorizontal = direction.scale(newSpeed);
 
                 double vertical = velocity.y;
@@ -199,7 +201,10 @@ public final class StatusEffectTicker {
 
         static TrackedEffect from(Holder<MobEffect> entry) {
             MobEffect effect = entry.value();
-            if (effect == ModStatusEffects.SLIPPERY_FLOOR) {
+            // SLIPPERY_FLOOR ya no se procesa aquí: el jugador es client-authoritative
+            // (las ediciones server-side de velocidad las pisaba el cliente). La emulación
+            // de hielo vive ahora en ClientPlayerEntityMixin.
+            if (false) {
                 return SLIPPERY_FLOOR;
             }
             if (effect == ModStatusEffects.HEAVY_GRAVITY) {

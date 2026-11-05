@@ -22,7 +22,10 @@
         "show_particles": true,
         "show_icon": true
       }
-    ]
+    ],
+    "proc_sound": "minecraft:block.conduit.ambient",
+    "proc_particles": "minecraft:smoke",
+    "proc_particle_count": 14
   },
   "incompatible_with": [
     "legacycreaturescorey:on_hit/wither_1",

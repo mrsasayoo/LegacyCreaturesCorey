@@ -113,6 +113,31 @@ la columna final `implementada_en_el_mod` (SI/NO, verificada contra los JSON + v
   verificadas en mundo: 0 `Validación fallida`, asignación en vivo en logs) —, y 949
   del catálogo aún no tienen JSON.
 
+#### Gramática sensorial de on-hit (Lote «Identidad On-Hit», 2026-11-04)
+Todo `proc_on_hit_action` admite campos opcionales en `actions` para dar identidad
+audiovisual al proc (solo suenan/dibujan cuando el dado de chance pasa):
+
+| Campo | Tipo | Descripción |
+| --- | --- | --- |
+| `proc_sound` | Identifier | Sonido del proc (resuelto contra `minecraft:sound_event`) |
+| `proc_particles` | Identifier | Partícula SimpleParticleType (p. ej. `flame`, `snowflake`) |
+| `proc_particle_count` | Integer (def. 12) | Cantidad de partículas |
+| `proc_pitch` | Float (def. 1.0) | Tono del sonido |
+
+Efectos custom nuevos de la categoría: `legacycreaturescorey:expuesto` (marcador de
+daño recibido +10/15/20%, amplificador 0/1/2, aplicado por critical y true_damage_3;
+la amplificación la hace el mixin `expuesto_damage_mixin` sobre `hurtServer`) y
+`legacycreaturescorey:agobio` (ver oppressive_presence). Overlays de pantalla:
+`tunnel_vision` (Visión de Túnel) y viñeta de escarcha por congelación (freezing).
+Nuevas mutaciones de nivel 3: `anti_shield_3` («Juramento Roto»: escudo -50 durabilidad
++ cooldown 4 s + self-downtime 1 s) y `true_damage_3` («Herida Verdadera»: daño
+prevenido re-aplicado + Expuesto II + self-downtime 3 s). Rediseños con mecánica
+conservada: theft_of_life/experience_theft (línea de partículas jugador→mob),
+fire (estela de fuego 1 daño/bloque pisado, `inFire`, respeta fireImmune),
+wither (latido grave acelerado según HP), slow_falling («Aire Espeso»: anula
+elytra/Riptide; nivel 3 también rompe el sprint). El guard de re-entrada en
+`mutation_runtime` impide que el daño generado dentro de un proc dispare más procs.
+
 #### Acciones on-death (Último Aliento)
 | Acción | Campos | Notas |
 | --- | --- | --- |

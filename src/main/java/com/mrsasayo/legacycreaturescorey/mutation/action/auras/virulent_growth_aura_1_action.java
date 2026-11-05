@@ -13,6 +13,7 @@ public class virulent_growth_aura_1_action implements mutation_action, VirulentS
     private final int intervalTicks;
     private final int attempts;
     private final double spreadChance;
+    private final int foliageLifetimeTicks;
 
     public virulent_growth_aura_1_action(mutation_action_config config) {
         this.radius = config.getDouble("radius", 6.0D);
@@ -20,6 +21,7 @@ public class virulent_growth_aura_1_action implements mutation_action, VirulentS
         this.attempts = Math.max(0, config.getInt("attempts", 3));
         double chance = config.getDouble("spread_chance", 0.65D);
         this.spreadChance = Math.max(0.0D, Math.min(1.0D, chance));
+        this.foliageLifetimeTicks = Math.max(1, config.getInt("foliage_lifetime_ticks", 600));
         VirulentHandler.INSTANCE.ensureInitialized();
     }
 
@@ -82,5 +84,10 @@ public class virulent_growth_aura_1_action implements mutation_action, VirulentS
     @Override
     public int getFangWarmupTicks() {
         return 0;
+    }
+
+    @Override
+    public int getFoliageLifetimeTicks() {
+        return foliageLifetimeTicks;
     }
 }

@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/anti_shield_3",
+  "type": "on_hit",
+  "cost": 22,
+  "display_name": "Juramento Roto III",
+  "description": "10% de probabilidad de inutilizar el escudo del jugador durante 4 segundos y destrozarle 25 de durabilidad directa con sonido de grieta. El mob queda 1 s sin poder atacar tras activarse.",
+  "weight": 8,
+  "actions": {
+    "chance": 0.15,
+    "cooldown_ticks": 80,
+    "proc_sound": "minecraft:item.shield.break"
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/anti_shield_1",
+    "legacycreaturescorey:on_hit/anti_shield_2"
+  ]
+}

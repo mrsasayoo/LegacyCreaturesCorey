@@ -1,13 +1,17 @@
 package com.mrsasayo.legacycreaturescorey.client;
 
+import com.mrsasayo.legacycreaturescorey.content.status.ModStatusEffects;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectPayload;
 import com.mrsasayo.legacycreaturescorey.core.network.ClientEffectType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffect;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -20,6 +24,10 @@ public final class ClientEffectHandler {
     private static final Map<ClientEffectType, ActiveEffect> ACTIVE = new EnumMap<>(ClientEffectType.class);
     private static final Random RANDOM = new Random();
     private static Float storedHostileVolume;
+    // Giro de desorientación (concussive_blow_3): yaw capturado al recibir el payload
+    private static Float disorientStartYaw;
+    // Sordera (deafening_strike): volumen maestro original del usuario mientras dura el efecto
+    private static Float deafeningStoredMasterVolume;
 
     private ClientEffectHandler() {}
 
@@ -31,12 +39,20 @@ public final class ClientEffectHandler {
     }
 
     private static void handlePayload(ClientEffectPayload payload) {
+        Minecraft client = Minecraft.getInstance();
         if (payload.start()) {
+            if (payload.effect() == ClientEffectType.DISORIENT_SPIN) {
+                LocalPlayer player = client.player;
+                disorientStartYaw = player != null ? player.getYRot() : 0.0F;
+            }
             ACTIVE.put(payload.effect(), new ActiveEffect(payload.durationTicks(), payload.intensity()));
             if (payload.effect().modifiesHostileVolume()) {
                 updateHostileVolume();
             }
         } else {
+            if (payload.effect() == ClientEffectType.DISORIENT_SPIN) {
+                finalizeDisorientSpin(client);
+            }
             ACTIVE.remove(payload.effect());
             if (payload.effect().modifiesHostileVolume()) {
                 updateHostileVolume();
@@ -45,10 +61,18 @@ public final class ClientEffectHandler {
     }
 
     private static void tickClient(Minecraft client) {
+        updateDeafeningVolumes(client);
         if (ACTIVE.isEmpty()) {
             return;
         }
-        ACTIVE.entrySet().removeIf(entry -> entry.getValue().tickAndExpired());
+        ACTIVE.entrySet().removeIf(entry -> {
+            boolean expired = entry.getValue().tickAndExpired();
+            if (expired && entry.getKey() == ClientEffectType.DISORIENT_SPIN) {
+                // El último escalón del easing se completa fijando exactamente +180°
+                finalizeDisorientSpin(client);
+            }
+            return expired;
+        });
         if (ACTIVE.isEmpty()) {
             restoreHostileVolume();
             return;
@@ -60,6 +84,76 @@ public final class ClientEffectHandler {
         if (!ACTIVE.containsKey(ClientEffectType.HOSTILE_VOLUME_SCALE) && storedHostileVolume != null) {
             restoreHostileVolume();
         }
+    }
+
+    /**
+     * Progreso del giro 0..1 (para el easing del mixin de cliente).
+     */
+    public static float getDisorientSpinProgress() {
+        ActiveEffect effect = ACTIVE.get(ClientEffectType.DISORIENT_SPIN);
+        if (effect == null || effect.totalDurationTicks <= 0) {
+            return 0.0F;
+        }
+        int elapsed = effect.totalDurationTicks - Math.max(0, effect.ticksRemaining);
+        return Mth.clamp((float) elapsed / effect.totalDurationTicks, 0.0F, 1.0F);
+    }
+
+    public static float getDisorientStartYaw() {
+        return disorientStartYaw != null ? disorientStartYaw : 0.0F;
+    }
+
+    private static void finalizeDisorientSpin(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player != null && disorientStartYaw != null) {
+            float finalYaw = Mth.wrapDegrees(disorientStartYaw + 180.0F);
+            player.setYRot(finalYaw);
+            player.setYHeadRot(finalYaw);
+        }
+        disorientStartYaw = null;
+    }
+
+    public static void clearDisorientSpin() {
+        disorientStartYaw = null;
+        ACTIVE.remove(ClientEffectType.DISORIENT_SPIN);
+    }
+
+    /**
+     * Sordera por deafening_strike: en vez de tocar fuente por fuente, escala el
+     * VOLUMEN MAESTRO (afecta a todas las fuentes de golpe). Oídos Zumbando = 50%,
+     * Silencio Absoluto = 0%. Al no haber ninguno de los dos efectos activos, se
+     * restaura exactamente el volumen que el usuario tenía guardado.
+     */
+    private static void updateDeafeningVolumes(Minecraft client) {
+        LocalPlayer player = client.player;
+        Float scale = null;
+        if (player != null) {
+            if (player.hasEffect(holderOf(ModStatusEffects.ABSOLUTE_SILENCE))) {
+                scale = 0.0F;
+            } else if (player.hasEffect(holderOf(ModStatusEffects.RINGING_EARS))) {
+                scale = 0.5F;
+            }
+        }
+        if (scale == null) {
+            restoreDeafeningMasterVolume(client);
+            return;
+        }
+        if (deafeningStoredMasterVolume == null) {
+            deafeningStoredMasterVolume = (float) client.options.getSoundSourceVolume(SoundSource.MASTER);
+        }
+        client.options.getSoundSourceOptionInstance(SoundSource.MASTER)
+            .set((double) (deafeningStoredMasterVolume * scale));
+    }
+
+    private static void restoreDeafeningMasterVolume(Minecraft client) {
+        if (deafeningStoredMasterVolume == null) {
+            return;
+        }
+        client.options.getSoundSourceOptionInstance(SoundSource.MASTER).set((double) deafeningStoredMasterVolume);
+        deafeningStoredMasterVolume = null;
+    }
+
+    private static Holder<MobEffect> holderOf(MobEffect effect) {
+        return BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
     }
 
     private static void maybePlayPhantomSound(Minecraft client, float intensity) {
@@ -118,10 +212,12 @@ public final class ClientEffectHandler {
 
     private static final class ActiveEffect {
         private int ticksRemaining;
+        private final int totalDurationTicks;
         private final float intensity;
 
         private ActiveEffect(int duration, float intensity) {
             this.ticksRemaining = duration;
+            this.totalDurationTicks = Math.max(1, duration);
             this.intensity = intensity;
         }
 

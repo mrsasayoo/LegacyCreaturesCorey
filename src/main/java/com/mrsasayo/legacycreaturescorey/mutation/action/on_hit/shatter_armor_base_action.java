@@ -29,7 +29,7 @@ abstract class shatter_armor_base_action extends proc_on_hit_action {
             double defaultChance,
             double defaultReductionPercent,
             int defaultDurationSeconds) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         double reduction = config.getDouble("reduction_percent", defaultReductionPercent);
         this.percentModifier = -Math.abs(reduction);
         this.durationTicks = resolveDurationTicks(config, defaultDurationSeconds * 20);

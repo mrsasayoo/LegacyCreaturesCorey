@@ -11,7 +11,7 @@
   },
   "weight": 25,
   "actions": {
-    "chance": 0.10,
+    "chance": 0.12,
     "effects": [
       {
         "id": "legacycreaturescorey:mortal_wound_major",
@@ -24,6 +24,9 @@
     ]
   },
   "incompatible_with": [
+    "legacycreaturescorey:on_hit/bleeding_1",
+    "legacycreaturescorey:on_hit/bleeding_2",
+    "legacycreaturescorey:on_hit/bleeding_3",
     "legacycreaturescorey:on_hit/mortal_wound_1",
     "legacycreaturescorey:on_hit/mortal_wound_3"
   ]

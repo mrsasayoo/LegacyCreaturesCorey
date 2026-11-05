@@ -12,7 +12,10 @@
   "weight": 70,
   "actions": {
     "chance": 0.15,
-    "duration_seconds": 2
+    "duration_seconds": 2,
+    "proc_sound": "minecraft:item.firecharge.use",
+    "proc_particles": "minecraft:flame",
+    "proc_particle_count": 10
   },
   "entity_types": [],
   "incompatible_with": [

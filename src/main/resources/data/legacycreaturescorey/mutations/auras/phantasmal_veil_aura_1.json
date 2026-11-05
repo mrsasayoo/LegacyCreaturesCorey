@@ -4,12 +4,12 @@
   "type": "auras",
   "display_name": "Phantasmal Veil Aura I",
   "cost": 3,
-  "description": "Emite ilusiones visuales que confunden la percepción de la batalla.",
+  "description": "Espejo Invertido: al recibir daño de un jugador cercano (12 bloques) simula curarse con corazones y sonido de mejora; al cruzar el 25% de su vida finge una resurrección con el estallido del tótem (1 vez por combate).",
   "weight": 90,
   "actions": {
-    "radius": 15.0,
-    "interval_ticks": 60,
-    "particle_count": 5
+    "radius": 12.0,
+    "heal_lie": true,
+    "last_lie_threshold": 0.25
   },
   "entity_types": [],
   "incompatible_with": []

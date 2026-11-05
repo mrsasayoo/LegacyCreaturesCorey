@@ -14,7 +14,7 @@ abstract class anti_shield_base_action extends proc_on_hit_action {
     protected anti_shield_base_action(mutation_action_config config,
             double defaultChance,
             int defaultCooldownTicks) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         this.cooldownTicks = Math.max(0, config.getInt("cooldown_ticks", defaultCooldownTicks));
     }
 
@@ -28,5 +28,10 @@ abstract class anti_shield_base_action extends proc_on_hit_action {
         }
         ItemStack shieldStack = new ItemStack(Items.SHIELD);
         player.getCooldowns().addCooldown(shieldStack, cooldownTicks);
+        afterProc(attacker, victim);
+    }
+
+    /** Gancho opcional para subclases (p. ej. anti_shield_3 «Juramento Roto»). */
+    protected void afterProc(LivingEntity attacker, LivingEntity victim) {
     }
 }

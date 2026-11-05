@@ -4,10 +4,8 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +74,12 @@ public final class PsionicThornsHandler {
             return;
         }
 
+        double maxDistance = config.getMaxDistance();
+        if (victim.distanceToSqr(attacker) > maxDistance * maxDistance) {
+            return;
+        }
+
+        // Efectos configurables sobre el propio portador (vacío por defecto).
         List<PsionicThornsSource.ThornsEffect> selfEffects = config.getSelfEffects();
         if (selfEffects != null && !selfEffects.isEmpty()) {
             for (PsionicThornsSource.ThornsEffect effect : selfEffects) {
@@ -86,44 +90,17 @@ public final class PsionicThornsHandler {
             }
         }
 
-        double maxDistance = config.getMaxDistance();
-        double maxDistanceSquared = maxDistance * maxDistance;
-
-        List<LivingEntity> nearbyTargets = serverWorld.getEntitiesOfClass(
-                LivingEntity.class,
-                victim.getBoundingBox().inflate(maxDistance),
-                living -> living.isAlive()
-                        && living != victim
-                        && !(living instanceof Player));
-
-        List<LivingEntity> validTargets = new ArrayList<>();
-        for (LivingEntity target : nearbyTargets) {
-            if (victim.distanceToSqr(target) <= maxDistanceSquared) {
-                validTargets.add(target);
-            }
-        }
-
-        if (validTargets.isEmpty()) {
-            return;
-        }
-
-        float splitDamage = reflectedDamage / validTargets.size();
-        if (splitDamage <= 0) {
-            return;
-        }
+        // La reflexión va SIEMPRE al atacante (como describe el catálogo), como daño mágico.
+        attacker.hurtServer(serverWorld, victim.damageSources().magic(), reflectedDamage);
 
         List<PsionicThornsSource.ThornsEffect> effects = config.getEffects();
-
-        for (LivingEntity target : validTargets) {
-            target.hurtServer(serverWorld, victim.damageSources().magic(), splitDamage);
-            if (effects == null || effects.isEmpty()) {
-                continue;
-            }
-            for (PsionicThornsSource.ThornsEffect effect : effects) {
-                if (effect.effect() != null) {
-                    target.addEffect(
-                            new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
-                }
+        if (effects == null || effects.isEmpty() || !attacker.isAlive()) {
+            return;
+        }
+        for (PsionicThornsSource.ThornsEffect effect : effects) {
+            if (effect.effect() != null) {
+                attacker.addEffect(
+                        new MobEffectInstance(effect.effect(), effect.duration(), effect.amplifier()));
             }
         }
     }

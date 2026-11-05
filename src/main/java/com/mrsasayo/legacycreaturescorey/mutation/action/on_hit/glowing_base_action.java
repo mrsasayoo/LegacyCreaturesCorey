@@ -12,10 +12,15 @@ import net.minecraft.util.Mth;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+/**
+ * Glowing parpadeante: 1 segundo activo, 1 segundo inactivo, repetido según el nivel
+ * (pulses = ciclos). Nivel 1 = 1 ciclo, nivel 2 = 2, nivel 3 = 3.
+ */
 abstract class glowing_base_action extends proc_on_hit_action {
-    private final int pulses;
-    private final int pulseDurationTicks;
-    private final int intervalTicks;
+    private static final int ON_TICKS = 20;
+    private static final int OFF_TICKS = 20;
+
+    private final int cycles;
     private final List<status_effect_config_parser.status_effect_config_entry> effects;
 
     protected glowing_base_action(mutation_action_config config,
@@ -23,12 +28,10 @@ abstract class glowing_base_action extends proc_on_hit_action {
             int defaultPulses,
             int defaultDurationTicks,
             int defaultIntervalTicks) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
-        this.pulses = Math.max(1, config.getInt("pulses", defaultPulses));
-        this.pulseDurationTicks = resolveTicks(config, "duration", defaultDurationTicks);
-        this.intervalTicks = resolveTicks(config, "interval", defaultIntervalTicks);
-        int amplifier = Math.max(0, config.getInt("amplifier", 0));
-        this.effects = resolveEffects(config, pulseDurationTicks, amplifier);
+        super(config, defaultChance);
+        this.cycles = Math.max(1, config.getInt("pulses", config.getInt("cycles", defaultPulses)));
+        int onTicks = resolveTicks(config, "duration", Math.min(ON_TICKS, Math.max(1, defaultDurationTicks)));
+        this.effects = resolveEffects(config, onTicks, Math.max(0, config.getInt("amplifier", 0)));
     }
 
     private int resolveTicks(mutation_action_config config, String key, int fallback) {
@@ -49,10 +52,10 @@ abstract class glowing_base_action extends proc_on_hit_action {
         List<status_effect_config_parser.status_effect_config_entry> fallback = List.of();
         if (fallbackDuration > 0) {
             fallback = List.of(status_effect_config_parser.createEntry(MobEffects.GLOWING,
-                    fallbackDuration,
+                    fallbackDuration + 10,
                     fallbackAmplifier,
                     true,
-                    true,
+                    false,
                     true));
         }
         return status_effect_config_parser.parseList(config, "effects", fallback);
@@ -60,43 +63,25 @@ abstract class glowing_base_action extends proc_on_hit_action {
 
     @Override
     protected void onProc(LivingEntity attacker, LivingEntity victim) {
-        if (!(victim.level() instanceof ServerLevel world) || pulseDurationTicks <= 0) {
+        if (!(victim.level() instanceof ServerLevel world) || effects.isEmpty()) {
             return;
         }
-
-        applyPulse(victim);
-        if (pulses <= 1) {
-            return;
-        }
-
-        if (intervalTicks <= 0) {
-            for (int i = 1; i < pulses; i++) {
-                applyPulse(victim);
-            }
-            return;
-        }
-
-        for (int i = 1; i < pulses; i++) {
-            mutation_task_scheduler.schedule(world,
-                    new PulseTask(victim, intervalTicks * i, effects));
-        }
+        mutation_task_scheduler.schedule(world, new BlinkTask(victim, effects, cycles));
     }
 
-    private void applyPulse(LivingEntity entity) {
-        status_effect_config_parser.applyEffects(entity, effects);
-    }
-
-    private static final class PulseTask implements mutation_task_scheduler.TimedTask {
+    private static final class BlinkTask implements mutation_task_scheduler.TimedTask {
         private final WeakReference<LivingEntity> target;
         private final List<status_effect_config_parser.status_effect_config_entry> effects;
-        private int ticksUntilPulse;
+        private int remainingCycles;
+        private int phaseTicks;
+        private boolean on = true;
 
-        private PulseTask(LivingEntity entity,
-                int delayTicks,
-                List<status_effect_config_parser.status_effect_config_entry> effects) {
+        private BlinkTask(LivingEntity entity,
+                List<status_effect_config_parser.status_effect_config_entry> effects,
+                int cycles) {
             this.target = new WeakReference<>(entity);
             this.effects = effects;
-            this.ticksUntilPulse = Math.max(0, delayTicks);
+            this.remainingCycles = Math.max(1, cycles);
         }
 
         @Override
@@ -105,12 +90,25 @@ abstract class glowing_base_action extends proc_on_hit_action {
             if (entity == null || !entity.isAlive()) {
                 return true;
             }
-            if (ticksUntilPulse > 0) {
-                ticksUntilPulse--;
-                return false;
+            phaseTicks++;
+            if (on) {
+                if (phaseTicks == 1) {
+                    status_effect_config_parser.applyEffects(entity, effects);
+                }
+                if (phaseTicks >= ON_TICKS) {
+                    entity.removeEffect(MobEffects.GLOWING);
+                    on = false;
+                    phaseTicks = 0;
+                }
+            } else if (phaseTicks >= OFF_TICKS) {
+                on = true;
+                phaseTicks = 0;
+                remainingCycles--;
+                if (remainingCycles <= 0) {
+                    return true;
+                }
             }
-            status_effect_config_parser.applyEffects(entity, effects);
-            return true;
+            return false;
         }
     }
 }

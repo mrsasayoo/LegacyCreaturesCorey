@@ -11,7 +11,7 @@
   },
   "weight": 50,
   "actions": {
-    "chance": 0.15,
+    "chance": 0.1,
     "cooldown_ticks": 40
   },
   "entity_types": [],

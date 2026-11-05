@@ -6,15 +6,13 @@
   "display_name": {
     "literal": "Golpe Ensordecedor II"
   },
-  "description": {
-    "literal": "15% de probabilidad de aplicar Sonidos Fantasma durante 6 s, reproduciendo ruidos hostiles aleatorios alrededor del jugador."
-  },
+  "description": "15% de probabilidad de aplicar Sonidos Fantasma durante 6 s: reproduce ruidos hostiles aleatorios alrededor del jugador.",
   "weight": 40,
   "actions": {
     "chance": 0.15,
     "effects": [
       {
-        "id": "legacycreaturescorey:phantom_sounds",
+        "id": "legacycreaturescorey:phantom_noise",
         "duration": 120,
         "amplifier": 0,
         "ambient": true,

@@ -1,21 +1,24 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/push_1",
-    "type": "on_hit",
-    "cost": 3,
-    "display_name": {
-        "literal": "Empuje I"
-    },
-    "description": {
-        "literal": "15% de probabilidad de empujar 2 bloques al objetivo."
-    },
-    "weight": 85,
-    "actions": {
-        "chance": 0.15,
-        "distance": 2.0
-    },
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/push_2",
-        "legacycreaturescorey:on_hit/push_3"
-    ]
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/push_1",
+  "type": "on_hit",
+  "cost": 3,
+  "display_name": {
+    "literal": "Empuje I"
+  },
+  "description": {
+    "literal": "15% de probabilidad de empujar 2 bloques al objetivo."
+  },
+  "weight": 85,
+  "actions": {
+    "chance": 0.15,
+    "distance": 2.0,
+    "proc_sound": "minecraft:entity.player.attack.sweep",
+    "proc_particles": "minecraft:poof",
+    "proc_particle_count": 10
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/push_2",
+    "legacycreaturescorey:on_hit/push_3"
+  ]
 }

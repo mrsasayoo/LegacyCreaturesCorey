@@ -12,7 +12,10 @@
   "weight": 70,
   "actions": {
     "chance": 0.2,
-    "heal_amount": 4.0
+    "heal_amount": 4.0,
+    "proc_sound": "minecraft:entity.wither_skeleton.hurt",
+    "proc_particles": "minecraft:heart",
+    "proc_particle_count": 8
   },
   "incompatible_with": [
     "legacycreaturescorey:on_hit/theft_of_life_2",

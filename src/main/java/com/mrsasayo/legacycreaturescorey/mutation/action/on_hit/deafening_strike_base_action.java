@@ -21,7 +21,7 @@ abstract class deafening_strike_base_action extends proc_on_hit_action {
             MobEffect defaultEffect,
             int defaultDurationTicks,
             int defaultAmplifier) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         Holder<MobEffect> fallbackEffect = resolveEffect(config, defaultEffect);
         int durationTicks = resolveDuration(config, defaultDurationTicks);
         int amplifier = Math.max(0, config.getInt("amplifier", defaultAmplifier));

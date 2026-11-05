@@ -20,15 +20,6 @@ public class psionic_thorns_aura_2_action implements mutation_action, PsionicTho
                     true,
                     true));
 
-    private static final List<status_effect_config_parser.status_effect_config_entry> DEFAULT_SELF_EFFECTS = List.of(
-        new status_effect_config_parser.status_effect_config_entry(
-            MobEffects.SPEED,
-            20,
-            1,
-            true,
-            true,
-            true));
-
     private final double reflectionPercentage;
     private final double maxDistance;
     private final List<ThornsEffect> effects;
@@ -38,7 +29,7 @@ public class psionic_thorns_aura_2_action implements mutation_action, PsionicTho
         this.reflectionPercentage = clampPercent(config.getDouble("reflection_percentage", 0.15D));
         this.maxDistance = Math.max(0.0D, config.getDouble("radius", 5.0D));
         this.effects = convertEffects(status_effect_config_parser.parseList(config, "effects", DEFAULT_EFFECTS));
-        this.selfEffects = convertEffects(status_effect_config_parser.parseList(config, "self_effects", DEFAULT_SELF_EFFECTS));
+        this.selfEffects = convertEffects(status_effect_config_parser.parseList(config, "self_effects", List.of()));
         PsionicThornsHandler.INSTANCE.ensureInitialized();
     }
 

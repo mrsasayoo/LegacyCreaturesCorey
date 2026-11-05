@@ -1,35 +1,38 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/slowness_2",
-    "type": "on_hit",
-    "cost": 5,
-    "display_name": {
-        "literal": "Aletargado II"
-    },
-    "description": {
-        "literal": "15% de probabilidad de aplicar Lentitud I durante 4 s."
-    },
-    "weight": 60,
-    "actions": {
-        "chance": 0.15,
-        "duration_seconds": 3,
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/slowness_2",
+  "type": "on_hit",
+  "cost": 5,
+  "display_name": {
+    "literal": "Aletargado II"
+  },
+  "description": {
+    "literal": "15% de probabilidad de aplicar Lentitud I durante 4 s."
+  },
+  "weight": 60,
+  "actions": {
+    "chance": 0.15,
+    "duration_seconds": 3,
+    "amplifier": 0,
+    "effects": [
+      {
+        "id": "minecraft:slowness",
+        "duration": 60,
         "amplifier": 0,
-        "effects": [
-            {
-                "id": "minecraft:slowness",
-                "duration": 60,
-                "amplifier": 0,
-                "ambient": true,
-                "show_particles": true,
-                "show_icon": true
-            }
-        ]
-    },
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/slowness_1",
-        "legacycreaturescorey:on_hit/slowness_3",
-        "legacycreaturescorey:on_hit/freezing_1",
-        "legacycreaturescorey:on_hit/freezing_2",
-        "legacycreaturescorey:on_hit/freezing_3"
-    ]
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
+    ],
+    "proc_sound": "minecraft:block.honey_block.break",
+    "proc_particles": "minecraft:falling_honey",
+    "proc_particle_count": 10
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/slowness_1",
+    "legacycreaturescorey:on_hit/slowness_3",
+    "legacycreaturescorey:on_hit/freezing_1",
+    "legacycreaturescorey:on_hit/freezing_2",
+    "legacycreaturescorey:on_hit/freezing_3"
+  ]
 }

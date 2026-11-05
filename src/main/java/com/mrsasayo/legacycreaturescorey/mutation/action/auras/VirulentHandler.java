@@ -32,7 +32,7 @@ public final class VirulentHandler {
 
     private final Map<ServerLevel, List<ActiveAura>> active = new WeakHashMap<>();
     private final Map<ServerLevel, List<DecayEntry>> scheduledDecay = new WeakHashMap<>();
-    private static final int FOLIAGE_LIFESPAN_TICKS = 20 * 60;
+    private static final int DEFAULT_FOLIAGE_LIFESPAN_TICKS = 600; // 30 segundos
     private boolean initialized;
 
     private VirulentHandler() {
@@ -101,6 +101,7 @@ public final class VirulentHandler {
         RandomSource random = world.getRandom();
         double radius = aura.sourceDef.getRadius();
         int attempts = aura.sourceDef.getAttempts();
+        int lifetime = aura.sourceDef.getFoliageLifetimeTicks();
         boolean success = false;
 
         for (int i = 0; i < attempts; i++) {
@@ -110,13 +111,13 @@ public final class VirulentHandler {
             if (aura.sourceDef.getSpreadChance() < 1.0D && random.nextDouble() > aura.sourceDef.getSpreadChance()) {
                 continue;
             }
-            if (tryGrowFoliage(world, source, radius, random)) {
+            if (tryGrowFoliage(world, source, radius, lifetime, random)) {
                 success = true;
             }
         }
 
         if (!success && aura.sourceDef.getSpreadChance() > 0.0D) {
-            tryGrowFoliage(world, source, radius, random);
+            tryGrowFoliage(world, source, radius, lifetime, random);
         }
     }
 
@@ -192,7 +193,7 @@ public final class VirulentHandler {
         return mutable.above();
     }
 
-    private boolean tryGrowFoliage(ServerLevel world, LivingEntity source, double radius, RandomSource random) {
+    private boolean tryGrowFoliage(ServerLevel world, LivingEntity source, double radius, int lifetime, RandomSource random) {
         if (radius <= 0.5D) {
             return false;
         }
@@ -211,7 +212,7 @@ public final class VirulentHandler {
 
         if (!world.getBlockState(placePos).isAir()) {
             if (random.nextFloat() < 0.3f) {
-                return tryPlaceGlowLichen(world, placePos, random);
+                return tryPlaceGlowLichen(world, placePos, lifetime, random);
             }
             return false;
         }
@@ -219,37 +220,37 @@ public final class VirulentHandler {
         int choice = random.nextInt(8);
 
         return switch (choice) {
-            case 0 -> tryPlaceBlock(world, placePos, Blocks.PALE_HANGING_MOSS.defaultBlockState());
-            case 1 -> tryPlaceBlock(world, placePos, Blocks.MOSS_CARPET.defaultBlockState());
-            case 2 -> tryPlaceBlock(world, placePos, Blocks.PALE_MOSS_CARPET.defaultBlockState());
-            case 3 -> tryPlaceBlock(world, placePos, Blocks.SHORT_GRASS.defaultBlockState());
-            case 4 -> tryPlaceBlock(world, placePos, Blocks.DEAD_BUSH.defaultBlockState());
-            case 5 -> tryPlaceTallPlant(world, placePos, Blocks.TALL_GRASS.defaultBlockState());
-            case 6 -> tryPlaceGlowLichen(world, placePos, random);
-            default -> tryPlaceVine(world, surface, random);
+            case 0 -> tryPlaceBlock(world, placePos, Blocks.PALE_HANGING_MOSS.defaultBlockState(), lifetime);
+            case 1 -> tryPlaceBlock(world, placePos, Blocks.MOSS_CARPET.defaultBlockState(), lifetime);
+            case 2 -> tryPlaceBlock(world, placePos, Blocks.PALE_MOSS_CARPET.defaultBlockState(), lifetime);
+            case 3 -> tryPlaceBlock(world, placePos, Blocks.SHORT_GRASS.defaultBlockState(), lifetime);
+            case 4 -> tryPlaceBlock(world, placePos, Blocks.DEAD_BUSH.defaultBlockState(), lifetime);
+            case 5 -> tryPlaceTallPlant(world, placePos, Blocks.TALL_GRASS.defaultBlockState(), lifetime);
+            case 6 -> tryPlaceGlowLichen(world, placePos, lifetime, random);
+            default -> tryPlaceVine(world, surface, lifetime, random);
         };
     }
 
-    private boolean tryPlaceBlock(ServerLevel world, BlockPos pos, BlockState state) {
+    private boolean tryPlaceBlock(ServerLevel world, BlockPos pos, BlockState state, int lifetime) {
         if (state.canSurvive(world, pos)) {
             world.setBlock(pos, state, Block.UPDATE_ALL, 3);
-            scheduleDecay(world, pos, state);
+            scheduleDecay(world, pos, state, lifetime);
             return true;
         }
         return false;
     }
 
-    private boolean tryPlaceTallPlant(ServerLevel world, BlockPos pos, BlockState state) {
+    private boolean tryPlaceTallPlant(ServerLevel world, BlockPos pos, BlockState state, int lifetime) {
         if (state.canSurvive(world, pos) && world.getBlockState(pos.above()).isAir()) {
             DoublePlantBlock.placeAt(world, state, pos, Block.UPDATE_ALL);
-            scheduleDecay(world, pos, state);
-            scheduleDecay(world, pos.above(), world.getBlockState(pos.above()));
+            scheduleDecay(world, pos, state, lifetime);
+            scheduleDecay(world, pos.above(), world.getBlockState(pos.above()), lifetime);
             return true;
         }
         return false;
     }
 
-    private boolean tryPlaceVine(ServerLevel world, BlockPos surface, RandomSource random) {
+    private boolean tryPlaceVine(ServerLevel world, BlockPos surface, int lifetime, RandomSource random) {
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             if (random.nextBoolean())
                 continue;
@@ -260,7 +261,7 @@ public final class VirulentHandler {
                         true);
                 if (vine.canSurvive(world, vinePos)) {
                     world.setBlock(vinePos, vine, Block.UPDATE_ALL, 3);
-                    scheduleDecay(world, vinePos, vine);
+                    scheduleDecay(world, vinePos, vine, lifetime);
                     return true;
                 }
             }
@@ -268,7 +269,7 @@ public final class VirulentHandler {
         return false;
     }
 
-    private boolean tryPlaceGlowLichen(ServerLevel world, BlockPos pos, RandomSource random) {
+    private boolean tryPlaceGlowLichen(ServerLevel world, BlockPos pos, int lifetime, RandomSource random) {
         for (Direction dir : Direction.values()) {
             if (random.nextBoolean())
                 continue;
@@ -277,7 +278,7 @@ public final class VirulentHandler {
                     .setValue(net.minecraft.world.level.block.MultifaceBlock.getFaceProperty(dir), true);
             if (state.canSurvive(world, pos)) {
                 world.setBlock(pos, state, Block.UPDATE_ALL, 3);
-                scheduleDecay(world, pos, state);
+                scheduleDecay(world, pos, state, lifetime);
                 return true;
             }
         }
@@ -303,9 +304,13 @@ public final class VirulentHandler {
     }
 
     private void scheduleDecay(ServerLevel world, BlockPos pos, BlockState state) {
+        scheduleDecay(world, pos, state, DEFAULT_FOLIAGE_LIFESPAN_TICKS);
+    }
+
+    private void scheduleDecay(ServerLevel world, BlockPos pos, BlockState state, int lifetimeTicks) {
         BlockPos immutablePos = pos.immutable();
         List<DecayEntry> entries = scheduledDecay.computeIfAbsent(world, ignored -> new ArrayList<>());
-        entries.add(new DecayEntry(immutablePos, state, world.getGameTime() + FOLIAGE_LIFESPAN_TICKS));
+        entries.add(new DecayEntry(immutablePos, state, world.getGameTime() + Math.max(1, lifetimeTicks)));
     }
 
     private void processDecay(ServerLevel world, long currentTick) {
@@ -323,6 +328,15 @@ public final class VirulentHandler {
             if (current.getBlock() == entry.placedState.getBlock()) {
                 // Elimina el follaje generado sin soltar drops para evitar granjas accidentales
                 world.destroyBlock(entry.pos, false);
+                // Señal visual: el follaje "muere" con humo para que el límite de tiempo se note
+                world.sendParticles(
+                        net.minecraft.core.particles.ParticleTypes.POOF,
+                        entry.pos.getX() + 0.5D,
+                        entry.pos.getY() + 0.5D,
+                        entry.pos.getZ() + 0.5D,
+                        6,
+                        0.2D, 0.2D, 0.2D,
+                        0.01D);
             }
             iterator.remove();
         }

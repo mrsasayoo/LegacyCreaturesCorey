@@ -1,40 +1,43 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/freezing_2",
-    "type": "on_hit",
-    "cost": 8,
-    "display_name": {
-        "literal": "Congelación II"
-    },
-    "description": {
-        "literal": "15% de probabilidad de congelar al objetivo durante 2 s."
-    },
-    "weight": 40,
-    "actions": {
-        "chance": 0.15,
-        "freeze_seconds": 3,
-        "effects": [
-            {
-                "id": "minecraft:slowness",
-                "duration": 60,
-                "amplifier": 0,
-                "ambient": true,
-                "show_particles": true,
-                "show_icon": true
-            }
-        ]
-    },
-    "entity_types": [],
-    "incompatible_with": [
-        "legacycreaturescorey:on_hit/freezing_1",
-        "legacycreaturescorey:on_hit/freezing_3",
-        "legacycreaturescorey:on_hit/slowness_1",
-        "legacycreaturescorey:on_hit/slowness_2",
-        "legacycreaturescorey:on_hit/slowness_3"
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/freezing_2",
+  "type": "on_hit",
+  "cost": 8,
+  "display_name": {
+    "literal": "Congelación II"
+  },
+  "description": {
+    "literal": "15% de probabilidad de congelar al objetivo durante 2 s."
+  },
+  "weight": 40,
+  "actions": {
+    "chance": 0.15,
+    "freeze_seconds": 3,
+    "effects": [
+      {
+        "id": "minecraft:slowness",
+        "duration": 60,
+        "amplifier": 0,
+        "ambient": true,
+        "show_particles": true,
+        "show_icon": true
+      }
     ],
-    "restrictions": {
-        "excluded_entity_types": [
-            "minecraft:stray"
-        ]
-    }
+    "proc_sound": "minecraft:block.glass.break",
+    "proc_particles": "minecraft:snowflake",
+    "proc_particle_count": 14
+  },
+  "entity_types": [],
+  "incompatible_with": [
+    "legacycreaturescorey:on_hit/freezing_1",
+    "legacycreaturescorey:on_hit/freezing_3",
+    "legacycreaturescorey:on_hit/slowness_1",
+    "legacycreaturescorey:on_hit/slowness_2",
+    "legacycreaturescorey:on_hit/slowness_3"
+  ],
+  "restrictions": {
+    "excluded_entity_types": [
+      "minecraft:stray"
+    ]
+  }
 }

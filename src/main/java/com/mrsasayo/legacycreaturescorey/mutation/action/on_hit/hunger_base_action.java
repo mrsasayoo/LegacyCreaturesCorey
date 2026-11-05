@@ -17,7 +17,7 @@ abstract class hunger_base_action extends proc_on_hit_action {
     protected hunger_base_action(mutation_action_config config,
             double defaultChance,
             int defaultDurationSeconds) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         int durationTicks = resolveDurationTicks(config, defaultDurationSeconds);
         int amplifier = Math.max(0, config.getInt("amplifier", 0));
         this.effects = resolveEffects(config, durationTicks, amplifier);

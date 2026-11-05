@@ -18,7 +18,7 @@ abstract class levitation_base_action extends proc_on_hit_action {
             double defaultChance,
             int defaultTargetDurationSeconds,
             int defaultSelfDurationTicks) {
-        super(Mth.clamp(config.getDouble("chance", defaultChance), 0.0D, 1.0D));
+        super(config, defaultChance);
         int defaultTargetTicks = Math.max(0, defaultTargetDurationSeconds * 20);
         this.targetDurationTicks = resolveDuration(config, "target", defaultTargetTicks);
         this.targetAmplifier = Math.max(0, config.getInt("target_amplifier", 0));
