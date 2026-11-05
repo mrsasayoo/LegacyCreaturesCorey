@@ -4,7 +4,7 @@ import com.mrsasayo.legacycreaturescorey.mixin.accessor.melee_attack_goal_access
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +21,7 @@ public abstract class melee_attack_goal_speed_mixin {
 
     @Inject(method = "getAttackInterval", at = @At("TAIL"), cancellable = true)
     private void legacycreaturescorey$scaleAttackInterval(CallbackInfoReturnable<Integer> cir) {
-        Mob mob = ((melee_attack_goal_accessor) this).legacycreaturescorey$getMob();
+        PathfinderMob mob = ((melee_attack_goal_accessor) this).legacycreaturescorey$getMob();
         if (mob == null) {
             return;
         }

@@ -33,6 +33,10 @@
 ## Otras reglas vigentes del proyecto
 
 - Verificar firmas con `javap` ANTES de usar cualquier API nueva (26.3 sin mappings).
+- ANTES de lanzar `./gradlew runClient`: compilar (`./gradlew build`, 0 errores) Y validar
+  los objetivos de los mixins nuevos con `javap` — los accessors con tipo de campo
+  equivocado compilan pero rompen el BOOT con InvalidAccessorException (ejemplo real:
+  el campo de MeleeAttackGoal es PathfinderMob, no Mob → crash al arrancar el juego).
 - `docs/mutaciones.csv` es la fuente de verdad del catálogo; el JSON real manda
   sobre el CSV al documentar divergencias, y la palabra del usuario sobre ambos.
 - Avisar SIEMPRE antes de ejecutar `./gradlew runClient`.

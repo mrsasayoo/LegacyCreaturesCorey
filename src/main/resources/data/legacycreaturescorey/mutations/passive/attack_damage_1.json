@@ -7,13 +7,13 @@
     "literal": "Daño de Ataque I"
   },
   "description": {
-    "literal": "Aumenta el daño de ataque en 2 puntos."
+    "literal": "+2 de daño en Dificil (atributo +1.333; el juego escala x1.5 en Dificil, menos en Normal/Facil)."
   },
   "weight": 60,
   "actions": {
     "attribute": "minecraft:attack_damage",
     "mode": "ADD",
-    "amount": 2.0
+    "amount": 1.333
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/attack_damage_2",
