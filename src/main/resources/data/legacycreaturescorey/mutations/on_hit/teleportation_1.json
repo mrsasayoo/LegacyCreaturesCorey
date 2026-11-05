@@ -1,18 +1,18 @@
 {
-    "enabled": true,
-    "id": "legacycreaturescorey:on_hit/teleportation_1",
-    "type": "on_hit",
-    "cost": 5,
-    "display_name": {
-        "literal": "Desplazamiento I"
-    },
-    "description": {
-        "literal": "5% de probabilidad de teletransportar al jugador golpeado dentro de un radio de 2 bloques."
-    },
-    "weight": 60,
-    "actions": {
-        "chance": 0.05,
-        "radius": 2.0,
-        "target": "OTHER"
-    }
+  "enabled": true,
+  "id": "legacycreaturescorey:on_hit/teleportation_1",
+  "type": "on_hit",
+  "cost": 5,
+  "display_name": {
+    "literal": "Desplazamiento I"
+  },
+  "description": {
+    "literal": "5% de probabilidad de teletransportar al jugador golpeado dentro de un radio de 2 bloques."
+  },
+  "weight": 60,
+  "actions": {
+    "chance": 0.05,
+    "radius": 2.0,
+    "target": "OTHER"
+  }
 }

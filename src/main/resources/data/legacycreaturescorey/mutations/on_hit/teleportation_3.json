@@ -7,12 +7,12 @@
     "literal": "Desplazamiento III"
   },
   "description": {
-    "literal": "5% de probabilidad de teletransportar al objetivo en un radio de 2 bloques, aplicando ceguera y lentitud mientras el atacante gana resistencia."
+    "literal": "5% de probabilidad de teletransportar al objetivo en un radio de 4 bloques, aplicándole Ceguera I (1 s) y Lentitud I (2 s) al jugador, y Resistencia I (2 s) al MOB atacante."
   },
   "weight": 20,
   "actions": {
     "chance": 0.05,
-    "radius": 2.0,
+    "radius": 4.0,
     "target": "OTHER",
     "side_effects": [
       {

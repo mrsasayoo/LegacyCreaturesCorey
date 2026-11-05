@@ -107,8 +107,8 @@ Efectos al Golpear (On-Hit),slowness_1,debil,probabilidad del 15% de aplicar slo
 Efectos al Golpear (On-Hit),slowness_2,intermedio,probabilidad del 15% de aplicar slowness 1 por 3 segundos,5,60,,SI,Sonido: bloque de miel · Partículas: gotas de miel
 Efectos al Golpear (On-Hit),slowness_3,dificil,probabilidad del 15% de aplicar slowness 1 por 5 segundos,7,40,,SI,Sonido: bloque de miel · Partículas: gotas de miel
 Efectos al Golpear (On-Hit),teleportation_1,debil,probabilidad del 5% de teletransportar al enemigo en un radio de 2 bloques,5,60,,SI,
-Efectos al Golpear (On-Hit),teleportation_2,intermedio,"probabilidad del 4% de teletransportar al enemigo en un radio de 2 bloques, aplicandole cegera por 1 segundo",8,40,,SI,
-Efectos al Golpear (On-Hit),teleportation_3,dificil,"probabilidad del 5% de teletransportar al enemigo en un radio de 2 bloques, aplicandole cegera 1 segundo, lentitud 1 por 2 segundos y resistencia 1 por 2 segundos",12,20,,SI,
+Efectos al Golpear (On-Hit),teleportation_2,intermedio,"probabilidad del 4% de teletransportar al enemigo en un radio de 3 bloques, aplicandole cegera por 1 segundo",8,40,,SI,
+Efectos al Golpear (On-Hit),teleportation_3,dificil,"probabilidad del 5% de teletransportar al enemigo en un radio de 4 bloques, aplicandole cegera 1 segundo y lentitud 1 por 2 segundos AL JUGADOR, y resistencia 1 por 2 segundos AL MOB",12,20,,SI,
 Efectos al Golpear (On-Hit),theft_of_life_1,debil,probabilidad del 20% de curarse 4 puntos de vida,5,70,,SI,Sonido: wither skeleton · Línea de corazones jugador→mob
 Efectos al Golpear (On-Hit),theft_of_life_2,intermedio,probabilidad del 20% de curarse 6 puntos de vida,8,45,,SI,Sonido: wither skeleton · Línea de corazones jugador→mob
 Efectos al Golpear (On-Hit),theft_of_life_3,dificil,probabilidad del 20% de curarse 8 puntos de vida,12,20,,SI,Sonido: wither skeleton · Línea de corazones jugador→mob

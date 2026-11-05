@@ -7,12 +7,12 @@
     "literal": "Desplazamiento II"
   },
   "description": {
-    "literal": "4% de probabilidad de teletransportar al jugador en un radio de 2 bloques y aplicarle Ceguera I por 1 s."
+    "literal": "4% de probabilidad de teletransportar al jugador en un radio de 3 bloques y aplicarle Ceguera I por 1 s."
   },
   "weight": 40,
   "actions": {
     "chance": 0.04,
-    "radius": 2.0,
+    "radius": 3.0,
     "target": "OTHER",
     "side_effects": [
       {
