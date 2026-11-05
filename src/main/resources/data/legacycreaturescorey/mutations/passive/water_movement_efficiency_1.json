@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/water_movement_efficiency_1",
+  "type": "passive",
+  "cost": 5,
+  "display_name": {
+    "literal": "Aleta I"
+  },
+  "description": {
+    "literal": "Se mueve en el agua como con Aletas de Viento I (+0.4 de eficiencia): depredador acuático a velocidad plena."
+  },
+  "weight": 45,
+  "actions": {
+    "attribute": "minecraft:water_movement_efficiency",
+    "mode": "ADD",
+    "amount": 0.4
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/water_movement_efficiency_2"
+  ]
+}

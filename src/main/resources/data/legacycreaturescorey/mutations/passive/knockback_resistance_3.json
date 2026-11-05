@@ -11,7 +11,7 @@
   },
   "weight": 30,
   "actions": {
-    "attribute": "minecraft:generic.knockback_resistance",
+    "attribute": "minecraft:knockback_resistance",
     "mode": "ADD",
     "amount": 0.5
   },

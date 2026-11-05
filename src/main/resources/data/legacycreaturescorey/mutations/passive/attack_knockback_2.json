@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/attack_knockback_2",
+  "type": "passive",
+  "cost": 12,
+  "display_name": {
+    "literal": "Empuje Brutal II"
+  },
+  "description": {
+    "literal": "Cada golpe del mob empuja con 1.0 de fuerza de empuje adicional: los golpes te lanzan metros, como un ravager."
+  },
+  "weight": 20,
+  "actions": {
+    "attribute": "minecraft:attack_knockback",
+    "mode": "ADD",
+    "amount": 1.0
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/attack_knockback_1"
+  ]
+}

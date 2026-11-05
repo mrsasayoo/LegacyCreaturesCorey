@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/water_movement_efficiency_2",
+  "type": "passive",
+  "cost": 11,
+  "display_name": {
+    "literal": "Aleta II"
+  },
+  "description": {
+    "literal": "Se mueve en el agua como con Aletas de Viento II (+0.8 de eficiencia), en sinergia con aquatic_stalker."
+  },
+  "weight": 20,
+  "actions": {
+    "attribute": "minecraft:water_movement_efficiency",
+    "mode": "ADD",
+    "amount": 0.8
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/water_movement_efficiency_1"
+  ]
+}

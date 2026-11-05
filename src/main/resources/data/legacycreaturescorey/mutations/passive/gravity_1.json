@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/gravity_1",
+  "type": "passive",
+  "cost": 8,
+  "display_name": {
+    "literal": "Peso de Montaña"
+  },
+  "description": {
+    "literal": "Cae como un saco de plomo (+0.05 de gravedad): los arcos de knockback se aplanan y su salto queda más corto."
+  },
+  "weight": 15,
+  "actions": {
+    "attribute": "minecraft:gravity",
+    "mode": "ADD",
+    "amount": 0.05
+  },
+  "incompatible_with": []
+}

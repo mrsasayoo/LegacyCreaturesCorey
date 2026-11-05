@@ -11,7 +11,7 @@
   },
   "weight": 40,
   "actions": {
-    "attribute": "minecraft:generic.max_health",
+    "attribute": "minecraft:max_health",
     "mode": "ADD",
     "amount": 40.0
   },

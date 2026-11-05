@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/fall_damage_multiplier_1",
+  "type": "passive",
+  "cost": 7,
+  "display_name": {
+    "literal": "Impávido I"
+  },
+  "description": {
+    "literal": "Recibe la mitad del daño por caída (x0.5): caza en vertical saltando acantilados sin miedo."
+  },
+  "weight": 45,
+  "actions": {
+    "attribute": "minecraft:fall_damage_multiplier",
+    "mode": "MULTIPLY",
+    "amount": -0.5
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/fall_damage_multiplier_2"
+  ]
+}

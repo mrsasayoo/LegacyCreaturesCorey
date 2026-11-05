@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/fall_damage_multiplier_2",
+  "type": "passive",
+  "cost": 13,
+  "display_name": {
+    "literal": "Impávido II"
+  },
+  "description": {
+    "literal": "Recibe un cuarto del daño por caída (x0.25): salta desde cualquier altura y aterriza igual."
+  },
+  "weight": 20,
+  "actions": {
+    "attribute": "minecraft:fall_damage_multiplier",
+    "mode": "MULTIPLY",
+    "amount": -0.75
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/fall_damage_multiplier_1"
+  ]
+}

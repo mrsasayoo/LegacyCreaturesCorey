@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/movement_speed_2",
+  "type": "passive",
+  "cost": 11,
+  "display_name": {
+    "literal": "Velocidad II"
+  },
+  "description": {
+    "literal": "Aumenta la velocidad base en 0.10: un corredor difícil de escapar."
+  },
+  "weight": 25,
+  "actions": {
+    "attribute": "minecraft:movement_speed",
+    "mode": "ADD",
+    "amount": 0.1
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/movement_speed_1"
+  ]
+}

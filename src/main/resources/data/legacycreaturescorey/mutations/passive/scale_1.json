@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/scale_1",
+  "type": "passive",
+  "cost": 8,
+  "display_name": {
+    "literal": "Coloso I"
+  },
+  "description": {
+    "literal": "El mob crece físicamente un 10%: silueta y hitbox más grandes, reconocible de lejos."
+  },
+  "weight": 35,
+  "actions": {
+    "attribute": "minecraft:scale",
+    "mode": "MULTIPLY",
+    "amount": 0.1
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/scale_2",
+    "legacycreaturescorey:passive/scale_3"
+  ]
+}

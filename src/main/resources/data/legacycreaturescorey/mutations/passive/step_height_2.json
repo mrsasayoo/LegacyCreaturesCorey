@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/step_height_2",
+  "type": "passive",
+  "cost": 10,
+  "display_name": {
+    "literal": "Zancada II"
+  },
+  "description": {
+    "literal": "Supera muros de 1.5 bloques sin saltar (altura de paso +0.9): el perseguidor perfecto."
+  },
+  "weight": 35,
+  "actions": {
+    "attribute": "minecraft:step_height",
+    "mode": "ADD",
+    "amount": 0.9
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/step_height_1"
+  ]
+}

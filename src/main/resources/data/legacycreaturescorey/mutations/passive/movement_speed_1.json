@@ -11,8 +11,11 @@
   },
   "weight": 50,
   "actions": {
-    "attribute": "minecraft:generic.movement_speed",
+    "attribute": "minecraft:movement_speed",
     "mode": "ADD",
     "amount": 0.05
-  }
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/movement_speed_2"
+  ]
 }

@@ -27,8 +27,13 @@ abstract class attribute_bonus_passive_action implements mutation_action {
             attribute_mutation_action.Mode defaultMode,
             double defaultAmount,
             Identifier defaultModifierId) {
-        Identifier attributeId = Objects.requireNonNullElse(config.getIdentifier("attribute", defaultAttribute),
-                defaultAttribute);
+        Identifier configured = config.getIdentifier("attribute", defaultAttribute);
+        Identifier attributeId = Objects.requireNonNullElse(configured, defaultAttribute);
+        // Guard 26.3: si el id del JSON no existe en el registro (p. ej. viejos "generic.*"),
+        // caer al id del código en vez de resolver a null y hacer la mutación no-op silenciosa.
+        if (!net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.containsKey(attributeId)) {
+            attributeId = defaultAttribute;
+        }
         attribute_mutation_action.Mode mode = parseMode(config.getString("mode", defaultMode.name()), defaultMode);
         double amount = config.getDouble("amount", defaultAmount);
         Identifier modifierId = config.getIdentifier("modifier_id", defaultModifierId);

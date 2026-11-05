@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/step_height_1",
+  "type": "passive",
+  "cost": 5,
+  "display_name": {
+    "literal": "Zancada I"
+  },
+  "description": {
+    "literal": "Sube bloques enteros sin saltar (altura de paso +0.4): no hay escalón que te salve."
+  },
+  "weight": 60,
+  "actions": {
+    "attribute": "minecraft:step_height",
+    "mode": "ADD",
+    "amount": 0.4
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/step_height_2"
+  ]
+}

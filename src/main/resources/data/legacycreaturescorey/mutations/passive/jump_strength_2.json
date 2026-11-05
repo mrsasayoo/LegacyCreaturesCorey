@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/jump_strength_2",
+  "type": "passive",
+  "cost": 12,
+  "display_name": {
+    "literal": "Saltarina II"
+  },
+  "description": {
+    "literal": "Salta el doble de alto (x2.0): ninguna muralla de 2 bloques lo detiene."
+  },
+  "weight": 20,
+  "actions": {
+    "attribute": "minecraft:jump_strength",
+    "mode": "MULTIPLY",
+    "amount": 1.0
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/jump_strength_1"
+  ]
+}

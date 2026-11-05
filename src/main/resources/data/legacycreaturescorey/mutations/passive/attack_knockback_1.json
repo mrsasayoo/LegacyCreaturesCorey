@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "id": "legacycreaturescorey:passive/attack_knockback_1",
+  "type": "passive",
+  "cost": 6,
+  "display_name": {
+    "literal": "Empuje Brutal I"
+  },
+  "description": {
+    "literal": "Cada golpe del mob empuja con 0.5 de fuerza de empuje adicional: pelearte contra él es pelear en una pista de hielo."
+  },
+  "weight": 45,
+  "actions": {
+    "attribute": "minecraft:attack_knockback",
+    "mode": "ADD",
+    "amount": 0.5
+  },
+  "incompatible_with": [
+    "legacycreaturescorey:passive/attack_knockback_2"
+  ]
+}
