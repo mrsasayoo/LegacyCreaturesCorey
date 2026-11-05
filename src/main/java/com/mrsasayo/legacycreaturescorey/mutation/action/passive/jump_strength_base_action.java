@@ -1,17 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.passive;
 
 import com.mrsasayo.legacycreaturescorey.mutation.util.action_context;
+import com.mrsasayo.legacycreaturescorey.mutation.action.passive.passive_auto_jump_helper;
 import com.mrsasayo.legacycreaturescorey.mutation.util.attribute_mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.phys.Vec3;
-
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * «Saltarina» — dos piezas:
@@ -22,8 +17,6 @@ import java.util.WeakHashMap;
  *    escalable según su nivel se supere de verdad.
  */
 abstract class jump_strength_base_action implements mutation_action {
-    private static final Map<LivingEntity, Long> LAST_ASSIST = new WeakHashMap<>();
-
     private final attribute_mutation_action delegate;
     private final int assistCooldownTicks;
 
@@ -49,19 +42,7 @@ abstract class jump_strength_base_action implements mutation_action {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!action_context.isServer(entity) || !(entity.level() instanceof ServerLevel world)) {
-            return;
-        }
-        long time = world.getGameTime();
-        Long last = LAST_ASSIST.get(entity);
-        if (last != null && time - last < assistCooldownTicks) {
-            return;
-        }
-        if (entity.onGround() && entity.horizontalCollision) {
-            Vec3 delta = entity.getDeltaMovement();
-            double power = entity.getAttributeValue(Attributes.JUMP_STRENGTH);
-            entity.setDeltaMovement(delta.x, Math.max(0.42D, power), delta.z);
-            LAST_ASSIST.put(entity, time);
-        }
+        // Auto-salto con la potencia del atributo jump_strength (x1.5/x2.0).
+        passive_auto_jump_helper.assistWithJumpPower(entity, assistCooldownTicks);
     }
 }

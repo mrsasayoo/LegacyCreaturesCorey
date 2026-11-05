@@ -9,6 +9,6 @@ public final class movement_speed_1_action extends attribute_bonus_passive_actio
     private static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "passive/movement_speed_1");
 
     public movement_speed_1_action(mutation_action_config config) {
-        super(config, passive_attribute_ids.MOVEMENT_SPEED, attribute_mutation_action.Mode.ADD, 0.05D, MODIFIER_ID);
+        super(config, passive_attribute_ids.MOVEMENT_SPEED, attribute_mutation_action.Mode.ADD, 0.025D, MODIFIER_ID);
     }
 }

@@ -1,14 +1,12 @@
 package com.mrsasayo.legacycreaturescorey.mutation.action.passive;
 
 import com.mrsasayo.legacycreaturescorey.Legacycreaturescorey;
-import com.mrsasayo.legacycreaturescorey.mutation.util.attribute_mutation_action;
 import com.mrsasayo.legacycreaturescorey.mutation.util.mutation_action_config;
 import net.minecraft.resources.Identifier;
 
-public final class step_height_1_action extends attribute_bonus_passive_action {
-    private static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "passive/step_height_1");
-
+public final class step_height_1_action extends step_height_base_action {
     public step_height_1_action(mutation_action_config config) {
-        super(config, passive_attribute_ids.STEP_HEIGHT, attribute_mutation_action.Mode.ADD, 0.5D, MODIFIER_ID);
+        super(config, 0.5D,
+                Identifier.fromNamespaceAndPath(Legacycreaturescorey.MOD_ID, "passive/step_height_1"), 10);
     }
 }

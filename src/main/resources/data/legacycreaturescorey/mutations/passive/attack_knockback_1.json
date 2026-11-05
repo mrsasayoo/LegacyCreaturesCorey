@@ -17,5 +17,10 @@
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/attack_knockback_2"
-  ]
+  ],
+  "restrictions": {
+    "allowed_entities": [
+      "#legacycreaturescorey:melee_mobs"
+    ]
+  }
 }

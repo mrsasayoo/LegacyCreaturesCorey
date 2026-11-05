@@ -7,13 +7,13 @@
     "literal": "Velocidad de Movimiento I"
   },
   "description": {
-    "literal": "Aumenta la velocidad de movimiento base en 0.05."
+    "literal": "Aumenta la velocidad base en 0.025."
   },
   "weight": 50,
   "actions": {
     "attribute": "minecraft:movement_speed",
     "mode": "ADD",
-    "amount": 0.05
+    "amount": 0.025
   },
   "incompatible_with": [
     "legacycreaturescorey:passive/movement_speed_2"

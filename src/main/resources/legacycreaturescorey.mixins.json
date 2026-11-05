@@ -12,6 +12,7 @@
 		"mutation.player_attack_cooldown_lock_mixin",
 		"mutation.expuesto_damage_mixin",
 		"mutation.mob_attack_downtime_mixin",
+		"mutation.melee_attack_goal_speed_mixin",
 		"mechanic.LivingEntityStatusEffectMixin",
 		"mechanic.ItemEntityMixin",
 		"mechanic.BeeEntityMixin",
@@ -20,6 +21,7 @@
 		"accessor.living_entity_hurt_time_accessor",
 		"accessor.persistent_projectile_entity_accessor",
 		"accessor.mob_entity_goal_accessor",
+		"accessor.melee_attack_goal_accessor",
 		"general.flee_entity_goal_mixin",
 		"general.phantom_swoop_movement_goal_mixin"
 	],
